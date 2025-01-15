@@ -8,6 +8,25 @@ export const routes: Routes = [
         (c) => c.ContentComponent
       ),
   },
+  {
+    path: 'auth',
+    children: [
+      {
+        path: 'login',
+        loadComponent: () =>
+          import('./components/auth/login/login.component').then(
+            (c) => c.LoginComponent
+          ),
+      },
+      {
+        path: 'signup',
+        loadComponent: () =>
+          import('./components/auth/signup/signup.component').then(
+            (c) => c.SignupComponent
+          ),
+      },
+    ],
+  },
 
   {
     path: '**',
