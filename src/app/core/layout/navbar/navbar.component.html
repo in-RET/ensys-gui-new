@@ -1,0 +1,113 @@
+<!-- <nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }}"> -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light {{ navbar_class }}">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/">
+      <!-- {% url 'project_search' %} -->
+      <img
+        src="/static/assets/logos/ensys_logo_full.svg"
+        alt="ensys_logo_full"
+      />
+    </a>
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mb-2 mb-lg-0">
+        <!-- {% if user.is_authenticated %} -->
+
+        <ng-container *ngIf="is_signup_mode">
+          <!--During scenario creation the nav bar does not display all options-->
+          <!-- {% if not scenario_create %} -->
+          <ng-container *ngIf="is_creation_scenario_mode">
+            <li class="nav-item">
+              <!--scenario-empty.html-->
+              <a class="nav-link" href="scenario/select/project">
+                New Scenario
+              </a>
+            </li>
+
+            <li class="nav-item">
+              <!--project-view.html-->
+              <a class="nav-link" href="project/search/"> My Projects </a>
+            </li>
+          </ng-container>
+          <!-- {% endif %} -->
+        </ng-container>
+        <!-- {% endif %} -->
+
+        <!-- {% if user.is_authenticated %} -->
+        <!-- user profile -->
+        <ng-container *ngIf="user.is_authenticated">
+          <li class="nav-item dropdown profile">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <img src="assets/icons/i_profile.svg" alt="Profile icon" />
+            </a>
+
+            <!-- profile dropdown-menu -->
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                <a class="dropdown-item" href="usecase/search/">
+                  Change Password
+                </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="license/"> - </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="user_feedback"> Feedback </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="user_info/"> Account </a>
+              </li>
+              <!-- account.html -->
+
+              <li>
+                <hr class="dropdown-divider" />
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="users/logout"> Log Out </a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
+
+        <!-- {% else %} -->
+        <ng-container *ngIf="!user.is_authenticated">
+          <li class="nav-item">
+            <!-- pages/projects-view-empty.html -->
+            <a class="nav-link" href="users/login"> Log In </a>
+          </li>
+
+          <li class="nav-item">
+            <!-- pages/signup.html -->
+            <a class="btn btn--small" href="users/signup" role="button">
+              Sign Up
+            </a>
+          </li>
+        </ng-container>
+        <!-- {% endif %} -->
+      </ul>
+    </div>
+  </div>
+</nav>
