@@ -104,7 +104,7 @@
 
 @font-face {
   font-family: "lato";
-  src: url("/statice/fonts/lato-bold-webfont.woff2") format("woff2"),
+  src: url("/static/fonts/lato-bold-webfont.woff2") format("woff2"),
     url("/static/fonts/lato-bold-webfont.woff") format("woff");
   font-weight: 700;
   font-style: normal;
@@ -2796,7 +2796,7 @@ nav.navbar .dropdown-menu li {
   bottom: 5rem;
   width: 100%;
   min-width: 1024px;
-  position: absolute;
+  // position: absolute;
 }
 
 .sponsors img {
