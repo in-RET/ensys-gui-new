@@ -13,22 +13,7 @@ export const routes: Routes = [
   // authentication
   {
     path: 'auth',
-    children: [
-      {
-        path: 'login',
-        loadComponent: () =>
-          import('./components/auth/login/login.component').then(
-            (c) => c.LoginComponent
-          ),
-      },
-      {
-        path: 'signup',
-        loadComponent: () =>
-          import('./components/auth/signup/signup.component').then(
-            (c) => c.SignupComponent
-          ),
-      },
-    ],
+    loadChildren: () => import('./routes/auth.routes').then((r) => r.routes),
   },
 
   {
