@@ -15,4 +15,11 @@ export const routes: Routes = [
         (c) => c.SignupComponent
       ),
   },
+  {
+    path: 'password_reset',
+    loadComponent: () =>
+      import('../components/auth/password-reset/password-reset.component').then(
+        (c) => c.PasswordResetComponent
+      ),
+  },
 ];
