@@ -1,1 +1,102 @@
-<p>signup works!</p>
+<main class="signup" style="height: 100%; margin: 0">
+  <div class="signup-frame">
+    <div class="signup-frame__img">
+      <img
+        src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
+        alt="open_plan cells"
+      />
+    </div>
+
+    <div class="signup-frame__heading">EnSys tool</div>
+
+    <form method="post" class="signup-frame__form">
+      <div class="form-floating mb-3">
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+        />
+        <label for="floatingInput">Email</label>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="fNameTxt"
+              placeholder="First Name"
+            />
+            <label for="fNameTxt">First Name</label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="fnTxt"
+              placeholder="First Name"
+            />
+            <label for="fnTxt">First Name</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input
+          type="text"
+          class="form-control"
+          id="usernameTxt"
+          placeholder="Username"
+        />
+        <label for="usernameTxt">Username</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input
+          type="text"
+          class="form-control"
+          id="passwordTxt"
+          placeholder="Password"
+        />
+        <label for="passwordTxt">Password</label>
+      </div>
+
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="rePasswordTxt"
+          placeholder="Password Confirmation"
+        />
+        <label for="rePasswordTxt">Password Confirmation </label>
+      </div>
+
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheckDefault"
+        />
+        <label class="form-check-label" for="flexCheckDefault">
+          I have read and accept the
+          <a href="privacy" target="_blank"> privacy statements </a>
+          from Ensys
+        </label>
+      </div>
+
+      <button class="btn btn--large" type="submit" id="submitbutton">
+        Sign up
+      </button>
+    </form>
+
+    <div class="signup-frame__subheading">
+      Do you already have an account? <a href="auth/login">Log in</a>
+    </div>
+  </div>
+</main>
