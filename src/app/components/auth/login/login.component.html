@@ -1,1 +1,48 @@
-<p>login works!</p>
+<main class="signup" style="height: 100vh; margin: 0">
+  <div class="signup-frame">
+    <div class="signup-frame__img">
+      <img
+        src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
+        alt="open_plan cells"
+      />
+    </div>
+
+    <div class="signup-frame__heading">EnSys Tool</div>
+
+    <form method="post" class="signup-frame__form">
+      <div class="form-floating mb-3">
+        <input
+          type="email"
+          class="form-control"
+          id="floatingInput"
+          placeholder="name@example.com"
+        />
+        <label for="floatingInput">Email address</label>
+      </div>
+
+      <div class="form-floating">
+        <input
+          type="password"
+          class="form-control"
+          id="floatingPassword"
+          placeholder="Password"
+        />
+        <label for="floatingPassword">Password</label>
+      </div>
+
+      <button class="btn btn--large" type="submit" id="loginbutton">
+        Login
+      </button>
+    </form>
+
+    <div class="signup-frame__subheading">
+      Do you not have an account yet?
+      <a href="signup">Sign up</a>
+    </div>
+
+    <div class="signup-frame__subheading">
+      Forgot your password?
+      <a href="password_reset">Reset Password</a>
+    </div>
+  </div>
+</main>
