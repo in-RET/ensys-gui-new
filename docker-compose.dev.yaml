@@ -1,0 +1,78 @@
+services:
+  db:
+    image: postgres:16
+    container_name: db
+    env_file: .env
+    restart: always
+    networks:
+      - ensys
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    env_file: .env
+    restart: always
+    networks:
+      - ensys
+    ports:
+      - "${PGADMIN_PORT}:80"
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: dockerfile
+    container_name: frontend
+    env_file: .env
+    restart: always
+    ports:
+      - '${WEB_PORT}:4200'
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /frontend
+        - action: rebuild
+          path: .env
+    networks:
+      - ensys
+    depends_on:
+      - db
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: dockerfile
+    container_name: backend
+    env_file: .env
+    ports:
+      - '${API_PORT}:8001'
+    restart: always
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+     - ${LOCAL_DATADIR}:/app/data/simulations
+    networks:
+      - ensys
+
+#  proxy:
+#    build: ./proxy
+#    container_name: gui_proxy
+#    restart: always
+#    ports:
+#        - ${PROXY_PORT}:80
+#    depends_on:
+#        - web
+#    volumes:
+#        - static_volume:/static
+#    networks:
+#        - backend
+#        - frontend
+
+networks:
+  ensys:
+
+volumes:
+  static_volume:

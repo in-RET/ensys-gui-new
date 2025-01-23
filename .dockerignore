@@ -1,0 +1,7 @@
+.run
+.venv
+.vscode
+.gitignore
+.git
+.angular
+node_modules
