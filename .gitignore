@@ -44,3 +44,4 @@ Thumbs.db
 /.env
 .angular/
 node_modules/
+data/
