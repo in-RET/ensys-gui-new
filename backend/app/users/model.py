@@ -1,10 +1,11 @@
 from datetime import datetime
+from typing import Optional
 
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Field, SQLModel
-from typing import Optional
 
-class EnsysUser(SQLModel, table=True):
+
+class EnUser(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str
     firstname: str

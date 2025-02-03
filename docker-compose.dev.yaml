@@ -54,6 +54,8 @@ services:
     volumes:
      - /var/run/docker.sock:/var/run/docker.sock
      - ${LOCAL_DATADIR}:/app/data/simulations
+    depends_on:
+      - db
     networks:
       - ensys
 
