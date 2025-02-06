@@ -1,10 +1,10 @@
-site_name: ensys-fastapi-restful
-site_url: https://github.com/in-RET/ensys-fastapi-restful
+site_name: ensys-gui-new
+site_url: https://github.com/in-RET/ensys-gui-new
 site_author: in.RET
 
 # Repository
-repo_name: in-RET/ensys-fastapi-restful
-repo_url: https://github.com/in-RET/ensys-fastapi-restful
+repo_name: in-RET/ensys-gui-new
+repo_url: https://github.com/in-RET/ensys-gui-new
 
 plugins:
     - glightbox
@@ -77,4 +77,4 @@ extra:
         - icon: fontawesome/solid/envelope
           link: mailto:ensys@hs-nordhausen.de
     generator: true
-copyright: Copyright &copy; 2024 Institut für regenerative Energietechnik
+copyright: Copyright &copy; 2025 Institut für regenerative Energietechnik

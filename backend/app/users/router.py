@@ -1,18 +1,21 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import Depends, APIRouter
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import Depends, APIRouter, Form, HTTPException
 from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
 from starlette import status
 from starlette.responses import JSONResponse
 
-from .forms import EnUserRegisterForm
-from .model import EnUser
+from .model import EnUser, EnUserDB, EnUserUpdate
 from ..dependencies import token_secret, db_engine, oauth2_scheme
 
+
+# db dependency
+def get_session():
+    with Session(db_engine) as session:
+        yield session
 
 def decode_token(token: str):
     token_data = jwt.decode(token, token_secret, algorithms=["HS256"])
@@ -20,76 +23,69 @@ def decode_token(token: str):
 
     return token_data
 
-
 users_router = APIRouter(
     prefix="/users",
     tags=["users"],
 )
 
 @users_router.post("/auth/login")
-async def user_login(form_data: OAuth2PasswordRequestForm = Depends()):
-    with Session(db_engine) as session:
-        statement = select(EnUser).where(EnUser.username == form_data.username)
-        results = session.exec(statement)
+async def user_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_session)):
+    user_db = db.exec(select(EnUserDB).where(EnUserDB.username == username)).first()
 
-        user = results.first()
+    if not user_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        if user.verify_password(form_data.password):
-            user.last_login = datetime.now()
-            session.add(user)
-            session.commit()
-            session.refresh(user)
+    user = EnUser(**user_db.model_dump(exclude={"id", "is_active", "is_superuser", "is_staff"}))
 
-            token = jwt.encode(user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}), token_secret, algorithm="HS256")
-            print(token)
+    if user.verify_password(password):
+        user.last_login = datetime.now()
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-            return JSONResponse(
-                content={
-                    "message": "User login successful.",
-                    "user_data": user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}),
-                    "access_token": token,
-                    "token_type": "bearer",
-                },
-                status_code=status.HTTP_200_OK,
-            )
-        else:
-            return JSONResponse(
-                content={
-                    "message": "User login failed.",
-                    "user_data": user.dict(include={"username"})
-                },
-                status_code=status.HTTP_401_UNAUTHORIZED
-            )
+        token = jwt.encode(user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}), token_secret, algorithm="HS256")
+        print(token)
+
+        return JSONResponse(
+            content={
+                "message": "User login successful.",
+                "user_data": user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}),
+                "access_token": token,
+                "token_type": "bearer",
+            },
+            status_code=status.HTTP_200_OK,
+        )
+    else:
+        return JSONResponse(
+            content={
+                "message": "User login failed.",
+                "user_data": user.dict(include={"username"})
+            },
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 @users_router.post("/auth/register")
-async def user_register(form_data: EnUserRegisterForm = Depends()):
-    user = EnUser(
-        username = form_data.username,
-        password = pbkdf2_sha256.hash(form_data.password),
-        firstname = form_data.firstname,
-        lastname = form_data.lastname,
-        mail = form_data.mail,
-        date_joined = datetime.now(),
-    )
+async def user_register(user: EnUser = Depends(), db: Session = Depends(get_session)):
+    db_user = EnUserDB(**user.model_dump(exclude={"password"}))
+    db_user.username = user.username.lower()
+    db_user.date_joined = datetime.now()
+    db_user.password = pbkdf2_sha256.hash(user.password)
 
-    with Session(db_engine) as session:
-        session.add(user)
-        session.commit()
+    # TODO: Test against same username
+    # TODO: Test against same mail
 
-        statement = select(EnUser).where(EnUser.username == user.username)
-        results = session.exec(statement)
-        session.close()
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
 
-        user = results.first()
-
-    if user:
-        token = jwt.encode(user.dict(exclude={ "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}), token_secret, algorithm="HS256")
+    if db_user.id is not None:
+        token = jwt.encode(user.model_dump(exclude={ "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}), token_secret, algorithm="HS256")
 
         return JSONResponse(
             content={
                 "message": "User created.",
-                "user_data": results.first().dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_superuser", "is_active"}),
+                "user_data": user.model_dump(exclude={"password", "last_login", "date_joined", "is_staff", "is_superuser", "is_active"}),
                 "access_token": token,
                 "token_type": "bearer",
             },
@@ -100,70 +96,56 @@ async def user_register(form_data: EnUserRegisterForm = Depends()):
             content={
                 "message": "User registration failed."
             },
-            status_code=status.HTTP_401_UNAUTHORIZED
+            status_code=status.HTTP_404_BAD_REQUEST
         )
 
 
 @users_router.get("/read", response_model=EnUser)
-async def user_read(token: Annotated[str, Depends(oauth2_scheme)]):
-    token_data = decode_token(token)
+async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_session)):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    else:
+        token_data = decode_token(token)
 
-    with Session(db_engine) as session:
-        statement = select(EnUser).where(EnUser.username == token_data["username"])
-        result = session.exec(statement).first()
+    user = db.get(EnUserDB, token_data["id"])
 
-        session.close()
-
-        if result:
-            return result
-        else:
-            return JSONResponse(
-                content={
-                    "message": "User can't be read.",
-                },
-                status_code=status.HTTP_401_UNAUTHORIZED
-            )
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    else:
+        return user
 
 
 @users_router.patch("/update", response_model=EnUser)
-async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUser):
+async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_session)):
     token_data = decode_token(token)
 
-    with Session(db_engine) as session:
-        statement = select(EnUser).where(EnUser.id == token_data["id"])
-        stored_user_data = session.exec(statement).first()
+    user_db = db.get(EnUserDB, token_data["id"]) # TODO: NICE!
 
-        # TODO: Hier ist noch ein Bug, Nutzer wird neu angelegt.
-        stored_user_model = EnUser(**stored_user_data)
-        print(stored_user_model)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-        update_user_data = user.model_dump(exclude_unset=True)
-        print(update_user_data)
-        updated_item = stored_user_model.model_copy(update=update_user_data)
+    for field, value in user.model_dict().items():
+        print(field,":", value)
+        setattr(user_db, field, value)
 
+    db.commit()
+    db.refresh(user_db)
 
-        print(updated_item)
-
-        #session.add(result)
-        #session.refresh(result)
-        #session.commit()
-        session.close()
-
-        return user
+    return user_db
 
 
 @users_router.delete("/delete", response_model=EnUser)
-async def delete_user(token: Annotated[str, Depends(oauth2_scheme)]):
+async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_session)):
     token_data = decode_token(token)
 
-    with Session(db_engine) as session:
-        statement = select(EnUser).where(EnUser.id == token_data["id"])
-        results = session.exec(statement)
-        user = results.one()
-        session.delete(user)
-        session.commit()
-        session.close()
+    user = db.get(EnUser, token_data["id"])
 
-        print("Deleted user:", user)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-        return user
+    db.delete(user)
+    db.commit()
+
+    print("Deleted user:", user)
+
+    return user
