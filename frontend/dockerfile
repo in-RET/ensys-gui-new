@@ -1,14 +1,21 @@
 FROM node:lts
 
-RUN mkdir frontend
-WORKDIR frontend
+RUN mkdir /app
+#RUN chown node:node /app
 
-COPY . /frontend
+RUN mkdir /app/node_modules
+#RUN chown node:node /app/node_modules
 
-RUN npm install
-RUN npm install -g @angular/cli
+WORKDIR  /app
 
-CMD ng serve --host 0.0.0.0 --port 4200
+#USER node
 
+#COPY --chown=node:node package.json package-lock.json ./
+COPY package.json package-lock.json ./
 
+RUN npm ci --quiet
 
+#COPY --chown=node:node . .
+COPY . .
+
+EXPOSE 4200
