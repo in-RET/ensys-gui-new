@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlmodel import SQLModel, Field
 
 
-class EnScenario(BaseModel):
+class EnScenario(SQLModel):
     name: str
     timestep: str = "1H"
     period: int = 365
