@@ -1,14 +1,14 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from sqlmodel import SQLModel
-from starlette import status
 from starlette.responses import JSONResponse
 
 from .admin.router import admin_router
 from .dependencies import db_engine
 from .projects.router import projects_router
 from .users.router import users_router
+
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(db_engine)

@@ -35,21 +35,19 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     if not user_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    user = EnUser(**user_db.model_dump(exclude={"id", "is_active", "is_superuser", "is_staff"}))
-
-    if user.verify_password(password):
-        user.last_login = datetime.now()
-        db.add(user)
+    if user_db.verify_password(password):
+        user_db.last_login = datetime.now()
+        db.add(user_db)
         db.commit()
-        db.refresh(user)
+        db.refresh(user_db)
 
-        token = jwt.encode(user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}), token_secret, algorithm="HS256")
+        token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
         print(token)
 
         return JSONResponse(
             content={
                 "message": "User login successful.",
-                "user_data": user.dict(exclude={"password", "last_login", "date_joined", "is_staff", "is_active", "is_superuser"}),
+                "user_data": user_db.get_token_information(),
                 "access_token": token,
                 "token_type": "bearer",
             },
@@ -59,7 +57,7 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         return JSONResponse(
             content={
                 "message": "User login failed.",
-                "user_data": user.dict(include={"username"})
+                "user_data": user_db.dict(include={"username"})
             },
             status_code=status.HTTP_401_UNAUTHORIZED
         )
