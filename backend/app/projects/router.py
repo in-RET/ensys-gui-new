@@ -6,7 +6,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from .model import EnProject
-from ..dependencies import db_engine, oauth2_scheme
+from ..constants import db_engine, oauth2_scheme
 
 projects_router = APIRouter(
     prefix="/projects",

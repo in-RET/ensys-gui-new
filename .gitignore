@@ -45,3 +45,4 @@ Thumbs.db
 .angular/
 node_modules/
 data/
+*.sqlite
