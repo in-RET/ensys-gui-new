@@ -1,12 +1,12 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Backend" type="Python.FastAPI">
+  <configuration default="false" name="Run Backend (sqlite)" type="Python.FastAPI">
     <option name="file" value="$PROJECT_DIR$/backend/app/main.py" />
     <module name="ensys-gui-new" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
-      <env name="POSTGRES_LINK" value="postgresql://ensys_pg:ensys_pg@localhost:5432/ensys" />
+      <env name="DB_LINK" value="sqlite:///data/testdb.sqlite" />
       <env name="SECRET_TOKEN" value="DiesIstEinGanzSchlechtesSecretUndMussGeandertWerden" />
     </envs>
     <option name="SDK_HOME" value="" />

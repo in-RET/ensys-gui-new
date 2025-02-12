@@ -1,16 +1,12 @@
-from typing import Optional
-
-from pydantic import BaseModel
 from sqlmodel import SQLModel, Field
 
 
-class EnComponent(BaseModel):
+class EnComponent(SQLModel):
     name: str
     oemof_type: str
     fields: list[str]
 
-class EnComponentDB(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
-    oemof_type: str
-    fields: list[str]
+class EnComponentDB(EnComponent, table=True):
+    __tablename__ = "components"
+
+    id: int = Field(default=None, primary_key=True)
