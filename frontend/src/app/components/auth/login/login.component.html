@@ -9,32 +9,49 @@
 
         <div class="signup-frame__heading">EnSys Tool</div>
 
-        <form class="signup-frame__form">
+        <form class="signup-frame__form" [formGroup]="form">
             <div class="form-floating mb-3">
                 <input
                     type="text"
                     class="form-control"
-                    id="floatingInput"
-                    placeholder=""
+                    formControlName="user"
+                    required
                 />
                 <label for="floatingInput">Username</label>
+
+                <div
+                    *ngIf="user!.invalid && (user!.dirty || user!.touched)"
+                    class="alert"
+                >
+                    <div *ngIf="user!.hasError('required')">
+                        UserName is required.
+                    </div>
+                </div>
             </div>
 
             <div class="form-floating">
                 <input
                     type="password"
                     class="form-control"
-                    id="floatingPassword"
-                    placeholder="Password"
+                    formControlName="pass"
                 />
                 <label for="floatingPassword">Password</label>
+            </div>
+
+            <div
+                *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
+                class="alert"
+            >
+                <div *ngIf="pass!.hasError('required')">
+                    Password is required.
+                </div>
             </div>
 
             <button
                 class="btn btn--large"
                 type="submit"
-                id="loginbutton"
                 (click)="logIn()"
+                [disabled]="!form.valid"
             >
                 Login
             </button>

@@ -1,0 +1,14 @@
+button :disabled,
+.btn.disabled,
+.btn:disabled,
+fieldset:disabled .btn {
+    opacity: 20% !important;
+    background-color: gray;
+    color: black !important;
+}
+
+.alert {
+    color: rgb(177, 12, 12);
+    margin: unset;
+    padding: unset;
+}
