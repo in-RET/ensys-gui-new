@@ -15,13 +15,21 @@
                     type="text"
                     class="form-control"
                     formControlName="user"
+                    placeholder="Username"
                     required
+                    [ngClass]="{
+                        'is-invalid':
+                            user!.invalid && (user!.dirty || user!.touched)
+                    }"
                 />
                 <label for="floatingInput">Username</label>
 
                 <div
                     *ngIf="user!.invalid && (user!.dirty || user!.touched)"
-                    class="alert"
+                    [ngClass]="{
+                        'invalid-feedback':
+                            user!.invalid && (user!.dirty || user!.touched)
+                    }"
                 >
                     <div *ngIf="user!.hasError('required')">
                         UserName is required.
@@ -34,16 +42,25 @@
                     type="password"
                     class="form-control"
                     formControlName="pass"
+                    placeholder="Password"
+                    required
+                    [ngClass]="{
+                        'is-invalid':
+                            pass!.invalid && (pass!.dirty || pass!.touched)
+                    }"
                 />
                 <label for="floatingPassword">Password</label>
-            </div>
 
-            <div
-                *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
-                class="alert"
-            >
-                <div *ngIf="pass!.hasError('required')">
-                    Password is required.
+                <div
+                    *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
+                    [ngClass]="{
+                        'invalid-feedback':
+                            pass!.invalid && (pass!.dirty || pass!.touched)
+                    }"
+                >
+                    <div *ngIf="pass!.hasError('required')">
+                        Password is required.
+                    </div>
                 </div>
             </div>
 
