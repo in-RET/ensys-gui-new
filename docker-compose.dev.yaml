@@ -23,41 +23,39 @@ services:
 
     frontend:
         build:
-            context: frontend
-            dockerfile: dockerfile
+          context: frontend
+          dockerfile: dockerfile
         container_name: frontend
         env_file: .env
+        working_dir: /app
+        command: sh -c "npm start"
+        volumes:
+            - ./frontend:/app
+            - node_modules:/app/node_modules
         restart: always
         ports:
-            - "${WEB_PORT}:4200"
-        develop:
-            watch:
-                - path: ./frontend
-                  action: sync
-                  target: /frontend
-                - action: rebuild
-                  path: .env
+          - "${WEB_PORT}:4200"
         networks:
-            - ensys
+          - ensys
         depends_on:
-            - db
+          - db
 
     backend:
         build:
-            context: ./backend
-            dockerfile: dockerfile
+          context: ./backend
+          dockerfile: dockerfile
         container_name: backend
         env_file: .env
         ports:
-            - "${API_PORT}:8001"
+          - '${API_PORT}:8001'
         restart: always
         volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-            - ${LOCAL_DATADIR}:/app/data/simulations
+         - /var/run/docker.sock:/var/run/docker.sock
+         - ${LOCAL_DATADIR}:/app/data/simulations
         depends_on:
-            - db
+          - db
         networks:
-            - ensys
+          - ensys
 
 #  proxy:
 #    build: ./proxy
@@ -78,3 +76,4 @@ networks:
 
 volumes:
     static_volume:
+    node_modules:
