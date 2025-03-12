@@ -11,9 +11,10 @@ WORKDIR  /app
 CMD ng s
 
 #COPY --chown=node:node package.json package-lock.json ./
-COPY package.json package-lock.json ./
+#package-lock.json
+COPY package.json ./
 
-RUN npm ci --quiet
+RUN npm install angular --quiet
 
 #COPY --chown=node:node . .
 COPY . .
