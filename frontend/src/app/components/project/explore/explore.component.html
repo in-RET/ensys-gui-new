@@ -1,0 +1,222 @@
+<section class="header">
+    <div>
+        <div class="header__left"></div>
+        <h1 class="header__title">My Projects</h1>
+        <div class="header__back"></div>
+    </div>
+</section>
+
+<section class="projects-new">
+    <div class="dropdown">
+        <button
+            class="btn btn--medium btn--transparent btn--icon dropdown-toggle"
+            type="button"
+            id="newProjectButton"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+        >
+            Create project
+        </button>
+
+        <ul class="dropdown-menu" aria-labelledby="newProjectButton">
+            <li>
+                <a class="dropdown-item" href="project_create">Empty project</a>
+            </li>
+
+            <li>
+                <a class="dropdown-item"> From file </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item"> From use case </a>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<section
+    class="project"
+    id="project-{{ project.id }}"
+    *ngFor="let project of project_list"
+>
+    <div>
+        <div class="project__top">
+            <a>
+                <h2 class="name">{{ project.name }}</h2>
+            </a>
+
+            <a class="location">
+                <span class="icon-pin" aria-hidden="true"></span>
+                {{ project.country }}
+            </a>
+        </div>
+
+        <div class="project__details">
+            <div class="details">
+                <div class="detail">
+                    <span class="detail__property"> Created</span>
+
+                    <span class="detail__value">
+                        {{ project.date_created }}
+                    </span>
+                </div>
+
+                <div class="detail">
+                    <span class="detail__property">Lifetime</span>
+
+                    <span class="detail__value">
+                        {{ project.economic_data.duration }} years
+                    </span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a class="btn btn--action action">
+                    <span class="icon icon-edit" aria-hidden="true"></span>
+                    Edit
+                </a>
+
+                <form>
+                    <!-- TODO change the ugly inline style-->
+                    <button
+                        style="margin-top: 0.25rem"
+                        class="btn btn--action action"
+                        type="submit"
+                        value="Duplicate"
+                    >
+                        <span
+                            class="icon icon-duplicate"
+                            aria-hidden="true"
+                        ></span>
+                        Duplicate
+                    </button>
+                </form>
+
+                <form>
+                    <button
+                        id="delete_{{ project.id }}"
+                        style="margin-top: 0.25rem"
+                        class="btn btn--action action"
+                        type="button"
+                        value="Delete"
+                        onclick="delete_modal(this.id)"
+                    >
+                        <span
+                            class="icon icon-delete"
+                            aria-hidden="true"
+                        ></span>
+                        Delete
+                    </button>
+                </form>
+
+                <div class="dropdown">
+                    <button
+                        class="btn dropdown-toggle btn--transparent"
+                        type="button"
+                        id="shareProject-{{ project.id }}"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <span class="icon icon-more"></span>
+                    </button>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"> Share project </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"> Unshare project </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"> Export project </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="project__scenarios">
+            <div class="toggle" class="js-toggle-scenario">
+                <button
+                    class="btn btn--action"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    aria-expanded="false"
+                >
+                    <span
+                        class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
+                        aria-hidden="true"
+                    ></span>
+
+                    <span class="js-toggle-scenario-name">
+                        Show scenarios
+                    </span>
+                </button>
+            </div>
+
+            <div class="collapse" id="collapseScenarios{{ project.id }}">
+                <div class="card card-body">
+                    <ul class="list-group">
+                        <form>
+                            <li
+                                class="list-group-item"
+                                *ngFor="let scenario of project.scenario_list"
+                            >
+                                <div class="details">
+                                    <input
+                                        class="form-check-input project-{{
+                                            project.id
+                                        }}"
+                                        id="project{{ project.id }}scenario-{{
+                                            scenario.id
+                                        }}"
+                                        type="checkbox"
+                                        value="{{ scenario.id }}"
+                                        aria-label=""
+                                    />
+
+                                    <label
+                                        class="form-check-label"
+                                        for="project{{ project.id }}scenario-{{
+                                            scenario.id
+                                        }}"
+                                    >
+                                        <a class="form-check-label">
+                                            {{ scenario.name }}
+                                        </a>
+                                    </label>
+                                    <!--<div class="detail">
+                                                <span class="detail__property">{% translate "Created" %}</span>
+                                                <span class="detail__value">{{ project.date_created }}</span>
+                                            </div>-->
+                                </div>
+                            </li>
+                        </form>
+
+                        <p>There are no scenarios</p>
+                    </ul>
+                </div>
+
+                <button class="btn btn--action action export" type="button">
+                    <span class="icon icon-export" aria-hidden="true"></span>
+                    Export selected
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="projects-empty">
+    <div>
+        <div class="projects-empty__img">
+            <img
+                src="/assets/illustrations/empty_folder.svg"
+                alt="Empty folder"
+            />
+        </div>
+
+        <div class="projects-empty__text">There are no projects yet</div>
+    </div>
+</section>
