@@ -19,6 +19,8 @@ users_router = APIRouter(
 
 @users_router.post("/auth/login")
 async def user_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_session)):
+    #print(username)
+    #print(password)
     statement = select(EnUserDB).where(EnUserDB.username == username)
     user_db = db.exec(statement).first()
 
