@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from starlette.responses import JSONResponse
 
 from .admin.router import admin_router
@@ -20,6 +22,19 @@ async def lifespan(fastapi_app: FastAPI):
     # shutdown events
 
 app = FastAPI(lifespan=lifespan)
+
+origins = [
+    "http://localhost:9003",
+    "http://localhost:9004",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # including api routers
 app.include_router(

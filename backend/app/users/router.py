@@ -1,4 +1,5 @@
 from datetime import datetime
+from multiprocessing.forkserver import connect_to_new_process
 from typing import Annotated
 
 from fastapi import Depends, APIRouter, Form, HTTPException
@@ -35,7 +36,6 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         return JSONResponse(
             content={
                 "message": "User login successful.",
-                "user_data": user_db.get_token_information(),
                 "access_token": token,
                 "token_type": "bearer",
             },
@@ -71,16 +71,9 @@ async def user_register(user: EnUser = Depends(), db: Session = Depends(get_db_s
     db.refresh(db_user)
 
     if db_user.id is not None:
-        token = jwt.encode(user.get_token_information(), token_secret, algorithm="HS256")
-
         return JSONResponse(
-            content={
-                "message": "User created.",
-                "user_data": user.get_token_information(),
-                "access_token": token,
-                "token_type": "bearer",
-            },
-            status_code=status.HTTP_200_OK
+            status_code=status.HTTP_200_OK,
+            content=""
         )
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
@@ -93,7 +86,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
     else:
         token_data = decode_token(token)
 
-    user = db.get(EnUserDB, token_data["id"])
+    user = db.get(EnUserDB).where(EnUserDB.username == token_data["username"])
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
@@ -105,7 +98,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
 async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 
-    user_db = db.get(EnUserDB, token_data["id"]) # TODO: NICE!
+    user_db = db.get(EnUserDB).where(EnUserDB.username == token_data["username"])
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")

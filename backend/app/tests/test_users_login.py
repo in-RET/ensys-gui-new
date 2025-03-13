@@ -26,7 +26,6 @@ def test_users_login_success():
     assert response.status_code == 200
     assert response.json() == {
         "message": "User login successful.",
-        "user_data": test_user.get_token_information(),
         "access_token": test_token,
         "token_type": "bearer",
     }
