@@ -1,36 +1,20 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
 @Injectable({
     providedIn: 'root',
 })
 export class AuthService {
     private baseUrl: string = 'http://localhost:9006/users/auth/';
-    private httpOptions = {
-        headers: {},
-    };
 
-    private defaultHeader: any = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods':
-            'GET, POST, PATCH, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
-    };
+    constructor(private baseHttp: BaseHttpService) {}
 
-    constructor(private http: HttpClient) {}
-
-    logIn(): Observable<any> {
-        this.httpOptions.headers = new HttpHeaders(this.defaultHeader);
+    logIn(username: string, password: string): Observable<any> {
         let formData: FormData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
 
-        formData.append('username', '1');
-        formData.append('password', '2');
-
-        return this.http.post<any>(
-            `${this.baseUrl}login`,
-            formData,
-            this.httpOptions
-        );
+        return this.baseHttp.post(`${this.baseUrl}login`, formData);
     }
 }

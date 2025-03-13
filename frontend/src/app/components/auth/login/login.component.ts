@@ -32,14 +32,17 @@ export class LoginComponent {
     constructor(private authService: AuthService) {}
 
     logIn() {
-        this.authService.logIn().subscribe({
-            next: (value: any) => {
-                console.log(value);
-            },
+        this.authService
+            .logIn(this.user?.value, this.pass?.value)
+            // .pipe(finalize(() => this.router.navigate(['projects/explore'])))
+            .subscribe({
+                next: (value: any) => {
+                    console.log(value);
+                },
 
-            error(err) {
-                console.error(err);
-            },
-        });
+                error: (err) => {
+                    console.error(err);
+                },
+            });
     }
 }
