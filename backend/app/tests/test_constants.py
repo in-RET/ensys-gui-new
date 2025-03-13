@@ -8,7 +8,7 @@ from backend.app.users.model import EnUser, EnUserDB
 
 TEST_USER_DATA = {
     "username": "pytest",
-    "password": "mydirtylittlesecret",
+    "password": "TestASas12,.",
     "firstname": "firstname",
     "lastname": "lastname",
     "mail": "test@localhost.de"
