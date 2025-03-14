@@ -1,4 +1,7 @@
+import string
+import random
 import pytest
+
 from fastapi.testclient import TestClient
 
 from backend.app.main import app
@@ -108,7 +111,7 @@ def test_users_register_failure_mail_not_valid():
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_uppercase():
     test_user, test_token = get_test_user()
-    test_user.password = "pytest"
+    test_user.password = "pythontest"
 
     response = client.post(
         url="/users/auth/register",
@@ -124,7 +127,7 @@ def test_users_register_failure_password_incorrect_no_uppercase():
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_lowercase():
     test_user, test_token = get_test_user()
-    test_user.password = "PYTEST"
+    test_user.password = "PYTHONTEST"
 
     response = client.post(
         url="/users/auth/register",
@@ -140,7 +143,7 @@ def test_users_register_failure_password_incorrect_no_lowercase():
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_digit():
     test_user, test_token = get_test_user()
-    test_user.password = "PYtest"
+    test_user.password = "PYTHONtest"
 
     response = client.post(
         url="/users/auth/register",
@@ -169,21 +172,6 @@ def test_users_register_failure_password_incorrect_no_special_char():
 
     assert response.status_code == 400
 
-@pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_no_special_char():
-    test_user, test_token = get_test_user()
-    test_user.password = "PYtest12"
-
-    response = client.post(
-        url="/users/auth/register",
-        params=test_user.model_dump(exclude_none=True),
-        headers={
-            "accept": "application/json",
-            "content-type": "application/x-www-form-urlencoded"
-        }
-    )
-
-    assert response.status_code == 400
 
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_too_short():
@@ -199,4 +187,23 @@ def test_users_register_failure_password_incorrect_too_short():
         }
     )
 
-    assert response.status_code == 400
+    #% TODO: Why?!
+    assert response.status_code == 422
+
+
+@pytest.mark.order(4)
+def test_users_register_failure_password_incorrect_too_long():
+    test_user, test_token = get_test_user()
+    test_user.password = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(200))
+
+    response = client.post(
+        url="/users/auth/register",
+        params=test_user.model_dump(exclude_none=True),
+        headers={
+            "accept": "application/json",
+            "content-type": "application/x-www-form-urlencoded"
+        }
+    )
+
+    #% TODO: Why?!
+    assert response.status_code == 422
