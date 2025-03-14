@@ -12,7 +12,7 @@ export const routes: Routes = [
                     ),
             },
             {
-                path: 'project',
+                path: 'projects',
                 loadChildren: () =>
                     import('./project.routes').then((r) => r.routes),
             },
@@ -54,11 +54,11 @@ export const routes: Routes = [
             ),
     },
 
-    {
-        path: 'projects',
-        loadComponent: () =>
-            import('../components/project/explore/explore.component').then(
-                (c) => c.ExploreComponent
-            ),
-    },
+    // {
+    //     path: 'projects',
+    //     loadComponent: () =>
+    //         import('../components/project/explore/explore.component').then(
+    //             (c) => c.ExploreComponent
+    //         ),
+    // },
 ];
