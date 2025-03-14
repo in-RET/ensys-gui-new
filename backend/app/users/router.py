@@ -88,7 +88,8 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
     else:
         token_data = decode_token(token)
 
-    user = db.get(EnUserDB).where(EnUserDB.username == token_data["username"])
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
+    user = db.exec(statement).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
@@ -100,7 +101,8 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
 async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 
-    user_db = db.get(EnUserDB).where(EnUserDB.username == token_data["username"])
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
+    user_db = db.exec(statement).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
@@ -134,7 +136,6 @@ async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session
     return JSONResponse(
         content={
             "message": "User was successfully deleted.",
-            "user_data": user.get_token_information(),
             "token": token,
             "token_type": "bearer",
         },
