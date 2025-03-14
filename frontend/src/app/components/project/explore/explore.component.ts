@@ -19,7 +19,7 @@ export class ExploreComponent {
     constructor(private projectService: ProjectService) {}
 
     ngOnInit() {
-        // this.getProjectsan();
+        this.getProjects();
     }
 
     getProjects() {

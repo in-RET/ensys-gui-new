@@ -7,6 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { AuthCoreService } from '../../../core/auth/auth.service';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -29,7 +30,10 @@ export class LoginComponent {
         return this.form.get('pass');
     }
 
-    constructor(private authService: AuthService) {}
+    constructor(
+        private authService: AuthService,
+        private authCoreService: AuthCoreService
+    ) {}
 
     logIn() {
         this.authService
@@ -37,7 +41,7 @@ export class LoginComponent {
             // .pipe(finalize(() => this.router.navigate(['projects/explore'])))
             .subscribe({
                 next: (value: any) => {
-                    console.log(value);
+                    this.authCoreService.saveToken(value.access_token);
                 },
 
                 error: (err) => {

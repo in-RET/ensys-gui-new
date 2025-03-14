@@ -56,6 +56,7 @@ export class BaseHttpService {
         headerOption?: any
     ): Observable<any> {
         this.setHeader(headerOption);
+
         return this.http.post<any>(url, params, this.httpOptions).pipe(
             map((response: any) => {
                 return response;
