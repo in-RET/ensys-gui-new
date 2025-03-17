@@ -242,7 +242,7 @@ body {
 
 main {
     display: block;
-    margin-top: 5rem;
+    margin-top: 7rem;
     height: 100%;
     position: relative;
     width: 100%;
@@ -1697,6 +1697,7 @@ table.table > :not(caption) > * > * {
 nav.navbar {
     position: fixed;
     width: 100%;
+    height: 5rem;
     background-color: #fff;
     z-index: 9;
 }
@@ -3167,18 +3168,20 @@ nav.navbar .dropdown-menu li {
     max-width: 40rem;
 }
 
-.projects-new {
-    padding-bottom: 4rem;
-    text-align: center;
-}
+// .projects-new {
+//     // padding-bottom: 4rem;
+//     // margin-top: 1rem;
+//     // margin-bottom: 1rem;
+//     text-align: center;
+// }
 
-.projects-new button::before {
-    background-image: url("/static/assets/icons/i_add.svg");
-}
+// .projects-new button::before {
+//     background-image: url("/static/assets/icons/i_add.svg");
+// }
 
-.projects-new button::after {
-    display: none;
-}
+// .projects-new button::after {
+//     display: none;
+// }
 
 .scenario-create {
     display: flex;

@@ -1,24 +1,18 @@
-<section class="header">
-    <div>
-        <div class="header__left"></div>
-        <h1 class="header__title">My Projects</h1>
-        <div class="header__back"></div>
-    </div>
-</section>
-
-<section class="projects-new">
+<section class="d-flex p-2 mb-3" style="align-items: center">
     <div class="dropdown">
         <button
-            class="btn btn--medium btn--transparent btn--icon dropdown-toggle"
+            class="btn btn-secondary dropdown-toggle"
             type="button"
             id="newProjectButton"
             data-bs-toggle="dropdown"
             aria-expanded="false"
         >
-            Create project
+            +
         </button>
 
         <ul class="dropdown-menu" aria-labelledby="newProjectButton">
+            <li class="p-2"><b> Project</b></li>
+
             <li>
                 <a class="dropdown-item" href="project_create">Empty project</a>
             </li>
@@ -29,6 +23,18 @@
 
             <li>
                 <a class="dropdown-item"> From use case </a>
+            </li>
+
+            <li><hr class="dropdown-divider" /></li>
+
+            <li class="p-2"><b>Scenario</b></li>
+
+            <li>
+                <a class="dropdown-item" href="">Scenario</a>
+            </li>
+
+            <li>
+                <a class="dropdown-item" href="">From File</a>
             </li>
         </ul>
     </div>
