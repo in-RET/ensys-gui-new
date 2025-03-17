@@ -1,20 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 import { ProjectService } from '../services/project.service';
 
 @Component({
-    selector: 'app-explore',
-    imports: [CommonModule],
-    templateUrl: './explore.component.html',
-    styleUrl: './explore.component.scss',
+    selector: 'app-project-explore',
+    imports: [CommonModule, RouterLink, RouterOutlet],
+    templateUrl: './project-explore.component.html',
+    styleUrl: './project-explore.component.scss',
 })
-export class ExploreComponent {
-    project_list: any = [
-        {
-            id: 0,
-            scenario_list: [],
-        },
-    ];
+export class ProjectExploreComponent {
+    project_list: any;
 
     constructor(private projectService: ProjectService) {}
 
