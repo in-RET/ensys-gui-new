@@ -6,7 +6,7 @@ from sqlmodel import SQLModel, Field
 class EnProject(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, min_length=1, max_length=255, nullable=True)
-    country: str | None = Field(default=None, min_length=1, max_length=40, nullable=True)
+    country: str = Field(min_length=1, max_length=40)
     unit_energy: str = Field(min_length=1, max_length=10)
     unit_co2: str = Field(min_length=1, max_length=10)
     is_favorite: bool = Field(default=False)
@@ -22,3 +22,9 @@ class EnProjectDB(EnProject, table=True):
 
     def get_return_data(self):
         return self.dict(exclude={"user_id", "date_created", "date_updated"})
+
+class EnProjectUpdate(EnProject):
+    name: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
+    country: str | None = Field(default=None, min_length=1, max_length=40, nullable=True)
+    unit_energy: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
+    unit_co2: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
