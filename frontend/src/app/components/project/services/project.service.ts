@@ -10,6 +10,6 @@ export class ProjectService {
     constructor(private baseHttp: BaseHttpService) {}
 
     getProjects() {
-        return this.baseHttp.get(`${this.baseUrl}read`);
+        return this.baseHttp.get(`${this.baseUrl}read`, null, {});
     }
 }

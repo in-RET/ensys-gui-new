@@ -15,6 +15,6 @@ export class AuthService {
         formData.append('username', username);
         formData.append('password', password);
 
-        return this.baseHttp.post(`${this.baseUrl}login`, formData);
+        return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
     }
 }
