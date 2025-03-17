@@ -6,8 +6,8 @@ from sqlmodel import Session, select
 from starlette import status
 from starlette.responses import JSONResponse
 
-from .model import EnProject, EnProjectDB
-from ..constants import db_engine, oauth2_scheme, decode_token, get_db_session
+from .model import EnProject, EnProjectDB, EnProjectUpdate
+from ..constants import oauth2_scheme, decode_token, get_db_session
 from ..users.model import EnUserDB
 
 projects_router = APIRouter(
@@ -15,13 +15,18 @@ projects_router = APIRouter(
     tags=["projects"],
 )
 
-def validate_project_owner(project_id: int, token, db: Session = Depends(get_db_session)):
+def validate_project_owner(project_id: int, token, db):
+    # Get Database-Session and token-data
     token_data = decode_token(token)
+
+    # Get User-data from the Database
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
     token_user = db.exec(statement).first()
 
+    # get the mentioned project-data
     project = db.get(EnProjectDB, project_id)
 
+    # check if project_id and token_id is the same and return value
     return project.user_id == token_user.id
 
 @projects_router.post("/create", response_model=EnProject)
@@ -51,7 +56,7 @@ async def read_project(token: Annotated[str, Depends(oauth2_scheme)], project_id
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if validate_project_owner(project_id, token):
+    if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     return JSONResponse(
@@ -80,29 +85,29 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
         status_code=status.HTTP_200_OK,
     )
 
-
 @projects_router.patch("/update", response_model=EnProject)
-async def update_project(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnProject, Form()], project_id: int, db: Session = Depends(get_db_session)):
+async def update_project(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnProjectUpdate, Form()], project_id: int, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if validate_project_owner(project_id, token):
+    if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
+    db_project = db.get(EnProjectDB, project_id)
+    if not db_project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
+    new_project_data = form_data.model_dump(exclude_unset=True)
 
-    token_data = decode_token(token)
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-    token_user = db.exec(statement).first()
+    db_project.sqlmodel_update(new_project_data)
 
-    statement = select(EnProjectDB).where(EnProjectDB.user_id == token_user.id)
-    results = db.exec(statement)
-
-
+    db.add(db_project)
+    db.commit()
+    db.refresh(db_project)
 
     return JSONResponse(
-        content={"message": "Update"},
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
+        content={"message": "Project Updated."},
+        status_code=status.HTTP_200_OK,
     )
 
 
@@ -111,12 +116,13 @@ async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
+    if not validate_project_owner(project_id, token, db):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
     project = db.get(EnProjectDB, project_id)
     db.delete(project)
 
-    print("Deleted project:", project)
-
     return JSONResponse(
-        content={"message": "Project deleted"},
+        content={"message": "Project deleted."},
         status_code=status.HTTP_200_OK,
     )
