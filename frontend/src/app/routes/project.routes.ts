@@ -8,4 +8,9 @@ export const routes: Routes = [
                 (c) => c.ExploreComponent
             ),
     },
+    {
+        path: '',
+        redirectTo: 'explore',
+        pathMatch: 'full',
+    },
 ];

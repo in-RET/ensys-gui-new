@@ -22,4 +22,8 @@ export const routes: Routes = [
                 '../components/auth/password-reset/password-reset.component'
             ).then((c) => c.PasswordResetComponent),
     },
+    {
+        path: '**',
+        redirectTo: 'login',
+    },
 ];
