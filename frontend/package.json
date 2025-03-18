@@ -20,7 +20,9 @@
     "@angular/router": "^19.0.0",
     "@popperjs/core": "^2.11.8",
     "@types/aos": "^3.0.7",
+    "@types/leaflet": "^1.9.16",
     "bootstrap": "^5.3.3",
+    "leaflet": "^1.9.4",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
