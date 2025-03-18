@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 
+@use "static/scss/main.scss" as *;
 @use "static/scss/abstracts/variables" as *;
 
 .list-group-item.scenario-duplicated {
@@ -1080,7 +1081,7 @@ a.btn--disabled,
 button.btn--disabled,
 footer a.btn--disabled,
 footer button.btn--disabled {
-    background-color: #a8b5c0;
+    background-color: #a8b5c0 !important;
 }
 
 a.btn--pending,

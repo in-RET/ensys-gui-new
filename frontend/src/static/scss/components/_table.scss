@@ -1,38 +1,38 @@
-@import '../abstracts/variables';
+@use "../abstracts/variables" as *;
 
 table.table {
-  box-shadow: $box-shadow-frame;
-  border-radius: $button-border-radius;
+    box-shadow: $box-shadow-frame;
+    border-radius: $button-border-radius;
 
-  thead {
-    background-color: $primary-gray-color-1;
+    thead {
+        background-color: $primary-gray-color-1;
 
-    tr {
-      text-transform: uppercase;
+        tr {
+            text-transform: uppercase;
+        }
+
+        th {
+            border-bottom: none;
+        }
     }
 
-    th {
-      border-bottom: none;
-    }
-  }
+    tbody {
+        td {
+            border-bottom: 1px solid $primary-gray-color-2;
+        }
 
-  tbody {
-    td {
-      border-bottom: 1px solid $primary-gray-color-2;
+        tr:last-of-type td,
+        tr:last-of-type th {
+            border-bottom: none;
+        }
+
+        button.btn {
+            text-align: left;
+            padding: 0;
+        }
     }
 
-    tr:last-of-type td,
-    tr:last-of-type th {
-      border-bottom: none;
+    & > :not(caption) > * > * {
+        padding: $dashboard-table-cell-padding;
     }
-
-    button.btn {
-      text-align: left;
-      padding: 0;
-    }
-  }
-
-  & > :not(caption) > * > * {
-    padding: $dashboard-table-cell-padding;
-  }
 }
