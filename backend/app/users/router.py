@@ -14,14 +14,13 @@ from ..auxillary import decode_token, oauth2_scheme, token_secret
 from ..db import get_db_session
 
 users_router = APIRouter(
-    prefix="/users",
-    tags=["users"],
+    prefix="/user",
+    tags=["user"],
 )
 
 @users_router.post("/auth/login")
 async def user_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_session)):
-    #print(username)
-    #print(password)
+    #print(username, password)
     statement = select(EnUserDB).where(EnUserDB.username == username)
     user_db = db.exec(statement).first()
 
@@ -99,7 +98,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
 
 
 @users_router.patch("/update")
-async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)):
+async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate = Depends(), db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])

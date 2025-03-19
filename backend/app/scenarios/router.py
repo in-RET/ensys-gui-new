@@ -12,8 +12,8 @@ from ..projects.router import validate_project_owner
 from ..users.model import EnUserDB
 
 scenario_router = APIRouter(
-    prefix="/scenarios",
-    tags=["scenarios"],
+    prefix="/scenario",
+    tags=["scenario"],
 )
 
 def validate_scenario_owner(scenario_id, db, token):
@@ -32,11 +32,11 @@ def validate_scenario_owner(scenario_id, db, token):
         return True
 
 @scenario_router.post("/create")
-async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnScenario, Form()], db: Session = Depends(get_db_session)):
+async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario = Depends(), db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    project_id = form_data.project_id
+    project_id = scenario_data.project_id
 
     token_data = decode_token(token)
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
@@ -45,7 +45,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], form_da
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    scenario = EnScenarioDB(**form_data.model_dump())
+    scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
 
     db.add(scenario)
@@ -102,7 +102,7 @@ async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_
     )
 
 @scenario_router.patch("/update")
-async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnScenarioUpdate, Form()], scenario_id: int, db: Session = Depends(get_db_session)):
+async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, scenario_data: EnScenarioUpdate = Depends(), db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -113,7 +113,7 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], form_da
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    new_scenario_data = form_data.model_dump(exclude_unset=True)
+    new_scenario_data = scenario_data.model_dump(exclude_unset=True)
 
     db_scenario.sqlmodel_update(new_scenario_data)
 

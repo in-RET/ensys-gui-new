@@ -15,4 +15,4 @@ def decode_token(token: str):
 ########################################################################
 # login settings
 ########################################################################
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="user/auth/login")

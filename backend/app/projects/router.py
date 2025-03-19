@@ -12,8 +12,8 @@ from ..db import get_db_session
 from ..users.model import EnUserDB
 
 projects_router = APIRouter(
-    prefix="/projects",
-    tags=["projects"],
+    prefix="/project",
+    tags=["project"],
 )
 
 def validate_project_owner(project_id: int, token, db):
@@ -31,14 +31,14 @@ def validate_project_owner(project_id: int, token, db):
     return project.user_id == token_user.id
 
 @projects_router.post("/create")
-async def create_project(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnProject, Form()], db: Session = Depends(get_db_session)):
+async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject = Depends(), db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     token_data = decode_token(token)
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
     token_user = db.exec(statement).first()
-    project = EnProjectDB(**form_data.model_dump())
+    project = EnProjectDB(**project_data.model_dump())
 
     # set auxillary data
     project.user_id = token_user.id
@@ -87,7 +87,7 @@ async def read_project(token: Annotated[str, Depends(oauth2_scheme)], project_id
     )
 
 @projects_router.patch("/update")
-async def update_project(token: Annotated[str, Depends(oauth2_scheme)], form_data: Annotated[EnProjectUpdate, Form()], project_id: int, db: Session = Depends(get_db_session)):
+async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate = Depends(), db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -98,7 +98,8 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], form_dat
     if not db_project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
-    new_project_data = form_data.model_dump(exclude_unset=True)
+    new_project_data = project_data.model_dump(exclude_none=True)
+    print(new_project_data)
 
     db_project.sqlmodel_update(new_project_data)
     db_project.date_updated = datetime.now()
