@@ -10,7 +10,8 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
-from ..constants import token_secret, oauth2_scheme, get_db_session, decode_token
+from ..auxillary import decode_token, oauth2_scheme, token_secret
+from ..db import get_db_session
 
 users_router = APIRouter(
     prefix="/users",

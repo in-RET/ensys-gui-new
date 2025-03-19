@@ -6,7 +6,8 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from .model import EnScenario, EnScenarioUpdate, EnScenarioDB
-from ..constants import get_db_session, oauth2_scheme, decode_token
+from ..auxillary import decode_token, oauth2_scheme
+from ..db import get_db_session
 from ..projects.router import validate_project_owner
 from ..users.model import EnUserDB
 

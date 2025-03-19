@@ -9,6 +9,8 @@ class EnProject(SQLModel):
     country: str = Field(min_length=1, max_length=40)
     unit_energy: str = Field(min_length=1, max_length=10)
     unit_co2: str = Field(min_length=1, max_length=10)
+    longitude: float = Field(nullable=True)
+    latitude: float = Field(nullable=True)
     is_favorite: bool = Field(default=False)
     #viewers: list[int] = Field(default=None, nullable=True)
 
@@ -28,3 +30,5 @@ class EnProjectUpdate(EnProject):
     country: str | None = Field(default=None, min_length=1, max_length=40, nullable=True)
     unit_energy: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
     unit_co2: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
+    longitude: float | None = Field(default=None, nullable=True)
+    latitude: float | None = Field(default=None, nullable=True)

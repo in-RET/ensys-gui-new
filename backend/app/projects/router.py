@@ -7,7 +7,8 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from .model import EnProject, EnProjectDB, EnProjectUpdate
-from ..constants import oauth2_scheme, decode_token, get_db_session
+from ..auxillary import decode_token, oauth2_scheme
+from ..db import get_db_session
 from ..users.model import EnUserDB
 
 projects_router = APIRouter(
@@ -100,6 +101,7 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], form_dat
     new_project_data = form_data.model_dump(exclude_unset=True)
 
     db_project.sqlmodel_update(new_project_data)
+    db_project.date_updated = datetime.now()
 
     db.add(db_project)
     db.commit()

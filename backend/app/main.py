@@ -7,7 +7,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from .admin.router import admin_router
-from .constants import create_db_and_tables
+from .db import create_db_and_tables
 from .projects.router import projects_router
 from .scenarios.router import scenario_router
 from .users.router import users_router
@@ -16,8 +16,7 @@ from .users.router import users_router
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
     # startup event
-    # create db and tables
-    create_db_and_tables()
+    # create_db_and_tables()
 
     # TODO: Befüllen der Komponentendatenbank zum Start der Anwendung, wenn diese nicht bestehen.
     yield
