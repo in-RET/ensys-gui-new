@@ -5,6 +5,10 @@
 /tmp
 /out-tsc
 /bazel-out
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Node
 /node_modules
@@ -46,3 +50,4 @@ Thumbs.db
 node_modules/
 data/
 *.sqlite
+/frontend/package-lock.json
