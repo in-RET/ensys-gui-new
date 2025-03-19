@@ -1,5 +1,5 @@
 from sqlmodel import SQLModel, Field
-
+from oemof import solph
 
 class EnComponent(SQLModel):
     name: str

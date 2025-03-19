@@ -81,7 +81,7 @@ async def user_register(user: EnUser = Depends(), db: Session = Depends(get_db_s
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
 
 
-@users_router.get("/read", response_model=EnUser)
+@users_router.get("/read")
 async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -97,7 +97,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
         return user
 
 
-@users_router.patch("/update", response_model=EnUser)
+@users_router.patch("/update")
 async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 
@@ -117,7 +117,7 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
     return user_db
 
 
-@users_router.delete("/delete", response_model=EnUser)
+@users_router.delete("/delete")
 async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 

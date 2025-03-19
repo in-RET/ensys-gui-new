@@ -2,12 +2,14 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette import status
 
 from starlette.responses import JSONResponse
 
 from .admin.router import admin_router
 from .constants import create_db_and_tables
 from .projects.router import projects_router
+from .scenarios.router import scenario_router
 from .users.router import users_router
 
 
@@ -26,7 +28,7 @@ app = FastAPI(lifespan=lifespan)
 origins = [
     "http://localhost:9003",
     "http://localhost:9004",
-     "http://localhost:4200",
+    "http://localhost:4200", #TODO: Delete in Production, because security reasons.
 ]
 
 app.add_middleware(
@@ -49,11 +51,15 @@ app.include_router(
     router=projects_router
 )
 
+app.include_router(
+    router=scenario_router
+)
+
 
 @app.get("/")
 async def root():
     return JSONResponse(
-        content={"message": "Hello World"},
-        status_code=200,
+        content={"message": "For documentation see /docs or 'https://in-ret.github.io/ensys-gui-new/'"},
+        status_code=status.HTTP_200_OK,
     )
 
