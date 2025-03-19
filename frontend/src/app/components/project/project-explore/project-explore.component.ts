@@ -10,7 +10,22 @@ import { ProjectService } from '../services/project.service';
     styleUrl: './project-explore.component.scss',
 })
 export class ProjectExploreComponent {
-    project_list: any;
+    project_list: any = [
+        {
+            name: 'Hossein',
+            country: 'Iran',
+            date_created: 'March 18, 2025, 4:49 p.m.',
+            duration: '10',
+            scenario_list: [],
+        },
+        {
+            name: 'ملیحه قره چشمه',
+            country: 'Iran',
+            date_created: 'March 18, 2025, 4:49 p.m.',
+            duration: '10',
+            scenario_list: [],
+        },
+    ];
 
     constructor(private projectService: ProjectService) {}
 

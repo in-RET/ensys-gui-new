@@ -47,7 +47,7 @@
     id="project-{{ project.id }}"
     *ngFor="let project of project_list"
 >
-    <div>
+    <div class="project-item">
         <div class="project__top">
             <a>
                 <h2 class="name">{{ project.name }}</h2>
@@ -73,7 +73,7 @@
                     <span class="detail__property">Lifetime</span>
 
                     <span class="detail__value">
-                        {{ project.economic_data.duration }} years
+                        {{ project.duration }} years
                     </span>
                 </div>
             </div>
@@ -84,40 +84,19 @@
                     Edit
                 </a>
 
-                <form>
-                    <!-- TODO change the ugly inline style-->
-                    <button
-                        style="margin-top: 0.25rem"
-                        class="btn btn--action action"
-                        type="submit"
-                        value="Duplicate"
-                    >
-                        <span
-                            class="icon icon-duplicate"
-                            aria-hidden="true"
-                        ></span>
-                        Duplicate
-                    </button>
-                </form>
+                <button
+                    id="delete_{{ project.id }}"
+                    style="margin-top: 0.25rem"
+                    class="btn btn--action action"
+                    type="button"
+                    value="Delete"
+                    onclick="delete_modal(this.id)"
+                >
+                    <span class="icon icon-delete" aria-hidden="true"></span>
+                    Delete
+                </button>
 
-                <form>
-                    <button
-                        id="delete_{{ project.id }}"
-                        style="margin-top: 0.25rem"
-                        class="btn btn--action action"
-                        type="button"
-                        value="Delete"
-                        onclick="delete_modal(this.id)"
-                    >
-                        <span
-                            class="icon icon-delete"
-                            aria-hidden="true"
-                        ></span>
-                        Delete
-                    </button>
-                </form>
-
-                <div class="dropdown">
+                <!-- <div class="dropdown">
                     <button
                         class="btn dropdown-toggle btn--transparent"
                         type="button"
@@ -141,12 +120,20 @@
                             <a class="dropdown-item"> Export project </a>
                         </li>
                     </ul>
-                </div>
+                </div> -->
             </div>
         </div>
 
         <div class="project__scenarios">
-            <div class="toggle" class="js-toggle-scenario">
+            <button class="btn btn--action action" type="button">
+                New Scenario
+            </button>
+
+            <div
+                class="toggle"
+                class="js-toggle-scenario"
+                *ngIf="project.scenario_list.length"
+            >
                 <button
                     class="btn btn--action"
                     type="button"
@@ -203,7 +190,7 @@
                             </li>
                         </form>
 
-                        <p>There are no scenarios</p>
+                        <!-- <p>There are no scenarios</p> -->
                     </ul>
                 </div>
 
@@ -216,7 +203,7 @@
     </div>
 </section>
 
-<section class="projects-empty">
+<section class="projects-empty" *ngIf="!project_list.length">
     <div>
         <div class="projects-empty__img">
             <img

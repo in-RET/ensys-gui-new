@@ -1,0 +1,17 @@
+.project__details {
+    height: 4rem;
+    align-items: center;
+
+    .actions {
+        display: none;
+    }
+}
+
+.project-item {
+    cursor: pointer;
+    &:hover {
+        .project__details .actions {
+            display: flex;
+        }
+    }
+}

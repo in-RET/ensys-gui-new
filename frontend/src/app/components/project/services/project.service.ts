@@ -12,4 +12,8 @@ export class ProjectService {
     getProjects() {
         return this.baseHttp.get(`${this.baseUrl}read`, null, {});
     }
+
+    createProject(data: any) {
+        return this.baseHttp.post(`${this.baseUrl}create`, data);
+    }
 }

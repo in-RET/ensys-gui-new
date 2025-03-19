@@ -5,9 +5,11 @@ import {
     FormGroup,
     FormsModule,
     ReactiveFormsModule,
+    Validators,
 } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import * as L from 'leaflet';
+import { ProjectService } from '../services/project.service';
 
 @Component({
     selector: 'app-project-create',
@@ -17,15 +19,47 @@ import * as L from 'leaflet';
 })
 export class ProjectCreateComponent {
     form: FormGroup = new FormGroup({
-        name: new FormControl(null, []),
-        description: new FormControl(null, []),
-        country: new FormControl('', []),
-        latitude: new FormControl('Click on the map', []),
-        longitude: new FormControl('Click on the map', []),
-        currency: new FormControl('', []),
-        unit_choice: new FormControl('', []),
-        unit_choice_co2: new FormControl('', []),
+        name: new FormControl(null, [Validators.required]),
+        country: new FormControl('', [Validators.required]),
+        description: new FormControl(null, [Validators.required]),
+        latitude: new FormControl(null, [Validators.required]),
+        longitude: new FormControl(null, [Validators.required]),
+        currency: new FormControl('', [Validators.required]),
+        unit_energy: new FormControl('', [Validators.required]),
+        unit_co2: new FormControl('', [Validators.required]),
     });
+
+    get name() {
+        return this.form.get('name');
+    }
+
+    get country() {
+        return this.form.get('country');
+    }
+
+    get description() {
+        return this.form.get('description');
+    }
+
+    get latitude() {
+        return this.form.get('latitude');
+    }
+
+    get longitude() {
+        return this.form.get('longitude');
+    }
+
+    get currency() {
+        return this.form.get('currency');
+    }
+
+    get unit_energy() {
+        return this.form.get('unit_energy');
+    }
+
+    get unit_co2() {
+        return this.form.get('unit_co2');
+    }
 
     private map!: L.Map;
     marker!: L.Marker;
@@ -41,6 +75,8 @@ export class ProjectCreateComponent {
                 'https://unpkg.com/leaflet@1.5.1/dist/images/marker-shadow.png',
         }),
     };
+
+    constructor(private projectService: ProjectService) {}
 
     ngOnInit() {}
 
@@ -78,5 +114,19 @@ export class ProjectCreateComponent {
             accessToken:
                 'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
+    }
+
+    submitProject() {
+        let newProject = this.form.getRawValue();
+
+        this.projectService.createProject(newProject).subscribe({
+            next: (value) => {
+                console.log(value);
+            },
+
+            error: (err) => {
+                console.error(err);
+            },
+        });
     }
 }
