@@ -48,7 +48,7 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
 
 
 @users_router.post("/auth/register")
-async def user_register(user: EnUser = Depends(), db: Session = Depends(get_db_session)):
+async def user_register(user: EnUser, db: Session = Depends(get_db_session)):
     # Test against same username
     statement = select(EnUserDB).where(EnUserDB.username == user.username)
     results = db.exec(statement).first()
@@ -98,7 +98,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
 
 
 @users_router.patch("/update")
-async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate = Depends(), db: Session = Depends(get_db_session)):
+async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)):
     token_data = decode_token(token)
 
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])

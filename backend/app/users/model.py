@@ -12,12 +12,10 @@ PASSWORD_MAX_LENGTH = 128
 
 class EnUser(SQLModel):
     username: str = Field(min_length=3, max_length=128)
-    firstname: Optional[str] = Field(default=None, min_length=0, max_length=64)
-    lastname: Optional[str] = Field(default=None, min_length=0, max_length=64)
+    firstname: str | None = Field(default=None, min_length=0, max_length=64)
+    lastname: str | None = Field(default=None, min_length=0, max_length=64)
     password: str = Field(min_length=8, max_length=PASSWORD_MAX_LENGTH)
     mail: str = Field(min_length=8, max_length=128)
-    date_joined: Optional[datetime] = None
-    last_login: Optional[datetime] = None
 
     def verify_password(self, plain_password: str) -> bool:
         return pbkdf2_sha256.verify(plain_password, self.password)
@@ -80,6 +78,8 @@ class EnUserDB(EnUser, table=True):
     __tablename__ = "users"
 
     id: int = Field(default=None, primary_key=True, index=True)
+    date_joined: datetime | None = Field(default=None)
+    last_login: datetime | None = Field(default=None)
     is_active: bool = Field(default=False)
     is_superuser: bool = Field(default=False)
     is_staff: bool = Field(default=False)
