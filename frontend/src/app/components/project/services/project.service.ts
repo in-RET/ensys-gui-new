@@ -5,12 +5,12 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class ProjectService {
-    private baseUrl: string = 'http://localhost:9006/projects/';
+    private baseUrl: string = 'http://localhost:9006/project/';
 
     constructor(private baseHttp: BaseHttpService) {}
 
     getProjects() {
-        return this.baseHttp.get(`${this.baseUrl}read`, null, {});
+        return this.baseHttp.get(`${this.baseUrl}read_all`, null, {});
     }
 
     createProject(data: any) {

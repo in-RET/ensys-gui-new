@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlmodel import Session, SQLModel
 
 db_link = os.getenv("DB_LINK")
-db_engine = create_engine(db_link, echo=True)
+db_engine = create_engine(db_link)
 
 def get_db_session():
     with Session(db_engine) as session:

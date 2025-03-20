@@ -32,7 +32,7 @@ def validate_scenario_owner(scenario_id, db, token):
         return True
 
 @scenario_router.post("/create")
-async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario = Depends(), db: Session = Depends(get_db_session)):
+async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -58,7 +58,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
         status_code=status.HTTP_200_OK,
     )
 
-@scenario_router.get("/read_all")
+@scenario_router.get("/read/{project_id}")
 async def read_scenarios(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -78,7 +78,7 @@ async def read_scenarios(token: Annotated[str, Depends(oauth2_scheme)], project_
         status_code=status.HTTP_200_OK,
     )
 
-@scenario_router.get("/read")
+@scenario_router.get("/read/{scenario_id}")
 async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -101,8 +101,8 @@ async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_
         status_code=status.HTTP_200_OK,
     )
 
-@scenario_router.patch("/update")
-async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, scenario_data: EnScenarioUpdate = Depends(), db: Session = Depends(get_db_session)):
+@scenario_router.patch("/update/{scenario_id}")
+async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, scenario_data: EnScenarioUpdate, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -127,7 +127,7 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     )
 
 
-@scenario_router.delete("/delete")
+@scenario_router.delete("/delete/{scenario_id}")
 async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")

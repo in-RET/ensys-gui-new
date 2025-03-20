@@ -6,7 +6,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl: string = 'http://localhost:9006/users/auth/';
+    private baseUrl: string = 'http://localhost:9006/user/auth/';
 
     constructor(private baseHttp: BaseHttpService) {}
 
