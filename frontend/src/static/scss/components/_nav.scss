@@ -2,10 +2,22 @@
 @use "../abstracts/mixins" as *;
 
 nav.navbar {
-    position: fixed;
     width: 100%;
     background-color: $white;
-    z-index: $z-index-nav;
+    // z-index: $z-index-nav;
+
+    // shadowing
+    // display: block;
+    // border: solid 1px;
+    position: sticky;
+    -webkit-position: sticky;
+    height: 80px;
+    top: -16px;
+    // transition: all 0.15s linear;
+    z-index: 1;
+
+    padding: 0;
+    display: block;
 
     &.navbar-light {
         background-color: $white !important;
@@ -33,6 +45,48 @@ nav.navbar {
             padding-bottom: 0.5rem;
         }
     }
+
+    &::before,
+    &::after {
+        content: "";
+        display: block;
+        height: 16px;
+        /* make pseudo elements sticky as well */
+        position: sticky;
+    }
+
+    &::before {
+        top: 48px; /* shadow is at bottom of element, so at 48 + 16 = 64px */
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    &::after {
+        /* linear gradient from background color to transparent acts as
+           a transition effect so the shadow appears gradually */
+        background: linear-gradient(
+            white 10%,
+            rgba(255, 255, 255, 0.8) 50%,
+            rgba(255, 255, 255, 0.4) 70%,
+            transparent
+        );
+        top: 0;
+        /* cover should fall over shadow */
+        z-index: 2;
+    }
+
+    > div {
+        height: 64px;
+        position: sticky;
+        -webkit-position: sticky;
+        top: 0px;
+        /* compensate for shadow with negative margin */
+        margin-top: -16px !important;
+        /* content should fall over shadow and cover */
+        z-index: 3;
+
+        background-color: $white;
+        width: 100% !important;
+    }
 }
 
 @media (min-width: $medium-screen) {
@@ -49,7 +103,7 @@ nav.navbar {
         }
 
         &.navbar-expand-lg.navbar--website .container-fluid {
-            max-width: $section-max-width;
+            // max-width: $section-max-width;
         }
 
         .nav-item.locale {

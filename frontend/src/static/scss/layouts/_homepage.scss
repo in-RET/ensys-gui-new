@@ -2,7 +2,7 @@
 @use "../abstracts/mixins" as *;
 
 .hero {
-    padding-top: $top-nav-height;
+    // padding-top: $top-nav-height;
     @include flex-row-justify-center;
 
     & > div {
