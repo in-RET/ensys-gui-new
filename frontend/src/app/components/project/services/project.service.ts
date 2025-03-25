@@ -16,4 +16,8 @@ export class ProjectService {
     createProject(data: any) {
         return this.baseHttp.post(`${this.baseUrl}create`, data);
     }
+
+    deleteProject(id: number) {
+        return this.baseHttp.delete(`${this.baseUrl}delete/${id}`);
+    }
 }
