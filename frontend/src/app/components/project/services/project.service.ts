@@ -9,8 +9,12 @@ export class ProjectService {
 
     constructor(private baseHttp: BaseHttpService) {}
 
+    getProject(id: number) {
+        return this.baseHttp.get(`${this.baseUrl}read/${id}`);
+    }
+
     getProjects() {
-        return this.baseHttp.get(`${this.baseUrl}read_all`, null, {});
+        return this.baseHttp.get(`${this.baseUrl}read_all`);
     }
 
     createProject(data: any) {

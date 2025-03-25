@@ -79,7 +79,11 @@
             </div>
 
             <div class="actions">
-                <a class="btn btn--action action">
+                <a
+                    class="btn btn--action action"
+                    [routerLink]="['../update/', project.id]"
+                    fragment="update"
+                >
                     <span class="icon icon-edit" aria-hidden="true"></span>
                 </a>
 

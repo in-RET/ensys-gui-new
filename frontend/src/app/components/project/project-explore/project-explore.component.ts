@@ -13,6 +13,7 @@ import { ProjectService } from '../services/project.service';
 export class ProjectExploreComponent {
     project_list: any = [
         {
+            id: 0,
             name: 'Hossein',
             country: 'Iran',
             date_created: 'March 18, 2025, 4:49 p.m.',
@@ -20,7 +21,8 @@ export class ProjectExploreComponent {
             scenario_list: [],
         },
         {
-            name: 'ملیحه قره چشمه',
+            id: 1,
+            name: 'حسین',
             country: 'Iran',
             date_created: 'March 18, 2025, 4:49 p.m.',
             duration: '10',
