@@ -7,7 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import * as L from 'leaflet';
 import { ProjectService } from '../services/project.service';
 
@@ -76,9 +76,22 @@ export class ProjectCreateComponent {
         }),
     };
 
-    constructor(private projectService: ProjectService) {}
+    // if update item
+    mode: 'create' | 'update' | '' = 'create';
 
-    ngOnInit() {}
+    constructor(
+        private projectService: ProjectService,
+        private route: ActivatedRoute
+    ) {}
+
+    ngOnInit() {
+        if (this.route.snapshot.fragment) {
+            if (this.route.snapshot.fragment == 'update') {
+                this.mode = 'update';
+                this.getProjectData(this.route.snapshot.params['id']);
+            }
+        }
+    }
 
     ngAfterViewInit() {
         this.initMap();
@@ -127,6 +140,13 @@ export class ProjectCreateComponent {
             error: (err) => {
                 console.error(err);
             },
+        });
+    }
+
+    getProjectData(id: number) {
+        this.projectService.getProject(id).subscribe({
+            next(value) {},
+            error(err) {},
         });
     }
 }

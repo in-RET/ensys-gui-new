@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import Swal from 'sweetalert2';
 import { ProjectService } from '../services/project.service';
 
 @Component({
@@ -12,6 +13,7 @@ import { ProjectService } from '../services/project.service';
 export class ProjectExploreComponent {
     project_list: any = [
         {
+            id: 0,
             name: 'Hossein',
             country: 'Iran',
             date_created: 'March 18, 2025, 4:49 p.m.',
@@ -19,7 +21,8 @@ export class ProjectExploreComponent {
             scenario_list: [],
         },
         {
-            name: 'ملیحه قره چشمه',
+            id: 1,
+            name: 'حسین',
             country: 'Iran',
             date_created: 'March 18, 2025, 4:49 p.m.',
             duration: '10',
@@ -42,6 +45,27 @@ export class ProjectExploreComponent {
             error: (err) => {
                 console.error(err);
             },
+        });
+    }
+
+    delete_modal(id: number) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will also delete all related project data.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+            }
+        });
+    }
+
+    deleteProject(id: number) {
+        this.projectService.deleteProject(id).subscribe({
+            next(value) {},
+            error(err) {},
         });
     }
 }

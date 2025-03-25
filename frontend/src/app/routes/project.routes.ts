@@ -16,6 +16,13 @@ export const routes: Routes = [
             ).then((c) => c.ProjectCreateComponent),
     },
     {
+        path: 'update/:id',
+        loadComponent: () =>
+            import(
+                '../components/project/project-create/project-create.component'
+            ).then((c) => c.ProjectCreateComponent),
+    },
+    {
         path: '**',
         redirectTo: 'explore',
         pathMatch: 'full',

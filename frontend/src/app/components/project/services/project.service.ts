@@ -9,11 +9,19 @@ export class ProjectService {
 
     constructor(private baseHttp: BaseHttpService) {}
 
+    getProject(id: number) {
+        return this.baseHttp.get(`${this.baseUrl}read/${id}`);
+    }
+
     getProjects() {
-        return this.baseHttp.get(`${this.baseUrl}read_all`, null, {});
+        return this.baseHttp.get(`${this.baseUrl}read_all`);
     }
 
     createProject(data: any) {
         return this.baseHttp.post(`${this.baseUrl}create`, data);
+    }
+
+    deleteProject(id: number) {
+        return this.baseHttp.delete(`${this.baseUrl}delete/${id}`);
     }
 }

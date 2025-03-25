@@ -2,7 +2,7 @@
     <section class="d-flex py-1 px-3 mb-3">
         <div>
             <div>
-                <a [routerLink]="['../explore']"> < Projects</a>
+                <a [routerLink]="['/projects/explore']"> < Projects</a>
             </div>
         </div>
     </section>
@@ -199,7 +199,9 @@
             [disabled]="!form.valid"
             (click)="submitProject()"
         >
-            Save project
+            <span *ngIf="mode == 'create'">Save </span>
+            <span *ngIf="mode == 'update'">Update </span>
+            project
         </button>
     </div>
 </div>

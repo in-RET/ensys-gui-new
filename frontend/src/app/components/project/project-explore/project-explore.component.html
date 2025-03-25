@@ -79,9 +79,12 @@
             </div>
 
             <div class="actions">
-                <a class="btn btn--action action">
+                <a
+                    class="btn btn--action action"
+                    [routerLink]="['../update/', project.id]"
+                    fragment="update"
+                >
                     <span class="icon icon-edit" aria-hidden="true"></span>
-                    Edit
                 </a>
 
                 <button
@@ -90,10 +93,9 @@
                     class="btn btn--action action"
                     type="button"
                     value="Delete"
-                    onclick="delete_modal(this.id)"
+                    (click)="delete_modal(project.id)"
                 >
                     <span class="icon icon-delete" aria-hidden="true"></span>
-                    Delete
                 </button>
 
                 <!-- <div class="dropdown">
