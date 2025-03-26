@@ -1,0 +1,27 @@
+<footer class="step-footer" style="z-index: 1">
+    <div>
+        <div class="step-footer__left"></div>
+
+        <div class="step-footer__center">
+            <button
+                class="btn btn--medium btn--hollow btn--previous"
+                *ngIf="step > 0"
+                (click)="previous()"
+            >
+                Previous
+            </button>
+
+            <button class="btn btn--medium btn--transparent" *ngIf="step == 1">
+                Save
+            </button>
+
+            <button class="btn btn--medium" *ngIf="step < 4" (click)="next()">
+                Next
+            </button>
+        </div>
+
+        <div class="step-footer__right">
+            <a class="btn btn--medium btn--transparent"> Go to simulation </a>
+        </div>
+    </div>
+</footer>

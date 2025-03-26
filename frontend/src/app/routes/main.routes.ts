@@ -54,6 +54,15 @@ export const routes: Routes = [
                 loadChildren: () =>
                     import('./project.routes').then((r) => r.routes),
             },
+
+            {
+                path: 'scenario',
+                canMatch: [AuthGuard],
+                loadComponent: () =>
+                    import(
+                        '../components/scenario/scenario-base/scenario-base.component'
+                    ).then((c) => c.ScenarioBaseComponent),
+            },
         ],
     },
 ];

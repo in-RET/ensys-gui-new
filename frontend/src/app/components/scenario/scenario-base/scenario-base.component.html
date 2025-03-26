@@ -1,0 +1,9 @@
+<div>
+    <app-scenario-progression [step]="currentStep" />
+
+    <app-scenario-footer
+        [step]="currentStep"
+        (nextStep)="nextStep()"
+        (prevtStep)="prevtStep()"
+    />
+</div>

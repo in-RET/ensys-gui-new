@@ -1,0 +1,25 @@
+<section class="wizard">
+    <div>
+        <div class="wizard__back">
+            <div>
+                <a [routerLink]="['/projects/explore']">Projects</a>
+            </div>
+        </div>
+
+        <h1 class="wizard__name">
+            <span class="project">{{ project.name }}</span>
+            <span class="scenario">Scenario {{ scenario.name }}</span>
+        </h1>
+
+        <div class="wizard__steps">
+            <ul>
+                <li
+                    *ngFor="let step of steps; let i = index"
+                    [ngClass]="{ active: i == currentStep }"
+                >
+                    {{ step }}
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
