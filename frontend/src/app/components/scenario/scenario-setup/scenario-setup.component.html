@@ -1,1 +1,142 @@
-<p>scenario-setup works!</p>
+<div class="scenario-main">
+    <form [formGroup]="form">
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        formControlName="name"
+                        placeholder="Name"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                name!.invalid && (name!.dirty || name!.touched)
+                        }"
+                    />
+                    <label>Name</label>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <input
+                        type="date"
+                        class="form-control"
+                        formControlName="sDate"
+                        placeholder="Start Date"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                sDate!.invalid &&
+                                (sDate!.dirty || sDate!.touched)
+                        }"
+                    />
+                    <label>Start Date</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <input
+                        type="number"
+                        class="form-control"
+                        formControlName="simulationPeriod"
+                        placeholder="Simulation period of one year"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                simulationPeriod!.invalid &&
+                                (simulationPeriod!.dirty ||
+                                    simulationPeriod!.touched)
+                        }"
+                    />
+                    <label>Simulation period of one year</label>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="timeStep"
+                        [ngClass]="{
+                            'is-invalid':
+                                timeStep!.invalid &&
+                                (timeStep!.dirty || timeStep!.touched)
+                        }"
+                    >
+                        <option selected disabled value="">Choose...</option>
+                        <option value="1">60 min</option>
+                        <option value="1">15 min</option>
+                    </select>
+                    <label>Time Step</label>
+                </div>
+            </div>
+
+            <!-- datepiocker -->
+
+            <div class="row g-2">
+                <div class="col-md">
+                    <div class="form-floating mb-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            formControlName="interestRate"
+                            placeholder="Interest Rate"
+                            required
+                            [ngClass]="{
+                                'is-invalid':
+                                    interestRate!.invalid &&
+                                    (interestRate!.dirty ||
+                                        interestRate!.touched)
+                            }"
+                        />
+                        <label>Interest Rate</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="userMode"
+                        [ngClass]="{
+                            'is-invalid':
+                                userMode!.invalid &&
+                                (userMode!.dirty || userMode!.touched)
+                        }"
+                    >
+                        <option selected disabled value="">Choose...</option>
+                        <option value="1">Default User</option>
+                        <option value="1">Expert</option>
+                    </select>
+                    <label>User mode</label>
+                </div>
+            </div>
+
+            <div class="col-md">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="simulationYear"
+                        [ngClass]="{
+                            'is-invalid':
+                                simulationYear!.invalid &&
+                                (simulationYear!.dirty ||
+                                    simulationYear!.touched)
+                        }"
+                    >
+                        <option selected disabled value="">Choose...</option>
+                        <option value="1">2025</option>
+                        <option value="1">2030</option>
+                    </select>
+                    <label>Simulation year</label>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
