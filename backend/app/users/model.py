@@ -1,5 +1,4 @@
 from datetime import datetime
-from typing import Optional
 
 from fastapi import HTTPException
 from passlib.hash import pbkdf2_sha256
@@ -7,6 +6,7 @@ from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 from starlette import status
 
+from ..responses import CustomException
 
 PASSWORD_MAX_LENGTH = 128
 
@@ -27,7 +27,10 @@ class EnUser(SQLModel):
     @classmethod
     def is_mail_address(cls, value: str) -> str:
         if value.find("@") == -1:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid mail address.")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid mail address."
+            )
         return value
 
     @field_validator('password', mode='after')

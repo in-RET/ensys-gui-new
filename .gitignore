@@ -50,4 +50,4 @@ Thumbs.db
 node_modules/
 data/
 *.sqlite
-/frontend/package-lock.json
+package-lock.json

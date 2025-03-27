@@ -1,14 +1,17 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
 
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, HTMLResponse
 
 from .admin.router import admin_router
 from .db import create_db_and_tables
 from .projects.router import projects_router
+from .responses import CustomException, CustomResponse, ErrorModel
 from .scenarios.router import scenario_router
 from .users.router import users_router
 
@@ -22,7 +25,51 @@ async def lifespan(fastapi_app: FastAPI):
     yield
     # shutdown events
 
-app = FastAPI(lifespan=lifespan)
+tags_metadata = [
+    {
+        "name": "user",
+        "description": "Operations with users. The **login** logic is also here."
+    },
+    {
+        "name": "project",
+        "description": "Manage projects.",
+        "externalDocs": {
+            "description": "Items external docs",
+            "url": "https://fastapi.tiangolo.com/",
+        },
+    },
+    {
+        "name": "admin",
+        "description": "Just a Teapot."
+    },
+    {
+        "name": "scenario",
+        "description": "Manage scenarios."
+    },
+    {
+        "name": "default",
+        "description": "The root of all evil."
+    },
+]
+
+app = FastAPI(
+    lifespan=lifespan,
+    title="EnSys Backend",
+    #description="Description",
+    summary="The API and backend for the softwarepackage 'EnSys by in.RET'",
+    version="0.2.0dev",
+    #terms_of_service="link",
+    contact={
+        "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",
+        "url": "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
+        "email": "ensys@hs-nordhausen.de",
+    },
+    license_info={
+        "name": "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
+        "identifier": "aGPL",
+    },
+    openapi_tags=tags_metadata,
+)
 
 origins = [
     "http://localhost:9003",
@@ -55,10 +102,46 @@ app.include_router(
 )
 
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 async def root():
-    return JSONResponse(
-        content={"message": "For documentation see /docs or 'https://in-ret.github.io/ensys-gui-new/'"},
-        status_code=status.HTTP_200_OK,
+    html_content = """
+    <html>
+        <head>
+            <title>EnSys FastAPI</title>
+        </head>
+        <body style="background-color:#dcdcde; margin: auto; width: 75vh; height: 75%; display: flex; justify-content: center; align-items: center;">
+        <div style="background-color:#fcf9e8; width:100%; text-align: center; font-family: monospace; padding: 15px">
+            <h1>Welcome</h1>
+            <p>For documentation see '/docs', '/redoc' or <a target="_blank" href="https://in-ret.github.io/ensys-gui-new/">this link</a>.<p>
+        </div>
+        </body>
+    </html>
+    """
+
+    return HTMLResponse(
+        content=html_content,
+        status_code=status.HTTP_200_OK
     )
 
+# @app.exception_handler(CustomException)
+# async def custom_exceptions_handler(request: Request, exc: CustomException):
+#     return JSONResponse({
+#         "data":None,
+#         "success":False,
+#         "errors": [ErrorModel(
+#             code=exc.code,
+#             message=exc.message,
+#         )]}
+#     )
+
+# @app.exception_handler(RequestValidationError)
+# async def validation_exception_handler(request: Request, exc: RequestValidationError):
+#     #print(exc.errors())
+#     return CustomResponse(
+#         data=None,
+#         success=False,
+#         errors=[ErrorModel(
+#             code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+#             message=repr(exc.errors())
+#         )]
+#     )
