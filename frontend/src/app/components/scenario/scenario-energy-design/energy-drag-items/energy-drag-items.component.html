@@ -1,0 +1,16 @@
+<div
+    class="section__component"
+    draggable="true"
+    (dragstart)="drag($event)"
+    [attr.data-node]="id"
+>
+    <img
+        class="img"
+        src="/static/assets/gui/{{ id }}.svg"
+        alt="{{ name }} icon"
+    />
+    <span class="name">{{ name }}</span>
+    <span class="drag">
+        <img [src]="'/static/assets/gui/drag-circles.svg'" alt="Drag element" />
+    </span>
+</div>

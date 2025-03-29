@@ -1,0 +1,144 @@
+<div
+    class="modal fade modal--gui"
+    id="guiModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="guiModalLabel"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="guiModalLabel">New message</h5>
+            </div>
+
+            <div class="container">
+                <div class="row align-item-start">
+                    <div class="col">
+                        <form
+                            id="assetForm"
+                            onkeydown="return event.key != 'Enter';"
+                        >
+                            <div class="modal-body"></div>
+                        </form>
+                    </div>
+
+                    <div class="col collapse modal-body" id="form-computeCOP">
+                        <button id="btn-computeCOP" class="btn btn--medium">
+                            COP
+                        </button>
+
+                        <form id="copForm">
+                            <div class="modal-addendum"></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Close
+                </button>
+
+                <!-- {% if scenario.project.user == request.user %} -->
+                <button class="btn btn--medium">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main>
+    <section class="system-design">
+        <div
+            style="
+                display: flex;
+                flex-direction: column;
+                background-color: #f4f7f9;
+            "
+        >
+            <div class="components" style="min-height: 115px">
+                <div class="components__title">
+                    <div>
+                        <h2>General</h2>
+                    </div>
+                </div>
+
+                <div class="clear_design">
+                    <a
+                        class="btn btn--medium btn--hollow"
+                        (click)="clearGridModel()"
+                    >
+                        Clear Design
+                    </a>
+                </div>
+            </div>
+
+            <div class="components">
+                <div class="components__title">
+                    <div>
+                        <h2>Energy components</h2>
+                        <span
+                            class="icon icon-question"
+                            data-bs-toggle="tooltip"
+                            title="List of all possible components."
+                        ></span>
+                    </div>
+                </div>
+
+                <div class="components__content">
+                    <!-- {% for group_name, group_components in components.items %} -->
+                    <!-- <div class="section section--{{ group_name }}"> -->
+                    <div
+                        class="section section--{{ componet.group_name }}"
+                        *ngFor="let componet of components.items"
+                    >
+                        <div class="section__title">
+                            <h3>
+                                {{ componet.group_name }}
+                            </h3>
+                        </div>
+
+                        <ng-container
+                            *ngFor="let component of componet.group_components"
+                        >
+                            <app-energy-drag-items
+                                [id]="component.id"
+                                [name]="component.name"
+                            />
+                        </ng-container>
+                        <!-- {% for component_id, component_name in
+                        group_components.items %} {% include
+                        'scenario/topology_drag_items.html' with
+                        name=component_name 
+                        alt=component_name|add:"icon"
+                        image=component_id|add:".svg" 
+                        data_node=component_id %}
+                        {% endfor %} -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div
+            id="drawflow"
+            class="gui"
+            (drop)="drop($event)"
+            (dragover)="allowDrop($event)"
+        >
+            <div class="gui__empty-text">
+                <span>
+                    Drag and drop components to build your energy system
+                </span>
+
+                <br />
+
+                <span>DoubleClick: Opens form to enter parameters</span><br />
+                <span>Middle Mousebutton: Mirror the selected block</span>
+            </div>
+        </div>
+    </section>
+</main>

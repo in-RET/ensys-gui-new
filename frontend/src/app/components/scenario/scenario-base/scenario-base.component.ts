@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
+import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
 import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
 import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
@@ -11,12 +12,13 @@ import { ScenarioProgressionComponent } from './scenario-progression/scenario-pr
         ScenarioProgressionComponent,
         ScenarioFooterComponent,
         ScenarioSetupComponent,
+        ScenarioEnergyDesignComponent,
     ],
     templateUrl: './scenario-base.component.html',
     styleUrl: './scenario-base.component.scss',
 })
 export class ScenarioBaseComponent {
-    currentStep: number = 0;
+    currentStep: number = 1;
 
     nextStep() {
         this.currentStep += 1;

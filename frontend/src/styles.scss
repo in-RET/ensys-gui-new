@@ -2208,7 +2208,7 @@ table.table > :not(caption) > * > * {
     display: flex;
     flex-direction: row;
     height: calc(100vh - 14rem);
-    margin-top: 8.8rem;
+    // margin-top: 8.8rem;
 }
 
 .system-design .components {
@@ -2997,7 +2997,7 @@ table.table > :not(caption) > * > * {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin-top: 8.8rem;
+    // margin-top: 8.8rem;
 }
 
 .scenario-create form {

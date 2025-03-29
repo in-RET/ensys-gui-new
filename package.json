@@ -2,5 +2,8 @@
   "dependencies": {
     "@sweetalert2/ngx-sweetalert2": "^13.0.0",
     "sweetalert2": "^11.17.2"
+  },
+  "devDependencies": {
+    "@types/drawflow": "^0.0.12"
   }
 }

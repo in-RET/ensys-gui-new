@@ -11,12 +11,12 @@
                 Previous
             </button>
 
-            <button class="btn btn--medium btn--transparent" *ngIf="step == 1">
-                Save
-            </button>
-
             <button class="btn btn--medium" *ngIf="step < 4" (click)="next()">
                 Next
+            </button>
+
+            <button class="btn btn--medium btn--transparent" *ngIf="step == 1">
+                Save
             </button>
         </div>
 
