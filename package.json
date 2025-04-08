@@ -1,9 +1,12 @@
 {
   "dependencies": {
     "@sweetalert2/ngx-sweetalert2": "^13.0.0",
+    "@types/feather-icons": "^4.29.4",
+    "bootstrap": "^5.3.3",
     "sweetalert2": "^11.17.2"
   },
   "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
     "@types/drawflow": "^0.0.12"
   }
 }

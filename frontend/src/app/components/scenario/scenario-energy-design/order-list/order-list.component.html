@@ -1,0 +1,100 @@
+<section class="p-2 border border-primary-subtle rounded">
+    <h6>{{ label }}</h6>
+
+    <form class="d-flex flex-row">
+        <input
+            type="text"
+            class="form-control w-100"
+            placeholder="Name"
+            [formControl]="name"
+        />
+
+        <div class="d-flex flex-row gap-1 justify-content-between px-3">
+            <button
+                class="btn btn-outline-info"
+                type="submit"
+                (click)="addItem()"
+                *ngIf="!editableMode"
+            >
+                <img
+                    src="../../../../../static/assets/icons/feather/plus.svg"
+                    alt=""
+                    height="22px"
+                />
+            </button>
+
+            <ng-container *ngIf="editableMode">
+                <button
+                    type="submit"
+                    class="btn btn-secondary"
+                    (click)="editItem(true)"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/check.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    type="reset"
+                    class="btn btn-secondary"
+                    (click)="editItem(false)"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/x.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+            </ng-container>
+        </div>
+    </form>
+
+    <div class="d-flex mt-3" *ngIf="data">
+        <div class="order-list card p-1 gap-1">
+            <div
+                class="order-item p-2 border-bottom d-flex"
+                *ngFor="let item of data"
+                [ngClass]="{ active: selectedItem === item.id }"
+                (click)="selectItem(item.id)"
+            >
+                <span>{{ item.name }}</span>
+            </div>
+        </div>
+
+        <div
+            class="order-actions d-flex flex-column justify-content-between px-3"
+        >
+            <button
+                class="btn btn-outline-info"
+                [disabled]="selectedItem == null || editableMode"
+            >
+                up
+            </button>
+
+            <button
+                class="btn btn-outline-info"
+                [disabled]="selectedItem == null || editableMode"
+            >
+                down
+            </button>
+
+            <button
+                class="btn btn-outline-info"
+                [disabled]="selectedItem == null || editableMode"
+                (click)="deleteItem()"
+            >
+                delete
+            </button>
+
+            <button
+                class="btn btn-outline-info"
+                [disabled]="selectedItem == null || editableMode"
+                (click)="edit()"
+            >
+                edit
+            </button>
+        </div>
+    </div>
+</section>

@@ -3,10 +3,11 @@ import { Component } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.component';
+import { ModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'app-scenario-energy-design',
-    imports: [CommonModule, EnergyDragItemsComponent],
+    imports: [CommonModule, EnergyDragItemsComponent, ModalComponent],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
@@ -85,7 +86,8 @@ export class ScenarioEnergyDesignComponent {
         ],
     };
 
-    editor: any;
+    editor!: Drawflow;
+    modalVisibility: boolean = false;
 
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
@@ -101,10 +103,13 @@ export class ScenarioEnergyDesignComponent {
         ev.preventDefault();
 
         const nodeName = ev.dataTransfer.getData('node');
-        // nodeName === 'bus'
+        const nodeGroup = ev.dataTransfer.getData('group');
+        // nodeGroup === 'conversion';
         //     ? this.IOBusOptions(nodeName, ev.clientX, ev.clientY)
         //     : this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 1, 1);
-        this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 3, 3);
+        // this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 30, 6);
+
+        this.modalVisibility = true;
     }
 
     IOBusOptions(nodeName: any, posX: any, posY: any) {
@@ -123,7 +128,7 @@ export class ScenarioEnergyDesignComponent {
         nodeInputs?: any,
         nodeOutputs?: any
     ) {
-        if (this.editor.editor_mode === 'fixed') return false;
+        // if (this.editor.editor_mode === 'fixed') return false;
         // the following translation/transformation is required to correctly drop the nodes in the current clientScreen
         pos_x =
             pos_x *
@@ -140,14 +145,7 @@ export class ScenarioEnergyDesignComponent {
                 (this.editor.precanvas.clientHeight /
                     (this.editor.precanvas.clientHeight * this.editor.zoom));
 
-        return this.createNodeObject(
-            name,
-            nodeInputs,
-            nodeOutputs,
-            {},
-            pos_x,
-            pos_y
-        );
+        this.createNodeObject(name, nodeInputs, nodeOutputs, {}, pos_x, pos_y);
     }
 
     createNodeObject(
@@ -158,49 +156,17 @@ export class ScenarioEnergyDesignComponent {
         pos_x: any,
         pos_y: any
     ) {
-        const shownName =
-            typeof nodeData.name === 'undefined' ? nodeName : nodeData.name;
-        const source_html = `<div class="box" asset_type_name="${nodeName}">
-            <div class="modal" style="display:none">
-              <div class="modal-content">
-                <span class="close" onclick="closemodal(event)">&times;</span>
-                <br>
-                <h2 class="panel-heading" text-align: left">${nodeName.replaceAll(
-                    '_',
-                    ' '
-                )} Properties</h2>
-                <br>
-                <div class="row">
-                <div class="col-md-1"></div>
-                <div class="col-md-10">
-                    <form></form>
-                </div>
-                </div>
-                <br>
-                <div class="row">
-                    <div class="col-md-3"></div>
-                    <div class="col-md-6">
-                       <button class="modalbutton" style="font-size: medium; font-family: century gothic" onclick="submitForm(event)">Ok</button>'
-                    </div>
-                </div>
-              </div>
-            </div>
-        </div>
-        <div class="nodeName" >${shownName}</div>`;
-
-        return {
-            editorNodeId: this.editor.addNode(
-                nodeName,
-                connectionInputs,
-                connectionOutputs,
-                pos_x,
-                pos_y,
-                nodeName,
-                nodeData,
-                source_html
-            ),
-            specificNodeType: nodeName,
-        };
+        this.editor.addNode(
+            nodeName,
+            connectionInputs,
+            connectionOutputs,
+            pos_x,
+            pos_y,
+            nodeName,
+            nodeData,
+            '',
+            false
+        );
     }
 
     clearGridModel() {

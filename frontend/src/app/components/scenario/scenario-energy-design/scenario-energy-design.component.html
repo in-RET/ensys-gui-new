@@ -108,6 +108,7 @@
                             <app-energy-drag-items
                                 [id]="component.id"
                                 [name]="component.name"
+                                [group]="componet.group_name"
                             />
                         </ng-container>
                         <!-- {% for component_id, component_name in
@@ -142,3 +143,5 @@
         </div>
     </section>
 </main>
+
+<app-modal *ngIf="modalVisibility" />

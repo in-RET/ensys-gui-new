@@ -7,10 +7,12 @@ import { Component, Input } from '@angular/core';
     styleUrl: './energy-drag-items.component.scss',
 })
 export class EnergyDragItemsComponent {
-    @Input() name: any;
+    @Input() name!: string;
+    @Input() group!: string;
     @Input() id: any;
 
     drag(ev: any) {
-        ev.dataTransfer.setData('node', ev.target.getAttribute('data-node'));
+        ev.dataTransfer.setData('node', this.name);
+        ev.dataTransfer.setData('group', this.group);
     }
 }
