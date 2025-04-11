@@ -24,6 +24,14 @@ export class OrderListComponent {
     // @Output('') : EventEmitter<any> =
     //     new EventEmitter<any>();
 
+    ngOnInit() {
+        this.data = [
+            { id: 0, name: 'a' },
+            { id: 1, name: 'b' },
+            { id: 2, name: 'c' },
+        ];
+    }
+
     addItem() {
         !this.data ? (this.data = []) : null;
 
@@ -46,8 +54,17 @@ export class OrderListComponent {
     }
 
     deleteItem() {
-        const i = this.data.findIndex((x) => x.id == this.selectedItem);
-        this.data.splice(i, 1);
+        const foundItemIndex = this.data.findIndex(
+            (x) => x.id == this.selectedItem
+        );
+
+        // decrease id
+        this.data.forEach((element, index) => {
+            index > foundItemIndex ? (element.id -= 1) : null;
+        });
+
+        this.data.splice(foundItemIndex, 1);
+        this.clearEditMode();
     }
 
     edit() {
@@ -69,5 +86,46 @@ export class OrderListComponent {
         }
 
         this.clearEditMode();
+    }
+
+    moveItemUpDown(direction: 'down' | 'up') {
+        switch (direction) {
+            case 'down':
+                if (
+                    (this.selectedItem || this.selectedItem == 0) &&
+                    this.selectedItem < this.data.length - 1
+                ) {
+                    const i = this.data.findIndex(
+                        (x) => x.id == this.selectedItem
+                    );
+
+                    this.data[i].id += 1;
+                    this.data[i + 1].id -= 1;
+
+                    var element = this.data[i];
+                    this.data.splice(i, 1);
+                    this.data.splice(i + 1, 0, element);
+
+                    this.selectedItem = element.id;
+                }
+                break;
+
+            case 'up':
+                if (this.selectedItem && this.selectedItem > 0) {
+                    const i = this.data.findIndex(
+                        (x) => x.id == this.selectedItem
+                    );
+
+                    this.data[i].id -= 1;
+                    this.data[i - 1].id += 1;
+
+                    var element = this.data[i];
+                    this.data.splice(i, 1);
+                    this.data.splice(i - 1, 0, element);
+
+                    this.selectedItem = element.id;
+                }
+                break;
+        }
     }
 }

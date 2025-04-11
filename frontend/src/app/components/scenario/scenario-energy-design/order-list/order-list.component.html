@@ -11,13 +11,13 @@
 
         <div class="d-flex flex-row gap-1 justify-content-between px-3">
             <button
-                class="btn btn-outline-info"
+                class="btn btn--success"
                 type="submit"
                 (click)="addItem()"
                 *ngIf="!editableMode"
             >
                 <img
-                    src="../../../../../static/assets/icons/feather/plus.svg"
+                    src="../../../../../static/assets/icons/feather/white/plus.svg"
                     alt=""
                     height="22px"
                 />
@@ -30,7 +30,7 @@
                     (click)="editItem(true)"
                 >
                     <img
-                        src="../../../../../static/assets/icons/feather/check.svg"
+                        src="../../../../../static/assets/icons/feather/white/check.svg"
                         alt=""
                         height="22px"
                     />
@@ -42,7 +42,7 @@
                     (click)="editItem(false)"
                 >
                     <img
-                        src="../../../../../static/assets/icons/feather/x.svg"
+                        src="../../../../../static/assets/icons/feather/white/x.svg"
                         alt=""
                         height="22px"
                     />
@@ -59,7 +59,7 @@
                 [ngClass]="{ active: selectedItem === item.id }"
                 (click)="selectItem(item.id)"
             >
-                <span>{{ item.name }}</span>
+                <span>{{ item.name }} </span>
             </div>
         </div>
 
@@ -67,33 +67,57 @@
             class="order-actions d-flex flex-column justify-content-between px-3"
         >
             <button
-                class="btn btn-outline-info"
-                [disabled]="selectedItem == null || editableMode"
+                class="btn btn--"
+                [disabled]="
+                    selectedItem == null || editableMode || selectedItem == 0
+                "
+                (click)="moveItemUpDown('up')"
             >
-                up
+                <img
+                    src="../../../../../static/assets/icons/feather/white/chevron-up.svg"
+                    alt=""
+                    height="22px"
+                />
             </button>
 
             <button
-                class="btn btn-outline-info"
-                [disabled]="selectedItem == null || editableMode"
+                class="btn btn--"
+                [disabled]="
+                    selectedItem == null ||
+                    editableMode ||
+                    selectedItem == data.length - 1
+                "
+                (click)="moveItemUpDown('down')"
             >
-                down
+                <img
+                    src="../../../../../static/assets/icons/feather/white/chevron-down.svg"
+                    alt=""
+                    height="22px"
+                />
             </button>
 
             <button
-                class="btn btn-outline-info"
-                [disabled]="selectedItem == null || editableMode"
-                (click)="deleteItem()"
-            >
-                delete
-            </button>
-
-            <button
-                class="btn btn-outline-info"
+                class="btn btn--pending"
                 [disabled]="selectedItem == null || editableMode"
                 (click)="edit()"
             >
-                edit
+                <img
+                    src="../../../../../static/assets/icons/feather/white/edit.svg"
+                    alt=""
+                    height="22px"
+                />
+            </button>
+
+            <button
+                class="btn btn--error"
+                [disabled]="selectedItem == null || editableMode"
+                (click)="deleteItem()"
+            >
+                <img
+                    src="../../../../../static/assets/icons/feather/white/x.svg"
+                    alt=""
+                    height="22px"
+                />
             </button>
         </div>
     </div>
