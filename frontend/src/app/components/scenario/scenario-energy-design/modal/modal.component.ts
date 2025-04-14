@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -32,7 +32,9 @@ export class ModalComponent {
         return this.form.get('portExportTotal');
     }
 
-    @ViewChild('exampleModal') modalRef = {} as ElementRef;
+    @ViewChild('modal') modalRef = {} as ElementRef;
+
+    @Input() title!: string;
 
     inputPortList!: any[];
     outputPortList!: any[];

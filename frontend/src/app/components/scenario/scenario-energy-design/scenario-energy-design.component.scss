@@ -1,0 +1,416 @@
+.system-design-error .modal-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.system-design-error .system-design-error__img {
+    width: 5rem;
+}
+
+.system-design-error .system-design-error__message {
+    padding-top: 2rem;
+}
+
+.system-design-error .system-design-error__log {
+    list-style: none;
+    padding-left: 1.5rem;
+    padding-top: 1rem;
+}
+
+.system-design-error .system-design-error__log li {
+    position: relative;
+    color: #9a031e;
+    padding-bottom: 0.5rem;
+}
+
+.system-design-error .system-design-error__log li span {
+    font-weight: 700;
+}
+
+.system-design-error .system-design-error__log li::before {
+    font-family: "icomoon";
+    content: "\e906";
+    position: absolute;
+    display: inline-block;
+    left: -1.5rem;
+}
+
+.system-design {
+    .components {
+        width: 22rem;
+        background-color: #f4f7f9;
+        border-right: 2px solid #f4f7f9;
+        overflow-y: auto;
+    }
+}
+
+.system-design {
+    display: flex;
+    flex-direction: row;
+}
+
+.system-design .components__title {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 2.85rem;
+    background-color: #fff;
+    padding: 1rem;
+}
+
+.system-design .components__title h2 {
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    color: #343434;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.system-design .components__content {
+    padding: 1rem 1rem 0;
+}
+
+.system-design .components__content .section {
+    padding-bottom: 1rem;
+}
+
+.system-design .components__content .section__title h3 {
+    font-size: 1rem;
+}
+
+.system-design .components__content .section__component {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 3rem;
+    border-radius: 8px;
+    box-shadow: 0px 0px 16px rgba(31, 86, 125, 0.08);
+    background-color: #fff;
+    border-left: 4px solid #a4adfb;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: move;
+}
+
+.system-design .components__content .section .img {
+    height: 2rem;
+    width: 2rem;
+}
+
+.system-design .components__content .section .name {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #343434;
+    padding-left: 0.5rem;
+}
+
+.system-design .components__content .section .drag {
+    flex: 1;
+    text-align: right;
+}
+
+.system-design .components__content .section--providers .section__component {
+    border-left-color: #a4adfb;
+}
+
+.system-design .components__content .section--production .section__component {
+    border-left-color: #ffef9f;
+}
+
+.system-design .components__content .section--conversion .section__component {
+    border-left-color: #7bf1a8;
+}
+
+.system-design .components__content .section--storage .section__component {
+    border-left-color: #90f1ef;
+}
+
+.system-design .components__content .section--demand .section__component {
+    border-left-color: #ffd6e0;
+}
+
+.system-design .components__content .section--bus .section__component {
+    border-left-color: #f4cc9e;
+}
+
+.system-design {
+    .gui {
+        position: relative;
+        flex: 1;
+        height: 100%;
+    }
+}
+
+.system-design .gui__clear {
+    display: flex;
+    z-index: 99;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 1rem;
+    background-color: #fff;
+}
+
+.system-design .gui__clear .form-select {
+    font-size: 0.875rem;
+}
+
+.system-design .gui__clear button.btn {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.system-design .gui__save {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 1rem;
+}
+
+.system-design .gui #js-designSaved {
+    display: none;
+    color: #09bc8a;
+    font-weight: 700;
+}
+
+.system-design .gui #js-designSaved.display {
+    display: block;
+    -webkit-animation: slide-in-blurred-top 0.6s cubic-bezier(0.23, 1, 0.32, 1)
+        both;
+    animation: slide-in-blurred-top 0.6s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.system-design .gui #js-saveDesign.hidden {
+    display: none;
+}
+
+.system-design .gui__empty-text {
+    display: inline-block;
+    position: absolute;
+    top: 2rem;
+    transform: translateY(-50%);
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+
+.system-design .gui__empty-text span {
+    color: #343434;
+    font-weight: 300;
+}
+
+.system-design .drawflow .connection .main-path {
+    width: 20px;
+}
+
+.system-design .parent-node .drawflow-delete {
+    content: "X";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #fff;
+    color: black;
+    width: 1.15rem;
+    height: 1.15rem;
+    font-weight: 700;
+    line-height: 1rem;
+    padding-left: 0.25rem;
+    border: 1px solid #495965;
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+.system-design .drawflow .drawflow-node {
+    position: absolute;
+    height: 8rem;
+    width: 9.5rem;
+    border-radius: 8px;
+    background-color: #f4f7f9;
+    font-size: 12px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 4px solid #a4adfb;
+    cursor: move;
+    padding: 0 0.5rem 0.5rem;
+    /* section colors */
+}
+
+.system-design .drawflow .drawflow-node:hover {
+    background-color: #edf2f5;
+    box-shadow: 0 0 1rem 0.3rem #d4d4d4;
+}
+
+.system-design .drawflow .drawflow-node.selected {
+    background-color: #e3eaee;
+}
+
+.system-design .drawflow .drawflow-node .drawflow_content_node {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.system-design .drawflow .drawflow-node .inputs {
+    left: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .outputs {
+    right: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs,
+.system-design .drawflow .drawflow-node .outputs {
+    position: relative;
+    top: 0.4rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .input,
+.system-design .drawflow .drawflow-node .outputs .output {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 100%;
+    margin: 0.25rem 0;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .outputs .input {
+    background-color: #4ec4c4;
+    left: -22px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input.mirrored,
+.system-design .drawflow .drawflow-node .outputs .input.mirrored {
+    background-color: #4ec4c4;
+    left: -5px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .output {
+    background-color: #c46a4e;
+    right: -10px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output.mirrored,
+.system-design .drawflow .drawflow-node .outputs .output.mirrored {
+    background-color: #c46a4e;
+    right: 5px;
+}
+
+.system-design .drawflow .drawflow-node .img {
+    position: relative;
+    width: 4.5rem;
+    height: 4.5rem;
+    background-color: #fff;
+    border-radius: 100%;
+}
+
+.system-design .drawflow .drawflow-node.mySource,
+.system-design .drawflow .drawflow-node.myPredefinedSource {
+    border-bottom-color: #ffef9f;
+}
+
+.system-design .drawflow .drawflow-node.mySource .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSource .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/mySource.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.myTransformer,
+.system-design .drawflow .drawflow-node.myPredefinedTransformer {
+    border-bottom-color: #7bf1a8;
+}
+
+.system-design .drawflow .drawflow-node.myTransformer .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedTransformer .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/myTransformer.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.myGenericStorage,
+.system-design .drawflow .drawflow-node.myPredefinedStorage {
+    border-bottom-color: #90f1ef;
+}
+
+.system-design .drawflow .drawflow-node.myGenericStorage .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedStorage .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/myGenericStorage.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.mySink,
+.system-design .drawflow .drawflow-node.myPredefinedSink,
+.system-design .drawflow .drawflow-node.myPredefinedSinkOEP,
+.system-design .drawflow .drawflow-node.myExcess,
+.system-design .drawflow .drawflow-node.myExport {
+    border-bottom-color: #ffd6e0;
+}
+
+.system-design .drawflow .drawflow-node.mySink .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSink .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSinkOEP .img::before,
+.system-design .drawflow .drawflow-node.myExcess .img::before,
+.system-design .drawflow .drawflow-node.myExport .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/mySink.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.bus {
+    border-bottom-color: #f4cc9e;
+}
+
+.system-design .drawflow .drawflow-node.bus .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/bus.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}

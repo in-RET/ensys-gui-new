@@ -2,12 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
-import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.component';
+import { EnergyComponentsComponent } from './energy-components/energy-components.component';
+import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { ModalComponent } from './modal/modal.component';
 
 @Component({
     selector: 'app-scenario-energy-design',
-    imports: [CommonModule, EnergyDragItemsComponent, ModalComponent],
+    imports: [
+        CommonModule,
+        ModalComponent,
+        EnergyComponentsComponent,
+        EnergyDrawflowComponent,
+    ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
@@ -88,29 +94,9 @@ export class ScenarioEnergyDesignComponent {
 
     editor!: Drawflow;
     modalVisibility: boolean = false;
+    createdNode: any = {}; // {name: ....}
 
-    ngOnInit() {
-        var id: any = document.getElementById('drawflow');
-        this.editor = new Drawflow(id);
-        this.editor.start();
-    }
-
-    allowDrop(ev: any) {
-        ev.preventDefault();
-    }
-
-    drop(ev: any) {
-        ev.preventDefault();
-
-        const nodeName = ev.dataTransfer.getData('node');
-        const nodeGroup = ev.dataTransfer.getData('group');
-        // nodeGroup === 'conversion';
-        //     ? this.IOBusOptions(nodeName, ev.clientX, ev.clientY)
-        //     : this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 1, 1);
-        // this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 30, 6);
-
-        this.modalVisibility = true;
-    }
+    ngOnInit() {}
 
     IOBusOptions(nodeName: any, posX: any, posY: any) {
         const checkMinMax = (value: any, min: any, max: any) =>
@@ -179,5 +165,10 @@ export class ScenarioEnergyDesignComponent {
             cancelButtonText: 'Cancel',
         }).then((result) => result.value && this.editor.clearModuleSelected());
         // .then((result) => save_topology());
+    }
+
+    drop(nodeName: string) {
+        this.createdNode['name'] = nodeName;
+        this.modalVisibility = true;
     }
 }

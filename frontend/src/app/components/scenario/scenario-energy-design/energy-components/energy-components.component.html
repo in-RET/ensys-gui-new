@@ -1,0 +1,69 @@
+<section class="h-100">
+    <div
+        class="h-100"
+        style="display: flex; flex-direction: column; background-color: #f4f7f9"
+    >
+        <div class="">
+            <div class="components__title">
+                <div>
+                    <h2>General</h2>
+                </div>
+            </div>
+
+            <div class="clear_design">
+                <a
+                    class="btn btn--medium btn--hollow"
+                    (click)="onClearGridModel()"
+                >
+                    Clear Design
+                </a>
+            </div>
+        </div>
+
+        <div class="h-100" style="overflow-y: scroll">
+            <div class="components__title">
+                <div>
+                    <h2>Energy components</h2>
+                    <span
+                        class="icon icon-question"
+                        data-bs-toggle="tooltip"
+                        title="List of all possible components."
+                    ></span>
+                </div>
+            </div>
+
+            <div class="components__content">
+                <!-- {% for group_name, group_components in components.items %} -->
+                <!-- <div class="section section--{{ group_name }}"> -->
+                <div
+                    class="section section--{{ componet.group_name }}"
+                    *ngFor="let componet of components.items"
+                >
+                    <div class="section__title">
+                        <h3>
+                            {{ componet.group_name }}
+                        </h3>
+                    </div>
+
+                    <ng-container
+                        *ngFor="let component of componet.group_components"
+                    >
+                        <app-energy-drag-items
+                            [id]="component.id"
+                            [name]="component.name"
+                            [group]="componet.group_name"
+                        />
+                    </ng-container>
+                    <!-- {% for component_id, component_name in
+            group_components.items %} {% include
+            'scenario/topology_drag_items.html' with
+            name=component_name 
+            alt=component_name|add:"icon"
+            image=component_id|add:".svg" 
+            data_node=component_id %}
+            {% endfor %} -->
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

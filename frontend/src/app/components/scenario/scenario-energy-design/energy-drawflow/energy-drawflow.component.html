@@ -1,0 +1,15 @@
+<section class="w-100 h-100">
+    <div
+        id="drawflow"
+        class="w-100 h-100"
+        (drop)="onDrop($event)"
+        (dragover)="allowDrop($event)"
+    >
+        <div class="gui__empty-text">
+            <span> Drag and drop components to build your energy system </span>
+            <br />
+            <span>DoubleClick: Opens form to enter parameters</span><br />
+            <span>Middle Mousebutton: Mirror the selected block</span>
+        </div>
+    </div>
+</section>

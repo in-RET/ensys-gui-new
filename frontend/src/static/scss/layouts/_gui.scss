@@ -4,7 +4,7 @@
 .system-design {
     @include flex-row;
     height: calc(
-        100vh - #{$top-nav-height} - #{$wizard-height} - #{$footer-scenario-height}
+        100vh - #{$top-nav-height} - #{$wizard-height +1} - #{$footer-scenario-height +1}
     );
     border-top: $gray-border;
 
@@ -137,10 +137,10 @@
         &__empty-text {
             display: inline-block;
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
+            // top: 50%;
+            // transform: translateY(-50%);
+            // transform: translateX(-50%);
             left: 50%;
-            transform: translateX(-50%);
 
             span {
                 color: $primary-color-2;

@@ -169,17 +169,18 @@ nav.navbar {
 .wizard {
     position: relative;
     background-color: $primary-gray-color-1;
-    height: $wizard-height;
-    min-height: $wizard-height;
+    // height: $wizard-height;
+    // min-height: $wizard-height;
+    padding: 10px;
 
     @include flex-row-justify-center;
-    padding-bottom: 2rem;
+    // padding-bottom: 2rem;
 
     & > div {
         @include flex-column-align-justify-center;
         @include user-select-none;
         @include section-width;
-        padding-top: 2rem;
+        // padding-top: 2rem;
         position: relative;
     }
 
