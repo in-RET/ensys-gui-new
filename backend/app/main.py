@@ -6,6 +6,8 @@ from starlette import status
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
+from .components.router import component_router
+from .link.router import link_router
 from .projects.router import projects_router
 from .scenarios.router import scenario_router
 from .users.router import users_router
@@ -93,6 +95,13 @@ app.include_router(
     router=scenario_router
 )
 
+app.include_router(
+    router=component_router
+)
+
+app.include_router(
+    router=link_router
+)
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
