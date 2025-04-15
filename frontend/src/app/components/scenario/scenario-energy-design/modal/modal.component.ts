@@ -34,6 +34,8 @@ export class ModalComponent {
     @Output() closeModal: EventEmitter<null> = new EventEmitter<null>();
 
     ngOnInit() {
+        console.log(this.node.name);
+
         this.initFormData(this.node.name);
 
         setTimeout(() => {

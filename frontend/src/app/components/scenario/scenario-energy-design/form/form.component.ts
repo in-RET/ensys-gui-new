@@ -24,7 +24,7 @@ export class FormComponent {
     // get fControl()
 
     ngOnInit() {
-        this.initForm();
+        if (this.formData) this.initForm();
     }
 
     initForm() {
