@@ -26,7 +26,7 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
 
 @simulation_router.post("/stop/{scenario_id}", response_model=CustomResponse)
-async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 

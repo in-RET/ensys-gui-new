@@ -39,7 +39,7 @@ class EnComponent(EnComponentsTemplate):
     data: dict[str, Any] = Field(sa_column=Column(ARRAY(String)))
     pos_x: float = Field(nullable=False, default=0.0)
     pos_y: float = Field(nullable=False, default=0.0)
-    scenario_id: int = Field(foreign_key="scenario.id", nullable=False)
+    scenario_id: int = Field(foreign_key="scenarios.id", nullable=False)
 
 class EnComponentDB(EnComponent, table=True):
     __tablename__ = "components_in_design"
