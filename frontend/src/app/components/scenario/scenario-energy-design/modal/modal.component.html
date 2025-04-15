@@ -30,7 +30,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <ng-template
-                            [ngIf]="node.name === 'Bus'"
+                            [ngIf]="node.name === 'Transformer'"
                             [ngIfElse]="port"
                         >
                             <app-order-list [label]="'Inputs'" />
@@ -48,7 +48,7 @@
 
                     <div class="col-md-6">
                         <ng-template
-                            [ngIf]="node.name === 'Bus'"
+                            [ngIf]="node.name === 'Transformer'"
                             [ngIfElse]="port"
                         >
                             <app-order-list [label]="'Outputs'" />

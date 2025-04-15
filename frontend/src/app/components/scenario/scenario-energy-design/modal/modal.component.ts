@@ -388,6 +388,355 @@ export class ModalComponent {
                     ],
                 };
                 break;
+
+            case 'Transformer':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '4',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Economical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'maximum',
+                                    placeholder: 'Maximum',
+                                    label: 'Maximum',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'minimum',
+                                    placeholder: 'Minimum',
+                                    label: 'Minimum',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'existing',
+                                    placeholder: 'Existing',
+                                    label: 'Existing',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'capex',
+                                    placeholder: 'Capex',
+                                    label: 'Capex',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'opex',
+                                    placeholder: 'Opex',
+                                    label: 'Opex',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'offset',
+                                    placeholder: 'Offset',
+                                    label: 'Offset',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'lifetime',
+                                    placeholder: 'Lifetime',
+                                    label: 'Lifetime',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'Nominal_value',
+                                    placeholder: 'Nominal value',
+                                    label: 'Nominal value',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'max',
+                                    placeholder: 'max',
+                                    label: 'max',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'min',
+                                    placeholder: 'min',
+                                    label: 'min',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Nonconvex',
+                                    placeholder: 'Nonconvex',
+                                    label: 'Nonconvex',
+                                    isReq: true,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Summed_max',
+                                    placeholder: 'Summed max',
+                                    label: 'Summed max',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Summed_min',
+                                    placeholder: 'Summed min',
+                                    label: 'Summed min',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Renewable_factor',
+                                    placeholder: 'Renewable factor',
+                                    label: 'Renewable factor',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Predefined Transformer':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Trafo',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'trafo',
+                                    placeholder: 'Trafo',
+                                    label: 'Choose...',
+                                    isReq: true,
+                                    type: 'select',
+                                    options: [
+                                        {
+                                            name: 'Biogas CHP',
+                                            value: 'Biogas CHP',
+                                        },
+                                        {
+                                            name: 'Biogas injection (New facility)',
+                                            value: 'Biogas injection (New facility)',
+                                        },
+                                        {
+                                            name: 'Gas and steam power plant',
+                                            value: 'Gas and steam power plant',
+                                        },
+                                        {
+                                            name: 'Power to Liquid',
+                                            value: 'Power to Liquid',
+                                        },
+                                        {
+                                            name: 'Methanisation',
+                                            value: 'Methanisation',
+                                        },
+                                        {
+                                            name: 'Electrolysis',
+                                            value: 'Electrolysis',
+                                        },
+                                        {
+                                            name: 'Fuel cell',
+                                            value: 'Fuel cell',
+                                        },
+                                        {
+                                            name: 'Air source heat pump (large-scale)',
+                                            value: 'Air source heat pump (large-scale)',
+                                        },
+                                        {
+                                            name: 'Electrode heating boiler',
+                                            value: 'Electrode heating boiler',
+                                        },
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Economical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'maximum',
+                                    placeholder: 'Maximum',
+                                    label: 'Maximum',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'minimum',
+                                    placeholder: 'Minimum',
+                                    label: 'Minimum',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'existing',
+                                    placeholder: 'Existing',
+                                    label: 'Existing',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'capex',
+                                    placeholder: 'Capex',
+                                    label: 'Capex',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'opex',
+                                    placeholder: 'Opex',
+                                    label: 'Opex',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'offset',
+                                    placeholder: 'Offset',
+                                    label: 'Offset',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'lifetime',
+                                    placeholder: 'Lifetime',
+                                    label: 'Lifetime',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'e    fficiency',
+                                    placeholder: 'Efficiency',
+                                    label: 'Efficiency',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'max',
+                                    placeholder: 'max',
+                                    label: 'max',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'min',
+                                    placeholder: 'min',
+                                    label: 'min',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Nonconvex',
+                                    placeholder: 'Nonconvex',
+                                    label: 'Nonconvex',
+                                    isReq: true,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Summed_max',
+                                    placeholder: 'Summed max',
+                                    label: 'Summed max',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Summed_min',
+                                    placeholder: 'Summed min',
+                                    label: 'Summed min',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Renewable_factor',
+                                    placeholder: 'Renewable factor',
+                                    label: 'Renewable factor',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'efficiency_el',
+                                    placeholder: 'Efficiency el',
+                                    label: 'Efficiency el',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'efficiency_th',
+                                    placeholder: 'Efficiency th',
+                                    label: 'Efficiency th',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
         }
     }
 
