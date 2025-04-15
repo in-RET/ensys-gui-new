@@ -30,16 +30,28 @@ async def create_component(component_data: EnComponent, token: Annotated[str, De
         success=True
     )
 
-@component_router.get("s/", response_model=CustomResponse)
-async def get_components(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+@component_router.get("_templates/", response_model=CustomResponse)
+async def get_component_templates(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     compnentlist = db.exec(select(EnComponentsTemplateDB)).all()
-    print(compnentlist)
 
     return CustomResponse(
-        data={"components": compnentlist},
+        data={"possible_components": compnentlist},
+        success=True
+    )
+
+
+@component_router.get("s/{scenario_id}", response_model=CustomResponse)
+async def get_components(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    componentlist = db.exec(select(EnComponentDB).where(EnComponentDB.scenario_id == scenario_id)).all()
+
+    return CustomResponse(
+        data={"components": componentlist},
         success=True
     )
 

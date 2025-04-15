@@ -10,6 +10,7 @@ from .components.router import component_router
 from .link.router import link_router
 from .projects.router import projects_router
 from .scenarios.router import scenario_router
+from .simulations.router import simulation_router
 from .users.router import users_router
 
 
@@ -44,15 +45,21 @@ tags_metadata = [
         "name": "default",
         "description": "The root of all evil."
     },
+    {
+        "name": "component",
+        "description": "Manage components. All components including busses."
+    },
+    {
+        "name": "link",
+        "description": "Manage links. Links are the connections between components."
+    },
 ]
 
 app = FastAPI(
     lifespan=lifespan,
     title="EnSys Backend",
-    #description="Description",
     summary="The API and backend for the softwarepackage 'EnSys by in.RET'",
     version="0.2.0dev",
-    #terms_of_service="link",
     contact={
         "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",
         "url": "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
@@ -101,6 +108,10 @@ app.include_router(
 
 app.include_router(
     router=link_router
+)
+
+app.include_router(
+    router=simulation_router
 )
 
 @app.get("/", response_class=HTMLResponse)

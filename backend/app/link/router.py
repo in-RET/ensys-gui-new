@@ -14,12 +14,27 @@ link_router = APIRouter(
     tags=["link"],
 )
 
-@link_router.get("s/", response_model=CustomResponse)
-async def get_links(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+@link_router.post("/", response_model=CustomResponse)
+async def create_link(link_data: EnLink, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+    if not token:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    link = EnLink(**link_data.dict())
+    db.add(link)
+    db.commit()
+    db.refresh(link)
+
+    return CustomResponse(
+        data={"link": link},
+        success=True
+    )
+
+@link_router.get("s/{scenario_id}", response_model=CustomResponse)
+async def get_links(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    linklist = db.exec(select(EnLinkDB)).all()
+    linklist = db.exec(select(EnLinkDB).where(EnLinkDB.scenario_id == scenario_id)).all()
     print(linklist)
 
     return CustomResponse(
@@ -35,21 +50,6 @@ async def get_link(link_id: int, token: Annotated[str, Depends(oauth2_scheme)], 
     link = db.get(EnLinkDB, link_id)
     if not link:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="link not found")
-
-    return CustomResponse(
-        data={"link": link},
-        success=True
-    )
-
-@link_router.post("/", response_model=CustomResponse)
-async def create_link(link_data: EnLink, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
-    if not token:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-
-    link = EnLink(**link_data.dict())
-    db.add(link)
-    db.commit()
-    db.refresh(link)
 
     return CustomResponse(
         data={"link": link},
