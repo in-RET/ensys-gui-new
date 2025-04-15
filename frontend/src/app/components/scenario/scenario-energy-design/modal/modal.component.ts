@@ -220,6 +220,40 @@ export class ModalComponent {
                                     label: 'Choose...',
                                     isReq: true,
                                     type: 'select',
+                                    options: [
+                                        {
+                                            name: 'Wind power plant',
+                                            value: 'Wind power plant',
+                                        },
+                                        {
+                                            name: 'Ground Mounted Photovoltaic',
+                                            value: 'Ground Mounted Photovoltaic',
+                                        },
+                                        {
+                                            name: 'Roof Mounted Photovoltaic',
+                                            value: 'Roof Mounted Photovoltaic',
+                                        },
+                                        {
+                                            name: 'Import from the power grid',
+                                            value: 'Import from the power grid',
+                                        },
+                                        {
+                                            name: 'Biomass supply',
+                                            value: 'Biomass supply',
+                                        },
+                                        {
+                                            name: 'Solar thermal system',
+                                            value: 'Solar thermal system',
+                                        },
+                                        {
+                                            name: 'Run-of-river power plant',
+                                            value: 'Run-of-river power plant',
+                                        },
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
                                 },
                             ],
                         },
