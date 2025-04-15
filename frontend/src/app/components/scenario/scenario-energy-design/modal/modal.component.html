@@ -25,60 +25,66 @@
 
             <div class="modal-body">
                 <h3>Ports</h3>
+
                 <div class="row">
                     <div class="col-md-6">
-                        <app-order-list [label]="'Inputs'" />
+                        <ng-template
+                            [ngIf]="node.name === 'Bus'"
+                            [ngIfElse]="port"
+                        >
+                            <app-order-list [label]="'Inputs'" />
+                        </ng-template>
+
+                        <ng-template #port>
+                            <label>Input</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Name"
+                            />
+                        </ng-template>
                     </div>
 
                     <div class="col-md-6">
-                        <app-order-list [label]="'Outputs'" />
+                        <ng-template
+                            [ngIf]="node.name === 'Bus'"
+                            [ngIfElse]="port"
+                        >
+                            <app-order-list [label]="'Outputs'" />
+                        </ng-template>
+
+                        <ng-template #port>
+                            <label>Output</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Name"
+                            />
+                        </ng-template>
                     </div>
                 </div>
 
                 <hr />
 
-                <div>
-                    <h3>Properties</h3>
-
-                    <form>
-                        <div class="row g-2">
-                            <div class="col-md">
-                                <div class="form-floating mb-3">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder="Name"
-                                    />
-                                    <label>Name</label>
-                                </div>
-                            </div>
-
-                            <div class="col-md">
-                                <div class="form-floating mb-3">
-                                    <input
-                                        type="text"
-                                        class="form-control"
-                                        placeholder=""
-                                    />
-                                    <label></label>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                <app-form [formData]="formData" />
             </div>
 
-            <div class="modal-footer">
+            <div class="modal-footer justify-content-center">
+                <span
+                    class="text-danger"
+                    style="position: absolute; left: 0; padding-left: 3rem"
+                    *ngIf="!isFormValid"
+                >
+                    * Complete the form!
+                </span>
+
                 <button
                     type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
+                    class="btn btn--success btn--medium"
+                    (click)="submit()"
+                    [disabled]="false"
                 >
-                    Close
-                </button>
-
-                <button type="button" class="btn btn-primary">
-                    Understood
+                    Save
                 </button>
             </div>
         </div>

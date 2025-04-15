@@ -1,0 +1,27 @@
+<form class="row" [formGroup]="form">
+    <div [ngClass]="section.class" *ngFor="let section of formData.sections">
+        <h4>{{ section.name }}</h4>
+
+        <div class="col-md" *ngFor="let field of section.fields">
+            <div class="form-floating mb-3">
+                <input
+                    [type]="field.type"
+                    class="form-control"
+                    [placeholder]="field.placeholder"
+                    [required]="field.isReq"
+                    [formControlName]="field.name"
+                    [ngClass]="{
+                        'is-invalid':
+                            form.get(field.name)!.invalid &&
+                            (form.get(field.name)!.dirty ||
+                                form.get(field.name)!.touched)
+                    }"
+                />
+                <label *ngIf="!field.isReq">{{ field.label }} </label>
+                <label *ngIf="field.isReq">{{ field.label }} *</label>
+            </div>
+        </div>
+    </div>
+</form>
+
+<ng-content></ng-content>

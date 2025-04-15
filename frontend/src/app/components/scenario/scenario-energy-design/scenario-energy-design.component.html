@@ -4,4 +4,8 @@
     <app-energy-drawflow class="w-100 h-100 border" (_drop)="drop($event)" />
 </div>
 
-<app-modal *ngIf="modalVisibility" [title]="createdNode.name" />
+<app-modal
+    *ngIf="modalVisibility"
+    [node]="createdNode"
+    [title]="createdNode.name"
+/>
