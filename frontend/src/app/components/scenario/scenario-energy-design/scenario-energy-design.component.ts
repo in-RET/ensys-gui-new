@@ -171,4 +171,9 @@ export class ScenarioEnergyDesignComponent {
         this.createdNode['name'] = nodeName;
         this.modalVisibility = true;
     }
+
+    closeModal() {
+        this.modalVisibility = false;
+        console.log(this.modalVisibility);
+    }
 }
