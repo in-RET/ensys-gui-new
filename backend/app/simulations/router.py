@@ -10,8 +10,8 @@ from ..responses import CustomResponse
 from ..security import decode_token, oauth2_scheme
 
 simulation_router = APIRouter(
-    prefix="/simulations",
-    tags=["simulations"]
+    prefix="/simulation",
+    tags=["simulation"]
 )
 
 @simulation_router.post("/start/{scenario_id}", response_model=CustomResponse)
@@ -37,8 +37,8 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
 
 
-@simulation_router.get("/{scenario_id}", response_model=CustomResponse)
-async def get_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+@simulation_router.get("s/{scenario_id}", response_model=CustomResponse)
+async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -49,6 +49,20 @@ async def get_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_
     # TODO: Daten zurück geben --> Wie?
 
     raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+
+@simulation_router.get("/{simulation_id}", response_model=CustomResponse)
+async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    # TODO: Check ob Szenario dem User gehört
+    # TODO: Check ob das Projket dem User gehört
+
+    # TODO: Check ob die Simulation fertig ist --> Datenbank
+    # TODO: Daten zurück geben --> Wie?
+
+    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+
 
 @simulation_router.delete("/{simulation_id}")
 async def delete_link(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
