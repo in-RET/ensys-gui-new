@@ -26,9 +26,14 @@ def validate_project_owner(project_id: int, token, db):
 
     # get the mentioned project-data
     project = db.get(EnProjectDB, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
     # check if project_id and token_id is the same and return value
-    return project.user_id == token_user.id
+    if project.user_id == token_user.id:
+        return True
+    else:
+        raise HTTPException(status_code=403, detail="Permission denied")
 
 @projects_router.post("/")
 async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject, db: Session = Depends(get_db_session)) -> CustomResponse:

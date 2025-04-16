@@ -1,4 +1,4 @@
-"""empty message
+"""added components
 
 Revision ID: 846f48d6db25
 Revises: 596ec7663cce
@@ -31,8 +31,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('components_template',
-    sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=30), nullable=False),
+    components_table = op.create_table('components_template',
     sa.Column('oemof_type', sqlmodel.sql.sqltypes.AutoString(length=50), nullable=False),
     sa.Column('fields', sa.ARRAY(sa.String()), nullable=True),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -41,6 +40,17 @@ def upgrade() -> None:
     op.drop_table('components')
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     # ### end Alembic commands ###
+    op.bulk_insert(components_table, [
+        {'oemof_type': 'Sink', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
+        {'oemof_type': 'Source', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
+        {'oemof_type': 'Converter', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
+        {'oemof_type': 'OffsetConverter', 'fields': ['constraint_group', 'inputs', 'label', 'normed_offset_and_conversion_factors_from_coefficients', 'outputs', 'plot_partload']},
+        {'oemof_type': 'Bus', 'fields': ['balanced', 'constraint_group', 'custom_properties', 'inputs', 'label', 'outputs']},
+        {'oemof_type': 'GenericStorage', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
+        {'oemof_type': 'Flow', 'fields': ['Label', 'age', 'bidirectional', 'custom_properties', 'fix', 'fixed_costs', 'flow', 'from_object', 'full_load_time_max', 'full_load_time_min', 'input', 'integer', 'investment', 'label', 'lifetime', 'max', 'min', 'negative_gradient_limit', 'nominal_value', 'nonconvex', 'output', 'positive_gradient_limit', 'values', 'variable_costs']},
+        {'oemof_type': 'Investment', 'fields': ['age', 'ep_costs', 'existing', 'fixed_costs', 'interest_rate', 'lifetime', 'maximum', 'minimum', 'nonconvex', 'offset', 'overall_maximum', 'overall_minimum']},
+        {'oemof_type': 'NonConvex', 'fields': ['activity_costs', 'first_flexible_timestep', 'inactivity_costs', 'initial_status', 'maximum_shutdowns', 'maximum_startups', 'minimum_downtime', 'minimum_uptime', 'negative_gradient_limit', 'positive_gradient_limit', 'shutdown_costs', 'startup_costs']}
+    ])
 
 
 def downgrade() -> None:

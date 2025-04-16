@@ -20,7 +20,7 @@ async def create_component(component_data: EnComponent, token: Annotated[str, De
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    component = EnComponent(**component_data.dict())
+    component = EnComponent(**component_data.model_dump())
     db.add(component)
     db.commit()
     db.refresh(component)
@@ -35,10 +35,10 @@ async def get_component_templates(token: Annotated[str, Depends(oauth2_scheme)],
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    compnentlist = db.exec(select(EnComponentsTemplateDB)).all()
+    componenLlist = db.exec(select(EnComponentsTemplateDB)).all()
 
     return CustomResponse(
-        data={"possible_components": compnentlist},
+        data={"possible_components": componenLlist},
         success=True
     )
 

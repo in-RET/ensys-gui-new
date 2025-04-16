@@ -23,7 +23,10 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     #TODO: Check ob das Projket dem User gehört
     #TODO: oemof-energy-system erstellen
 
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+    return CustomResponse(
+        data={"message": "Simulation started. But only for deployment! Not implemented yet."},
+        success=True
+    )
 
 @simulation_router.post("/stop/{scenario_id}", response_model=CustomResponse)
 async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):
@@ -34,8 +37,10 @@ async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2
     #TODO: Check ob das Projket dem User gehört
     #TODO: simulation stoppen
 
-    raise HTTPException(status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
-
+    return CustomResponse(
+        data={"message": "Simulation stopped. But only for deployment! Not implemented yet."},
+        success=True
+    )
 
 @simulation_router.get("s/{scenario_id}", response_model=CustomResponse)
 async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)):

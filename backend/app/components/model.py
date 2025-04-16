@@ -5,7 +5,6 @@ from sqlmodel import SQLModel, Field, ARRAY, String, Column
 
 
 class EnComponentsTemplate(SQLModel):
-    name: str = Field(min_length=1, max_length=30)
     oemof_type: str = Field(min_length=1, max_length=50)
     fields: list[str] = Field(sa_column=Column(ARRAY(String)))
 
@@ -35,6 +34,7 @@ class EnComponentsTemplate(SQLModel):
         return tmp_fields
 
 class EnComponent(EnComponentsTemplate):
+    name: str = Field(min_length=1, max_length=30)
     fields: ClassVar[list[str]]
     data: dict[str, Any] = Field(sa_column=Column(ARRAY(String)))
     pos_x: float = Field(nullable=False, default=0.0)
