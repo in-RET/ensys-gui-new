@@ -14,4 +14,3 @@ class EnSimulationDB(EnSimulation, table=True):
     __tablename__ = "simulations"
 
     id: int = Field(default=None, primary_key=True)
-
