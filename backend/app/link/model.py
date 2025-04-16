@@ -15,6 +15,8 @@ class EnLinkDB(EnLink, table=True):
 
 class EnLinkUpdate(EnLink):
     name: str | None = None
-    data: dict[str, Any] | None = None
+    source: int | None = None
+    target: int | None = None
     pos_x: float | None = None
     pos_y: float | None = None
+    scenario_id: int | None = None

@@ -102,7 +102,7 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
 
     if simulation.status != "finished":
         return CustomResponse(
-            data={},
+            data={"status": simulation.status},
             success=False,
             errors=[ErrorModel(
                 message="Simulation not finished yet!",
@@ -116,10 +116,8 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
             success=True
         )
 
-
-
 @simulation_router.delete("/{simulation_id}")
-async def delete_link(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
+async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return CustomResponse(

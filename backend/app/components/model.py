@@ -57,3 +57,4 @@ class EnComponentUpdate(EnComponent):
     data: dict[str, Any] | None = None
     pos_x: float | None = None
     pos_y: float | None = None
+    oemof_type: ClassVar[str]
