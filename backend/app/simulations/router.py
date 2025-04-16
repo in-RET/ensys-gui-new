@@ -1,3 +1,5 @@
+import uuid
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -49,10 +51,32 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     if not validate_user_rights(token=token, scenario_id=scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    #TODO: oemof-energy-system erstellen
+    # TODO: oemof-energy-system erstellen
+
+    # Get old Simulation and stop it
+    running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id)).where(EnSimulationDB.status == "started").all()
+
+    for running_simulation in running_simulations:
+        running_simulation.status = "stopped"
+        running_simulation.end_time = datetime.now()
+        db.commit()
+
+    # Create new Simulation
+    simulation = EnSimulationDB(
+        sim_token=str(uuid.uuid4()),
+        start_date=datetime.now(),
+        status="started"
+    )
+
+    db.add(simulation)
+    db.commit()
+    db.refresh(simulation)
 
     return CustomResponse(
-        data={"message": "Simulation started. But only for deployment! Not implemented yet."},
+        data={
+            "message": "Simulation started. But only for deployment! Not implemented yet.",
+            "simulation": simulation
+        },
         success=True
     )
 
@@ -65,9 +89,27 @@ async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     #TODO: simulation stoppen
+    simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.status == "started").where(EnSimulationDB.scenario_id == scenario_id)).all()
+    if not simulations:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found.")
+
+    if len(simulations) > 1:
+        print("Hallo, mehr als 2 Simulationen laufen, du Bob hast vergessen beim Starten die alte zu beenden!")
+
+    for simulation in simulations:
+        # TODO: Simulation stoppen (s. sim token)
+        print(simulation.sim_token)
+
+        simulation.status = "stopped"
+        simulation.end_date = datetime.now()
+        db.commit()
+        db.refresh(simulation)
 
     return CustomResponse(
-        data={"message": "Simulation stopped. But only for deployment! Not implemented yet."},
+        data={
+            "message": "Simulation stopped. But only for deployment! Not implemented yet.",
+            "simulation": simulations
+        },
         success=True
     )
 
