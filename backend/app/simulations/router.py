@@ -102,7 +102,8 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
 
     if simulation.status != "finished":
         return CustomResponse(
-            data={"status": simulation.status},
+            data={"status": simulation.status,
+                  "start_date": simulation.start_date},
             success=False,
             errors=[ErrorModel(
                 message="Simulation not finished yet!",
@@ -112,7 +113,11 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     else:
         # TODO: Daten zurück geben --> Wie?
         return CustomResponse(
-            data={},
+            data={
+                "simulation_token": simulation.sim_token,
+                "start_date": simulation.start_date,
+                "end_date": simulation.end_date
+            },
             success=True
         )
 
