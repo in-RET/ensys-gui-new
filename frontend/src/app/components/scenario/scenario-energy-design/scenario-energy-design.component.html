@@ -1,5 +1,8 @@
 <div class="system-design">
-    <app-energy-components (clearGridModel)="clearGridModel()" />
+    <app-energy-components
+        [components]="components"
+        (clearGridModel)="clearGridModel()"
+    />
 
     <app-energy-drawflow class="w-100 h-100 border" (_drop)="drop($event)" />
 </div>

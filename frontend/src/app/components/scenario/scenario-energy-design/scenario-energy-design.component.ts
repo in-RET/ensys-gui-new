@@ -98,63 +98,6 @@ export class ScenarioEnergyDesignComponent {
 
     ngOnInit() {}
 
-    IOBusOptions(nodeName: any, posX: any, posY: any) {
-        const checkMinMax = (value: any, min: any, max: any) =>
-            value <= min ? min : value >= max ? max : value;
-
-        const inputs = checkMinMax('---', 1, 7);
-        const outputs = checkMinMax('---', 1, 7);
-        this.addNodeToDrawFlow(nodeName, posX, posY, inputs, outputs);
-    }
-
-    addNodeToDrawFlow(
-        name: any,
-        pos_x: any,
-        pos_y: any,
-        nodeInputs?: any,
-        nodeOutputs?: any
-    ) {
-        // if (this.editor.editor_mode === 'fixed') return false;
-        // the following translation/transformation is required to correctly drop the nodes in the current clientScreen
-        pos_x =
-            pos_x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom));
-        pos_y =
-            pos_y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom));
-
-        this.createNodeObject(name, nodeInputs, nodeOutputs, {}, pos_x, pos_y);
-    }
-
-    createNodeObject(
-        nodeName: any,
-        connectionInputs: any,
-        connectionOutputs: any,
-        nodeData: any = {},
-        pos_x: any,
-        pos_y: any
-    ) {
-        this.editor.addNode(
-            nodeName,
-            connectionInputs,
-            connectionOutputs,
-            pos_x,
-            pos_y,
-            nodeName,
-            nodeData,
-            '',
-            false
-        );
-    }
-
     clearGridModel() {
         Swal.fire({
             title: 'Are you sure?',
@@ -167,9 +110,9 @@ export class ScenarioEnergyDesignComponent {
         // .then((result) => save_topology());
     }
 
-    drop(nodeName: string) {
-        this.createdNode['name'] = nodeName;
-        this.modalVisibility = true;
+    drop(e: any) {
+        this.createdNode['name'] = e.name;
+        // this.modalVisibility = true;
     }
 
     closeModal() {

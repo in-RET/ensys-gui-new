@@ -258,13 +258,13 @@
             }
         }
 
-        .img {
-            position: relative;
-            width: $gui-component-bg-size;
-            height: $gui-component-bg-size;
-            background-color: $white;
-            border-radius: 100%;
-        }
+        // .img {
+        //     position: relative;
+        //     width: $gui-component-bg-size;
+        //     height: $gui-component-bg-size;
+        //     background-color: $white;
+        //     border-radius: 100%;
+        // }
 
         /* section colors */
 
@@ -300,4 +300,218 @@
     .row {
         margin-bottom: 1rem;
     }
+}
+
+.system-design .drawflow .connection .main-path {
+    width: 20px;
+}
+
+.system-design .parent-node .drawflow-delete {
+    content: "X";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #fff;
+    color: black;
+    width: 1.15rem;
+    height: 1.15rem;
+    font-weight: 700;
+    line-height: 1rem;
+    padding-left: 0.25rem;
+    border: 1px solid #495965;
+    border-radius: 100%;
+    cursor: pointer;
+}
+
+.system-design .drawflow .drawflow-node {
+    position: absolute;
+    height: 8rem;
+    width: 9.5rem;
+    border-radius: 8px;
+    background-color: #f4f7f9;
+    font-size: 12px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 4px solid #a4adfb;
+    cursor: move;
+    padding: 0 0.5rem 0.5rem;
+    /* section colors */
+}
+
+.system-design .drawflow .drawflow-node:hover {
+    background-color: #edf2f5;
+    box-shadow: 0 0 1rem 0.3rem #d4d4d4;
+}
+
+.system-design .drawflow .drawflow-node.selected {
+    background-color: #e3eaee;
+}
+
+.system-design .drawflow .drawflow-node .drawflow_content_node {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.system-design .drawflow .drawflow-node .inputs {
+    left: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .outputs {
+    right: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs,
+.system-design .drawflow .drawflow-node .outputs {
+    position: relative;
+    top: 0.4rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .input,
+.system-design .drawflow .drawflow-node .outputs .output {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 100%;
+    margin: 0.25rem 0;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .outputs .input {
+    background-color: #4ec4c4;
+    left: -22px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input.mirrored,
+.system-design .drawflow .drawflow-node .outputs .input.mirrored {
+    background-color: #4ec4c4;
+    left: -5px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .output {
+    background-color: #c46a4e;
+    right: -10px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output.mirrored,
+.system-design .drawflow .drawflow-node .outputs .output.mirrored {
+    background-color: #c46a4e;
+    right: 5px;
+}
+
+.system-design .drawflow .drawflow-node .img {
+    position: relative;
+    width: 4.5rem;
+    height: 4.5rem;
+    background-color: #fff;
+    border-radius: 100%;
+}
+
+.system-design .drawflow .drawflow-node.mySource,
+.system-design .drawflow .drawflow-node.myPredefinedSource {
+    border-bottom-color: #ffef9f;
+}
+
+.system-design .drawflow {
+    .drawflow-node.mySource {
+        .img::before {
+            background-image: url("/static/assets/gui/mySource.svg");
+        }
+    }
+}
+
+.system-design .drawflow .drawflow-node.mySource .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSource .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/mySource.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.myTransformer,
+.system-design .drawflow .drawflow-node.myPredefinedTransformer {
+    border-bottom-color: #7bf1a8;
+}
+
+.system-design .drawflow .drawflow-node.myTransformer .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedTransformer .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/myTransformer.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.myGenericStorage,
+.system-design .drawflow .drawflow-node.myPredefinedStorage {
+    border-bottom-color: #90f1ef;
+}
+
+.system-design .drawflow .drawflow-node.myGenericStorage .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedStorage .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/myGenericStorage.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.mySink,
+.system-design .drawflow .drawflow-node.myPredefinedSink,
+.system-design .drawflow .drawflow-node.myPredefinedSinkOEP,
+.system-design .drawflow .drawflow-node.myExcess,
+.system-design .drawflow .drawflow-node.myExport {
+    border-bottom-color: #ffd6e0;
+}
+
+.system-design .drawflow .drawflow-node.mySink .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSink .img::before,
+.system-design .drawflow .drawflow-node.myPredefinedSinkOEP .img::before,
+.system-design .drawflow .drawflow-node.myExcess .img::before,
+.system-design .drawflow .drawflow-node.myExport .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/mySink.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.bus {
+    border-bottom-color: #f4cc9e;
+}
+
+.system-design .drawflow .drawflow-node.bus .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/bus.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
 }
