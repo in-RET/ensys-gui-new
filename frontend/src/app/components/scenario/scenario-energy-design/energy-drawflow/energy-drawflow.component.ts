@@ -31,14 +31,19 @@ export class EnergyDrawflowComponent {
         const nodeName = ev.dataTransfer.getData('node');
         const nodeGroup = ev.dataTransfer.getData('group');
 
-        nodeName === 'Transformer'
-            ? this.IOBusOptions(nodeId, ev.clientX, ev.clientY)
-            : this.addNodeToDrawFlow(nodeId, ev.clientX, ev.clientY, 1, 1);
+        // nodeName === 'Transformer'
+        //     ? this.IOBusOptions(nodeId, ev.clientX, ev.clientY)
+        //     : this.addNodeToDrawFlow(nodeId, ev.clientX, ev.clientY, 1, 1);
 
         // this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 1, 1);
 
         this.modalVisibility = true;
-        this._drop.emit({ name: nodeId, x: ev.clientX, y: ev.clientY });
+        this._drop.emit({
+            id: nodeId,
+            name: nodeName,
+            x: ev.clientX,
+            y: ev.clientY,
+        });
     }
 
     IOBusOptions(nodeName: any, posX: any, posY: any) {

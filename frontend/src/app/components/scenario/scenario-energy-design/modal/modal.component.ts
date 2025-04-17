@@ -52,8 +52,22 @@ export class ModalComponent {
                 this.formData = {
                     sections: [
                         {
+                            name: 'Output Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
                             name: 'Name',
-                            class: 'col-12',
+                            class: 'col-6',
                             fields: [
                                 {
                                     name: 'name',
@@ -61,7 +75,7 @@ export class ModalComponent {
                                     label: 'Name',
                                     isReq: true,
                                     type: 'text',
-                                    span: '4',
+                                    span: '8',
                                 },
                             ],
                         },
@@ -76,6 +90,7 @@ export class ModalComponent {
                                     label: 'Variable costs',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'maximum',
@@ -83,6 +98,7 @@ export class ModalComponent {
                                     label: 'Maximum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'minimum',
@@ -90,6 +106,7 @@ export class ModalComponent {
                                     label: 'Minimum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'existing',
@@ -97,6 +114,7 @@ export class ModalComponent {
                                     label: 'Existing',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'capex',
@@ -104,6 +122,7 @@ export class ModalComponent {
                                     label: 'Capex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'opex',
@@ -111,6 +130,7 @@ export class ModalComponent {
                                     label: 'Opex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'offset',
@@ -118,6 +138,7 @@ export class ModalComponent {
                                     label: 'Offset',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'lifetime',
@@ -125,6 +146,7 @@ export class ModalComponent {
                                     label: 'Lifetime',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -139,6 +161,7 @@ export class ModalComponent {
                                     label: 'Nominal value',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'max',
@@ -146,6 +169,7 @@ export class ModalComponent {
                                     label: 'max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'min',
@@ -153,6 +177,7 @@ export class ModalComponent {
                                     label: 'min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Nonconvex',
@@ -167,6 +192,7 @@ export class ModalComponent {
                                     label: 'Summed max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_min',
@@ -174,6 +200,7 @@ export class ModalComponent {
                                     label: 'Summed min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Emission_factor',
@@ -181,6 +208,7 @@ export class ModalComponent {
                                     label: 'Emission factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Renewable_factor',
@@ -188,6 +216,7 @@ export class ModalComponent {
                                     label: 'Renewable factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -270,6 +299,7 @@ export class ModalComponent {
                                     label: 'Variable costs',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'maximum',
@@ -277,6 +307,7 @@ export class ModalComponent {
                                     label: 'Maximum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'minimum',
@@ -284,6 +315,7 @@ export class ModalComponent {
                                     label: 'Minimum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'existing',
@@ -291,6 +323,7 @@ export class ModalComponent {
                                     label: 'Existing',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'capex',
@@ -298,6 +331,7 @@ export class ModalComponent {
                                     label: 'Capex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'opex',
@@ -305,6 +339,7 @@ export class ModalComponent {
                                     label: 'Opex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'offset',
@@ -312,6 +347,7 @@ export class ModalComponent {
                                     label: 'Offset',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'lifetime',
@@ -319,6 +355,7 @@ export class ModalComponent {
                                     label: 'Lifetime',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -333,6 +370,7 @@ export class ModalComponent {
                                     label: 'Nominal value',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'max',
@@ -340,6 +378,7 @@ export class ModalComponent {
                                     label: 'max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'min',
@@ -347,6 +386,7 @@ export class ModalComponent {
                                     label: 'min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Nonconvex',
@@ -354,6 +394,7 @@ export class ModalComponent {
                                     label: 'Nonconvex',
                                     isReq: true,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_max',
@@ -361,6 +402,7 @@ export class ModalComponent {
                                     label: 'Summed max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_min',
@@ -368,6 +410,7 @@ export class ModalComponent {
                                     label: 'Summed min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Emission_factor',
@@ -375,6 +418,7 @@ export class ModalComponent {
                                     label: 'Emission factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Renewable_factor',
@@ -382,6 +426,7 @@ export class ModalComponent {
                                     label: 'Renewable factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -417,6 +462,7 @@ export class ModalComponent {
                                     label: 'Variable costs',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'maximum',
@@ -424,6 +470,7 @@ export class ModalComponent {
                                     label: 'Maximum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'minimum',
@@ -431,6 +478,7 @@ export class ModalComponent {
                                     label: 'Minimum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'existing',
@@ -438,6 +486,7 @@ export class ModalComponent {
                                     label: 'Existing',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'capex',
@@ -445,6 +494,7 @@ export class ModalComponent {
                                     label: 'Capex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'opex',
@@ -452,6 +502,7 @@ export class ModalComponent {
                                     label: 'Opex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'offset',
@@ -459,6 +510,7 @@ export class ModalComponent {
                                     label: 'Offset',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'lifetime',
@@ -466,6 +518,7 @@ export class ModalComponent {
                                     label: 'Lifetime',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -480,6 +533,7 @@ export class ModalComponent {
                                     label: 'Nominal value',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'max',
@@ -487,6 +541,7 @@ export class ModalComponent {
                                     label: 'max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'min',
@@ -494,6 +549,7 @@ export class ModalComponent {
                                     label: 'min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Nonconvex',
@@ -501,6 +557,7 @@ export class ModalComponent {
                                     label: 'Nonconvex',
                                     isReq: true,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_max',
@@ -508,6 +565,7 @@ export class ModalComponent {
                                     label: 'Summed max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_min',
@@ -515,6 +573,7 @@ export class ModalComponent {
                                     label: 'Summed min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Renewable_factor',
@@ -522,6 +581,7 @@ export class ModalComponent {
                                     label: 'Renewable factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -612,6 +672,7 @@ export class ModalComponent {
                                     label: 'Variable costs',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'maximum',
@@ -619,6 +680,7 @@ export class ModalComponent {
                                     label: 'Maximum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'minimum',
@@ -626,6 +688,7 @@ export class ModalComponent {
                                     label: 'Minimum',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'existing',
@@ -633,6 +696,7 @@ export class ModalComponent {
                                     label: 'Existing',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'capex',
@@ -640,6 +704,7 @@ export class ModalComponent {
                                     label: 'Capex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'opex',
@@ -647,6 +712,7 @@ export class ModalComponent {
                                     label: 'Opex',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'offset',
@@ -654,6 +720,7 @@ export class ModalComponent {
                                     label: 'Offset',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'lifetime',
@@ -661,6 +728,7 @@ export class ModalComponent {
                                     label: 'Lifetime',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
@@ -675,6 +743,7 @@ export class ModalComponent {
                                     label: 'Efficiency',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'max',
@@ -682,6 +751,7 @@ export class ModalComponent {
                                     label: 'max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'min',
@@ -689,6 +759,7 @@ export class ModalComponent {
                                     label: 'min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Nonconvex',
@@ -696,6 +767,7 @@ export class ModalComponent {
                                     label: 'Nonconvex',
                                     isReq: true,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_max',
@@ -703,6 +775,7 @@ export class ModalComponent {
                                     label: 'Summed max',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Summed_min',
@@ -710,6 +783,7 @@ export class ModalComponent {
                                     label: 'Summed min',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'Renewable_factor',
@@ -717,6 +791,7 @@ export class ModalComponent {
                                     label: 'Renewable factor',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'efficiency_el',
@@ -724,6 +799,7 @@ export class ModalComponent {
                                     label: 'Efficiency el',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                                 {
                                     name: 'efficiency_th',
@@ -731,6 +807,7 @@ export class ModalComponent {
                                     label: 'Efficiency th',
                                     isReq: false,
                                     type: 'number',
+                                    span: 6,
                                 },
                             ],
                         },
