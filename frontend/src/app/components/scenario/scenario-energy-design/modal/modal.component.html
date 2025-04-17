@@ -25,47 +25,43 @@
             </div>
 
             <div class="modal-body">
-                <h5>Ports</h5>
+                <div *ngIf="node.name === 'Transformer'">
+                    <h5>Ports</h5>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <ng-template
-                            [ngIf]="node.name === 'Transformer'"
-                            [ngIfElse]="port"
-                        >
-                            <app-order-list [label]="'Inputs'" />
-                        </ng-template>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ng-template [ngIf]="node.name === 'Transformer'">
+                                <app-order-list [label]="'Inputs'" />
+                            </ng-template>
 
-                        <ng-template #port>
-                            <label>Input</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Name"
-                            />
-                        </ng-template>
+                            <ng-template #port>
+                                <label>Input</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Name"
+                                />
+                            </ng-template>
+                        </div>
+
+                        <div class="col-md-6">
+                            <ng-template [ngIf]="node.name === 'Transformer'">
+                                <app-order-list [label]="'Outputs'" />
+                            </ng-template>
+
+                            <ng-template #port>
+                                <label>Output</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Name"
+                                />
+                            </ng-template>
+                        </div>
                     </div>
 
-                    <div class="col-md-6">
-                        <ng-template
-                            [ngIf]="node.name === 'Transformer'"
-                            [ngIfElse]="port"
-                        >
-                            <app-order-list [label]="'Outputs'" />
-                        </ng-template>
-
-                        <ng-template #port>
-                            <label>Output</label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Name"
-                            />
-                        </ng-template>
-                    </div>
+                    <hr />
                 </div>
-
-                <hr />
 
                 <app-form [formData]="formData" />
             </div>

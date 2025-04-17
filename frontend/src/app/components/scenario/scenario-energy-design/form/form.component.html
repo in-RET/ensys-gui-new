@@ -6,48 +6,52 @@
         >
             <h5>{{ section.name }}</h5>
 
-            <div
-                [ngClass]="field.span ? 'col-md-' + field.span : 'col-md'"
-                *ngFor="let field of section.fields"
-            >
+            <div class="row">
                 <div
-                    class="form-floating mb-3"
-                    *ngIf="field.type == 'text' || field.type == 'number'"
+                    [ngClass]="field.span ? 'col-md-' + field.span : 'col-md'"
+                    *ngFor="let field of section.fields"
                 >
-                    <input
-                        [type]="field.type"
-                        class="form-control"
-                        [placeholder]="field.placeholder"
-                        [required]="field.isReq"
-                        [formControlName]="field.name"
-                        [ngClass]="{
-                            'is-invalid':
-                                form.get(field.name)!.invalid &&
-                                (form.get(field.name)!.dirty ||
-                                    form.get(field.name)!.touched)
-                        }"
-                    />
-                    <label *ngIf="!field.isReq">{{ field.label }} </label>
-                    <label *ngIf="field.isReq">{{ field.label }} *</label>
-                </div>
-
-                <div class="form-floating" *ngIf="field.type == 'select'">
-                    <select
-                        class="form-select"
-                        id="floatingSelect"
-                        aria-label="Floating label select example"
+                    <div
+                        class="form-floating mb-3"
+                        *ngIf="field.type == 'text' || field.type == 'number'"
                     >
-                        <option selected disabled value="">
-                            {{ field.label }}
-                        </option>
-                        <option
-                            [value]="option.value"
-                            *ngFor="let option of field.options"
+                        <input
+                            [type]="field.type"
+                            class="form-control"
+                            [placeholder]="field.placeholder"
+                            [required]="field.isReq"
+                            [formControlName]="field.name"
+                            [ngClass]="{
+                                'is-invalid':
+                                    form.get(field.name)!.invalid &&
+                                    (form.get(field.name)!.dirty ||
+                                        form.get(field.name)!.touched)
+                            }"
+                        />
+                        <label *ngIf="!field.isReq">{{ field.label }} </label>
+                        <label *ngIf="field.isReq">{{ field.label }} *</label>
+                    </div>
+
+                    <div class="form-floating" *ngIf="field.type == 'select'">
+                        <select
+                            class="form-select"
+                            id="floatingSelect"
+                            aria-label="Floating label select example"
                         >
-                            {{ option.name }}
-                        </option>
-                    </select>
-                    <label for="floatingSelect">{{ field.placeholder }}</label>
+                            <option selected disabled value="">
+                                {{ field.label }}
+                            </option>
+                            <option
+                                [value]="option.value"
+                                *ngFor="let option of field.options"
+                            >
+                                {{ option.name }}
+                            </option>
+                        </select>
+                        <label for="floatingSelect">{{
+                            field.placeholder
+                        }}</label>
+                    </div>
                 </div>
             </div>
         </div>
