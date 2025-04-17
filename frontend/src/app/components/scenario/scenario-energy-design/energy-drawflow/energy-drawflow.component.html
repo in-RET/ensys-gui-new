@@ -5,7 +5,10 @@
         (drop)="onDrop($event)"
         (dragover)="allowDrop($event)"
     >
-        <div class="gui__empty-text">
+        <div
+            class="gui__empty-text"
+            *ngIf="(editor.export().drawflow.Home.data | json) == '{}'"
+        >
             <span> Drag and drop components to build your energy system </span>
             <br />
             <span>DoubleClick: Opens form to enter parameters</span><br />
