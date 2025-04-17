@@ -30,9 +30,7 @@ services:
         container_name: frontend
         env_file: .env
         command: "npm start"
-#        volumes:
-#            - node_modules:/app/node_modules
-#        restart: no
+        restart: no
         ports:
           - "${WEB_PORT}:4200"
         networks:
