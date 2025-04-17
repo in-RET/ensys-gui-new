@@ -29,12 +29,10 @@ services:
           dockerfile: dockerfile
         container_name: frontend
         env_file: .env
-        working_dir: /app
-        command: sh -c "npm start"
-        volumes:
-            - ./frontend:/app
-            - node_modules:/app/node_modules
-        restart: always
+        command: "npm start"
+#        volumes:
+#            - node_modules:/app/node_modules
+#        restart: no
         ports:
           - "${WEB_PORT}:4200"
         networks:
