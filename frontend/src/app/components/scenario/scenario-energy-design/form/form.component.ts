@@ -16,6 +16,7 @@ import {
 })
 export class FormComponent {
     form!: FormGroup;
+    formVisible: boolean = false;
 
     @Input() formData!: any;
     // @Input() form!: FormGroup;
@@ -36,8 +37,11 @@ export class FormComponent {
 
                 if (field.isReq) fControl.addValidators(Validators.required);
 
+                field.name = field.name.toLowerCase().split(' ').join('_');
                 this.form.addControl(field.name, fControl);
             });
         });
+
+        this.formVisible = true;
     }
 }

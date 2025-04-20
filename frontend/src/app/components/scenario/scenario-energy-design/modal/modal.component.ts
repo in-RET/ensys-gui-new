@@ -815,6 +815,488 @@ export class ModalComponent {
                     ],
                 };
                 break;
+
+            case 'GenericStorage':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Output Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '4',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Economical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'maximum',
+                                    placeholder: 'Maximum',
+                                    label: 'Maximum',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'minimum',
+                                    placeholder: 'Minimum',
+                                    label: 'Minimum',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'existing',
+                                    placeholder: 'Existing',
+                                    label: 'Existing',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'capex',
+                                    placeholder: 'Capex',
+                                    label: 'Capex',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'opex',
+                                    placeholder: 'Opex',
+                                    label: 'Opex',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'offset',
+                                    placeholder: 'Offset',
+                                    label: 'Offset',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'lifetime',
+                                    placeholder: 'Lifetime',
+                                    label: 'Lifetime',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'invest_relation_input_capacity',
+                                    placeholder:
+                                        'Invest relation input capacity',
+                                    label: 'Invest relation input capacity',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'invest_relation_output_capacity',
+                                    placeholder:
+                                        'Invest relation output capacity',
+                                    label: 'Invest relation output capacity',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'Nominal_value',
+                                    placeholder: 'Nominal value',
+                                    label: 'Nominal value',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'Nonconvex',
+                                    placeholder: 'Nonconvex',
+                                    label: 'Nonconvex',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 6,
+                                },
+
+                                {
+                                    name: 'thermal_loss_rate',
+                                    placeholder: 'Thermal loss rate',
+                                    label: 'Thermal loss rate',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'fixed_thermal_losses_relative',
+                                    placeholder:
+                                        'Fixed thermal losses relative',
+                                    label: 'Fixed thermal losses relative',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'fixed_thermal_losses_absolute',
+                                    placeholder:
+                                        'Fixed thermal losses absolute',
+                                    label: 'Fixed thermal losses absolute',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'balanced',
+                                    placeholder: 'Balanced',
+                                    label: 'Balanced',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'initial_storage_level',
+                                    placeholder: 'Initial storage level',
+                                    label: 'Initial storage level',
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'inflow_conversion_factor',
+                                    placeholder: 'Inflow conversion factor',
+                                    label: 'Inflow conversion factor',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'outflow_conversion_factor',
+                                    placeholder: 'Outflow conversion factor',
+                                    label: 'Outflow conversion factor',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'Nominal storage capacity',
+                                    placeholder: 'Nominal storage capacity',
+                                    label: 'Nominal storage capacity',
+                                    type: 'number',
+                                    span: 12,
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Predefined Storage':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Output Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '4',
+                                },
+                                {
+                                    name: 'Storage',
+                                    placeholder: 'Storage',
+                                    label: 'Choose...',
+                                    isReq: true,
+                                    type: 'select',
+                                    span: '8',
+                                    options: [
+                                        {
+                                            name: 'Sodium storage',
+                                            value: 'Sodium storage',
+                                        },
+                                        {
+                                            name: 'Lithium Ion Battery Storage',
+                                            value: 'Lithium Ion Battery Storage',
+                                        },
+                                        {
+                                            name: 'Pumped storage power plant',
+                                            value: 'Pumped storage power plant',
+                                        },
+                                        {
+                                            name: 'Heat storage (seasonal)',
+                                            value: 'Heat storage (seasonal)',
+                                        },
+                                        {
+                                            name: 'Heat storage (short term)',
+                                            value: 'Heat storage (short term)',
+                                        },
+                                        {
+                                            name: 'Gas storage',
+                                            value: 'Gas storage',
+                                        },
+                                        {
+                                            name: 'Hydrogen storage',
+                                            value: 'Hydrogen storage',
+                                        },
+
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Economical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'maximum',
+                                    placeholder: 'Maximum',
+                                    label: 'Maximum',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'minimum',
+                                    placeholder: 'Minimum',
+                                    label: 'Minimum',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'existing',
+                                    placeholder: 'Existing',
+                                    label: 'Existing',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'capex',
+                                    placeholder: 'Capex',
+                                    label: 'Capex',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'opex',
+                                    placeholder: 'Opex',
+                                    label: 'Opex',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'offset',
+                                    placeholder: 'Offset',
+                                    label: 'Offset',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'lifetime',
+                                    placeholder: 'Lifetime',
+                                    label: 'Lifetime',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'invest_relation_input_capacity',
+                                    placeholder:
+                                        'Invest relation input capacity',
+                                    label: 'Invest relation input capacity',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'invest_relation_output_capacity',
+                                    placeholder:
+                                        'Invest relation output capacity',
+                                    label: 'Invest relation output capacity',
+                                    isReq: false,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'Nonconvex',
+                                    placeholder: 'Nonconvex',
+                                    label: 'Nonconvex',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 6,
+                                },
+
+                                {
+                                    name: 'thermal_loss_rate',
+                                    placeholder: 'Thermal loss rate',
+                                    label: 'Thermal loss rate',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'fixed_thermal_losses_relative',
+                                    placeholder:
+                                        'Fixed thermal losses relative',
+                                    label: 'Fixed thermal losses relative',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'fixed_thermal_losses_absolute',
+                                    placeholder:
+                                        'Fixed thermal losses absolute',
+                                    label: 'Fixed thermal losses absolute',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'balanced',
+                                    placeholder: 'Balanced',
+                                    label: 'Balanced',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'initial_storage_level',
+                                    placeholder: 'Initial storage level',
+                                    label: 'Initial storage level',
+                                    type: 'number',
+                                    span: 6,
+                                },
+                                {
+                                    name: 'inflow_conversion_factor',
+                                    placeholder: 'Inflow conversion factor',
+                                    label: 'Inflow conversion factor',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                                {
+                                    name: 'outflow_conversion_factor',
+                                    placeholder: 'Outflow conversion factor',
+                                    label: 'Outflow conversion factor',
+                                    isReq: true,
+                                    type: 'number',
+                                    span: 12,
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
         }
     }
 

@@ -14,7 +14,6 @@ export class ScenarioProgressionComponent {
     steps: any = [
         'Scenario Setup',
         'Energy system design',
-        'Constraints',
         'Simulation',
         'Results',
     ];
