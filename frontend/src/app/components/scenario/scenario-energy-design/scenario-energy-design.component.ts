@@ -109,7 +109,10 @@ export class ScenarioEnergyDesignComponent {
             showCancelButton: true,
             confirmButtonText: 'Yes, clear everything!',
             cancelButtonText: 'Cancel',
-        }).then((result) => result.value && this.editor.clearModuleSelected());
+        }).then((result) => {
+            result.isConfirmed &&
+                this.energyDrawflowComponent.editor.clearModuleSelected();
+        });
         // .then((result) => save_topology());
     }
 

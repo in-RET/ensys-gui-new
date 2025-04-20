@@ -131,10 +131,6 @@ export class EnergyDrawflowComponent {
             source_html,
             false
         );
-
-        setTimeout(() => {
-            console.log(this.editor.export().drawflow.Home.data);
-        }, 100);
     }
 
     addNode(data: any) {

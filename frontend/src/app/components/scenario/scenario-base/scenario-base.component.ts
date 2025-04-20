@@ -18,7 +18,7 @@ import { ScenarioProgressionComponent } from './scenario-progression/scenario-pr
     styleUrl: './scenario-base.component.scss',
 })
 export class ScenarioBaseComponent {
-    currentStep: number = 0;
+    currentStep: number = 1;
 
     nextStep() {
         this.currentStep += 1;
