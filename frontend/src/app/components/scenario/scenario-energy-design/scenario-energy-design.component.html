@@ -11,5 +11,5 @@
     *ngIf="modalVisibility"
     [node]="createdNode"
     [title]="createdNode.name"
-    (closeModal)="closeModal()"
+    (closeModal)="closeModal($event)"
 />

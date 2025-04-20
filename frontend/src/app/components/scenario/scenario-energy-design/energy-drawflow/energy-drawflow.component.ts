@@ -11,6 +11,8 @@ import Drawflow from 'drawflow';
 export class EnergyDrawflowComponent {
     modalVisibility: boolean = false;
     editor!: Drawflow;
+    currentNode: any;
+    currentPosition: any;
 
     @Output('_drop') _drop: EventEmitter<any> = new EventEmitter();
 
@@ -31,36 +33,43 @@ export class EnergyDrawflowComponent {
         const nodeName = ev.dataTransfer.getData('node');
         const nodeGroup = ev.dataTransfer.getData('group');
 
-        // nodeName === 'Transformer'
-        //     ? this.IOBusOptions(nodeId, ev.clientX, ev.clientY)
-        //     : this.addNodeToDrawFlow(nodeId, ev.clientX, ev.clientY, 1, 1);
+        this.currentPosition = {
+            x: ev.clientX,
+            y: ev.clientY,
+        };
 
-        // this.addNodeToDrawFlow(nodeName, ev.clientX, ev.clientY, 1, 1);
+        this.currentNode = {
+            nodeId,
+            nodeName,
+            nodeGroup,
+        };
 
-        this.modalVisibility = true;
         this._drop.emit({
             id: nodeId,
             name: nodeName,
-            x: ev.clientX,
-            y: ev.clientY,
+            group: nodeGroup,
+            x: this.currentPosition.x,
+            y: this.currentPosition.y,
         });
     }
 
-    IOBusOptions(nodeName: any, posX: any, posY: any) {
+    IOBusOptions(nodeId: string, nodeName: string, posX: any, posY: any) {
         const checkMinMax = (value: any, min: any, max: any) =>
             value <= min ? min : value >= max ? max : value;
 
         // const inputs = checkMinMax('---', 1, 1);
         // const outputs = checkMinMax('---', 1, 1);
-        this.addNodeToDrawFlow(nodeName, posX, posY, 3, 6);
+        this.addNodeToDrawFlow(nodeId, nodeName, posX, posY, 3, 6);
     }
 
     addNodeToDrawFlow(
-        name: any,
+        id: string,
+        name: string,
         pos_x: any,
         pos_y: any,
         nodeInputs?: any,
-        nodeOutputs?: any
+        nodeOutputs?: any,
+        data?: any
     ) {
         // if (this.editor.editor_mode === 'fixed') return false;
         // the following translation/transformation is required to correctly drop the nodes in the current clientScreen
@@ -79,11 +88,20 @@ export class EnergyDrawflowComponent {
                 (this.editor.precanvas.clientHeight /
                     (this.editor.precanvas.clientHeight * this.editor.zoom));
 
-        this.createNodeObject(name, nodeInputs, nodeOutputs, {}, pos_x, pos_y);
+        this.createNodeObject(
+            id,
+            name,
+            nodeInputs,
+            nodeOutputs,
+            data,
+            pos_x,
+            pos_y
+        );
     }
 
     createNodeObject(
-        nodeName: any,
+        nodeId: string,
+        nodeName: string,
         connectionInputs: any,
         connectionOutputs: any,
         nodeData: any = {},
@@ -108,10 +126,26 @@ export class EnergyDrawflowComponent {
             connectionOutputs,
             pos_x,
             pos_y,
-            nodeName,
+            nodeId,
             nodeData,
             source_html,
             false
+        );
+
+        setTimeout(() => {
+            console.log(this.editor.export().drawflow.Home.data);
+        }, 100);
+    }
+
+    addNode(data: any) {
+        this.addNodeToDrawFlow(
+            this.currentNode.nodeId,
+            data.name,
+            this.currentPosition.x,
+            this.currentPosition.y,
+            data.inp,
+            data.out,
+            data
         );
     }
 }

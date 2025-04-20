@@ -24,23 +24,24 @@ export class ModalComponent {
 
     // temp
     isFormValid: boolean = true;
+    modal: any;
 
     @ViewChild('modal') modalRef = {} as ElementRef;
     @ViewChild(FormComponent) formComponent!: FormComponent;
+    @ViewChild('inputs') orderList_inputs!: OrderListComponent;
+    @ViewChild('outputs') orderList_outputs!: OrderListComponent;
 
     @Input() node!: any;
     @Input() title!: string;
 
-    @Output() closeModal: EventEmitter<null> = new EventEmitter<null>();
+    @Output() closeModal: EventEmitter<any> = new EventEmitter<any>();
 
     ngOnInit() {
-        console.log(this.node.name);
-
         this.initFormData(this.node.name);
 
         setTimeout(() => {
-            const modal = new bootstrap.Modal(this.modalRef.nativeElement);
-            modal.show();
+            this.modal = new bootstrap.Modal(this.modalRef.nativeElement);
+            this.modal.show();
         }, 0);
     }
 
@@ -821,11 +822,19 @@ export class ModalComponent {
         if (this.formComponent.form.valid) {
             this.isFormValid = true;
             const formValue = this.formComponent.form.getRawValue();
-            console.log(formValue);
+
+            if (this.node.name === 'Transformer') {
+                formValue['ports'] = {};
+                formValue['ports']['inputs'] = this.orderList_inputs.getData();
+                formValue['ports']['outputs'] =
+                    this.orderList_outputs.getData();
+            }
+            this.close(formValue);
         } else this.isFormValid = false;
     }
 
-    close() {
-        this.closeModal.emit();
+    close(data?: any) {
+        this.closeModal.emit(data);
+        this.modal.hide();
     }
 }

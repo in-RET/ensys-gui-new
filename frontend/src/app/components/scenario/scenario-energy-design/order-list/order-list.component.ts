@@ -25,11 +25,11 @@ export class OrderListComponent {
     //     new EventEmitter<any>();
 
     ngOnInit() {
-        this.data = [
-            { id: 0, name: 'a' },
-            { id: 1, name: 'b' },
-            { id: 2, name: 'c' },
-        ];
+        // this.data = [
+        //     { id: 0, name: 'a' },
+        //     { id: 1, name: 'b' },
+        //     { id: 2, name: 'c' },
+        // ];
     }
 
     addItem() {
@@ -127,5 +127,9 @@ export class OrderListComponent {
                 }
                 break;
         }
+    }
+
+    getData() {
+        return this.data;
     }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
@@ -96,6 +96,9 @@ export class ScenarioEnergyDesignComponent {
     modalVisibility: boolean = false;
     createdNode: any = {}; // {name: ....}
 
+    @ViewChild(EnergyDrawflowComponent)
+    energyDrawflowComponent!: EnergyDrawflowComponent;
+
     ngOnInit() {}
 
     clearGridModel() {
@@ -110,14 +113,54 @@ export class ScenarioEnergyDesignComponent {
         // .then((result) => save_topology());
     }
 
-    drop(e: any) {
-        this.createdNode['id'] = e.id;
-        this.createdNode['name'] = e.name;
+    drop(node: any) {
+        // this.createdNode['id'] = e.id;
+        // this.createdNode['name'] = e.name;
+        this.createdNode = node;
         this.modalVisibility = true;
     }
 
-    closeModal() {
+    closeModal(data: any) {
         this.modalVisibility = false;
-        console.log(this.modalVisibility);
+
+        switch (this.createdNode.group) {
+            case 'production':
+                this.energyDrawflowComponent.addNode({
+                    ...data,
+                    inp: 0,
+                    out: 1,
+                });
+                break;
+
+            case 'bus':
+            case 'storage':
+                this.energyDrawflowComponent.addNode({
+                    ...data,
+                    inp: 1,
+                    out: 1,
+                });
+                break;
+
+            case 'demand':
+                this.energyDrawflowComponent.addNode({
+                    ...data,
+                    inp: 0,
+                    out: 1,
+                });
+                break;
+
+            case 'conversion':
+                if (this.createdNode.id == 'myTransformer')
+                    this.energyDrawflowComponent.addNode({
+                        ...data,
+                        inp: data['ports']['inputs']
+                            ? data['ports']['inputs'].length
+                            : 0,
+                        out: data['ports']['outputs']
+                            ? data['ports']['outputs'].length
+                            : 0,
+                    });
+                break;
+        }
     }
 }
