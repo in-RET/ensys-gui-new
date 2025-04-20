@@ -120,47 +120,48 @@ export class ScenarioEnergyDesignComponent {
         this.modalVisibility = true;
     }
 
-    closeModal(data: any) {
+    closeModal(data?: any) {
         this.modalVisibility = false;
 
-        switch (this.createdNode.group) {
-            case 'production':
-                this.energyDrawflowComponent.addNode({
-                    ...data,
-                    inp: 0,
-                    out: 1,
-                });
-                break;
-
-            case 'bus':
-            case 'storage':
-                this.energyDrawflowComponent.addNode({
-                    ...data,
-                    inp: 1,
-                    out: 1,
-                });
-                break;
-
-            case 'demand':
-                this.energyDrawflowComponent.addNode({
-                    ...data,
-                    inp: 0,
-                    out: 1,
-                });
-                break;
-
-            case 'conversion':
-                if (this.createdNode.id == 'myTransformer')
+        if (data)
+            switch (this.createdNode.group) {
+                case 'production':
                     this.energyDrawflowComponent.addNode({
                         ...data,
-                        inp: data['ports']['inputs']
-                            ? data['ports']['inputs'].length
-                            : 0,
-                        out: data['ports']['outputs']
-                            ? data['ports']['outputs'].length
-                            : 0,
+                        inp: 0,
+                        out: 1,
                     });
-                break;
-        }
+                    break;
+
+                case 'bus':
+                case 'storage':
+                    this.energyDrawflowComponent.addNode({
+                        ...data,
+                        inp: 1,
+                        out: 1,
+                    });
+                    break;
+
+                case 'demand':
+                    this.energyDrawflowComponent.addNode({
+                        ...data,
+                        inp: 0,
+                        out: 1,
+                    });
+                    break;
+
+                case 'conversion':
+                    if (this.createdNode.id == 'myTransformer')
+                        this.energyDrawflowComponent.addNode({
+                            ...data,
+                            inp: data['ports']['inputs']
+                                ? data['ports']['inputs'].length
+                                : 0,
+                            out: data['ports']['outputs']
+                                ? data['ports']['outputs'].length
+                                : 0,
+                        });
+                    break;
+            }
     }
 }

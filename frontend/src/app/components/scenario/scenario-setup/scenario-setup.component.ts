@@ -23,6 +23,16 @@ export class ScenarioSetupComponent {
         interestRate: new FormControl(null, [Validators.required]),
         userMode: new FormControl('', [Validators.required]),
         simulationYear: new FormControl('', [Validators.required]),
+
+        minimal_renewable_factor_active: new FormControl(true),
+        minimal_renewable_factor: new FormControl(
+            { value: null, disabled: false },
+            [Validators.required]
+        ),
+        maximum_emissions_active: new FormControl(true),
+        maximum_emissions: new FormControl({ value: null, disabled: false }, [
+            Validators.required,
+        ]),
     });
 
     get name() {
@@ -51,5 +61,21 @@ export class ScenarioSetupComponent {
 
     get simulationYear() {
         return this.form.get('simulationYear');
+    }
+
+    get minimal_renewable_factor_active() {
+        return this.form.get('minimal_renewable_factor_active');
+    }
+
+    get minimal_renewable_factor() {
+        return this.form.get('minimal_renewable_factor');
+    }
+
+    get maximum_emissions_active() {
+        return this.form.get('maximum_emissions_active');
+    }
+
+    get maximum_emissions() {
+        return this.form.get('maximum_emissions');
     }
 }

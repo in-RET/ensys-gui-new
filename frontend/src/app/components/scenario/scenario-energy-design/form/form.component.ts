@@ -32,7 +32,7 @@ export class FormComponent {
 
         this.formData.sections.forEach((section: any) => {
             section.fields.forEach((field: any) => {
-                let fControl: FormControl = new FormControl('1', []);
+                let fControl: FormControl = new FormControl(null, []);
 
                 if (field.isReq) fControl.addValidators(Validators.required);
 
