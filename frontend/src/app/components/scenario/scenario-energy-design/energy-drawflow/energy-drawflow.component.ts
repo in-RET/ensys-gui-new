@@ -19,7 +19,9 @@ export class EnergyDrawflowComponent {
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
         this.editor = new Drawflow(id);
+        this.editor.zoom = 0.7;
         this.editor.start();
+        this.editor.zoom_refresh();
     }
 
     allowDrop(ev: any) {

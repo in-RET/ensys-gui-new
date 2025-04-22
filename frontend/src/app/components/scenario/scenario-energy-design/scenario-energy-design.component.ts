@@ -76,7 +76,7 @@ export class ScenarioEnergyDesignComponent {
                     },
                     {
                         id: 'myPredefinedSinkOEP',
-                        name: 'Load profile from the Open Energy Platform',
+                        name: 'OEP',
                     },
                 ],
             },

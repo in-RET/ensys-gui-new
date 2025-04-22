@@ -1457,7 +1457,7 @@ export class ModalComponent {
                 };
                 break;
 
-            case 'Load profile from the Open Energy Platform':
+            case 'OEP':
                 this.formData = {
                     sections: [
                         {

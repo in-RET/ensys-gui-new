@@ -1,0 +1,35 @@
+.bar-zoom {
+    position: absolute;
+    top: 82%;
+    right: 5%;
+    display: flex;
+    font-size: 24px;
+    color: white;
+    padding: 5px 10px;
+    background: #555555;
+    border-radius: 4px;
+    border-right: 1px solid var(--border-color);
+    z-index: 5;
+    gap: 0.5rem;
+
+    .zoom-in {
+        background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
+
+    .zoom-out {
+        background-image: url("/static/assets/icons/feather/white/zoom-out.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
+
+    .zoom-reset {
+        background-image: url("/static/assets/icons/feather/white/refresh-ccw.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
+}

@@ -14,5 +14,11 @@
             <span>DoubleClick: Opens form to enter parameters</span><br />
             <span>Middle Mousebutton: Mirror the selected block</span>
         </div>
+
+        <div class="bar-zoom">
+            <i class="zoom-in" (click)="editor.zoom_in()"></i>
+            <i class="zoom-reset" (click)="editor.zoom_reset()"></i>
+            <i class="zoom-out" (click)="editor.zoom_out()"></i>
+        </div>
     </div>
 </section>
