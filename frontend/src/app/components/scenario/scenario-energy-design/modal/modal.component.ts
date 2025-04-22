@@ -1297,6 +1297,241 @@ export class ModalComponent {
                     ],
                 };
                 break;
+
+            case 'Sink':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'Nominal_value',
+                                    placeholder: 'Nominal value',
+                                    label: 'Nominal value',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+
+                                {
+                                    name: 'Renewable_factor',
+                                    placeholder: 'Renewable factor',
+                                    label: 'Renewable factor',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Excess':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-4',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Export':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'variable_costs',
+                                    placeholder: 'Variable costs',
+                                    label: 'Variable costs',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Nominal_value',
+                                    placeholder: 'Nominal value',
+                                    label: 'Nominal value',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Load profile from the Open Energy Platform':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Technical parameters',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'Nominal_value',
+                                    placeholder: 'Nominal value',
+                                    label: 'Nominal value',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                                {
+                                    name: 'Renewable_factor',
+                                    placeholder: 'Renewable factor',
+                                    label: 'Renewable factor',
+                                    isReq: false,
+                                    type: 'number',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'OEP',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'oep_table',
+                                    placeholder: 'Table name',
+                                    label: 'Table name',
+                                    isReq: true,
+                                    type: 'text',
+                                },
+                                {
+                                    name: 'oep_column',
+                                    placeholder: 'Column name',
+                                    label: 'Column name',
+                                    isReq: true,
+                                    type: 'text',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
         }
     }
 
