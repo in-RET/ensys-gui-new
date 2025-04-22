@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { AuthGuard } from '../core/guards/auth-guard.service';
 
 export const routes: Routes = [
     {
@@ -50,7 +49,7 @@ export const routes: Routes = [
 
             {
                 path: 'projects',
-                canMatch: [AuthGuard],
+                // canMatch: [AuthGuard],
                 loadChildren: () =>
                     import('./project.routes').then((r) => r.routes),
             },

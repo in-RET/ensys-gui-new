@@ -1532,6 +1532,63 @@ export class ModalComponent {
                     ],
                 };
                 break;
+
+            case 'Bus':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Input Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Output Port',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '6',
+                                },
+                                {
+                                    name: 'energy_carrier',
+                                    placeholder: 'Energy carrier',
+                                    label: 'Energy carrier',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '6',
+                                },
+                            ],
+                        },
+                    ],
+                };
         }
     }
 
