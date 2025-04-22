@@ -2,7 +2,8 @@ from jose import jwt
 from sqlalchemy import create_engine
 from sqlmodel import Session, select
 
-from backend.app.constants import token_secret, db_link
+from backend.app.db import db_link
+from backend.app.security import token_secret
 from backend.app.users.model import EnUser, EnUserDB
 
 

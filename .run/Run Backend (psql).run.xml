@@ -16,6 +16,8 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="launchJavascriptDebuger" value="false" />
-    <method v="2" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Migrate Database (Development)" run_configuration_type="PythonConfigurationType" />
+    </method>
   </configuration>
 </component>
