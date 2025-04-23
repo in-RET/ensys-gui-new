@@ -25,8 +25,7 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     user_db = db.exec(statement).first()
 
     if not user_db:
-        # raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        raise CustomException(code=status.HTTP_404_NOT_FOUND, message="User not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
     if user_db.verify_password(password):
         user_db.last_login = datetime.now()
@@ -54,15 +53,15 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
             status_code=status.HTTP_200_OK
         )
     else:
-        # raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
-        return CustomResponse(
-            data=None,
-            success=False,
-            errors=[ErrorModel(
-                code=status.HTTP_401_UNAUTHORIZED,
-                message="Username/Password incorrect."
-            )]
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
+        # return CustomResponse(
+        #     data=None,
+        #     success=False,
+        #     errors=[ErrorModel(
+        #         code=status.HTTP_401_UNAUTHORIZED,
+        #         message="Username/Password incorrect."
+        #     )]
+        # )
 
 
 @users_router.post("/auth/register", status_code=status.HTTP_201_CREATED)

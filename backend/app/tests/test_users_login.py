@@ -12,7 +12,7 @@ def test_users_login_success():
     test_user, test_token = get_test_user()
 
     response = client.post(
-        url="/users/auth/login",
+        url="/user/auth/login",
         data={
             "username": test_user.username,
             "password": test_user.password
@@ -33,7 +33,7 @@ def test_users_login_success():
 @pytest.mark.order(6)
 def test_users_login_failure_not_found():
     response = client.post(
-        url="/users/auth/login",
+        url="/user/auth/login",
         data={
             "username": "not_found",
             "password": ""
@@ -52,7 +52,7 @@ def test_users_login_failure_not_found():
 @pytest.mark.order(7)
 def test_users_login_failure_wrong_password():
     response = client.post(
-        url="/users/auth/login",
+        url="/user/auth/login",
         data={
             "username": "pytest",
             "password": ""
