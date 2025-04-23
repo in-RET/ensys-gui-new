@@ -235,7 +235,7 @@ html {
 body {
     margin: 0;
     overflow-x: hidden;
-    // height: 100vh;
+    height: 100vh;
     // display: flex;
     // flex-direction: column;
     // align-items: center;
@@ -243,7 +243,8 @@ body {
 
 main {
     display: block;
-    height: 100%;
+    // height: 100%;
+    height: auto;
     width: 100%;
     // position: relative;
     // margin-top: 7rem;
@@ -1243,8 +1244,10 @@ a.dropdown-item:active {
 
 .footer {
     background-color: #f4f7f9;
-    height: 3rem;
-    position: fixed;
+    // height: 3rem;
+    height: 7vh;
+    // position: fixed;
+    position: sticky;
     bottom: 0;
     width: 100%;
     display: flex;

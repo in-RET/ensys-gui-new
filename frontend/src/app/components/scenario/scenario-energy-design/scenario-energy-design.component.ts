@@ -6,6 +6,34 @@ import { EnergyComponentsComponent } from './energy-components/energy-components
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { ModalComponent } from './modal/modal.component';
 
+interface EnergySystemModel {
+    project_id: string;
+    scenario: {
+        scenario_id: string;
+        components: [
+            {
+                name: string;
+                oemof_type: string;
+                data: {};
+                position: { x: string; y: string };
+                links: [
+                    {
+                        input: {
+                            source: string;
+                            target: string;
+                            name: string;
+                        };
+                        output: {
+                            source: string;
+                            target: string;
+                            name: string;
+                        };
+                    }
+                ];
+            }
+        ];
+    };
+}
 @Component({
     selector: 'app-scenario-energy-design',
     imports: [

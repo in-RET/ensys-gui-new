@@ -3,7 +3,7 @@
 
 .footer {
     background-color: $primary-gray-color-1;
-    height: $footer-height;
+    // height: $footer-height;
     @include flex-column-align-justify-center;
     flex-shrink: 0;
 
