@@ -1,5 +1,5 @@
-<main class="signup" style="height: 100vh; margin: 0">
-    <div class="signup-frame">
+<main class="w-100 m-auto signup">
+    <form [formGroup]="form" class="signup-frame">
         <div class="signup-frame__img">
             <img
                 src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
@@ -7,231 +7,227 @@
             />
         </div>
 
-        <div class="signup-frame__heading">EnSys tool</div>
+        <!-- <div class="signup-frame__heading">EnSys tool</div> -->
 
-        <form method="post" class="signup-frame__form" [formGroup]="form">
-            <div class="form-floating mb-3">
-                <input
-                    type="email"
-                    class="form-control"
-                    id="floatingInput"
-                    placeholder="name@example.com"
-                    formControlName="email"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            email!.invalid && (email!.dirty || email!.touched)
-                    }"
-                />
-                <label for="floatingInput">Email</label>
+        <div class="form-floating mb-3">
+            <input
+                type="email"
+                class="form-control"
+                id="floatingInput"
+                placeholder="name@example.com"
+                formControlName="email"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        email!.invalid && (email!.dirty || email!.touched)
+                }"
+            />
+            <label for="floatingInput">Email</label>
 
-                <div
-                    *ngIf="email!.invalid && (email!.dirty || email!.touched)"
-                    [ngClass]="{
-                        'invalid-feedback':
-                            email!.invalid && (email!.dirty || email!.touched)
-                    }"
-                >
-                    <div *ngIf="email!.hasError('required')">
-                        Email is required.
-                    </div>
+            <div
+                *ngIf="email!.invalid && (email!.dirty || email!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        email!.invalid && (email!.dirty || email!.touched)
+                }"
+            >
+                <div *ngIf="email!.hasError('required')">
+                    Email is required.
                 </div>
             </div>
+        </div>
 
-            <div class="row mb-3">
-                <div class="col-md">
-                    <div class="form-floating">
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="fNameTxt"
-                            placeholder="First Name"
-                            formControlName="fName"
-                            required
-                            [ngClass]="{
-                                'is-invalid':
-                                    fName!.invalid &&
-                                    (fName!.dirty || fName!.touched)
-                            }"
-                        />
-                        <label for="fNameTxt">First Name</label>
-
-                        <div
-                            *ngIf="
+        <div class="row mb-3">
+            <div class="col-md">
+                <div class="form-floating">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="fNameTxt"
+                        placeholder="First Name"
+                        formControlName="fName"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
                                 fName!.invalid &&
                                 (fName!.dirty || fName!.touched)
-                            "
-                            [ngClass]="{
-                                'invalid-feedback':
-                                    fName!.invalid &&
-                                    (fName!.dirty || fName!.touched)
-                            }"
-                        >
-                            <div *ngIf="fName!.hasError('required')">
-                                First Name is required.
-                            </div>
+                        }"
+                    />
+                    <label for="fNameTxt">First Name</label>
+
+                    <div
+                        *ngIf="
+                            fName!.invalid && (fName!.dirty || fName!.touched)
+                        "
+                        [ngClass]="{
+                            'invalid-feedback':
+                                fName!.invalid &&
+                                (fName!.dirty || fName!.touched)
+                        }"
+                    >
+                        <div *ngIf="fName!.hasError('required')">
+                            First Name is required.
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-md">
-                    <div class="form-floating">
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="fnTxt"
-                            placeholder="Last Name"
-                            formControlName="lName"
-                            required
-                            [ngClass]="{
-                                'is-invalid':
-                                    lName!.invalid &&
-                                    (lName!.dirty || lName!.touched)
-                            }"
-                        />
-                        <label for="fnTxt">Last Name</label>
-
-                        <div
-                            *ngIf="
+            <div class="col-md">
+                <div class="form-floating">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="fnTxt"
+                        placeholder="Last Name"
+                        formControlName="lName"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
                                 lName!.invalid &&
                                 (lName!.dirty || lName!.touched)
-                            "
-                            [ngClass]="{
-                                'invalid-feedback':
-                                    lName!.invalid &&
-                                    (lName!.dirty || lName!.touched)
-                            }"
-                        >
-                            <div *ngIf="lName!.hasError('required')">
-                                Last Name is required.
-                            </div>
+                        }"
+                    />
+                    <label for="fnTxt">Last Name</label>
+
+                    <div
+                        *ngIf="
+                            lName!.invalid && (lName!.dirty || lName!.touched)
+                        "
+                        [ngClass]="{
+                            'invalid-feedback':
+                                lName!.invalid &&
+                                (lName!.dirty || lName!.touched)
+                        }"
+                    >
+                        <div *ngIf="lName!.hasError('required')">
+                            Last Name is required.
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input
-                    type="text"
-                    class="form-control"
-                    id="usernameTxt"
-                    placeholder="Username"
-                    formControlName="user"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            user!.invalid && (user!.dirty || user!.touched)
-                    }"
-                />
-                <label for="usernameTxt">Username</label>
+        <div class="form-floating mb-3">
+            <input
+                type="text"
+                class="form-control"
+                id="usernameTxt"
+                placeholder="Username"
+                formControlName="user"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
+            />
+            <label for="usernameTxt">Username</label>
 
-                <div
-                    *ngIf="user!.invalid && (user!.dirty || user!.touched)"
-                    [ngClass]="{
-                        'invalid-feedback':
-                            user!.invalid && (user!.dirty || user!.touched)
-                    }"
-                >
-                    <div *ngIf="user!.hasError('required')">
-                        Username is required.
-                    </div>
+            <div
+                *ngIf="user!.invalid && (user!.dirty || user!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
+            >
+                <div *ngIf="user!.hasError('required')">
+                    Username is required.
                 </div>
             </div>
+        </div>
 
-            <div class="form-floating mb-3">
-                <input
-                    type="text"
-                    class="form-control"
-                    id="passwordTxt"
-                    placeholder="Password"
-                    formControlName="pass"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            pass!.invalid && (pass!.dirty || pass!.touched)
-                    }"
-                />
-                <label for="passwordTxt">Password</label>
+        <div class="form-floating mb-3">
+            <input
+                type="text"
+                class="form-control"
+                id="passwordTxt"
+                placeholder="Password"
+                formControlName="pass"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            />
+            <label for="passwordTxt">Password</label>
 
-                <div
-                    *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
-                    [ngClass]="{
-                        'invalid-feedback':
-                            pass!.invalid && (pass!.dirty || pass!.touched)
-                    }"
-                >
-                    <div *ngIf="pass!.hasError('required')">
-                        Password is required.
-                    </div>
+            <div
+                *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            >
+                <div *ngIf="pass!.hasError('required')">
+                    Password is required.
+                </div>
 
-                    <div *ngIf="pass!.hasError('invalidPasswordLetters')">
-                        Password must contain at least number, uppercase and
-                        lowercase letter
-                    </div>
+                <div *ngIf="pass!.hasError('invalidPasswordLetters')">
+                    Password must contain at least number, uppercase and
+                    lowercase letter
                 </div>
             </div>
+        </div>
 
-            <div class="form-floating">
-                <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Password Confirmation"
-                    formControlName="confirmPass"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            confirmPass!.invalid &&
-                            (confirmPass!.dirty || confirmPass!.touched)
-                    }"
-                />
-                <label for="confirmPass">Password Confirmation </label>
-
-                <div
-                    *ngIf="
+        <div class="form-floating">
+            <input
+                type="text"
+                class="form-control"
+                placeholder="Password Confirmation"
+                formControlName="confirmPass"
+                required
+                [ngClass]="{
+                    'is-invalid':
                         confirmPass!.invalid &&
                         (confirmPass!.dirty || confirmPass!.touched)
-                    "
-                    [ngClass]="{
-                        'invalid-feedback':
-                            confirmPass!.invalid &&
-                            (confirmPass!.dirty || confirmPass!.touched)
-                    }"
-                >
-                    <div *ngIf="confirmPass!.hasError('required')">
-                        Password is required.
-                    </div>
+                }"
+            />
+            <label for="confirmPass">Password Confirmation </label>
 
-                    <div *ngIf="confirmPass!.hasError('passwordMismatch')">
-                        Password is not match
-                    </div>
+            <div
+                *ngIf="
+                    confirmPass!.invalid &&
+                    (confirmPass!.dirty || confirmPass!.touched)
+                "
+                [ngClass]="{
+                    'invalid-feedback':
+                        confirmPass!.invalid &&
+                        (confirmPass!.dirty || confirmPass!.touched)
+                }"
+            >
+                <div *ngIf="confirmPass!.hasError('required')">
+                    Password is required.
+                </div>
+
+                <div *ngIf="confirmPass!.hasError('passwordMismatch')">
+                    Password is not match
                 </div>
             </div>
+        </div>
 
-            <div class="form-check">
-                <input
-                    class="form-check-input"
-                    type="checkbox"
-                    formControlName="consentOpt"
-                />
-                <label class="form-check-label" for="flexCheckDefault">
-                    I have read and accept the
-                    <a href="privacy" target="_blank"> privacy statements </a>
-                    from Ensys
-                </label>
-            </div>
+        <div class="form-check">
+            <input
+                class="form-check-input"
+                type="checkbox"
+                formControlName="consentOpt"
+            />
+            <label class="form-check-label" for="flexCheckDefault">
+                I have read and accept the
+                <a href="privacy" target="_blank"> privacy statements </a>
+                from Ensys
+            </label>
+        </div>
 
-            <button
-                class="btn btn--large"
-                type="submit"
-                (click)="signup()"
-                [disabled]="!form.valid || !consentOpt?.value"
-            >
-                Sign up
-            </button>
-        </form>
+        <button
+            class="btn btn--large"
+            type="submit"
+            (click)="signup()"
+            [disabled]="!form.valid || !consentOpt?.value"
+        >
+            Sign up
+        </button>
 
         <div class="signup-frame__subheading">
             Do you already have an account? <a href="auth/login">Log in</a>
         </div>
-    </div>
+    </form>
 </main>

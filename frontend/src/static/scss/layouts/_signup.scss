@@ -1,19 +1,32 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
 
+app-login,
+app-signup,
+app-password-reset {
+    height: 100%;
+    display: flex;
+    background-color: $primary-gray-color-1 !important;
+    overflow-y: auto;
+}
+
 .signup {
-    @include flex-column-align-justify-center;
-    background-color: $primary-gray-color-1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 0 1.5rem 0;
 
     .signup-frame {
-        width: 100%;
-        max-width: 36rem;
-        padding: $padding-frames;
         background-color: $white;
+        padding: 2.5rem 5rem;
+        width: 100%;
+
         box-shadow: $box-shadow-frame;
+        max-width: 500px;
 
         &__img {
             text-align: center;
+            margin-bottom: 3rem;
 
             img {
                 height: 6.125rem;
@@ -35,7 +48,7 @@
         }
 
         &__form {
-            padding-top: 2rem;
+            // padding-top: 2rem;
         }
 
         .form-check {

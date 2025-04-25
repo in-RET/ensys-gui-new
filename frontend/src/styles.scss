@@ -233,21 +233,25 @@ html {
  * Remove the margin in all browsers.
  */
 body {
+    background-color: #fff;
     margin: 0;
     overflow-x: hidden;
-    height: 100vh;
+    // height: 100vh;
+    height: 100%;
     // display: flex;
     // flex-direction: column;
     // align-items: center;
+    overflow: hidden;
 }
 
 main {
     display: block;
     // height: 100%;
-    height: auto;
+    // height: auto;
     width: 100%;
     // position: relative;
     // margin-top: 7rem;
+    overflow-y: auto;
 }
 
 .legal {
@@ -2671,59 +2675,6 @@ table.table > :not(caption) > * > * {
 .scenario-create__description .form-text {
     margin-top: 1.75rem;
     font-size: 1rem;
-}
-
-.signup {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #f4f7f9;
-}
-
-.signup .signup-frame {
-    width: 100%;
-    max-width: 36rem;
-    padding: 4rem;
-    background-color: #fff;
-    box-shadow: 0px 0px 16px rgba(31, 86, 125, 0.08);
-}
-
-.signup .signup-frame__img {
-    text-align: center;
-}
-
-.signup .signup-frame__img img {
-    height: 6.125rem;
-}
-
-.signup .signup-frame__heading {
-    font-size: 1.953rem;
-    text-align: center;
-    padding-top: 1rem;
-}
-
-.signup .signup-frame__subheading {
-    font-size: 0.875rem;
-    color: #495965;
-    font-weight: 300;
-    text-align: center;
-    padding-top: 1rem;
-}
-
-.signup .signup-frame__form {
-    padding-top: 2rem;
-}
-
-.signup .signup-frame .form-check {
-    font-size: 0.875rem;
-    color: #495965;
-    font-weight: 300;
-    padding-top: 1rem;
-}
-
-.signup .signup-frame button {
-    margin-top: 1.5rem;
 }
 
 .simulation {

@@ -1,78 +1,77 @@
-<main class="signup" style="height: 100vh; margin: 0">
-    <div class="signup-frame">
+<main class="w-100 m-auto signup">
+    <form class="signup-frame" [formGroup]="form">
         <div class="signup-frame__img">
             <img
                 src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
                 alt="open_plan cells"
+                style="height: 6.125rem"
             />
         </div>
 
-        <div class="signup-frame__heading">EnSys Tool</div>
+        <!-- <div class="signup-frame__heading">EnSys Tool</div> -->
 
-        <form class="signup-frame__form" [formGroup]="form">
-            <div class="form-floating mb-3">
-                <input
-                    type="text"
-                    class="form-control"
-                    formControlName="user"
-                    placeholder="Username"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            user!.invalid && (user!.dirty || user!.touched)
-                    }"
-                />
-                <label for="floatingInput">Username</label>
+        <div class="form-floating mb-3">
+            <input
+                type="text"
+                class="form-control"
+                formControlName="user"
+                placeholder="Username"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
+            />
+            <label for="floatingInput">Username</label>
 
-                <div
-                    *ngIf="user!.invalid && (user!.dirty || user!.touched)"
-                    [ngClass]="{
-                        'invalid-feedback':
-                            user!.invalid && (user!.dirty || user!.touched)
-                    }"
-                >
-                    <div *ngIf="user!.hasError('required')">
-                        UserName is required.
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-floating">
-                <input
-                    type="password"
-                    class="form-control"
-                    formControlName="pass"
-                    placeholder="Password"
-                    required
-                    [ngClass]="{
-                        'is-invalid':
-                            pass!.invalid && (pass!.dirty || pass!.touched)
-                    }"
-                />
-                <label for="floatingPassword">Password</label>
-
-                <div
-                    *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
-                    [ngClass]="{
-                        'invalid-feedback':
-                            pass!.invalid && (pass!.dirty || pass!.touched)
-                    }"
-                >
-                    <div *ngIf="pass!.hasError('required')">
-                        Password is required.
-                    </div>
-                </div>
-            </div>
-
-            <button
-                class="btn btn--large"
-                type="submit"
-                (click)="logIn()"
-                [disabled]="!form.valid"
+            <div
+                *ngIf="user!.invalid && (user!.dirty || user!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
             >
-                Login
-            </button>
-        </form>
+                <div *ngIf="user!.hasError('required')">
+                    UserName is required.
+                </div>
+            </div>
+        </div>
+
+        <div class="form-floating">
+            <input
+                type="password"
+                class="form-control"
+                formControlName="pass"
+                placeholder="Password"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            />
+            <label for="floatingPassword">Password</label>
+
+            <div
+                *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            >
+                <div *ngIf="pass!.hasError('required')">
+                    Password is required.
+                </div>
+            </div>
+        </div>
+
+        <button
+            class="btn btn--large"
+            type="submit"
+            (click)="logIn()"
+            [disabled]="!form.valid"
+        >
+            Login
+        </button>
 
         <div class="signup-frame__subheading">
             Do you not have an account yet?
@@ -83,5 +82,5 @@
             Forgot your password?
             <a href="/auth/password_reset">Reset Password</a>
         </div>
-    </div>
+    </form>
 </main>
