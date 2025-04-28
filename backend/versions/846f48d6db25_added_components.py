@@ -25,7 +25,7 @@ def upgrade() -> None:
     op.create_table('components_in_design',
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=30), nullable=False),
     sa.Column('oemof_type', sqlmodel.sql.sqltypes.AutoString(length=50), nullable=False),
-    sa.Column('data', sa.ARRAY(sa.String()), nullable=True),
+    sa.Column('data', sa.JSON(), nullable=False),
     sa.Column('pos_x', sa.Float(), nullable=False),
     sa.Column('pos_y', sa.Float(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
@@ -33,7 +33,7 @@ def upgrade() -> None:
     )
     components_table = op.create_table('components_template',
     sa.Column('oemof_type', sqlmodel.sql.sqltypes.AutoString(length=50), nullable=False),
-    sa.Column('fields', sa.ARRAY(sa.String()), nullable=True),
+    sa.Column('fields', sa.JSON(), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
@@ -41,15 +41,15 @@ def upgrade() -> None:
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
     # ### end Alembic commands ###
     op.bulk_insert(components_table, [
-        {'oemof_type': 'Sink', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
-        {'oemof_type': 'Source', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
-        {'oemof_type': 'Converter', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
-        {'oemof_type': 'OffsetConverter', 'fields': ['constraint_group', 'inputs', 'label', 'normed_offset_and_conversion_factors_from_coefficients', 'outputs', 'plot_partload']},
-        {'oemof_type': 'Bus', 'fields': ['balanced', 'constraint_group', 'custom_properties', 'inputs', 'label', 'outputs']},
-        {'oemof_type': 'GenericStorage', 'fields': ['constraint_group', 'inputs', 'label', 'outputs']},
-        {'oemof_type': 'Flow', 'fields': ['Label', 'age', 'bidirectional', 'custom_properties', 'fix', 'fixed_costs', 'flow', 'from_object', 'full_load_time_max', 'full_load_time_min', 'input', 'integer', 'investment', 'label', 'lifetime', 'max', 'min', 'negative_gradient_limit', 'nominal_value', 'nonconvex', 'output', 'positive_gradient_limit', 'values', 'variable_costs']},
-        {'oemof_type': 'Investment', 'fields': ['age', 'ep_costs', 'existing', 'fixed_costs', 'interest_rate', 'lifetime', 'maximum', 'minimum', 'nonconvex', 'offset', 'overall_maximum', 'overall_minimum']},
-        {'oemof_type': 'NonConvex', 'fields': ['activity_costs', 'first_flexible_timestep', 'inactivity_costs', 'initial_status', 'maximum_shutdowns', 'maximum_startups', 'minimum_downtime', 'minimum_uptime', 'negative_gradient_limit', 'positive_gradient_limit', 'shutdown_costs', 'startup_costs']}
+        {'oemof_type': 'sink', 'fields': {'label': 'string', 'inputs': 'flow'}},
+        {'oemof_type': 'source', 'fields': {'label': 'string', 'outputs': 'flow'}},
+        {'oemof_type': 'converter', 'fields': {'label': 'string', 'inputs': 'flow', 'outputs': 'flow', 'conversion_factors': 'dict'}},
+        {'oemof_type': 'offsetconverter', 'fields': {'label': 'string', 'inputs': 'flow', 'outputs': 'flow', 'conversion_factors': 'dict', 'normed_offsets': 'dict', 'coefficients': 'list'}},
+        {'oemof_type': 'bus', 'fields': {'label': 'string', 'balanced': 'boolean'}},
+        {'oemof_type': 'genericStorage', 'fields': {'label': 'string', 'inputs': 'flow', 'outputs': 'flow', 'nominal_storage_capacity': 'float or invest', 'initial_storage_level': 'float', 'invest_relation_input_output': 'float', 'invest_relation_input_capacity': 'float', 'invest_relation_output_capacity': 'float', 'min_storage_level': 'float', 'max_storage_level': 'float', 'balanced': 'boolean', 'loss_rate': 'float', 'fixed_losses_relative': 'float', 'fixed_losses_absolute': 'float', 'inflow_conversion_factor': 'float', 'outflow_conversion_factor': 'float', 'fixed_costs': 'float', 'storage_costs': 'float', 'lifetime_inflow': 'float', 'lifetime_outflow': 'float'}},
+        {'oemof_type': 'flow', 'fields': {'Label': 'string', 'age': 'integer', 'bidirectional': 'boolean', 'fix': 'float or list[float]', 'fixed_costs': 'float or list[float]', 'full_load_time_max': 'float', 'full_load_time_min': 'float', 'integer': 'boolean', 'lifetime': 'integer', 'max': 'float or list[float]', 'min': 'float or list[float]', 'negative_gradient_limit': 'float or list[float]', 'nominal_value': 'float or investment', 'nonconvex': 'nonconvex object', 'positive_gradient_limit': 'float or list[float]', 'variable_costs': 'float or list[float]'}},
+        {'oemof_type': 'investment', 'fields': {'age': 'int', 'ep_costs': 'float', 'existing': 'float', 'fixed_costs': 'float or list[float]', 'interest_rate': 'float', 'lifetime': 'int', 'maximum': 'float', 'minimum': 'float', 'nonconvex': 'boolean', 'offset': 'float', 'overall_maximum': 'float', 'overall_minimum': 'float'}},
+        {'oemof_type': 'nonconvex', 'fields': {'activity_costs': 'float or list[float]', 'inactivity_costs': 'float or list[float]', 'initial_status': 'boolean', 'maximum_shutdowns': 'integer', 'maximum_startups': 'integer', 'minimum_downtime': 'integer', 'minimum_uptime': 'integer', 'negative_gradient_limit': 'float or list[float]', 'positive_gradient_limit': 'float or list[float]', 'shutdown_costs': 'float or list[float]', 'startup_costs': 'float or list[float]'}}
     ])
 
 

@@ -1,6 +1,6 @@
 services:
     db:
-        image: postgres:16
+        image: postgres:17-alpine
         container_name: db
         env_file: .env
         restart: always
@@ -49,7 +49,7 @@ services:
         command: sh -c "alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 8001"
         ports:
           - '${API_PORT}:8001'
-        restart: always
+        restart: no
         volumes:
          - /var/run/docker.sock:/var/run/docker.sock
          - ${LOCAL_DATADIR}:/app/data/simulations

@@ -1,0 +1,43 @@
+{
+    "energysystemmodel": {
+        "scenario_id": "int",
+        "components": [
+            {
+                "component_id": "int",
+                "name": "string",
+                "oemof_type": "string",
+                "data": {
+                    "key": "oemof.solph.component data"
+                },
+                "position": {
+                    "x": "float",
+                    "y": "float"
+                },
+                "inputs": [
+                    {
+                        "component_id": "int",
+                        "name": "string",
+                        "data": {
+                            "key": "oemof.solph.flow data"
+                        }
+                    },
+                    {
+                        "various other flows": "..."
+                    }
+                ],
+                "outputs": [
+                    {
+                        "component_id": "int",
+                        "name": "string",
+                        "data": {
+                            "key": "oemof.solph.flow data"
+                        }
+                    },
+                    {
+                        "various other flows": "..."
+                    }
+                ]
+            }
+        ]
+    }
+}
