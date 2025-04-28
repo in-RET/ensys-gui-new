@@ -17,4 +17,15 @@ export class AuthService {
 
         return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
     }
+
+    signup(
+        username: string,
+        firstname: string,
+        lastname: string,
+        password: string,
+        mail: string
+    ): Observable<any> {
+        const data = { username, firstname, lastname, password, mail };
+        return this.baseHttp.post(`${this.baseUrl}register`, data);
+    }
 }

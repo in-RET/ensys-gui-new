@@ -7,6 +7,8 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { ValidateService } from '../services/validate.service';
 
 @Component({
@@ -65,5 +67,29 @@ export class SignupComponent {
         return this.form.get('consentOpt');
     }
 
-    signup() {}
+    constructor(private authService: AuthService, private router: Router) {}
+
+    signup() {
+        this.authService
+            .signup(
+                this.user?.value,
+                this.fName?.value,
+                this.lName?.value,
+                this.pass?.value,
+                this.email?.value
+            )
+            .subscribe({
+                next: (value: any) => {
+                    this.goLogin();
+                },
+
+                error: (err) => {
+                    console.error(err);
+                },
+            });
+    }
+
+    goLogin() {
+        this.router.navigate(['/auth/login']);
+    }
 }
