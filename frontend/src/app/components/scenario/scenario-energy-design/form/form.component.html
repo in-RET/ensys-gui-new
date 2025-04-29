@@ -1,5 +1,5 @@
 <ng-container *ngIf="form && formVisible">
-    <form class="row" [formGroup]="form">
+    <form class="row" [formGroup]="form" (ngSubmit)="submit()">
         <div
             [ngClass]="section.class"
             *ngFor="let section of formData.sections"
@@ -11,6 +11,40 @@
                     [ngClass]="field.span ? 'col-md-' + field.span : 'col-md'"
                     *ngFor="let field of section.fields"
                 >
+                    <!-- ports -->
+                    <div class="row mb-3" *ngIf="section.name === 'Ports'">
+                        <app-order-list
+                            [label]="field.label"
+                            [id]="field.name"
+                            #orderIitems
+                            data-name="field.name"
+                        />
+
+                        <!-- <ng-template #port>
+                            <input
+                                type="text"
+                                class="form-control"
+                                placeholder="Name"
+                            />
+                        </ng-template> -->
+
+                        <!-- <div class="col-md-6">
+                            <ng-template>
+                                <app-order-list [label]="'Outputs'" #outputs />
+                            </ng-template>
+
+                            <ng-template #port>
+                                <label>Output</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Name"
+                                />
+                            </ng-template>
+                        </div> -->
+                    </div>
+
+                    <!-- text / number -->
                     <div
                         class="form-floating mb-3"
                         *ngIf="field.type == 'text' || field.type == 'number'"
@@ -32,13 +66,14 @@
                         <label *ngIf="field.isReq">{{ field.label }} *</label>
                     </div>
 
+                    <!-- dropdown -->
                     <div class="form-floating" *ngIf="field.type == 'select'">
                         <select
                             class="form-select"
                             id="floatingSelect"
-                            aria-label="Floating label select example"
+                            [formControlName]="field.name"
                         >
-                            <option selected disabled value="">
+                            <option selected disabled value="null">
                                 {{ field.label }}
                             </option>
                             <option
@@ -58,5 +93,5 @@
         </div>
     </form>
 
-    <ng-content></ng-content>
+    <!-- <ng-content></ng-content> -->
 </ng-container>

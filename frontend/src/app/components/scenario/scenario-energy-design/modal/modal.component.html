@@ -20,69 +20,16 @@
                     class="btn-close"
                     data-bs-dismiss="modal"
                     aria-label="Close"
-                    (click)="close()"
+                    (click)="_closeModal()"
                 ></button>
             </div>
 
             <div class="modal-body">
-                <div *ngIf="node.name === 'Transformer'">
-                    <h5>Ports</h5>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ng-template [ngIf]="node.name === 'Transformer'">
-                                <app-order-list [label]="'Inputs'" #inputs />
-                            </ng-template>
-
-                            <ng-template #port>
-                                <label>Input</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Name"
-                                />
-                            </ng-template>
-                        </div>
-
-                        <div class="col-md-6">
-                            <ng-template [ngIf]="node.name === 'Transformer'">
-                                <app-order-list [label]="'Outputs'" #outputs />
-                            </ng-template>
-
-                            <ng-template #port>
-                                <label>Output</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Name"
-                                />
-                            </ng-template>
-                        </div>
-                    </div>
-
-                    <hr />
-                </div>
-
-                <app-form [formData]="formData" />
+                <ng-content select="[modal-form]" />
             </div>
 
             <div class="modal-footer justify-content-center">
-                <span
-                    class="text-danger"
-                    style="position: absolute; left: 0; padding-left: 3rem"
-                    *ngIf="!isFormValid"
-                >
-                    * Complete the form!
-                </span>
-
-                <button
-                    type="button"
-                    class="btn btn--success btn--medium"
-                    (click)="submit()"
-                    [disabled]="false"
-                >
-                    Save
-                </button>
+                <ng-content select="[modal-actions]" />
             </div>
         </div>
     </div>

@@ -20,6 +20,8 @@ export class OrderListComponent {
 
     @Input() data!: OrderItem[];
     @Input() label!: string;
+    @Input() id!: string;
+    // @Input() name!: string;
 
     // @Output('') : EventEmitter<any> =
     //     new EventEmitter<any>();

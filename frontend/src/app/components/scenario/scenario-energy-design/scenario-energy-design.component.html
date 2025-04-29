@@ -11,5 +11,49 @@
     *ngIf="modalVisibility"
     [node]="createdNode"
     [title]="createdNode.name"
-    (closeModal)="closeModal($event)"
-/>
+    [formData]="formData"
+    (closeModal)="toggleModal(false)"
+>
+    <!-- <modal-form>
+        <app-form [formData]="formData" [node]="createdNode" #form />
+    </modal-form> -->
+
+    <!-- <modal-actions>
+        <span
+            class="text-danger"
+            style="position: absolute; left: 0; padding-left: 3rem"
+        >
+            * Complete the form!
+        </span>
+
+        <button
+            type="button"
+            class="btn btn--success btn--medium"
+            [disabled]="false"
+        >
+            Save
+        </button>
+    </modal-actions> -->
+
+    <div modal-form>
+        <app-form [formData]="formData" [node]="createdNode" #form />
+    </div>
+
+    <div modal-actions>
+        <span
+            class="text-danger"
+            style="position: absolute; left: 0; padding-left: 3rem"
+            *ngIf="formError.isShow"
+        >
+            {{ formError.msg }}
+        </span>
+
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="submitFormData()"
+        >
+            Save
+        </button>
+    </div>
+</app-modal>

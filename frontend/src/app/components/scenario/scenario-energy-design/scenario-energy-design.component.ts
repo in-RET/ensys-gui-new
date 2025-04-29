@@ -4,6 +4,7 @@ import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
+import { FormComponent } from './form/form.component';
 import { ModalComponent } from './modal/modal.component';
 
 interface EnergySystemModel {
@@ -34,11 +35,13 @@ interface EnergySystemModel {
         ];
     };
 }
+
 @Component({
     selector: 'app-scenario-energy-design',
     imports: [
         CommonModule,
         ModalComponent,
+        FormComponent,
         EnergyComponentsComponent,
         EnergyDrawflowComponent,
     ],
@@ -123,9 +126,20 @@ export class ScenarioEnergyDesignComponent {
     editor!: Drawflow;
     modalVisibility: boolean = false;
     createdNode: any = {}; // {name: ....}
+    formData!: any;
+    formError: any = {
+        msg: '',
+        isShow: false,
+    };
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
+
+    @ViewChild(FormComponent)
+    formComponent!: FormComponent;
+
+    @ViewChild(ModalComponent)
+    modalComponent!: ModalComponent;
 
     ngOnInit() {}
 
@@ -148,12 +162,16 @@ export class ScenarioEnergyDesignComponent {
         // this.createdNode['id'] = e.id;
         // this.createdNode['name'] = e.name;
         this.createdNode = node;
-        this.modalVisibility = true;
+        this.initFormData(this.createdNode.name);
+        this.toggleModal(true);
     }
 
-    closeModal(data?: any) {
-        this.modalVisibility = false;
+    toggleModal(appear: boolean) {
+        this.modalVisibility = appear;
+        this.setFormError(false, '');
+    }
 
+    makeNode(data: any) {
         if (data)
             switch (this.createdNode.group) {
                 case 'production':
@@ -176,8 +194,8 @@ export class ScenarioEnergyDesignComponent {
                 case 'demand':
                     this.energyDrawflowComponent.addNode({
                         ...data,
-                        inp: 0,
-                        out: 1,
+                        inp: 1,
+                        out: 0,
                     });
                     break;
 
@@ -194,5 +212,587 @@ export class ScenarioEnergyDesignComponent {
                         });
                     break;
             }
+    }
+
+    initFormData(nodeName: string) {
+        // this.form = signal<FormGroup>();
+
+        switch (nodeName) {
+            case 'Source':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Port(Output)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        // {
+                        //     name: 'Ports',
+                        //     class: 'col-6',
+                        //     fields: [
+                        //         {
+                        //             name: 'outputs',
+                        //             label: 'Outputs',
+                        //             span: '12',
+                        //         },
+                        //     ],
+                        // },
+                    ],
+                };
+                break;
+
+            case 'Predefined Source':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Source',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'source',
+                                    placeholder: 'Source',
+                                    label: 'Choose...',
+                                    isReq: true,
+                                    type: 'select',
+                                    options: [
+                                        {
+                                            name: 'Wind power plant',
+                                            value: 'Wind power plant',
+                                        },
+                                        {
+                                            name: 'Ground Mounted Photovoltaic',
+                                            value: 'Ground Mounted Photovoltaic',
+                                        },
+                                        {
+                                            name: 'Roof Mounted Photovoltaic',
+                                            value: 'Roof Mounted Photovoltaic',
+                                        },
+                                        {
+                                            name: 'Import from the power grid',
+                                            value: 'Import from the power grid',
+                                        },
+                                        {
+                                            name: 'Biomass supply',
+                                            value: 'Biomass supply',
+                                        },
+                                        {
+                                            name: 'Solar thermal system',
+                                            value: 'Solar thermal system',
+                                        },
+                                        {
+                                            name: 'Run-of-river power plant',
+                                            value: 'Run-of-river power plant',
+                                        },
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Transformer':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Ports',
+                            class: 'col-12',
+                            hasMultiplePorts: true,
+                            fields: [
+                                {
+                                    name: 'inputs',
+                                    label: 'Inputs',
+                                    span: '6',
+                                },
+                                {
+                                    name: 'outputs',
+                                    label: 'Outputs',
+                                    span: '6',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Predefined Transformer':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Trafo',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'trafo',
+                                    placeholder: 'Trafo',
+                                    label: 'Choose...',
+                                    isReq: true,
+                                    type: 'select',
+                                    options: [
+                                        {
+                                            name: 'Biogas CHP',
+                                            value: 'Biogas CHP',
+                                        },
+                                        {
+                                            name: 'Biogas injection (New facility)',
+                                            value: 'Biogas injection (New facility)',
+                                        },
+                                        {
+                                            name: 'Gas and steam power plant',
+                                            value: 'Gas and steam power plant',
+                                        },
+                                        {
+                                            name: 'Power to Liquid',
+                                            value: 'Power to Liquid',
+                                        },
+                                        {
+                                            name: 'Methanisation',
+                                            value: 'Methanisation',
+                                        },
+                                        {
+                                            name: 'Electrolysis',
+                                            value: 'Electrolysis',
+                                        },
+                                        {
+                                            name: 'Fuel cell',
+                                            value: 'Fuel cell',
+                                        },
+                                        {
+                                            name: 'Air source heat pump (large-scale)',
+                                            value: 'Air source heat pump (large-scale)',
+                                        },
+                                        {
+                                            name: 'Electrode heating boiler',
+                                            value: 'Electrode heating boiler',
+                                        },
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'GenericStorage':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Port(Output)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '4',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Predefined Storage':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Port(Output)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '4',
+                                },
+                                {
+                                    name: 'Storage',
+                                    placeholder: 'Storage',
+                                    label: 'Choose...',
+                                    isReq: true,
+                                    type: 'select',
+                                    span: '8',
+                                    options: [
+                                        {
+                                            name: 'Sodium storage',
+                                            value: 'Sodium storage',
+                                        },
+                                        {
+                                            name: 'Lithium Ion Battery Storage',
+                                            value: 'Lithium Ion Battery Storage',
+                                        },
+                                        {
+                                            name: 'Pumped storage power plant',
+                                            value: 'Pumped storage power plant',
+                                        },
+                                        {
+                                            name: 'Heat storage (seasonal)',
+                                            value: 'Heat storage (seasonal)',
+                                        },
+                                        {
+                                            name: 'Heat storage (short term)',
+                                            value: 'Heat storage (short term)',
+                                        },
+                                        {
+                                            name: 'Gas storage',
+                                            value: 'Gas storage',
+                                        },
+                                        {
+                                            name: 'Hydrogen storage',
+                                            value: 'Hydrogen storage',
+                                        },
+
+                                        {
+                                            name: 'Other',
+                                            value: 'Other',
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Sink':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Excess':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Export':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'OEP':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Name',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                    ],
+                };
+                break;
+
+            case 'Bus':
+                this.formData = {
+                    sections: [
+                        {
+                            name: 'Port(Input)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'inputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+                        {
+                            name: 'Port(Output)',
+                            class: 'col-6',
+                            fields: [
+                                {
+                                    name: 'outputPort_name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '8',
+                                },
+                            ],
+                        },
+
+                        {
+                            name: 'Name',
+                            class: 'col-12',
+                            fields: [
+                                {
+                                    name: 'name',
+                                    placeholder: 'Name',
+                                    label: 'Name',
+                                    isReq: true,
+                                    type: 'text',
+                                    span: '6',
+                                },
+                            ],
+                        },
+                    ],
+                };
+        }
+    }
+
+    setFormError(status: boolean, msg: string) {
+        this.formError = {
+            msg: msg,
+            isShow: status,
+        };
+    }
+
+    submitFormData() {
+        const _formData = this.formComponent.submit();
+        console.log(_formData);
+
+        if (_formData) {
+            this.setFormError(false, '');
+            this.makeNode(_formData);
+            this.modalComponent._closeModal();
+        } else {
+            this.setFormError(true, ' * Complete the form!');
+        }
     }
 }
