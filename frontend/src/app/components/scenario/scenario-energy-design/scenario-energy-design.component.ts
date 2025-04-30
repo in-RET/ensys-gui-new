@@ -55,11 +55,11 @@ export class ScenarioEnergyDesignComponent {
                 group_name: 'production',
                 group_components: [
                     {
-                        id: 'mySource',
+                        id: 'source',
                         name: 'Source',
                     },
                     {
-                        id: 'myPredefinedSource',
+                        id: 'predefinedSource',
                         name: 'Predefined Source',
                     },
                 ],
@@ -68,11 +68,11 @@ export class ScenarioEnergyDesignComponent {
                 group_name: 'conversion',
                 group_components: [
                     {
-                        id: 'myTransformer',
+                        id: 'transformer',
                         name: 'Transformer',
                     },
                     {
-                        id: 'myPredefinedTransformer',
+                        id: 'predefinedTransformer',
                         name: 'Predefined Transformer',
                     },
                 ],
@@ -81,11 +81,11 @@ export class ScenarioEnergyDesignComponent {
                 group_name: 'storage',
                 group_components: [
                     {
-                        id: 'myGenericStorage',
+                        id: 'genericStorage',
                         name: 'GenericStorage',
                     },
                     {
-                        id: 'myPredefinedStorage',
+                        id: 'predefinedStorage',
                         name: 'Predefined Storage',
                     },
                 ],
@@ -94,19 +94,19 @@ export class ScenarioEnergyDesignComponent {
                 group_name: 'demand',
                 group_components: [
                     {
-                        id: 'mySink',
+                        id: 'sink',
                         name: 'Sink',
                     },
                     {
-                        id: 'myExcess',
+                        id: 'excess',
                         name: 'Excess',
                     },
                     {
-                        id: 'myExport',
+                        id: 'export',
                         name: 'Export',
                     },
                     {
-                        id: 'myPredefinedSinkOEP',
+                        id: 'predefinedSinkOEP',
                         name: 'OEP',
                     },
                 ],
@@ -200,7 +200,7 @@ export class ScenarioEnergyDesignComponent {
                     break;
 
                 case 'conversion':
-                    if (this.createdNode.id == 'myTransformer')
+                    if (this.createdNode.id == 'transformer')
                         this.energyDrawflowComponent.addNode({
                             ...data,
                             inp: data['ports']['inputs']

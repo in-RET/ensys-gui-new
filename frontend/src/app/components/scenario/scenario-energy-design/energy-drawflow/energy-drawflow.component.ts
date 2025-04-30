@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 import Drawflow from 'drawflow';
+import Swal from 'sweetalert2';
 
 @Component({
     selector: 'app-energy-drawflow',
@@ -22,6 +23,11 @@ export class EnergyDrawflowComponent {
         this.editor.zoom = 0.7;
         this.editor.start();
         this.editor.zoom_refresh();
+
+        this.editor.on('connectionCreated', (connection: any) => {
+            console.log('Editor Event :>> Connection created ', connection);
+            this.connectionCreated(connection);
+        });
     }
 
     allowDrop(ev: any) {
@@ -145,5 +151,31 @@ export class EnergyDrawflowComponent {
             data.out,
             data
         );
+    }
+
+    connectionCreated(connection: any) {
+        var nodeIn = this.editor.getNodeFromId(connection['input_id']);
+        var nodeOut = this.editor.getNodeFromId(connection['output_id']);
+
+        console.log('in: ', nodeIn);
+        console.log('out: ', nodeOut);
+
+        if (
+            (nodeIn['class'] !== 'bus' && nodeOut['class'] !== 'bus') ||
+            (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
+        ) {
+            this.editor.removeSingleConnection(
+                connection['output_id'],
+                connection['input_id'],
+                connection['output_class'],
+                connection['input_class']
+            );
+
+            Swal.fire(
+                'Unexpected Connection',
+                'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.',
+                'error'
+            );
+        }
     }
 }

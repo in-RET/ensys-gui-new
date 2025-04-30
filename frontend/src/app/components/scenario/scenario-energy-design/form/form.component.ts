@@ -70,8 +70,6 @@ export class FormComponent {
     }
 
     submit() {
-        console.log(1);
-
         if (this.form.valid) {
             const formValue = this.form.getRawValue();
 
