@@ -56,7 +56,8 @@ export class FormComponent {
         this.formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports')
                 section.fields.forEach((field: any) => {
-                    let fControl: FormControl = new FormControl(null, []);
+                    // let fControl: FormControl = new FormControl(null, []);
+                    let fControl: FormControl = new FormControl('q', []);
 
                     if (field.isReq)
                         fControl.addValidators(Validators.required);

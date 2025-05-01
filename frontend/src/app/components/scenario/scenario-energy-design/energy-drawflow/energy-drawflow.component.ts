@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
-import Drawflow from 'drawflow';
+import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -25,7 +25,6 @@ export class EnergyDrawflowComponent {
         this.editor.zoom_refresh();
 
         this.editor.on('connectionCreated', (connection: any) => {
-            console.log('Editor Event :>> Connection created ', connection);
             this.connectionCreated(connection);
         });
     }
@@ -156,26 +155,79 @@ export class EnergyDrawflowComponent {
     connectionCreated(connection: any) {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
-
         console.log('in: ', nodeIn);
         console.log('out: ', nodeOut);
 
-        if (
-            (nodeIn['class'] !== 'bus' && nodeOut['class'] !== 'bus') ||
-            (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
-        ) {
-            this.editor.removeSingleConnection(
-                connection['output_id'],
-                connection['input_id'],
-                connection['output_class'],
-                connection['input_class']
-            );
+        this.checkRules(connection, nodeIn, nodeOut);
+    }
 
+    checkRules(connection: any, nodeIn: any, nodeOut: any) {
+        let rule_1 = this.isConnectionThroughBus(connection, nodeIn, nodeOut);
+
+        if (rule_1) {
+            let rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
+
+            if (rule_3) {
+            } else {
+                this.removeSingleConnection(connection);
+
+                Swal.fire(
+                    'Unexpected Connection',
+                    'More than 1 connection per port is not allowed.',
+                    'error'
+                );
+            }
+        } else {
+            this.removeSingleConnection(connection);
             Swal.fire(
                 'Unexpected Connection',
                 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.',
                 'error'
             );
         }
+    }
+
+    // rule #1
+    isConnectionThroughBus(
+        connection: any,
+        nodeIn: DrawflowNode,
+        nodeOut: DrawflowNode
+    ) {
+        return (nodeIn['class'] !== 'bus' && nodeOut['class'] !== 'bus') ||
+            (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
+            ? false
+            : true;
+    }
+
+    // rule #3
+    hasSingleConnection(
+        connection: any,
+        nodeIn: DrawflowNode,
+        nodeOut: DrawflowNode
+    ) {
+        // exception for bus
+
+        const inputConnections =
+            nodeIn.inputs[connection.input_class].connections;
+        const outputConnections =
+            nodeOut.outputs[connection.output_class].connections;
+
+        return (
+            (nodeIn['class'] !== 'bus' && inputConnections.length == 1
+                ? true
+                : false) ||
+            (nodeOut['class'] !== 'bus' && outputConnections.length == 1
+                ? true
+                : false)
+        );
+    }
+
+    removeSingleConnection(connection: any) {
+        this.editor.removeSingleConnection(
+            connection['output_id'],
+            connection['input_id'],
+            connection['output_class'],
+            connection['input_class']
+        );
     }
 }
