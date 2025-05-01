@@ -3,21 +3,20 @@
         class="h-100"
         style="display: flex; flex-direction: column; background-color: #f4f7f9"
     >
-        <div class="">
-            <div class="components__title">
-                <div>
-                    <h2>General</h2>
-                </div>
-            </div>
+        <div class="components__title">
+            <span
+                >Project: <b> {{ project.name }}</b></span
+            >
 
-            <div class="clear_design">
-                <a
-                    class="btn btn--medium btn--hollow"
-                    (click)="onClearGridModel()"
-                >
-                    Clear Design
-                </a>
-            </div>
+            <span>
+                Scenario: <b>{{ scenario.name }}</b></span
+            >
+        </div>
+
+        <div class="clear_design">
+            <a class="btn btn--medium btn--hollow" (click)="onClearGridModel()">
+                Clear Design
+            </a>
         </div>
 
         <div class="h-100" style="overflow-y: scroll">

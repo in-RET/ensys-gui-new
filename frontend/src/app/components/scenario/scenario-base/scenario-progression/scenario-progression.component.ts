@@ -9,8 +9,6 @@ import { RouterModule } from '@angular/router';
     styleUrl: './scenario-progression.component.scss',
 })
 export class ScenarioProgressionComponent {
-    project: any = { name: 'A' };
-    scenario: any = { name: 'A' };
     steps: any = ['Scenario Setup', 'Energy system design', 'Simulation'];
 
     @Input('step') currentStep!: number;

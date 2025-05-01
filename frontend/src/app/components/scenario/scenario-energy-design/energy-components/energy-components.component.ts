@@ -9,6 +9,9 @@ import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.
     styleUrl: './energy-components.component.scss',
 })
 export class EnergyComponentsComponent {
+    project: any = { name: 'A' };
+    scenario: any = { name: 'A' };
+
     @Input() components: any;
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
