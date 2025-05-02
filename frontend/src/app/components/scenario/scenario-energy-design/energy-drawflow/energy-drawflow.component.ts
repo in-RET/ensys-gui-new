@@ -198,21 +198,24 @@ export class EnergyDrawflowComponent {
         nodeIn: DrawflowNode,
         nodeOut: DrawflowNode
     ) {
-        // exception for bus
+        // rule #5 - exception for bus
+        if (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
+            return true;
+        else {
+            const inputConnections =
+                nodeIn.inputs[connection.input_class].connections;
+            const outputConnections =
+                nodeOut.outputs[connection.output_class].connections;
 
-        const inputConnections =
-            nodeIn.inputs[connection.input_class].connections;
-        const outputConnections =
-            nodeOut.outputs[connection.output_class].connections;
-
-        return (
-            (nodeIn['class'] !== 'bus' && inputConnections.length == 1
-                ? true
-                : false) ||
-            (nodeOut['class'] !== 'bus' && outputConnections.length == 1
-                ? true
-                : false)
-        );
+            return (
+                (nodeIn['class'] !== 'bus' && inputConnections.length == 1
+                    ? true
+                    : false) ||
+                (nodeOut['class'] !== 'bus' && outputConnections.length == 1
+                    ? true
+                    : false)
+            );
+        }
     }
 
     removeSingleConnection(connection: any) {
