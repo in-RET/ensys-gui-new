@@ -785,7 +785,6 @@ export class ScenarioEnergyDesignComponent {
 
     submitFormData() {
         const _formData = this.formComponent.submit();
-        console.log(_formData);
 
         if (_formData) {
             this.setFormError(false, '');

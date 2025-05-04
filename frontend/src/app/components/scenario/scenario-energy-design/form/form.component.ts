@@ -30,34 +30,40 @@ export class FormComponent {
     form!: FormGroup;
     formVisible: boolean = false;
 
-    @Input() formData!: any;
-    @Input() node!: any;
-    // @Input() form!: FormGroup;
-    // form = model<FormGroup>();
-
-    // get fControl()
-
-    // @Output() submit: EventEmitter<any> = new EventEmitter<any>();
+    // @Input() formData!: any;
+    _formData: any;
+    @Input() set formData(d: any) {
+        if (d) {
+            this._formData = d;
+            this.initForm(this.formData);
+        } else this._formData = null;
+    }
+    get formData() {
+        return this._formData;
+    }
 
     @ViewChild('inputs') orderList_inputs!: OrderListComponent;
     @ViewChild('outputs') orderList_outputs!: OrderListComponent;
 
     @ViewChildren('orderIitems') orderIitems!: QueryList<OrderListComponent>;
 
-    ngOnInit() {
-        if (this.formData) this.initForm();
-    }
+    ngOnInit() {}
 
-    initForm() {
-        // console.log(this.formData);
-
+    initForm(formData: any) {
         this.form = new FormGroup({});
 
-        this.formData.sections.forEach((section: any) => {
+        formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports')
                 section.fields.forEach((field: any) => {
-                    // let fControl: FormControl = new FormControl(null, []);
-                    let fControl: FormControl = new FormControl('q', []);
+                    let fControl: FormControl = new FormControl(
+                        {
+                            value: field['value'] ? field['value'] : null,
+                            disabled: field.hasOwnProperty('disabled')
+                                ? true
+                                : null,
+                        },
+                        []
+                    );
 
                     if (field.isReq)
                         fControl.addValidators(Validators.required);
@@ -94,5 +100,19 @@ export class FormComponent {
             this.form.markAllAsTouched();
             false;
         }
+    }
+
+    toggleControl(fControlName: any) {
+        this.form.controls[fControlName].disabled
+            ? this.enabelControl(fControlName)
+            : this.disableControl(fControlName);
+    }
+
+    enabelControl(fControlName: any) {
+        this.form.controls[fControlName].enable();
+    }
+
+    disableControl(fControlName: any) {
+        this.form.controls[fControlName].disable();
     }
 }

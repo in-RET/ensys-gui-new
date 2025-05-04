@@ -9,9 +9,7 @@
 
 <app-modal
     *ngIf="modalVisibility"
-    [node]="createdNode"
     [title]="createdNode.name"
-    [formData]="formData"
     (closeModal)="toggleModal(false)"
 >
     <!-- <modal-form>
@@ -36,7 +34,7 @@
     </modal-actions> -->
 
     <div modal-form>
-        <app-form [formData]="formData" [node]="createdNode" #form />
+        <app-form [formData]="formData" #form />
     </div>
 
     <div modal-actions>

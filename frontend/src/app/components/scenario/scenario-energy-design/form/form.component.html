@@ -88,10 +88,27 @@
                             field.placeholder
                         }}</label>
                     </div>
+
+                    <!-- checkbox -->
+                    <div class="form-check" *ngIf="field.type == 'check'">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            [formControlName]="field.name"
+                            id="checkDefault"
+                            (click)="field.onClick()"
+                        />
+                        <label
+                            class="form-check-label"
+                            for="checkDefault"
+                            style="user-select: none"
+                        >
+                            {{ field.label }}
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
     </form>
-
     <!-- <ng-content></ng-content> -->
 </ng-container>

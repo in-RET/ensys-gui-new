@@ -1,21 +1,32 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
+import { FormComponent } from '../form/form.component';
+import { ModalComponent } from '../modal/modal.component';
 
 @Component({
     selector: 'app-energy-drawflow',
-    imports: [CommonModule],
+    imports: [CommonModule, ModalComponent, FormComponent],
     templateUrl: './energy-drawflow.component.html',
     styleUrl: './energy-drawflow.component.scss',
 })
 export class EnergyDrawflowComponent {
-    modalVisibility: boolean = false;
     editor!: Drawflow;
     currentNode: any;
     currentPosition: any;
 
+    // form
+    formData!: any;
+    formError: any = {
+        msg: '',
+        isShow: false,
+    };
+    modalVisibility: boolean = false;
+
     @Output('_drop') _drop: EventEmitter<any> = new EventEmitter();
+
+    @ViewChild(FormComponent) formComponent!: FormComponent;
 
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
@@ -27,6 +38,9 @@ export class EnergyDrawflowComponent {
         this.editor.on('connectionCreated', (connection: any) => {
             this.connectionCreated(connection);
         });
+
+        // temp
+        this.showModalConnection();
     }
 
     allowDrop(ev: any) {
@@ -78,7 +92,7 @@ export class EnergyDrawflowComponent {
         nodeOutputs?: any,
         data?: any
     ) {
-        // if (this.editor.editor_mode === 'fixed') return false;
+        // if (this.editor.editor_mode ==='fixed') return false;
         // the following translation/transformation is required to correctly drop the nodes in the current clientScreen
         pos_x =
             pos_x *
@@ -156,7 +170,13 @@ export class EnergyDrawflowComponent {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
 
-        this.checkRules(connection, nodeIn, nodeOut);
+        let followRules = this.checkRules(connection, nodeIn, nodeOut);
+
+        if (followRules) {
+            this.showModalConnection();
+        } else {
+            this.removeSingleConnection(connection);
+        }
     }
 
     checkRules(connection: any, nodeIn: any, nodeOut: any) {
@@ -166,22 +186,24 @@ export class EnergyDrawflowComponent {
             let rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
 
             if (rule_3) {
+                return true;
             } else {
-                this.removeSingleConnection(connection);
-
                 Swal.fire(
                     'Unexpected Connection',
                     'More than 1 connection per port is not allowed.',
                     'error'
                 );
+
+                return false;
             }
         } else {
-            this.removeSingleConnection(connection);
             Swal.fire(
                 'Unexpected Connection',
                 'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.',
                 'error'
             );
+
+            return false;
         }
     }
 
@@ -226,4 +248,105 @@ export class EnergyDrawflowComponent {
             connection['input_class']
         );
     }
+
+    showModalConnection() {
+        this.initFormData();
+        this.toggleModal(true);
+    }
+
+    initFormData() {
+        this.formData = {
+            sections: [
+                {
+                    name: 'Investment',
+                    class: 'col-12',
+                    fields: [
+                        {
+                            name: 'Investment',
+                            placeholder: 'Investment',
+                            label: 'Investment',
+                            isReq: true,
+                            type: 'check',
+                            span: 'auto',
+                            value: true,
+                            onClick: () => {
+                                this.formComponent.toggleControl(
+                                    'nominal_value'
+                                );
+
+                                this.formData.sections.forEach(
+                                    (section: any) => {
+                                        if (section.name == 'Non-Investment') {
+                                            section.fields.forEach(
+                                                (element: any) => {
+                                                    this.formComponent.toggleControl(
+                                                        element.name
+                                                    );
+                                                }
+                                            );
+                                        }
+                                    }
+                                );
+                            },
+                        },
+                        {
+                            name: 'nominal_value',
+                            placeholder: 'nominal_value',
+                            label: 'nominal_value',
+                            isReq: true,
+                            type: 'text',
+                            span: '4',
+                        },
+                    ],
+                },
+
+                {
+                    name: 'Non-Investment',
+                    class: 'col-12',
+                    fields: [
+                        {
+                            name: 'variable_costs',
+                            placeholder: 'variable_costs',
+                            label: 'variable_costs',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'max',
+                            placeholder: 'max',
+                            label: 'max',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'min',
+                            placeholder: 'min',
+                            label: 'min',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                    ],
+                },
+            ],
+        };
+    }
+
+    investFieldsToggleVisible() {}
+
+    setFormError(status: boolean, msg: string) {
+        this.formError = {
+            msg: msg,
+            isShow: status,
+        };
+    }
+
+    toggleModal(appear: boolean) {
+        this.modalVisibility = appear;
+        this.setFormError(false, '');
+    }
+
+    submitFormData() {}
 }
