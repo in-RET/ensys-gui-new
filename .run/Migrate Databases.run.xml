@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Migrate Databases" type="CompoundRunConfigurationType">
+    <toRun name="Migrate Database (Development)" type="PythonConfigurationType" />
+    <toRun name="Migrate Database (Testing)" type="PythonConfigurationType" />
+    <method v="2" />
+  </configuration>
+</component>

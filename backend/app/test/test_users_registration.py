@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import app
-from backend.app.tests.test_constants import get_test_user
+from backend.app.test.test_constants import get_test_user
 
 client = TestClient(app)
 
@@ -24,8 +24,8 @@ def test_users_register_success():
 
     assert response.status_code == 201
     response_data = response.json()
-    assert response_data["data"] == None
-    assert response_data["errors"] == None
+    assert response_data["data"] is None
+    assert response_data["errors"] is None
     assert response_data["success"] == True
 
 @pytest.mark.order(1)

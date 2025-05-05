@@ -6,10 +6,10 @@ from starlette import status
 
 from .model import EnScenario, EnScenarioUpdate, EnScenarioDB
 from ..db import get_db_session
-from ..projects.router import validate_project_owner
+from ..project.router import validate_project_owner
 from ..responses import CustomResponse, ErrorModel
 from ..security import decode_token, oauth2_scheme
-from ..users.model import EnUserDB
+from ..user.model import EnUserDB
 
 scenario_router = APIRouter(
     prefix="/scenario",

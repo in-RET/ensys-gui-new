@@ -6,12 +6,12 @@ from starlette import status
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
-from .components.router import component_router
-from .link.router import link_router
-from .projects.router import projects_router
-from .scenarios.router import scenario_router
-from .simulations.router import simulation_router
-from .users.router import users_router
+from .component.router import component_router
+from .flow.router import flow_router
+from .project.router import projects_router
+from .scenario.router import scenario_router
+from .simulation.router import simulation_router
+from .user.router import users_router
 
 
 @asynccontextmanager
@@ -28,10 +28,6 @@ tags_metadata = [
     {
         "name": "project",
         "description": "Manage projects.",
-        "externalDocs": {
-            "description": "Items external docs",
-            "url": "https://fastapi.tiangolo.com/",
-        },
     },
     {
         "name": "admin",
@@ -49,16 +45,20 @@ tags_metadata = [
         "name": "component",
         "description": "Manage components. All components including busses."
     },
-    {
-        "name": "link",
-        "description": "Manage links. Links are the connections between components."
-    },
+    # {
+    #     "name": "flow",
+    #     "description": "Manage flows. Flows are the connections between components."
+    #     "externalDocs": {
+    #         "description": "Items external docs",
+    #         "url": "https://fastapi.tiangolo.com/",
+    #     },
+    # },
 ]
 
 app = FastAPI(
     lifespan=lifespan,
     title="EnSys Backend",
-    summary="The API and backend for the softwarepackage 'EnSys by in.RET'",
+    summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
     contact={
         "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",
@@ -106,17 +106,13 @@ app.include_router(
     router=component_router
 )
 
-app.include_router(
-    router=link_router
-)
+# app.include_router(
+#     router=flow_router
+# )
 
 app.include_router(
     router=simulation_router
 )
-
-
-
-
 
 @app.get("/", response_class=HTMLResponse)
 async def root():

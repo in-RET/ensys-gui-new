@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import app
-from backend.app.tests.test_constants import get_test_user
+from backend.app.test.test_constants import get_test_user
 
 client = TestClient(app)
 
@@ -26,7 +26,7 @@ def test_users_delete_success():
                                      "token": test_token,
                                      "token_type": "bearer"
                                      }
-    assert response_data["errors"] == None
+    assert response_data["errors"] is None
     assert response_data["success"] == True
 
 @pytest.mark.order(11)

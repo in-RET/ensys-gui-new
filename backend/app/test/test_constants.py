@@ -4,7 +4,7 @@ from sqlmodel import Session, select
 
 from backend.app.db import db_link
 from backend.app.security import token_secret
-from backend.app.users.model import EnUser, EnUserDB
+from backend.app.user.model import EnUser, EnUserDB
 
 
 TEST_USER_DATA = {

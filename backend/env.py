@@ -6,11 +6,11 @@ from sqlalchemy import pool
 from alembic import context
 from sqlmodel import SQLModel
 
-from app.users.model import EnUserDB
-from app.components.model import EnComponentDB
-from app.projects.model import EnProjectDB
-from app.scenarios.model import EnScenarioDB
-from app.simulations.model import EnSimulationDB
+from app.user.model import EnUserDB
+#from app.component.model import EnComponentDB
+from app.project.model import EnProjectDB
+from app.scenario.model import EnScenarioDB
+from app.simulation.model import EnSimulationDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import app
-from backend.app.tests.test_constants import get_test_user
+from backend.app.test.test_constants import get_test_user
 
 client = TestClient(app)
 

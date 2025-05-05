@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated, Any, Coroutine
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
@@ -7,9 +7,9 @@ from starlette import status
 
 from .model import EnProject, EnProjectDB, EnProjectUpdate
 from ..db import get_db_session
-from ..responses import CustomResponse, ErrorModel
+from ..responses import CustomResponse
 from ..security import decode_token, oauth2_scheme
-from ..users.model import EnUserDB
+from ..user.model import EnUserDB
 
 projects_router = APIRouter(
     prefix="/project",
@@ -29,7 +29,7 @@ def validate_project_owner(project_id: int, token, db):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # check if project_id and token_id is the same and return value
+    # check if the project_id and the token_id are the same and return the value
     if project.user_id == token_user.id:
         return True
     else:
@@ -53,7 +53,7 @@ async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     token_user = db.exec(statement).first()
     project = EnProjectDB(**project_data.model_dump())
 
-    # set auxillary data
+    # set auxiliary data
     project.user_id = token_user.id
     project.date_created = datetime.now()
 
@@ -210,14 +210,14 @@ async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_
         errors=None
     )
 
-@projects_router.post("/duplicate", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> None:
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
-
-@projects_router.post("/share", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def share_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, user_id: int, db: Session = Depends(get_db_session)) -> None:
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
-
-@projects_router.post("/unshare", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-async def unshare_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, user_id: int, db: Session = Depends(get_db_session)) -> None:
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+# @projects_router.post("/duplicate", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+# async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> None:
+#     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+#
+# @projects_router.post("/share", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+# async def share_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, user_id: int, db: Session = Depends(get_db_session)) -> None:
+#     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+#
+# @projects_router.post("/unshare", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+# async def unshare_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, user_id: int, db: Session = Depends(get_db_session)) -> None:
+#     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")

@@ -8,12 +8,12 @@ from starlette import status
 
 from .model import EnSimulationDB
 from ..db import get_db_session
-from ..link.model import EnLinkDB
-from ..projects.model import EnProjectDB
+# from ..flow.model import EnFlowDB
+from ..project.model import EnProjectDB
 from ..responses import CustomResponse, ErrorModel
 from ..security import oauth2_scheme
-from ..scenarios.router import validate_scenario_owner
-from ..projects.router import validate_project_owner
+from ..scenario.router import validate_scenario_owner
+from ..project.router import validate_project_owner
 
 simulation_router = APIRouter(
     prefix="/simulation",
@@ -176,7 +176,7 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
         #     )],
         # )
 
-    simulation = db.get(EnLinkDB, simulation_id)
+    simulation = db.get(EnFlowDB, simulation_id)
     db.delete(simulation)
     db.commit()
 
