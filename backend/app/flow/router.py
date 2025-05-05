@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
-from .model import EnFlow, EnFlowUpdate, EnFlowDB
+from .model import EnFlow, EnFlowUpdate
 from ..db import get_db_session
 from ..responses import CustomResponse
 from ..security import decode_token, oauth2_scheme

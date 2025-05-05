@@ -22,15 +22,15 @@ class EnComponent(BaseModel):
     position: dict[str, float] = {"x": 0.0, "y": 0.0}
     data: dict[str, Any] = {}
 
-class EnComponentDB(SQLModel, table=True):
-    __tablename__ = "components_in_design"
-
-    id: int = Field(primary_key=True)
-    name: str = Field(min_length=1, max_length=30)
-    oemof_type: str = Field(min_length=1, max_length=50)
-    position: dict[str, float] = Field(sa_column=Column(JSON), default={"x": 0.0, "y": 0.0})
-    data: dict[str, Any] = Field(sa_column=Column(JSON), default={})
-    scenario_id: int = Field(foreign_key="scenarios.id", nullable=False)
+# class EnComponentDB(SQLModel, table=True):
+#     __tablename__ = "components_in_design"
+#
+#     id: int = Field(primary_key=True)
+#     name: str = Field(min_length=1, max_length=30)
+#     oemof_type: str = Field(min_length=1, max_length=50)
+#     position: dict[str, float] = Field(sa_column=Column(JSON), default={"x": 0.0, "y": 0.0})
+#     data: dict[str, Any] = Field(sa_column=Column(JSON), default={})
+#     scenario_id: int = Field(foreign_key="scenarios.id", nullable=False)
 
 class EnComponentUpdate(EnComponent):
     name: str | None = None

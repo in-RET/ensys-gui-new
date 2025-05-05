@@ -7,7 +7,7 @@ from alembic import context
 from sqlmodel import SQLModel
 
 from app.user.model import EnUserDB
-from app.component.model import EnComponentDB
+#from app.component.model import EnComponentDB
 from app.project.model import EnProjectDB
 from app.scenario.model import EnScenarioDB
 from app.simulation.model import EnSimulationDB

@@ -58,7 +58,7 @@ tags_metadata = [
 app = FastAPI(
     lifespan=lifespan,
     title="EnSys Backend",
-    summary="The API and backend for the softwarepackage 'EnSys by in.RET'",
+    summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
     contact={
         "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",

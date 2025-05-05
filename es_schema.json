@@ -3,7 +3,6 @@
         "scenario_id": "int",
         "components": [
             {
-                "component_id": "int",
                 "name": "string",
                 "oemof_type": "string",
                 "data": {
@@ -15,7 +14,6 @@
                 },
                 "inputs": [
                     {
-                        "component_id": "int",
                         "name": "string",
                         "data": {
                             "key": "oemof.solph.flow data"
@@ -27,7 +25,6 @@
                 ],
                 "outputs": [
                     {
-                        "component_id": "int",
                         "name": "string",
                         "data": {
                             "key": "oemof.solph.flow data"
