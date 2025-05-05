@@ -24,6 +24,9 @@ export class EnergyDrawflowComponent {
     };
     modalVisibility: boolean = false;
 
+    @ViewChild(ModalComponent)
+    modalComponent!: ModalComponent;
+
     @Output('_drop') _drop: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
@@ -38,9 +41,6 @@ export class EnergyDrawflowComponent {
         this.editor.on('connectionCreated', (connection: any) => {
             this.connectionCreated(connection);
         });
-
-        // temp
-        this.showModalConnection();
     }
 
     allowDrop(ev: any) {
@@ -348,5 +348,17 @@ export class EnergyDrawflowComponent {
         this.setFormError(false, '');
     }
 
-    submitFormData() {}
+    submitForm_Flow() {
+        const _formData = this.formComponent.submit();
+
+        if (_formData) {
+            this.setFormError(false, '');
+            // make flow
+
+            this.modalComponent._closeModal();
+            console.log(_formData);
+        } else {
+            this.setFormError(true, ' * Complete the form!');
+        }
+    }
 }
