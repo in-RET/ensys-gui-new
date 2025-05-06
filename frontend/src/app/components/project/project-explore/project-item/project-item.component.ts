@@ -50,7 +50,6 @@ export class ProjectItemComponent {
     getScenarios(projectId: number) {
         this.scenarioService.getScenarios(projectId).subscribe({
             next: (value) => {
-                console.log(value);
                 this.scenarioList = value;
             },
             error(err) {

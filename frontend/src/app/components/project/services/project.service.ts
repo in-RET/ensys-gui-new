@@ -21,6 +21,10 @@ export class ProjectService {
         return this.baseHttp.post(`${this.baseUrl}`, data);
     }
 
+    updateProject(data: any) {
+        return this.baseHttp.patch(`${this.baseUrl}/${data.id}`, data);
+    }
+
     deleteProject(id: number) {
         return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }

@@ -65,6 +65,21 @@ export class BaseHttpService {
         );
     }
 
+    public patch(
+        url: string,
+        params?: any,
+        headerOption?: any
+    ): Observable<any> {
+        this.setHeader(headerOption);
+
+        return this.http.patch<any>(url, params, this.httpOptions).pipe(
+            map((response: any) => {
+                return response;
+            }),
+            catchError(this.errorHandler)
+        );
+    }
+
     public delete(url: string, headerOption?: any): Observable<any> {
         this.setHeader(headerOption);
         return this.http.delete<any>(url, this.httpOptions).pipe(
