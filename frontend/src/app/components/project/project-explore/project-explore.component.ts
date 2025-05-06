@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
 
@@ -11,45 +12,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
     styleUrl: './project-explore.component.scss',
 })
 export class ProjectExploreComponent {
-    project_list: any = [
-        {
-            id: 0,
-            name: 'Hossein',
-            country: 'Iran',
-            date_created: 'March 18, 2025, 4:49 p.m.',
-            duration: '10',
-            scenario_list: [
-                {
-                    id: 1,
-                    name: 'name',
-                },
-                {
-                    id: 1,
-                    name: 'name',
-                },
-                {
-                    id: 1,
-                    name: 'name',
-                },
-                {
-                    id: 1,
-                    name: 'name',
-                },
-                {
-                    id: 1,
-                    name: 'name',
-                },
-            ],
-        },
-        {
-            id: 1,
-            name: 'حسین',
-            country: 'Iran',
-            date_created: 'March 18, 2025, 4:49 p.m.',
-            duration: '10',
-            scenario_list: [],
-        },
-    ];
+    project_list!: any[];
 
     constructor(private projectService: ProjectService) {}
 
@@ -58,14 +21,17 @@ export class ProjectExploreComponent {
     }
 
     getProjects() {
-        this.projectService.getProjects().subscribe({
-            next: (value) => {
-                console.log(value);
-            },
+        this.projectService
+            .getProjects()
+            .pipe(map((res: any) => (res = res.data.projects)))
+            .subscribe({
+                next: (value) => {
+                    this.project_list = value;
+                },
 
-            error: (err) => {
-                console.error(err);
-            },
-        });
+                error: (err) => {
+                    console.error(err);
+                },
+            });
     }
 }

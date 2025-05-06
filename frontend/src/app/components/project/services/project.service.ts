@@ -5,23 +5,23 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class ProjectService {
-    private baseUrl: string = 'http://localhost:9006/project/';
+    private baseUrl: string = 'http://localhost:9006/project';
 
     constructor(private baseHttp: BaseHttpService) {}
 
     getProject(id: number) {
-        return this.baseHttp.get(`${this.baseUrl}read/${id}`);
+        return this.baseHttp.get(`${this.baseUrl}/${id}`);
     }
 
     getProjects() {
-        return this.baseHttp.get(`${this.baseUrl}read_all`);
+        return this.baseHttp.get(`${this.baseUrl}s`);
     }
 
     createProject(data: any) {
-        return this.baseHttp.post(`${this.baseUrl}create`, data);
+        return this.baseHttp.post(`${this.baseUrl}`, data);
     }
 
     deleteProject(id: number) {
-        return this.baseHttp.delete(`${this.baseUrl}delete/${id}`);
+        return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }
 }

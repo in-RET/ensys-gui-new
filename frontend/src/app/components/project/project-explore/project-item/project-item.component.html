@@ -17,7 +17,7 @@
                     <span class="detail__property"> Created</span>
 
                     <span class="detail__value">
-                        {{ project.date_created }}
+                        {{ project.date_created || "{not defined}" }}
                     </span>
                 </div>
 
@@ -25,7 +25,7 @@
                     <span class="detail__property">Lifetime</span>
 
                     <span class="detail__value">
-                        {{ project.duration }} years
+                        {{ project.duration || "{not defined}" }} years
                     </span>
                 </div>
             </div>
@@ -79,15 +79,19 @@
         </div>
 
         <div class="project__scenarios">
-            <!-- <button
+            <button
                 class="btn btn--action action"
                 type="button"
-                *ngIf="!project.scenario_list.length"
+                [routerLink]="['../../scenario']"
+                *ngIf="!project.scenarioList || !project.scenarioList.length"
             >
                 New Scenario
-            </button> -->
+            </button>
 
-            <div class="toggle" *ngIf="project.scenario_list.length">
+            <div
+                class="toggle"
+                *ngIf="project.scenarioList && project.scenarioList.length"
+            >
                 <button
                     class="btn btn--action"
                     type="button"
@@ -111,7 +115,7 @@
                     <ul class="list-group">
                         <li
                             class="list-group-item"
-                            *ngFor="let scenario of project.scenario_list"
+                            *ngFor="let scenario of project.scenarioList"
                         >
                             <app-project-scenario-item [data]="scenario" />
                         </li>

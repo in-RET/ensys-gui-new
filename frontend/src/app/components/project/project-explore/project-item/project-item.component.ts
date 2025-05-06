@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ProjectService } from '../../services/project.service';
+import { ScenarioService } from '../../services/scenario.service';
 import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
@@ -12,9 +13,18 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     styleUrl: './project-item.component.scss',
 })
 export class ProjectItemComponent {
+    scenarioList!: any[];
+
     @Input() project: any;
 
-    constructor(private projectService: ProjectService) {}
+    constructor(
+        private projectService: ProjectService,
+        private scenarioService: ScenarioService
+    ) {}
+
+    ngOnInit() {
+        this.getScenarios(this.project.id);
+    }
 
     delete_modal(id: number) {
         Swal.fire({
@@ -34,6 +44,18 @@ export class ProjectItemComponent {
         this.projectService.deleteProject(id).subscribe({
             next(value) {},
             error(err) {},
+        });
+    }
+
+    getScenarios(projectId: number) {
+        this.scenarioService.getScenarios(projectId).subscribe({
+            next: (value) => {
+                console.log(value);
+                this.scenarioList = value;
+            },
+            error(err) {
+                console.error(err);
+            },
         });
     }
 }

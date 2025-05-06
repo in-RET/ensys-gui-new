@@ -18,7 +18,7 @@ export class ScenarioSetupComponent {
     form: FormGroup = new FormGroup({
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl('', [Validators.required]),
-        timeStep: new FormControl(null, [Validators.required]),
+        timeStep: new FormControl('', [Validators.required]),
         sDate: new FormControl(null, [Validators.required]),
         interestRate: new FormControl(null, [Validators.required]),
         userMode: new FormControl('', [Validators.required]),

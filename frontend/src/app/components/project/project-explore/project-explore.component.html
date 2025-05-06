@@ -44,11 +44,11 @@
 
 <app-project-item [project]="project" *ngFor="let project of project_list" />
 
-<section class="projects-empty" *ngIf="!project_list.length">
+<section class="projects-empty" *ngIf="!project_list || !project_list.length">
     <div>
         <div class="projects-empty__img">
             <img
-                src="/assets/illustrations/empty_folder.svg"
+                src="./static/assets/illustrations/empty_folder.svg"
                 alt="Empty folder"
             />
         </div>
