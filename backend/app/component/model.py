@@ -1,9 +1,10 @@
-from importlib import import_module
-from typing import Any, ClassVar
+from typing import Any
 
 from pydantic import BaseModel
 from sqlalchemy import JSON
-from sqlmodel import SQLModel, Field, ARRAY, String, Column
+from sqlmodel import SQLModel, Field, Column
+
+from ..flow.model import EnFlow
 
 
 class EnComponentsTemplate(SQLModel, table=True):
@@ -21,6 +22,8 @@ class EnComponent(BaseModel):
     oemof_type: str = ""
     position: dict[str, float] = {"x": 0.0, "y": 0.0}
     data: dict[str, Any] = {}
+    inputs: list[EnFlow]
+    outputs: list[EnFlow]
 
 # class EnComponentDB(SQLModel, table=True):
 #     __tablename__ = "components_in_design"

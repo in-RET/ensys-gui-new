@@ -7,7 +7,7 @@ from sqlmodel import SQLModel, Field
 
 class EnFlow(BaseModel):
     name: str = Field(min_length=1, max_length=30)
-    component_id: int
+    # component_id: int
     data: dict[str, Any] = Field(default={})
 
 # class EnFlowDB(SQLModel, table=True):
@@ -20,5 +20,5 @@ class EnFlow(BaseModel):
 
 class EnFlowUpdate(EnFlow):
     name: str | None = None
-    component: int | None = None
+    # component: int | None = None
     data: dict[str, Any] | None = None
