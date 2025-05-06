@@ -67,6 +67,8 @@ export class SignupComponent {
         return this.form.get('consentOpt');
     }
 
+    errorList!: { messge: string }[];
+
     constructor(private authService: AuthService, private router: Router) {}
 
     signup() {
@@ -85,6 +87,14 @@ export class SignupComponent {
 
                 error: (err) => {
                     console.error(err);
+
+                    if (err.error.detail) {
+                        this.errorList = [];
+
+                        err.error.detail.forEach((element: any) => {
+                            this.errorList.push(element.msg);
+                        });
+                    }
                 },
             });
     }

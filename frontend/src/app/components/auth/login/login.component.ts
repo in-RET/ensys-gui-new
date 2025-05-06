@@ -31,6 +31,8 @@ export class LoginComponent {
         return this.form.get('pass');
     }
 
+    error!: { messge: string };
+
     constructor(
         private authService: AuthService,
         private authCoreService: AuthCoreService,
@@ -46,6 +48,9 @@ export class LoginComponent {
 
             error: (err) => {
                 console.error(err);
+                this.error = {
+                    messge: err.error.detail,
+                };
             },
         });
     }
