@@ -1,0 +1,123 @@
+<section class="project" id="project-{{ project.id }}">
+    <div class="project-item">
+        <div class="project__top">
+            <a>
+                <h2 class="name">{{ project.name }}</h2>
+            </a>
+
+            <a class="location">
+                <span class="icon-pin" aria-hidden="true"></span>
+                {{ project.country }}
+            </a>
+        </div>
+
+        <div class="project__details">
+            <div class="details">
+                <div class="detail">
+                    <span class="detail__property"> Created</span>
+
+                    <span class="detail__value">
+                        {{ project.date_created }}
+                    </span>
+                </div>
+
+                <div class="detail">
+                    <span class="detail__property">Lifetime</span>
+
+                    <span class="detail__value">
+                        {{ project.duration }} years
+                    </span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a
+                    class="btn btn--action action"
+                    [routerLink]="['../update/', project.id]"
+                    fragment="update"
+                >
+                    <span class="icon icon-edit" aria-hidden="true"></span>
+                </a>
+
+                <button
+                    id="delete_{{ project.id }}"
+                    style="margin-top: 0.25rem"
+                    class="btn btn--action action"
+                    type="button"
+                    value="Delete"
+                    (click)="delete_modal(project.id)"
+                >
+                    <span class="icon icon-delete" aria-hidden="true"></span>
+                </button>
+
+                <!-- <div class="dropdown">
+                    <button
+                        class="btn dropdown-toggle btn--transparent"
+                        type="button"
+                        id="shareProject-{{ project.id }}"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <span class="icon icon-more"></span>
+                    </button>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"> Share project </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"> Unshare project </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item"> Export project </a>
+                        </li>
+                    </ul>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="project__scenarios">
+            <!-- <button
+                class="btn btn--action action"
+                type="button"
+                *ngIf="!project.scenario_list.length"
+            >
+                New Scenario
+            </button> -->
+
+            <div class="toggle" *ngIf="project.scenario_list.length">
+                <button
+                    class="btn btn--action"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#scenario_list"
+                    aria-expanded="false"
+                    aria-controls="scenario_list"
+                >
+                    <span
+                        class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
+                        aria-hidden="true"
+                    >
+                    </span>
+
+                    <span class="js-toggle-scenario-name">Show scenarios</span>
+                </button>
+            </div>
+
+            <div class="collapse" id="scenario_list">
+                <div class="card card-body">
+                    <ul class="list-group">
+                        <li
+                            class="list-group-item"
+                            *ngFor="let scenario of project.scenario_list"
+                        >
+                            <app-project-scenario-item [data]="scenario" />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
