@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import * as L from 'leaflet';
+import { RegionService } from '../../../shared/services/region.service';
 import { ProjectService } from '../services/project.service';
 
 @Component({
@@ -79,12 +80,22 @@ export class ProjectCreateComponent {
     // if update item
     mode: 'create' | 'update' | '' = 'create';
 
+    regionList!: any[];
+
     constructor(
         private projectService: ProjectService,
-        private route: ActivatedRoute
+        private route: ActivatedRoute,
+        private regionService: RegionService
     ) {}
 
     ngOnInit() {
+        // getv regions
+        this.regionService.getAllRegions().subscribe((res) => {
+            console.log(res[0].name);
+
+            this.regionList = res;
+        });
+
         if (this.route.snapshot.fragment) {
             if (this.route.snapshot.fragment == 'update') {
                 this.mode = 'update';
