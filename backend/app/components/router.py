@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
-from .model import EnComponentsTemplate
+from .database_model import EnComponentsTemplate
 from ..db import get_db_session
 from ..responses import CustomResponse
 from ..security import oauth2_scheme

@@ -51,3 +51,4 @@ node_modules/
 data/
 *.sqlite
 /frontend/package-lock.json
+/site/
