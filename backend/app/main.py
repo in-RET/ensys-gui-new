@@ -6,7 +6,6 @@ from starlette import status
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
-from .components.router import component_router
 from .project.router import projects_router
 from .scenario.router import scenario_router
 from .simulation.router import simulation_router
@@ -40,18 +39,6 @@ tags_metadata = [
         "name": "default",
         "description": "The root of all evil."
     },
-    {
-        "name": "component",
-        "description": "Manage components. All components including busses."
-    },
-    # {
-    #     "name": "flow",
-    #     "description": "Manage flows. Flows are the connections between components."
-    #     "externalDocs": {
-    #         "description": "Items external docs",
-    #         "url": "https://fastapi.tiangolo.com/",
-    #     },
-    # },
 ]
 
 app = FastAPI(
@@ -100,14 +87,6 @@ app.include_router(
 app.include_router(
     router=scenario_router
 )
-
-app.include_router(
-    router=component_router
-)
-
-# app.include_router(
-#     router=flow_router
-# )
 
 app.include_router(
     router=simulation_router
