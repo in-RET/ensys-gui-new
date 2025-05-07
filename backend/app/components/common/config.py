@@ -28,7 +28,7 @@ class EnConfigContainer(BaseModel):
         #arbitrary_types_allowed = True
 
         ## Without this configuration its impossible to pass extra **kwargs to pydantic.baseModel-Objects.
-        extra = Extra.allow
+        extra = 'allow'
 
     ##  Build a dict of arguments for the init of the oemof objects.
     #

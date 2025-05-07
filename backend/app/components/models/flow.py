@@ -1,6 +1,6 @@
 from typing import Sequence, Union
 
-from backend.app.components.common.config import EnConfigContainer
+from ..common.config import EnConfigContainer
 from .investment import EnInvestment
 from .nonconvex import EnNonConvex
 from oemof import solph

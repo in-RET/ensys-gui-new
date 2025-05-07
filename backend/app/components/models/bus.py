@@ -1,4 +1,4 @@
-from backend.app.components.common.config import EnConfigContainer
+from ..common.config import EnConfigContainer
 from oemof import solph
 from pydantic import Field
 

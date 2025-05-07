@@ -8,12 +8,11 @@ from starlette import status
 
 from .model import EnSimulationDB
 from ..db import get_db_session
-# from ..flow.model import EnFlowDB
 from ..project.model import EnProjectDB
-from ..responses import CustomResponse, ErrorModel
-from ..security import oauth2_scheme
-from ..scenario.router import validate_scenario_owner
 from ..project.router import validate_project_owner
+from ..responses import CustomResponse, ErrorModel
+from ..scenario.router import validate_scenario_owner
+from ..security import oauth2_scheme
 
 simulation_router = APIRouter(
     prefix="/simulation",
@@ -52,6 +51,7 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     # TODO: oemof-energy-system erstellen
+
 
     # Get old Simulation and stop it
     running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id)).where(EnSimulationDB.status == "started").all()
@@ -176,7 +176,7 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
         #     )],
         # )
 
-    simulation = db.get(EnFlowDB, simulation_id)
+    simulation = db.get(EnSimulationDB, simulation_id)
     db.delete(simulation)
     db.commit()
 

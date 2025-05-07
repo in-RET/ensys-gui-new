@@ -1,11 +1,11 @@
 from oemof import solph
 from pydantic import Field
 
-from backend.app.components.common.config import EnConfigContainer
+from ..common.config import EnConfigContainer
 from .flow import EnFlow
 
 
-##  Container which contains the params for an InRetEnsys-Transformer-Object
+## Container which contains the params for an InRetEnsys-Transformer-Object
 #
 #   @param label: str = "Default Transformer"
 #   @param inputs: Dict[str, EnFlow] = None

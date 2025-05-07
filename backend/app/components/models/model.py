@@ -1,8 +1,8 @@
 from typing import Union
 
 from .energysystem import EnEnergysystem
-from backend.app.components.common.config import EnConfigContainer
-from backend.app.components.common.types import Solver
+from ..common.config import EnConfigContainer
+from ..common.types import Solver
 from pydantic import Field, field_validator
 
 

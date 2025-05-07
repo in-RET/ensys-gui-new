@@ -152,7 +152,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
         # )
     else:
         return CustomResponse(
-            data={"userdata": user.model_dump()},
+            data=user.model_dump(),
             success=True,
             errors=None
         )
@@ -184,7 +184,7 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
     db.refresh(user_db)
 
     return CustomResponse(
-        data={"userdata": user_db.dump()},
+        data=user_db.model_dump(),
         success=True,
         errors=None
     )

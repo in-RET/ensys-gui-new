@@ -1,10 +1,10 @@
-from backend.app.components.common.config import EnConfigContainer
+from ..common.config import EnConfigContainer
 from .flow import EnFlow
 from oemof import solph
 from pydantic import Field
 
 
-##  Container which contains the params for an InRetEnsys-Sink-Object
+## Container which contains the params for an InRetEnsys-Sink-Object
 #
 #   @param label: str = "Default Sink"
 #   @param inputs: Dict[str, EnFlow]

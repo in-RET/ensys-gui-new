@@ -68,7 +68,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.commit()
 
     return CustomResponse(
-        data={"message": "Scenario created."},
+        data="Scenario created.",
         success=True
     )
 
@@ -104,7 +104,7 @@ async def read_scenarios(token: Annotated[str, Depends(oauth2_scheme)], project_
         response_data.append(scenario.model_dump())
 
     return CustomResponse(
-        data={"scenarios": response_data},
+        data=response_data,
         success=True
     )
 
@@ -158,7 +158,7 @@ async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_
         # )
 
     return CustomResponse(
-        data={"scenario": scenario.model_dump()},
+        data=scenario.model_dump(),
         success=True,
         errors=None
     )
@@ -209,7 +209,7 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.refresh(db_scenario)
 
     return CustomResponse(
-        data={"message": "Scenario updated."},
+        data="Scenario updated.",
         success=True,
         errors=None
     )
@@ -245,7 +245,7 @@ async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.commit()
 
     return CustomResponse(
-        data={"message": "Scenario deleted."},
+        data="Scenario deleted.",
         success=True,
         errors=None
     )

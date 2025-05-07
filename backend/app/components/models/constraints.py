@@ -1,7 +1,7 @@
 from typing import Union
 
-from backend.app.components.common.config import EnConfigContainer
-from backend.app.components.common.types import Constraints
+from ..common.config import EnConfigContainer
+from ..common.types import Constraints
 from pydantic import Field
 
 

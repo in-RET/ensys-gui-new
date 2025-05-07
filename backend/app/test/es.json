@@ -1,6 +1,5 @@
 {
     "energysystemmodel": {
-        "scenario_id": 1,
         "components": [
             {
                 "label": "coal",

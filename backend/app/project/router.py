@@ -61,7 +61,7 @@ async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.commit()
 
     return CustomResponse(
-        data={"message": "Project created."},
+        data="Project created.",
         success=True,
         errors=None
     )
@@ -91,7 +91,7 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
         response_data.append(project.get_return_data())
 
     return CustomResponse(
-        data={"projects": response_data},
+        data=response_data,
         success=True,
         errors=None
     )
@@ -121,7 +121,7 @@ async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_sch
         # )
 
     return CustomResponse(
-        data={"projects": db.get(EnProjectDB, project_id).get_return_data()},
+        data=db.get(EnProjectDB, project_id).get_return_data(),
         success=True,
         errors=None
     )
@@ -172,7 +172,7 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.refresh(db_project)
 
     return CustomResponse(
-        data={"message": "Project Updated."},
+        data="Project Updated.",
         success=True,
         errors=None
     )
@@ -205,7 +205,7 @@ async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.commit()
 
     return CustomResponse(
-        data={"message": "Project deleted."},
+        data="Project deleted.",
         success=True,
         errors=None
     )

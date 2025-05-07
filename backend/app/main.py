@@ -6,8 +6,7 @@ from starlette import status
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
-from .component.router import component_router
-from .flow.router import flow_router
+from .components.router import component_router
 from .project.router import projects_router
 from .scenario.router import scenario_router
 from .simulation.router import simulation_router

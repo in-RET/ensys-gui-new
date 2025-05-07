@@ -1,4 +1,4 @@
-from backend.app.components.common.config import EnConfigContainer
+from ..common.config import EnConfigContainer
 from .flow import EnFlow
 from .investment import EnInvestment
 from oemof import solph

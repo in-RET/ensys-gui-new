@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import JSON, Column
 from sqlmodel import SQLModel, Field
 
-from ..energysystem.model import EnEnergysystem
+from ..components.models.energysystem import EnEnergysystem
 
 
 class EnScenario(BaseModel):
@@ -14,7 +14,6 @@ class EnScenario(BaseModel):
     user_mode: str = Field(default="Novice", min_length=1, max_length=10)
     project_id: int
     energysystem_model: EnEnergysystem
-
 
 class EnScenarioDB(SQLModel, table=True):
     __tablename__ = "scenarios"
