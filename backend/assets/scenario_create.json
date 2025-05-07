@@ -1,5 +1,10 @@
 {
-    "energysystemmodel": {
+    "name": "My First Scenario",
+    "timestep": "1H",
+    "period": 365,
+    "user_mode": "Novice",
+    "project_id": 1,
+    "energysystem_model": {
         "components": [
             {
                 "label": "coal",

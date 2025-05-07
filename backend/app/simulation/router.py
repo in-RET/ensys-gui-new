@@ -1,8 +1,11 @@
+import json
+import os
 import uuid
 from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from fontTools.misc.plistlib import end_date
 from sqlmodel import Session, select
 from starlette import status
 
@@ -11,6 +14,7 @@ from ..db import get_db_session
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
 from ..responses import CustomResponse, ErrorModel
+from ..scenario.model import EnScenarioDB
 from ..scenario.router import validate_scenario_owner
 from ..security import oauth2_scheme
 
@@ -28,9 +32,13 @@ def validate_user_rights(token, scenario_id, db):
     if not validation_scenario:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    project = db.exec(select(EnProjectDB).where(EnProjectDB.scenario_id == scenario_id))
+    scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
+    if not scenario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
+
+    project = db.exec(select(EnProjectDB).where(EnProjectDB.id == scenario.project_id)).first()
     if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
     validation_project = validate_project_owner(
         token=token,
@@ -51,21 +59,39 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     # TODO: oemof-energy-system erstellen
+    selected_scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
 
+    energysystem_json = json.dumps(selected_scenario.energysystem_model)
+
+    # TODO: build components and somehow store the shit in the simulation data folder
+    simulation_token = str(uuid.uuid4())
+    # NOTE: Internal for Docker container
+    simulation_folder = os.path.join("app", "data", "simulations", simulation_token)
+
+    os.makedirs(
+        name=simulation_folder,
+        exist_ok=True
+    )
+
+    with open(os.path.join(simulation_folder, "energysystem.json"), "wt") as f:
+        f.write(energysystem_json)
+
+    # TODO: simulation starten
 
     # Get old Simulation and stop it
-    running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id)).where(EnSimulationDB.status == "started").all()
+    running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id).where(EnSimulationDB.status == "Started")).all()
 
-    for running_simulation in running_simulations:
-        running_simulation.status = "stopped"
-        running_simulation.end_time = datetime.now()
-        db.commit()
+    if running_simulations:
+        for running_simulation in running_simulations:
+            running_simulation.status = "Stopped"
+            running_simulation.end_date = datetime.now()
+            db.commit()
 
     # Create new Simulation
     simulation = EnSimulationDB(
-        sim_token=str(uuid.uuid4()),
+        sim_token=simulation_token,
         start_date=datetime.now(),
-        status="started"
+        scenario_id=scenario_id,
     )
 
     db.add(simulation)
@@ -88,19 +114,15 @@ async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2
     if not validate_user_rights(token=token, scenario_id=scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    #TODO: simulation stoppen
-    simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.status == "started").where(EnSimulationDB.scenario_id == scenario_id)).all()
+    simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.status == "Started").where(EnSimulationDB.scenario_id == scenario_id)).all()
     if not simulations:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found.")
 
     if len(simulations) > 1:
-        print("Hallo, mehr als 2 Simulationen laufen, du Bob hast vergessen beim Starten die alte zu beenden!")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mehr als 2 Simulationen laufen, du Bob hast vergessen beim Starten die alte zu beenden!")
 
     for simulation in simulations:
-        # TODO: Simulation stoppen (s. sim token)
-        print(simulation.sim_token)
-
-        simulation.status = "stopped"
+        simulation.status = "Stopped"
         simulation.end_date = datetime.now()
         db.commit()
         db.refresh(simulation)
@@ -126,7 +148,7 @@ async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulations found.")
 
     return CustomResponse(
-        data={"simulations": simulations},
+        data=simulations,
         success=True,
     )
 
@@ -135,14 +157,15 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    simulation = db.exec(select(EnSimulationDB).where(EnSimulationDB.simulation_id == simulation_id)).last()
+    simulation = db.exec(select(EnSimulationDB).where(EnSimulationDB.id == simulation_id)).first()
     if not simulation:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found.")
 
     if not validate_user_rights(token=token, scenario_id=simulation.scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    if simulation.status != "finished":
+    # TODO: Simulationsenden abdecken!
+    if simulation.status != "Finished":
         return CustomResponse(
             data={"status": simulation.status,
                   "start_date": simulation.start_date},
@@ -181,7 +204,7 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
     db.commit()
 
     return CustomResponse(
-        data={"message": "Simulation deleted."},
+        data="Simulation deleted.",
         success=True,
         errors=None
     )

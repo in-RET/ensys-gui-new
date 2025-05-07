@@ -16,7 +16,7 @@ projects_router = APIRouter(
     tags=["project"],
 )
 
-def validate_project_owner(project_id: int, token, db):
+def validate_project_owner(project_id: int, token: str, db):
     # Get Database-Session and token-data
     token_data = decode_token(token)
 

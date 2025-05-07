@@ -27,7 +27,7 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
     scenario = db.get(EnScenarioDB, scenario_id)
 
     if scenario.user_id == user.id:
-        return True, ""
+        return True, status.HTTP_200_OK, ""
     else:
         return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
 
@@ -73,7 +73,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     )
 
 @scenario_router.get("s/{project_id}")
-async def read_scenarios(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
+async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return CustomResponse(
@@ -110,7 +110,7 @@ async def read_scenarios(token: Annotated[str, Depends(oauth2_scheme)], project_
 
 
 @scenario_router.get("/{scenario_id}")
-async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
+async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return CustomResponse(
@@ -146,7 +146,7 @@ async def read_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_
         #     )],
         # )
 
-    if not validate_project_owner(scenario.project_id, db, token):
+    if not validate_project_owner(scenario.project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
         # return CustomResponse(
         #     data=None,
