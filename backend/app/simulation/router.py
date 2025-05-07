@@ -10,6 +10,8 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnSimulationDB
+from ..components.models.energysystem import EnEnergysystem
+from ..components.models.model import EnModel
 from ..db import get_db_session
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
@@ -60,6 +62,10 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
 
     # TODO: oemof-energy-system erstellen
     selected_scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
+
+    SystemModel = EnModel(
+        energysystem=EnEnergysystem(**selected_scenario.energysystem_model)
+    )
 
     energysystem_json = json.dumps(selected_scenario.energysystem_model)
 

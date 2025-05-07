@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import JSON, Column
 from sqlmodel import SQLModel, Field
 
-from ..components.models.energysystem import EnEnergysystem
+from ..components.models.energysystem import ApiEnergysystem
 
 
 class EnScenario(BaseModel):
@@ -13,7 +13,7 @@ class EnScenario(BaseModel):
     period: int = Field(default=365)
     user_mode: str = Field(default="Novice", min_length=1, max_length=10)
     project_id: int
-    energysystem_model: EnEnergysystem
+    energysystem_model: ApiEnergysystem
 
 class EnScenarioDB(SQLModel, table=True):
     __tablename__ = "scenarios"
@@ -25,13 +25,13 @@ class EnScenarioDB(SQLModel, table=True):
     user_mode: str = Field(default="Novice", min_length=1, max_length=10)
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
-    energysystem_model: EnEnergysystem = Field(sa_column=Column(JSON), default={})
+    energysystem_model: ApiEnergysystem = Field(sa_column=Column(JSON), default={})
 
 class EnScenarioUpdate(EnScenario):
     name: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
     timestep: str | None = Field(default=None, min_length=2, max_length=2, nullable=True)
     period: int | None = Field(default=None, min_length=1, max_length=3, nullable=True)
     user_mode: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
-    energysystem_model: EnEnergysystem | None = Field(default=None, nullable=True)
+    energysystem_model: ApiEnergysystem | None = Field(default=None, nullable=True)
     project_id: ClassVar[str]
     user_id: ClassVar[str]

@@ -25,9 +25,9 @@ from typing import Union
 #   @param min_storage_level: float = 0
 #   @param max_storage_level: float = 1
 #   @param investment: EnInvestment] = None
-class EnStorage(EnConfigContainer):
+class EnGenericStorage(EnConfigContainer):
     label: str = Field(
-        "Default Storage",
+        "Default GenericStorage",
         title='Label',
         description=''
     )
@@ -127,7 +127,7 @@ class EnStorage(EnConfigContainer):
         description=''
     )
 
-    ##  Returns an oemof-object from the given args of this object.
+    ## Returns an oemof-object from the given args of this object.
     #
     #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
     #

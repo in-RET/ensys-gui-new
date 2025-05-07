@@ -13,7 +13,7 @@ from .flow import EnFlow
 #   @param conversion_factors: Dict = None
 class EnConverter(EnConfigContainer):
     label: str = Field(
-        "Default Transformer",
+        "Default Converter",
         title='Label',
         description='Label'
     )
@@ -36,7 +36,7 @@ class EnConverter(EnConfigContainer):
         description='Dictionary with all conversion factors. <Bus.Label> : Float'
     )
 
-    ##  Returns an oemof-object from the given args of this object.
+    ## Returns an oemof-object from the given args of this object.
     #
     #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
     #
