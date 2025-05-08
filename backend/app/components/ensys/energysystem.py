@@ -1,54 +1,18 @@
 from typing import List, Union
 
+from fastapi import HTTPException
 from pydantic import BaseModel, Field
+from starlette import status
 
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter
+from .flow import EnFlow
 from .genericstorage import EnGenericStorage
 from .sink import EnSink
 from .source import EnSource
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from ..common.types import Frequencies
-
-
-## Container which contains the params for an ApiEnergysystem
-#
-#   @param component
-class ApiEnergysystem(BaseModel):
-    constraints: List[EnConstraints] = Field(
-        [],
-        title='Constraints',
-        description='List of all constraints.'
-    )
-    components: List[EnBus | EnSink | EnSource | EnConverter | EnGenericStorage] = Field(
-        ...,
-        title='Components',
-        description='List of all components.'
-    )
-
-    # TODO: Fix the class to get the "InRetEnsysEnergysystem" back to work with
-    def to_EnEnergysystem(self):
-
-        for component in self.components:
-            print(component)
-
-            if component["oemof_type"] == "Bus":
-                pass
-            elif component["oemof_type"] == "Sink":
-                pass
-            elif component["oemof_type"] == "Source":
-                pass
-            elif component["oemof_type"] == "Converter":
-                pass
-            elif component["oemof_type"] == "GenericStorage":
-                pass
-            else:
-                raise Exception("Unknown Type given!")
-
-        for constraint in self.constraints:
-            print(constraint)
-
 
 ## Container which contains the params for an EnEnergysystem
 #
@@ -61,7 +25,7 @@ class ApiEnergysystem(BaseModel):
 #   @param frequenz
 #   @param start_date
 #   @param time_steps
-class EnEnergysystem(EnConfigContainer):
+class EnEnergysystem(EnBaseModel):
     busses: List[EnBus] = Field(
         [],
         title='Busses',
@@ -129,3 +93,4 @@ class EnEnergysystem(EnConfigContainer):
             self.constraints.append(elem)
         else:
             raise Exception("Unknown Type given!")
+

@@ -154,12 +154,9 @@
                 "label": "pp_coal",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.39
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.39
+                    }
                 },
                 "inputs": [
                     {
@@ -181,12 +178,9 @@
                 "label": "pp_lig",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.41
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.41
+                    }
                 },
                 "inputs": [
                     {
@@ -208,12 +202,9 @@
                 "label": "pp_gas",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.5
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.5
+                    }
                 },
                 "inputs": [
                     {
@@ -235,12 +226,9 @@
                 "label": "pp_oil",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.28
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.28
+                    }
                 },
                 "inputs": [
                     {
@@ -262,16 +250,10 @@
                 "label": "pp_chp",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.3
-                        },
-                        {
-                            "label": "bth",
-                            "value": 0.4
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.3,
+                        "bth": 0.4
+                    }
                 },
                 "inputs": [
                     {
@@ -299,16 +281,10 @@
                 "label": "heat_pump",
                 "oemof_type": "converter",
                 "data": {
-                    "conversion_factors": [
-                        {
-                            "label": "bel",
-                            "value": 0.3333333333333333
-                        },
-                        {
-                            "label": "b_heat_source",
-                            "value": 0.6666666666666666
-                        }
-                    ]
+                    "conversion_factors": {
+                        "bel": 0.3333333333333333,
+                        "b_heat_source": 0.6666666666666666
+                    }
                 },
                 "inputs": [
                     {

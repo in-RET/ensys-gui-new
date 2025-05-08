@@ -1,7 +1,7 @@
 from typing import Union
 
 from .energysystem import EnEnergysystem
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from ..common.types import Solver
 from pydantic import Field, field_validator
 
@@ -11,7 +11,7 @@ from pydantic import Field, field_validator
 #   @param energysystem The Energysystem which should be optimized.
 #   @param solver The Solvername for the optimization.
 #   @param solver_verbose Set true if the solver should print his output and steps.
-class EnModel(EnConfigContainer):
+class EnModel(EnBaseModel):
     energysystem: EnEnergysystem = Field(
         ...,
         title='Energysystem',

@@ -1,4 +1,4 @@
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from .flow import EnFlow
 from .investment import EnInvestment
 from oemof import solph
@@ -25,7 +25,7 @@ from typing import Union
 #   @param min_storage_level: float = 0
 #   @param max_storage_level: float = 1
 #   @param investment: EnInvestment] = None
-class EnGenericStorage(EnConfigContainer):
+class EnGenericStorage(EnBaseModel):
     label: str = Field(
         "Default GenericStorage",
         title='Label',

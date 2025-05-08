@@ -1,6 +1,6 @@
 from typing import Union
 
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from oemof import solph
 from pydantic import Field
 
@@ -27,7 +27,7 @@ from pydantic import Field
 #   @param initial_status: int = 0
 #   @param positive_gradient: Dict] = None
 #   @param negative_gradient: Dict] = None
-class EnNonConvex(EnConfigContainer):
+class EnNonConvex(EnBaseModel):
     startup_costs: Union[float, None] = Field(
         None,
         title='Startups Costs',

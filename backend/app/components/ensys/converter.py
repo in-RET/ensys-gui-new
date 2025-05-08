@@ -1,7 +1,7 @@
 from oemof import solph
 from pydantic import Field
 
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from .flow import EnFlow
 
 
@@ -11,7 +11,7 @@ from .flow import EnFlow
 #   @param inputs: Dict[str, EnFlow] = None
 #   @param outputs: Dict[str, EnFlow] = None
 #   @param conversion_factors: Dict = None
-class EnConverter(EnConfigContainer):
+class EnConverter(EnBaseModel):
     label: str = Field(
         "Default Converter",
         title='Label',

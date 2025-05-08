@@ -5,13 +5,13 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from fontTools.misc.plistlib import end_date
 from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnSimulationDB
-from ..components.models.energysystem import EnEnergysystem
-from ..components.models.model import EnModel
+from ..components.common.apimodel import ApiEnergysystem
+from ..components.common.types import Frequencies, Solver
+from ..components.ensys import EnEnergysystem, EnModel
 from ..db import get_db_session
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
@@ -63,8 +63,22 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     # TODO: oemof-energy-system erstellen
     selected_scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
 
-    SystemModel = EnModel(
-        energysystem=EnEnergysystem(**selected_scenario.energysystem_model)
+    if selected_scenario.timestep == "1H":
+        frequenz = Frequencies.hourly
+
+    energysystem_oemof = EnEnergysystem(
+        frequenz=frequenz,
+        start_date=str(selected_scenario.simulation_year),
+        time_steps=selected_scenario.period
+    )
+
+    energysystem_api = ApiEnergysystem(**selected_scenario.energysystem_model)
+    energysystem_oemof = energysystem_api.to_EnEnergysystem(energysystem_oemof)
+
+    simulation_model = EnModel(
+        energysystem=energysystem_oemof,
+        solver=Solver.gurobi,
+        solver_verbose=True,
     )
 
     energysystem_json = json.dumps(selected_scenario.energysystem_model)
@@ -80,9 +94,11 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     )
 
     with open(os.path.join(simulation_folder, "energysystem.json"), "wt") as f:
-        f.write(energysystem_json)
+        f.write(simulation_model.model_dump_json())
 
     # TODO: simulation starten
+
+
 
     # Get old Simulation and stop it
     running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id).where(EnSimulationDB.status == "Started")).all()
@@ -97,6 +113,7 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
     simulation = EnSimulationDB(
         sim_token=simulation_token,
         start_date=datetime.now(),
+        end_date=None,
         scenario_id=scenario_id,
     )
 

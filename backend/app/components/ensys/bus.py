@@ -1,4 +1,4 @@
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from oemof import solph
 from pydantic import Field
 
@@ -7,7 +7,7 @@ from pydantic import Field
 #
 #   @param label The Label of the Bus, must be named for further references in flows.
 #   @param balanced If 'True' the input is equal the output of the bus.
-class EnBus(EnConfigContainer):
+class EnBus(EnBaseModel):
     label: str = Field(
         title='Label',
         description='Name of the Bus'

@@ -1,11 +1,11 @@
 from typing import Dict
 
 from oemof import solph
-from pydantic import BaseModel, Extra, model_validator
+from pydantic import BaseModel, model_validator, Field
 
 
-##  container for a configuration
-class EnConfigContainer(BaseModel):
+## Container for a configuration
+class EnBaseModel(BaseModel):
 
     @model_validator(mode='after')
     def remove_empty(self):
@@ -22,7 +22,7 @@ class EnConfigContainer(BaseModel):
         return self
 
 
-    ##  pydantic subclass to add special configurations.
+    ## pydantic subclass to add special configurations.
     class Config:
         ## Allow arbitrary_types like pandas.DataFrames / pandas.Series which are not allow by default.
         #arbitrary_types_allowed = True
@@ -30,7 +30,7 @@ class EnConfigContainer(BaseModel):
         ## Without this configuration its impossible to pass extra **kwargs to pydantic.baseModel-Objects.
         extra = 'allow'
 
-    ##  Build a dict of arguments for the init of the oemof objects.
+    ## Build a dict of arguments for the init of the oemof objects.
     #
     #   @return Dictionary with all variables of the given object.
     #   @param self The Object pointer
@@ -70,3 +70,4 @@ class EnConfigContainer(BaseModel):
                     kwargs[key] = value
 
         return kwargs
+

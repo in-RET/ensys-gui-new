@@ -1,4 +1,4 @@
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from oemof import solph
 from pydantic import Field
 
@@ -12,7 +12,7 @@ from pydantic import Field
 #   @param nonconvex: bool = False
 #   @param offset: float = 0.0
 #   @param custom_attributes: Union[None, Dict] = None
-class EnInvestment(EnConfigContainer):
+class EnInvestment(EnBaseModel):
     maximum: float = Field(
         float("+inf"),
         title='Maximum',

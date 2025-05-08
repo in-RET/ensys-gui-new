@@ -1,24 +1,24 @@
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from .flow import EnFlow
 from oemof import solph
 from pydantic import Field
 
 
-## Container which contains the params for an InRetEnsys-Sink-Object
+## Container which contains the params for an InRetEnsys-Source-Object
 #
 #   @param label: str = "Default Sink"
-#   @param inputs: Dict[str, EnFlow]
-class EnSink(EnConfigContainer):
+#   @param outputs: Dict[str, EnFlow]
+class EnSource(EnBaseModel):
     label: str = Field(
-        "Default Sink",
+        "Default Source",
         title='Label',
         description='Label'
     )
 
-    inputs: dict[str, EnFlow] = Field(
+    outputs: dict[str, EnFlow] = Field(
         ...,
-        title='Inputs',
-        description='Inputs'
+        title='Outputs',
+        description='Outputs'
     )
 
     ##  Returns an oemof-object from the given args of this object.
@@ -27,8 +27,8 @@ class EnSink(EnConfigContainer):
     #
     #   @param self The Object Pointer
     #   @param energysystem The oemof-Energysystem to reference other objects i.e. for flows.
-    #   @return solph.Sink-Object (oemof)
-    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Sink:
+    #   @return solph.Source-Object (oemof)
+    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Source:
         kwargs = self.build_kwargs(energysystem)
 
-        return solph.components.Sink(**kwargs)
+        return solph.components.Source(**kwargs)

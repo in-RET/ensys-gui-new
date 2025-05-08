@@ -7,7 +7,7 @@ class EnSimulation(SQLModel):
     sim_token: str = Field(nullable=False)
     status: str = Field(default="Started", nullable=False)
     start_date: datetime = Field(nullable=False)
-    end_date: datetime | None = Field(default=None, nullable=False)
+    end_date: datetime | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
 
 class EnSimulationDB(EnSimulation, table=True):
@@ -17,4 +17,4 @@ class EnSimulationDB(EnSimulation, table=True):
 
 class EnSimulationUpdate(SQLModel):
     status: str = Field(nullable=False)
-    end_date: datetime | None = Field(default=None, nullable=False)
+    end_date: datetime | None = Field(default=None, nullable=True)

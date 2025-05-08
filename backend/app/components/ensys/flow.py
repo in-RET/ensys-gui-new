@@ -1,13 +1,13 @@
 from typing import Sequence, Union
 
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from .investment import EnInvestment
 from .nonconvex import EnNonConvex
 from oemof import solph
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 
-##  Container which contains the params for an oemof-flow
+## Container which contains the params for an oemof-flow
 #
 #   @param nominal_value
 #   @param fix
@@ -21,7 +21,7 @@ from pydantic import Field
 #   @param investement Ensys-Investment-Object, if the Flow should be optimized for an Investmentlimit.
 #   @param nonconvex Ensys-NonConvex-Object, if the Flow should be nonconvex. Non possible if the flow is an Investmentflow.
 #   @param custom_attributes Keyword-Arguments for special Keywords, used by constraints.
-class EnFlow(EnConfigContainer):
+class EnFlow(EnBaseModel):
     nominal_value: Union[float, None] = Field(
         None,
         title='Nominal Value',
@@ -102,7 +102,7 @@ class EnFlow(EnConfigContainer):
         description="Custom Attributes as dictionary for custom investment limits."
     )
 
-    ##  Returns an oemof-object from the given args of this object.
+    ## Returns an oemof-object from the given args of this object.
     #
     #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
     #
@@ -113,3 +113,4 @@ class EnFlow(EnConfigContainer):
         kwargs = self.build_kwargs(energysystem)
 
         return solph.Flow(**kwargs)
+

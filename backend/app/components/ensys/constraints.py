@@ -1,6 +1,6 @@
 from typing import Union
 
-from ..common.config import EnConfigContainer
+from ..common.basemodel import EnBaseModel
 from ..common.types import Constraints
 from pydantic import Field
 
@@ -22,7 +22,7 @@ from pydantic import Field
 #   @param constraint_name (string) – name for the constraint
 #   @param upper_limit (integer) – maximum number of active flows in the list
 #   @param lower_limit (integer) – minimum number of active flows in the list
-class EnConstraints(EnConfigContainer):
+class EnConstraints(EnBaseModel):
     typ: Union[Constraints, None] = Field(
         None,
         title='Typ',
@@ -113,7 +113,7 @@ class EnConstraints(EnConfigContainer):
         description=''
     )
 
-    ##  Returns a dictionary of the given args of this object.
+    ## Returns a dictionary of the given args of this object.
     #
     #   @param self The Object Pointer
     #   @return dictionary of kwargs
