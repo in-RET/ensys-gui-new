@@ -1,7 +1,7 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { BaseHttpService } from '../base-http/base-http.service';
 const ACCESS_TOKEN = 'access_token';
 const REFRESH_TOKEN = 'refresh_token';
@@ -9,6 +9,11 @@ const REFRESH_TOKEN = 'refresh_token';
 @Injectable()
 export class AuthCoreService {
     public redirectUrl: string | null = null;
+
+    private readonly _token = new BehaviorSubject<string | undefined>(
+        undefined
+    );
+    currentToken: Observable<string | undefined> = this._token.asObservable();
 
     constructor(private httpService: BaseHttpService, private router: Router) {}
 
@@ -22,12 +27,17 @@ export class AuthCoreService {
 
     /** Return token and menu if exists */
     public getHasAccess(): boolean {
-        return localStorage.getItem(ACCESS_TOKEN) ? true : false;
+        // return localStorage.getItem(ACCESS_TOKEN) ? true : false;
+        return this.getToken() ? true : false;
     }
 
-    getToken(): string {
+    getTokenFromStorage(): string | null {
         const localStorageToken = localStorage.getItem(ACCESS_TOKEN);
-        return localStorageToken || '';
+        return localStorageToken;
+    }
+
+    getToken(): string | undefined {
+        return this._token.getValue();
     }
 
     getRefreshToken(): string {
@@ -38,8 +48,12 @@ export class AuthCoreService {
         localStorage.removeItem(REFRESH_TOKEN);
     }
 
-    saveToken(token: any): void {
+    saveTokenToStorage(token: any): void {
         localStorage.setItem(ACCESS_TOKEN, token);
+    }
+
+    saveToken(token: any): void {
+        this._token.next(token);
     }
 
     refreshToken(refreshData: any): Observable<any> {
