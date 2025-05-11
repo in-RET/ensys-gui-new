@@ -16,5 +16,7 @@ export class NavbarComponent {
 
     navbar_class: string = ''; //'navbar--signup' | 'navbar--scenario' ;
 
-    ngOnInit() {}
+    ngOnInit() {
+        console.log(1);
+    }
 }

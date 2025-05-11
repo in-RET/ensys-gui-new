@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { Route } from '@angular/router';
+import { Route, Router } from '@angular/router';
 import { AuthCoreService } from '../auth/auth.service';
 
 export const AuthGuard = (route: Route) => {
@@ -9,6 +9,8 @@ export const AuthGuard = (route: Route) => {
     if (hasAccess) {
         return true;
     } else {
+        const router = inject(Router);
+        router.navigate(['./auth/login'], { skipLocationChange: true });
         return false;
     }
 };
