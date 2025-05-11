@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AuthCoreService } from '../../auth/auth.service';
 @Component({
     selector: 'app-navbar',
     imports: [CommonModule],
@@ -16,7 +17,11 @@ export class NavbarComponent {
 
     navbar_class: string = ''; //'navbar--signup' | 'navbar--scenario' ;
 
+    authService = inject(AuthCoreService);
+
     ngOnInit() {
-        console.log(1);
+        this.authService.currentToken.subscribe((res) =>
+            res ? (this.user.is_authenticated = true) : false
+        );
     }
 }

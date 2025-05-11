@@ -32,15 +32,12 @@ export const appConfig: ApplicationConfig = {
 
             return of(authService.getToken()).pipe((res: Observable<any>) => {
                 res.subscribe((token: any) => {
-                    console.log(token);
-
                     if (!token || token.trim() == '') {
                         const TOKEN = authService.getTokenFromStorage();
 
                         // no logged in before
                         if (TOKEN && TOKEN.trim() != '') {
                             authService.saveToken(TOKEN);
-                            console.log(TOKEN);
                         }
                     }
                 });

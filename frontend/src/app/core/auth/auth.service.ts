@@ -13,6 +13,7 @@ export class AuthCoreService {
     private readonly _token = new BehaviorSubject<string | undefined>(
         undefined
     );
+    currentToken: Observable<string | undefined> = this._token.asObservable();
 
     constructor(private httpService: BaseHttpService, private router: Router) {}
 
