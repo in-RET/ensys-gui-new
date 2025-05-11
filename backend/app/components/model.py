@@ -2,7 +2,8 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from starlette import status
 
-from ..ensys import *
+from ensys.components import EnFlow, EnConstraints, EnEnergysystem, EnBus, EnSink, EnSource, EnConverter, EnGenericStorage
+
 
 class ApiFlow(BaseModel):
     label: str = Field(

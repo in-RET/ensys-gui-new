@@ -1,17 +1,18 @@
 import json
 import os
 import uuid
+import docker
+
 from datetime import datetime
 from typing import Annotated
 
+from ensys.common.types import Frequencies, Solver
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnSimulationDB
-from ..components.common.apimodel import ApiEnergysystem
-from ..components.common.types import Frequencies, Solver
-from ..components.ensys import EnEnergysystem, EnModel
+from ..components.model import ApiEnergysystem
 from ..db import get_db_session
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
@@ -19,6 +20,7 @@ from ..responses import CustomResponse, ErrorModel
 from ..scenario.model import EnScenarioDB
 from ..scenario.router import validate_scenario_owner
 from ..security import oauth2_scheme
+from ensys.components import EnEnergysystem, EnModel
 
 simulation_router = APIRouter(
     prefix="/simulation",
@@ -93,12 +95,51 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
         exist_ok=True
     )
 
-    with open(os.path.join(simulation_folder, "energysystem.json"), "wt") as f:
+    config_name = "energysystem.json"
+    with open(os.path.join(simulation_folder, config_name), "wt") as f:
         f.write(simulation_model.model_dump_json())
 
     # TODO: simulation starten
+    path_internal_workdir = os.path.join("/", simulation_folder) # folder in the solver docker container
+    path_api_container_workdir = simulation_folder # folder in the host docker container, which starts another docker container
+    path_host_datadir = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token) # folder on host machine, because mounting
 
+    api_configfile = os.path.join(path_api_container_workdir, config_name)
+    with open(api_configfile, "rt") as f:
+        model_dict = json.load(f)
+        model = EnModel(**model_dict)
 
+    volumes_dict = {path_host_datadir: {"bind": path_internal_workdir, "mode": "rw"}}
+
+    if model.solver == Solver.gurobi:
+        image_tag = "ensys:0.2a7-gurobi"
+        volumes_dict[os.getenv("GUROBI_LICENSE_FILE_PATH")] = {
+            "bind": os.path.join("/opt", "gurobi", "gurobi.lic"),
+            "mode": "ro",
+        }
+    else:
+        raise Exception("Solver not implemented yet.")
+
+    container_configfile = os.path.join(path_internal_workdir, config_name)
+
+    # Verbindung zum Docker-Client herstellen (Server/Desktop Version)
+    dockerClient = docker.from_env()
+
+    # Abfragen, ob das Image existiert
+    if not dockerClient.images.get(image_tag):
+        raise HTTPException(status_code=404, detail="Docker image not found")
+
+    # Starten des docker-containers, im detach Mode, damit dieser das Python-Programm nicht blockiert
+    container = dockerClient.containers.run(
+        image_tag,
+        entrypoint=["python", "main.py"],
+        command="-wdir " + path_internal_workdir + " " + container_configfile,
+        detach=True,
+        tty=True,
+        stdin_open=True,
+        volumes=volumes_dict,
+        name=simulation_token,
+    )
 
     # Get old Simulation and stop it
     running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id).where(EnSimulationDB.status == "Started")).all()

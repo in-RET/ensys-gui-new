@@ -1,7 +1,3 @@
-## @package components
-#   Documentation for this package.
-#
-#   Collection of all possible components.
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter

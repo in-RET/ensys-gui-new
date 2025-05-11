@@ -1,13 +1,8 @@
-from typing import List, Union
-
-from fastapi import HTTPException
-from pydantic import BaseModel, Field
-from starlette import status
+from pydantic import Field
 
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter
-from .flow import EnFlow
 from .genericstorage import EnGenericStorage
 from .sink import EnSink
 from .source import EnSource
@@ -26,37 +21,37 @@ from ..common.types import Frequencies
 #   @param start_date
 #   @param time_steps
 class EnEnergysystem(EnBaseModel):
-    busses: List[EnBus] = Field(
+    busses: list[EnBus] = Field(
         [],
         title='Busses',
         description='List of all busses.'
     )
 
-    sinks: List[EnSink] = Field(
+    sinks: list[EnSink] = Field(
         [],
         title='Sinks',
         description='List of all sinks.'
     )
 
-    sources: List[EnSource] = Field(
+    sources: list[EnSource] = Field(
         [],
         title='Sources',
         description='List of all Sources.'
     )
 
-    transformers: List[EnConverter] = Field(
+    transformers: list[EnConverter] = Field(
         [],
         title='Transformers',
         description='List of all transformers.'
     )
 
-    storages: List[EnGenericStorage] = Field(
+    storages: list[EnGenericStorage] = Field(
         [],
         title='Storages',
         description='List of all storages.'
     )
 
-    constraints: List[EnConstraints] = Field(
+    constraints: list[EnConstraints] = Field(
         [],
         title='Constraints',
         description='List of all constraints.'
@@ -78,7 +73,7 @@ class EnEnergysystem(EnBaseModel):
         description='Number of timesteps from Startdate'
     )
 
-    def add(self, elem: Union[EnSink, EnSource, EnBus, EnGenericStorage, EnConverter, EnConstraints]):
+    def add(self, elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints):
         if type(elem) is EnSink:
             self.sinks.append(elem)
         elif type(elem) is EnSource:

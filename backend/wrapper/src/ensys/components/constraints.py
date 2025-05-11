@@ -1,11 +1,9 @@
-from typing import Union
-
 from ..common.basemodel import EnBaseModel
 from ..common.types import Constraints
 from pydantic import Field
 
 
-##  Container which contains the params for constraints
+## Container which contains the params for constraints
 #
 #   @param typ Type of the Constraints, all possible types are given in the Enum types.Constraints
 #   @param var1 (pyomo.environ.Var) – First variable, to be set to equal with Var2 and multiplied with factor1.
@@ -23,91 +21,91 @@ from pydantic import Field
 #   @param upper_limit (integer) – maximum number of active flows in the list
 #   @param lower_limit (integer) – minimum number of active flows in the list
 class EnConstraints(EnBaseModel):
-    typ: Union[Constraints, None] = Field(
+    typ: Constraints | None = Field(
         None,
         title='Typ',
         description='Type of the constraint.'
     )
 
-    var1: Union[object, None] = Field(
+    var1: object | None = Field(
         None,
         title='var1',
         description='First variable, to be set to equal with Var2 and multiplied with factor1.'
     )
 
-    var2: Union[object, None] = Field(
+    var2: object | None = Field(
         None,
         title='var2',
         description='Second variable, to be set equal to (Var1 * factor1).'
     )
 
-    factor1: Union[float, None]= Field(
+    factor1: float | None= Field(
         None,
         title='factor1',
         description='Factor to define the proportion between the variables.',
     )
 
-    name: Union[str, None] = Field(
+    name: str | None = Field(
         None,
         title='Name',
         description='Optional name'
     )
 
-    keyword: Union[str, None] = Field(
+    keyword: str | None = Field(
         None,
         title='Keyword',
         description='Keyword to consider (searches all NonConvexFlows)'
     )
 
-    quantity: Union[object, None] = Field(
+    quantity: object | None = Field(
         None,
         title='Quantity',
         description=''
     )
 
-    limit_name: Union[str, None] = Field(
+    limit_name: str | None = Field(
         None,
         title='Limit Name',
         description=''
     )
 
-    components: Union[list, None] = Field(
+    components: list | None = Field(
         None,
         title='Components',
         description=''
     )
 
-    weights: Union[list[float], None] = Field(
+    weights: list[float] | None = Field(
         None,
         title='Weights',
         description=''
     )
 
-    limit: Union[float, None] = Field(
+    limit: float | None = Field(
         None,
         title='Limit',
         description=''
     )
 
-    flows: Union[list, dict, None] = Field(
+    flows: list | dict | None = Field(
         None,
         title='Flows',
         description=''
     )
 
-    constraint_name: Union[str, None] = Field(
+    constraint_name: str | None = Field(
         None,
         title='constraint name',
         description=''
     )
 
-    upper_limit: Union[int, None] = Field(
+    upper_limit: int | None = Field(
         None,
         title='Upper Limit',
         description=''
     )
 
-    lower_limit: Union[int, None] = Field(
+    lower_limit: int | None = Field(
         None,
         title='Lower Limit',
         description=''

@@ -38,6 +38,25 @@ extra_javascript:
 nav:
     - 'Home': index.md
     - 'Developer Doc Help': possibilities.md
+    - 'Backend':
+          - 'Home': backend/index.md
+    - 'Ensys':
+          - 'Home': ensys/index.md
+          - 'Common':
+                - 'Konfigurationscontainer': ensys/common/config.md
+                - 'Modelbuilder': ensys/common/modelbuilder.md
+          - 'Components':
+                - 'Energysystem': ensys/components/energysystem.md
+                - 'Bus': ensys/components/bus.md
+                - 'Flow': ensys/components/flow.md
+                - 'Sink': ensys/components/sink.md
+                - 'Source': ensys/components/source.md
+                - 'Storage': ensys/components/storage.md
+                - 'Transformer': ensys/components/transformer.md
+                - 'Investment': ensys/components/investment.md
+                - 'NonConvex': ensys/components/nonconvex.md
+                - 'Release Notes': ensys/release-notes.md
+    - 'About': about.md
 
 theme:
     name: material

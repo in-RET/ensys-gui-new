@@ -3,7 +3,7 @@ from oemof import solph
 from pydantic import Field
 
 
-##  Container which contains the params for an oemof-investment
+## Container which contains the params for an oemof-investment
 #
 #   @param maximum: float = float("+inf")
 #   @param minimum: float = 0.0

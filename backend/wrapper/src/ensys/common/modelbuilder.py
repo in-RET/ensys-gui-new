@@ -2,23 +2,23 @@ import json
 import logging
 import os.path
 import time
-from logging import Logger
 
 import pandas as pd
-from .models.energysystem import EnEnergysystem
-from .models.model import EnModel
-from .common.types import Constraints, Frequencies, Solver
 from oemof import solph, tools
 
+from .types import Constraints, Frequencies, Solver
+from ..components import EnEnergysystem, EnModel
 
-## Init Modelbuilder, load and optimize the configuration.
+
+## Init Modelbuilder, load and optimise the configuration.
 #
-#   @param ConfigFile Path to the Configfile which contains the EnsysConfiguration
+#   @param ConfigFile Path to the Configfile, which contains the EnsysConfiguration
 #   @param DumpFile Path to the Dumpfile where the oemof-energysystem and the results should be stored.
 class ModelBuilder:
     WORKING_DIRECTORY = os.getcwd()
     LOGGING_DIRECTORY = os.path.join(WORKING_DIRECTORY, "logs")
     DUMPING_DIRECTORY = os.path.join(WORKING_DIRECTORY, "dumps")
+    logger = logging.getLogger(__name__)
 
     def __init__(self,
                  ConfigFile: str,
@@ -55,7 +55,7 @@ class ModelBuilder:
             raise Exception("Fileformat is not valid!")
 
         tools.logger.define_logging(logpath=self.LOGGING_DIRECTORY, logfile=logfile, file_level=logging.INFO, screen_level=logging.INFO)
-        Logger.info("Start Building and solving")
+        self.logger.info("Start Building and solving")
 
         if hasattr(model, "solver_kwargs") and model.solver_kwargs is not None:
             cmdline_opts = model.solver_kwargs
@@ -71,7 +71,8 @@ class ModelBuilder:
     #   @param solver Solver to use for optimisation in Pyomo
     #   @param solver_verbose Should the Solver print the output
     def BuildEnergySystem(self, es: EnEnergysystem, file: str, solver: Solver, solver_verbose: bool, cmdline_opts: dict, only_lp: bool):
-        Logger.info("Build an Energysystem from config file.")
+        logging.basicConfig(filename='ensys.log', level=logging.INFO)
+        self.logger.info("Build an Energysystem from config file.")
         filename = os.path.basename(file)
 
         ##########################################################################
@@ -104,7 +105,7 @@ class ModelBuilder:
 
         for attr in vars(es):
             if attr not in except_vars:
-                Logger.info("Build " + attr)
+                self.logger.info("Build " + attr)
 
                 arg_value = getattr(es, attr)
 
@@ -114,7 +115,7 @@ class ModelBuilder:
                     if oemof_obj is not None:
                         oemof_es.add(oemof_obj)
 
-        Logger.info("Build completed.")
+        self.logger.info("Build completed.")
 
         #pre_dump_file = open(os.path.join(self.DUMPING_DIRECTORY, filename.replace(".dump", "_pre-dump.dump")), "wt")
         #json_str = json.dumps(oemof_es.__dict__)
@@ -123,13 +124,13 @@ class ModelBuilder:
         ##########################################################################
         # Initiate the energy system model
         ##########################################################################
-        Logger.info("Initiate the energy system model.")
+        self.logger.info("Initiate the energy system model.")
         model = solph.Model(oemof_es, debug=False)
 
         ##########################################################################
         # Add Constraints to the model
         ##########################################################################
-        Logger.info("Adding constraints to the energy system model.")
+        self.logger.info("Adding constraints to the energy system model.")
         if hasattr(es, "constraints"):
             for constr in es.constraints:
                 kwargs = constr.to_oemof()
@@ -160,12 +161,12 @@ class ModelBuilder:
 
         ### Create Logfile for Solver
         logfile = os.path.join(self.LOGGING_DIRECTORY, filename.replace(".dump", "_solver.log"))
-        Logger.info("Logfile: " + self.LOGGING_DIRECTORY)
+        self.logger.info("Logfile: " + self.LOGGING_DIRECTORY)
 
         ### Store LP files
         lp_filename = os.path.join(self.DUMPING_DIRECTORY, filename.replace(".dump", ".lp"))
 
-        Logger.info("Store lp-file in {0}.".format(lp_filename))
+        self.logger.info("Store lp-file in {0}.".format(lp_filename))
         model.write(lp_filename, io_options={"symbolic_solver_labels": True})
         ### Set Environmental Variables for the solver
         # map kwargs for pyomo.enviroment and later usage
@@ -176,7 +177,7 @@ class ModelBuilder:
             ##########################################################################
             # solving...
             ##########################################################################
-            Logger.info("Solve the optimization problem.")
+            self.logger.info("Solve the optimization problem.")
 
             t_start = time.time()
             model.solve(solver=solver.value,
@@ -185,8 +186,8 @@ class ModelBuilder:
 
             t_end = time.time()
 
-            Logger.info("Completed after " + str(round(t_end - t_start, 2)) + " seconds.")
-            Logger.info("Store the energy system with the results.")
+            self.logger.info("Completed after " + str(round(t_end - t_start, 2)) + " seconds.")
+            self.logger.info("Store the energy system with the results.")
 
             ##########################################################################
             # The processing module of the outputlib can be used to extract the results
@@ -196,7 +197,7 @@ class ModelBuilder:
             oemof_es.results["meta"] = solph.processing.meta_results(model)
             oemof_es.results["df"] = solph.processing.create_dataframe(model)
 
-            Logger.info("Dump file with results to: " + os.path.join(self.DUMPING_DIRECTORY, filename))
+            self.logger.info("Dump file with results to: " + os.path.join(self.DUMPING_DIRECTORY, filename))
 
             oemof_es.dump(dpath=self.DUMPING_DIRECTORY, filename=filename)
-            Logger.info("Fin.")
+            self.logger.info("Fin.")

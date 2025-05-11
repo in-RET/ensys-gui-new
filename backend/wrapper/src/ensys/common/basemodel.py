@@ -1,5 +1,3 @@
-from typing import Dict
-
 from oemof import solph
 from pydantic import BaseModel, model_validator, Field
 
@@ -24,10 +22,10 @@ class EnBaseModel(BaseModel):
 
     ## pydantic subclass to add special configurations.
     class Config:
-        ## Allow arbitrary_types like pandas.DataFrames / pandas.Series which are not allow by default.
+        ## Allow arbitrary_types like pandas.DataFrames / pandas.Series which are not allowed by default.
         #arbitrary_types_allowed = True
 
-        ## Without this configuration its impossible to pass extra **kwargs to pydantic.baseModel-Objects.
+        ## Without this configuration it's impossible to pass extra **kwargs to pydantic.baseModel-Objects.
         extra = 'allow'
 
     ## Build a dict of arguments for the init of the oemof objects.
@@ -35,7 +33,7 @@ class EnBaseModel(BaseModel):
     #   @return Dictionary with all variables of the given object.
     #   @param self The Object pointer
     #   @param energysystem Oemof-Energysystem
-    def build_kwargs(self, energysystem: solph.EnergySystem) -> Dict[str, dict]:
+    def build_kwargs(self, energysystem: solph.EnergySystem) -> dict[str, dict]:
         kwargs = {}
         special_keys = ["inputs", "outputs", "conversion_factors"]
 

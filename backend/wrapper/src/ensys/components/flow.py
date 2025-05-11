@@ -1,10 +1,8 @@
-from typing import Sequence, Union
-
 from ..common.basemodel import EnBaseModel
 from .investment import EnInvestment
 from .nonconvex import EnNonConvex
 from oemof import solph
-from pydantic import Field, BaseModel
+from pydantic import Field
 
 
 ## Container which contains the params for an oemof-flow
@@ -22,7 +20,7 @@ from pydantic import Field, BaseModel
 #   @param nonconvex Ensys-NonConvex-Object, if the Flow should be nonconvex. Non possible if the flow is an Investmentflow.
 #   @param custom_attributes Keyword-Arguments for special Keywords, used by constraints.
 class EnFlow(EnBaseModel):
-    nominal_value: Union[float, None] = Field(
+    nominal_value: float | None = Field(
         None,
         title='Nominal Value',
         description='The nominal value of the flow. If this value is set the corresponding optimization variable of '
@@ -30,7 +28,7 @@ class EnFlow(EnBaseModel):
     )
 
     # numeric or sequence or None
-    fix: Union[float, Sequence[float], None] = Field(
+    fix: float | list[float] | None = Field(
         None,
         title='Fix',
         description='Normed fixed value for the flow variable. '
@@ -38,57 +36,57 @@ class EnFlow(EnBaseModel):
     )
 
     # numeric or sequence
-    min: Union[float, Sequence[float], None] = Field(
+    min: float | list[float] | None = Field(
         None,
         title='Minimum',
         description=''
     )
 
     # numeric or sequence
-    max: Union[float, Sequence[float], None] = Field(
+    max: float | list[float] | None = Field(
         None,
         title='Maximum',
         description=''
     )
 
-    positive_gradient: Union[dict, None] = Field(
+    positive_gradient: dict | None = Field(
         None,
         title='Positive Gradient',
         description=''
     )
-    negative_gradient: Union[dict, None] = Field(
+    negative_gradient: dict | None = Field(
         None,
         title='Negative Gradient',
         description=''
     )
 
-    summed_max: Union[float, None] = Field(
+    summed_max: float | None = Field(
         None,
         title='Summed Maximum',
         description='Specific maximum value summed over all timesteps. '
                     'Will be multiplied with the nominal_value to get the absolute limit.'
     )
 
-    summed_min: Union[float, None] = Field(
+    summed_min: float | None = Field(
         None,
         title='Summed Minimum',
         description='Specific minimum value summed over all timesteps. '
                     'Will be multiplied with the nominal_value to get the absolute limit.'
     )
 
-    variable_costs: Union[float, Sequence[float], None] = Field(
+    variable_costs: float | list[float] | None = Field(
         None,
         title='Variable Costs',
         description='The costs associated with one unit of the flow.'
     )
 
-    investment: Union[EnInvestment, None] = Field(
+    investment: EnInvestment | None = Field(
         None,
         title='Investment',
         description='Object indicating if a nominal_value of the flow is determined by the optimization problem.'
     )
 
-    nonconvex: Union[EnNonConvex, None] = Field(
+    nonconvex: EnNonConvex | None = Field(
         None,
         title='Nonconvex',
         description='If a nonconvex flow object is added here, the flow constraints will be altered significantly as '
@@ -96,7 +94,7 @@ class EnFlow(EnBaseModel):
                     'will be used instead of Flow. '
     )
 
-    custom_attributes: Union[dict, None] = Field(
+    custom_attributes: dict | None = Field(
         None,
         title="Custom Attributes",
         description="Custom Attributes as dictionary for custom investment limits."

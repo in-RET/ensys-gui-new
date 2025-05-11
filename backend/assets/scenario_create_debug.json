@@ -1,6 +1,6 @@
 {
     "name": "My First Scenario",
-    "timestep": "1H",
+    "timestep": "1h",
     "period": 365,
     "simulation_year": 2024,
     "user_mode": "Novice",
@@ -8,7 +8,7 @@
     "energysystem_model": {
         "components": [
             {
-                "label": "coal",
+                "label": "bcoal",
                 "oemof_type": "bus",
                 "data": {
                     "balanced": false
@@ -17,7 +17,7 @@
                 "outputs": []
             },
             {
-                "label": "gas",
+                "label": "bgas",
                 "oemof_type": "bus",
                 "data": {
                     "balanced": false
@@ -26,7 +26,7 @@
                 "outputs": []
             },
             {
-                "label": "oil",
+                "label": "boil",
                 "oemof_type": "bus",
                 "data": {
                     "balanced": false
@@ -35,7 +35,7 @@
                 "outputs": []
             },
             {
-                "label": "lignite",
+                "label": "blig",
                 "oemof_type": "bus",
                 "data": {
                     "balanced": false

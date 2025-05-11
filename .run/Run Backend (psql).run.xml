@@ -6,7 +6,7 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
-      <env name="DB_LINK" value="postgresql://ensys_pg:ensys_pg@localhost:5432/ensys" />
+      <env name="DATABASE_URL" value="postgresql://ensys_pg:ensys_pg@localhost:5432/ensys" />
       <env name="SECRET_TOKEN" value="DiesIstEinGanzSchlechtesSecretUndMussGeandertWerden" />
     </envs>
     <option name="SDK_HOME" value="" />
@@ -17,7 +17,7 @@
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="launchJavascriptDebuger" value="false" />
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Migrate Database (Development)" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="false" run_configuration_name="Migrate Database (Development)" run_configuration_type="PythonConfigurationType" />
     </method>
   </configuration>
 </component>
