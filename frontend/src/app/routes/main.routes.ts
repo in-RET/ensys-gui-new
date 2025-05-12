@@ -58,7 +58,7 @@ export const routes: Routes = [
 
             {
                 path: 'scenario',
-                // canMatch: [AuthGuard],
+                canMatch: [AuthGuard],
                 loadComponent: () =>
                     import(
                         '../components/scenario/scenario-base/scenario-base.component'

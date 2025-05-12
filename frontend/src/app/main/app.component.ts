@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterOutlet } from '@angular/router';
+import { AuthCoreService } from '../core/auth/auth.service';
 
 @Component({
     selector: 'app-root',
@@ -8,5 +9,14 @@ import { RouterOutlet } from '@angular/router';
     styleUrl: './app.component.scss',
 })
 export class AppComponent {
-    title = 'RET-EnSys-GUI-Angular';
+    title = 'RET-EnSys-GUI';
+
+    authCoreService = inject(AuthCoreService);
+    router = inject(Router);
+
+    ngOnInit() {
+        this.authCoreService.currentToken.subscribe((res) => {
+            res ? false : this.router.navigate(['auth/login']);
+        });
+    }
 }

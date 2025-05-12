@@ -23,10 +23,15 @@ export class ProjectExploreComponent {
     getProjects() {
         this.projectService
             .getProjects()
-            .pipe(map((res: any) => (res = res.data.projects)))
+            .pipe(
+                map((res: any) => {
+                    if (res && res.data) res = res.data;
+                    return res;
+                })
+            )
             .subscribe({
                 next: (value) => {
-                    this.project_list = value;
+                    this.project_list = value.items;
                 },
 
                 error: (err) => {

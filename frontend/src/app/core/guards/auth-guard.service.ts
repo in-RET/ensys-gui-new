@@ -10,7 +10,7 @@ export const AuthGuard = (route: Route) => {
         return true;
     } else {
         const router = inject(Router);
-        router.navigate(['./auth/login'], { skipLocationChange: true });
+        router.navigate(['./auth/login']);
         return false;
     }
 };

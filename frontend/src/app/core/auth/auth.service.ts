@@ -1,8 +1,6 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { BaseHttpService } from '../base-http/base-http.service';
 const ACCESS_TOKEN = 'access_token';
 const REFRESH_TOKEN = 'refresh_token';
 
@@ -10,12 +8,11 @@ const REFRESH_TOKEN = 'refresh_token';
 export class AuthCoreService {
     public redirectUrl: string | null = null;
 
-    private readonly _token = new BehaviorSubject<string | undefined>(
+    private readonly _token = new BehaviorSubject<string | undefined | null>(
         undefined
     );
-    currentToken: Observable<string | undefined> = this._token.asObservable();
-
-    constructor(private httpService: BaseHttpService, private router: Router) {}
+    currentToken: Observable<string | undefined | null> =
+        this._token.asObservable();
 
     /** Return token if exists */
     public getAuthorizationToken(): string {
@@ -36,7 +33,7 @@ export class AuthCoreService {
         return localStorageToken;
     }
 
-    getToken(): string | undefined {
+    getToken(): string | undefined | null {
         return this._token.getValue();
     }
 
@@ -44,16 +41,24 @@ export class AuthCoreService {
         return localStorage.getItem(REFRESH_TOKEN)!;
     }
 
-    removeRefreshToken(): void {
+    removeRefreshToken() {
         localStorage.removeItem(REFRESH_TOKEN);
     }
 
-    saveTokenToStorage(token: any): void {
+    saveTokenToStorage(token: any) {
         localStorage.setItem(ACCESS_TOKEN, token);
     }
 
-    saveToken(token: any): void {
+    saveToken(token: any) {
         this._token.next(token);
+    }
+
+    removeTokenToStorage() {
+        localStorage.removeItem(ACCESS_TOKEN);
+    }
+
+    removeToken() {
+        this._token.next(undefined);
     }
 
     refreshToken(refreshData: any): Observable<any> {
@@ -74,14 +79,5 @@ export class AuthCoreService {
             if (value) return value;
             return pair[0] === name ? decodeURIComponent(pair[1]) : null;
         }, null);
-    }
-
-    removeToken(): void {
-        localStorage.removeItem(ACCESS_TOKEN);
-    }
-
-    navigateToHome() {
-        this.router.initialNavigation();
-        this.router.navigate(['manageOrganization/organization/list']);
     }
 }

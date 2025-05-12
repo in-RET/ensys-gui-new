@@ -22,8 +22,6 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
-                <!-- {% if user.is_authenticated %} -->
-
                 <ng-container *ngIf="is_signup_mode">
                     <!--During scenario creation the nav bar does not display all options-->
                     <!-- {% if not scenario_create %} -->
@@ -44,9 +42,7 @@
                     </ng-container>
                     <!-- {% endif %} -->
                 </ng-container>
-                <!-- {% endif %} -->
 
-                <!-- {% if user.is_authenticated %} -->
                 <!-- user profile -->
                 <ng-container *ngIf="user.is_authenticated">
                     <li class="nav-item dropdown profile">
@@ -97,7 +93,7 @@
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="auth/logout">
+                                <a class="dropdown-item" (click)="logout()">
                                     Log Out
                                 </a>
                             </li>
@@ -105,7 +101,6 @@
                     </li>
                 </ng-container>
 
-                <!-- {% else %} -->
                 <ng-container *ngIf="!user.is_authenticated">
                     <li class="nav-item">
                         <!-- pages/projects-view-empty.html -->
@@ -123,12 +118,7 @@
                             Sign Up
                         </a>
                     </li>
-
-                    <li>
-                        <a class="dropdown-item" href="projects"> --- </a>
-                    </li>
                 </ng-container>
-                <!-- {% endif %} -->
             </ul>
         </div>
     </div>

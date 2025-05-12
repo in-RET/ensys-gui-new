@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { AuthService } from '../../../components/auth/services/auth.service';
 import { AuthCoreService } from '../../auth/auth.service';
 @Component({
     selector: 'app-navbar',
@@ -17,11 +18,16 @@ export class NavbarComponent {
 
     navbar_class: string = ''; //'navbar--signup' | 'navbar--scenario' ;
 
-    authService = inject(AuthCoreService);
+    authCoreService = inject(AuthCoreService);
+    authService = inject(AuthService);
 
     ngOnInit() {
-        this.authService.currentToken.subscribe((res) =>
-            res ? (this.user.is_authenticated = true) : false
-        );
+        this.authCoreService.currentToken.subscribe((res) => {
+            this.user.is_authenticated = res ? true : false;
+        });
+    }
+
+    logout() {
+        this.authService.logOut();
     }
 }

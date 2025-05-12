@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { AuthCoreService } from '../../../core/auth/auth.service';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
 @Injectable({
@@ -8,7 +9,10 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
 export class AuthService {
     private baseUrl: string = 'http://localhost:9006/user/auth/';
 
-    constructor(private baseHttp: BaseHttpService) {}
+    constructor(
+        private baseHttp: BaseHttpService,
+        private authCoreService: AuthCoreService
+    ) {}
 
     logIn(username: string, password: string): Observable<any> {
         let formData: FormData = new FormData();
@@ -16,6 +20,12 @@ export class AuthService {
         formData.append('password', password);
 
         return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
+    }
+
+    logOut() {
+        // clear authorizition data
+        this.authCoreService.removeTokenToStorage();
+        this.authCoreService.removeToken();
     }
 
     signup(

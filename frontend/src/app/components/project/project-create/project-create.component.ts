@@ -105,8 +105,8 @@ export class ProjectCreateComponent {
                 });
 
                 this.loadProject(this.route.snapshot.params['id']);
-            } else this.initMap(49.45, 13.89);
-        }
+            }
+        } else this.initMap(49.45, 13.89);
     }
 
     initMap(lat: any, lang: any) {
