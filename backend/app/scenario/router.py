@@ -104,7 +104,10 @@ async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_s
         response_data.append(scenario.model_dump())
 
     return CustomResponse(
-        data=response_data,
+        data={
+            "items": response_data,
+            "totalCount": len(response_data)
+        },
         success=True
     )
 

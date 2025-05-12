@@ -91,7 +91,10 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
         response_data.append(project.get_return_data())
 
     return CustomResponse(
-        data=response_data,
+        data={
+            "items": response_data,
+            "totalCount": len(response_data)
+        },
         success=True,
         errors=None
     )

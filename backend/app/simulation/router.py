@@ -164,7 +164,7 @@ async def start_simulation(scenario_id: int, token: Annotated[str, Depends(oauth
 
     return CustomResponse(
         data={
-            "message": "Simulation started. But only for deployment! Not implemented yet.",
+            "message": "Simulation started.",
             "simulation": simulation
         },
         success=True
@@ -193,7 +193,7 @@ async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2
 
     return CustomResponse(
         data={
-            "message": "Simulation stopped. But only for deployment! Not implemented yet.",
+            "message": "Simulation stopped.",
             "simulation": simulations
         },
         success=True
@@ -231,8 +231,7 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     # TODO: Simulationsenden abdecken!
     if simulation.status != "Finished":
         return CustomResponse(
-            data={"status": simulation.status,
-                  "start_date": simulation.start_date},
+            data=simulation.model_dump_json,
             success=False,
             errors=[ErrorModel(
                 message="Simulation not finished yet!",
@@ -242,11 +241,7 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     else:
         # TODO: Daten zurück geben --> Wie?
         return CustomResponse(
-            data={
-                "simulation_token": simulation.sim_token,
-                "start_date": simulation.start_date,
-                "end_date": simulation.end_date
-            },
+            data=simulation.model_dump_json(),
             success=True
         )
 

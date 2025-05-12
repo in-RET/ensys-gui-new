@@ -24,7 +24,7 @@ class EnProjectDB(EnProject, table=True):
     date_updated: datetime | None = Field(default=None)
 
     def get_return_data(self):
-        return self.dict(exclude={"user_id", "date_created", "date_updated"})
+        return self.dict(exclude={"user_id"})
 
 class EnProjectUpdate(EnProject):
     name: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
