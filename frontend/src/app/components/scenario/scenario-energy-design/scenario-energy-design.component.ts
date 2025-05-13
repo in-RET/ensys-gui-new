@@ -794,4 +794,8 @@ export class ScenarioEnergyDesignComponent {
             this.setFormError(true, ' * Complete the form!');
         }
     }
+
+    getData() {
+        return this.energyDrawflowComponent.getData();
+    }
 }

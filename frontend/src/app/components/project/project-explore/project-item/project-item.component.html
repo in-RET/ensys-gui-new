@@ -71,29 +71,15 @@
         </div>
 
         <div class="project__scenarios">
-            <button
-                class="btn btn--action action"
-                type="button"
-                [routerLink]="[
-                    '../../scenario',
-                    { p_id: project.id, p_name: project.name }
-                ]"
-                *ngIf="!project.scenarioList || !project.scenarioList.length"
-            >
-                New Scenario
-            </button>
-
-            <div
-                class="toggle"
-                *ngIf="project.scenarioList && project.scenarioList.length"
-            >
+            <div class="toggle d-flex gap-2">
                 <button
-                    class="btn btn--action"
+                    class="btn btn--action border p-2"
                     type="button"
                     data-bs-toggle="collapse"
                     data-bs-target="#scenario_list"
                     aria-expanded="false"
                     aria-controls="scenario_list"
+                    *ngIf="project.scenarioList && project.scenarioList.length"
                 >
                     <span
                         class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
@@ -103,11 +89,22 @@
 
                     <span class="js-toggle-scenario-name">Show scenarios</span>
                 </button>
+
+                <button
+                    class="btn btn--action action border p-2"
+                    type="button"
+                    [routerLink]="[
+                        '../../scenario',
+                        { p_id: project.id, p_name: project.name }
+                    ]"
+                >
+                    New Scenario
+                </button>
             </div>
 
             <div class="collapse" id="scenario_list">
                 <div class="card card-body">
-                    <ul class="list-group">
+                    <ul class="list-group border">
                         <li
                             class="list-group-item"
                             *ngFor="let scenario of project.scenarioList"

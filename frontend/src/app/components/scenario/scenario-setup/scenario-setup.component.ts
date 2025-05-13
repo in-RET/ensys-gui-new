@@ -99,8 +99,6 @@ export class ScenarioSetupComponent {
                     sDate,
                     simulationYear,
                 });
-
-                console.log(currentData);
             }
         }
     }

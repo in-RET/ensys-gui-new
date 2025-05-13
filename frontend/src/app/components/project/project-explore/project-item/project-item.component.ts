@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { map } from 'rxjs';
 import Swal from 'sweetalert2';
-import { ProjectService } from '../../services/project.service';
-import { ScenarioService } from '../../services/scenario.service';
+import { ScenarioService } from '../../../scenario/services/scenario.service';
 import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
@@ -19,10 +19,7 @@ export class ProjectItemComponent {
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
 
-    constructor(
-        private projectService: ProjectService,
-        private scenarioService: ScenarioService
-    ) {}
+    constructor(private scenarioService: ScenarioService) {}
 
     ngOnInit() {
         this.getScenarios(this.project.id);
@@ -48,13 +45,20 @@ export class ProjectItemComponent {
     }
 
     getScenarios(projectId: number) {
-        this.scenarioService.getScenarios(projectId).subscribe({
-            next: (value) => {
-                this.scenarioList = value;
-            },
-            error(err) {
-                console.error(err);
-            },
-        });
+        this.scenarioService
+            .getScenarios(projectId)
+            .pipe(
+                map((res) => {
+                    if (res && res.success) return res.data.items;
+                })
+            )
+            .subscribe({
+                next: (value) => {
+                    this.project.scenarioList = value;
+                },
+                error(err) {
+                    console.error(err);
+                },
+            });
     }
 }

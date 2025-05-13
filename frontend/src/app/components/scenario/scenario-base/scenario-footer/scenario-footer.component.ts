@@ -12,6 +12,7 @@ export class ScenarioFooterComponent {
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();
+    @Output() saveScenario: EventEmitter<any> = new EventEmitter<any>();
 
     next() {
         this.nextStep.emit();
@@ -19,5 +20,9 @@ export class ScenarioFooterComponent {
 
     previous() {
         this.prevtStep.emit();
+    }
+
+    save() {
+        this.saveScenario.emit();
     }
 }

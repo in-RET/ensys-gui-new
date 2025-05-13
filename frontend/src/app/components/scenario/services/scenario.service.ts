@@ -16,4 +16,8 @@ export class ScenarioService {
     getScenarios(projectId: number) {
         return this.baseHttp.get(`${this.baseUrl}s/${projectId}`);
     }
+
+    createScenario(data: any) {
+        return this.baseHttp.post(`${this.baseUrl}`, data);
+    }
 }

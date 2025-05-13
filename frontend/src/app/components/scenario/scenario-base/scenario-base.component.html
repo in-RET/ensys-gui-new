@@ -3,11 +3,12 @@
 
     <app-scenario-setup [hidden]="currentStep != 0" #setup />
 
-    <app-scenario-energy-design [hidden]="currentStep != 1" #drawflow />
+    <app-scenario-energy-design [hidden]="currentStep != 1" #sed />
 
     <app-scenario-footer
         [step]="currentStep"
         (nextStep)="nextStep()"
         (prevtStep)="prevtStep()"
+        (saveScenario)="saveScenario()"
     />
 </div>

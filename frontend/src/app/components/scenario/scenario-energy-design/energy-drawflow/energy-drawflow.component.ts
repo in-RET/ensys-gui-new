@@ -363,6 +363,7 @@ export class EnergyDrawflowComponent {
     }
 
     getData() {
-        console.log(this.editor.export());
+        const drawflowData = this.editor.export().drawflow.Home.data;
+        return drawflowData;
     }
 }
