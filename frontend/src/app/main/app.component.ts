@@ -16,7 +16,9 @@ export class AppComponent {
 
     ngOnInit() {
         this.authCoreService.currentToken.subscribe((res) => {
-            res ? false : this.router.navigate(['auth/login']);
+            res || res === undefined
+                ? false
+                : this.router.navigate(['auth/login']);
         });
     }
 }

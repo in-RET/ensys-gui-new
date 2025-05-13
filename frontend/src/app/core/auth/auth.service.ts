@@ -58,7 +58,7 @@ export class AuthCoreService {
     }
 
     removeToken() {
-        this._token.next(undefined);
+        this._token.next(null);
     }
 
     refreshToken(refreshData: any): Observable<any> {
