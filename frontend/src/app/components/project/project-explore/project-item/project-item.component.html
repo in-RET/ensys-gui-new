@@ -14,18 +14,10 @@
         <div class="project__details">
             <div class="details">
                 <div class="detail">
-                    <span class="detail__property"> Created</span>
+                    <span class="detail__property">Created</span>
 
                     <span class="detail__value">
-                        {{ project.date_created || "{not defined}" }}
-                    </span>
-                </div>
-
-                <div class="detail">
-                    <span class="detail__property">Lifetime</span>
-
-                    <span class="detail__value">
-                        {{ project.duration || "{not defined}" }} years
+                        {{ project.date_created || "{not defined}" | date }}
                     </span>
                 </div>
             </div>
