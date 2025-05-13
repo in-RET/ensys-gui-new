@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -7,6 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -20,19 +21,17 @@ export class ScenarioSetupComponent {
         simulationPeriod: new FormControl('', [Validators.required]),
         timeStep: new FormControl('', [Validators.required]),
         sDate: new FormControl(null, [Validators.required]),
-        interestRate: new FormControl(null, [Validators.required]),
-        userMode: new FormControl('', [Validators.required]),
         simulationYear: new FormControl('', [Validators.required]),
 
-        minimal_renewable_factor_active: new FormControl(true),
-        minimal_renewable_factor: new FormControl(
-            { value: null, disabled: false },
-            [Validators.required]
-        ),
-        maximum_emissions_active: new FormControl(true),
-        maximum_emissions: new FormControl({ value: null, disabled: false }, [
-            Validators.required,
-        ]),
+        // minimal_renewable_factor_active: new FormControl(true),
+        // minimal_renewable_factor: new FormControl(
+        //     { value: null, disabled: false },
+        //     [Validators.required]
+        // ),
+        // maximum_emissions_active: new FormControl(true),
+        // maximum_emissions: new FormControl({ value: null, disabled: false }, [
+        //     Validators.required,
+        // ]),
     });
 
     get name() {
@@ -49,14 +48,6 @@ export class ScenarioSetupComponent {
 
     get sDate() {
         return this.form.get('sDate');
-    }
-
-    get interestRate() {
-        return this.form.get('interestRate');
-    }
-
-    get userMode() {
-        return this.form.get('userMode');
     }
 
     get simulationYear() {
@@ -77,5 +68,45 @@ export class ScenarioSetupComponent {
 
     get maximum_emissions() {
         return this.form.get('maximum_emissions');
+    }
+
+    private readonly route = inject(ActivatedRoute);
+
+    ngOnInit() {
+        let currentData: any = localStorage.getItem(`scenario-step-0`);
+
+        if (
+            currentData &&
+            currentData.trim() !== '' &&
+            currentData !== null &&
+            currentData !== undefined
+        ) {
+            currentData = JSON.parse(currentData);
+            const p_id = this.route.snapshot.paramMap.get('p_id');
+
+            if (p_id && currentData.projectId === +p_id) {
+                let {
+                    name,
+                    simulationPeriod,
+                    timeStep,
+                    sDate,
+                    simulationYear,
+                } = currentData;
+                this.form.patchValue({
+                    name,
+                    simulationPeriod,
+                    timeStep,
+                    sDate,
+                    simulationYear,
+                });
+
+                console.log(currentData);
+            }
+        }
+    }
+
+    getData() {
+        this.form.markAllAsTouched();
+        return this.form.valid ? this.form.getRawValue() : false;
     }
 }

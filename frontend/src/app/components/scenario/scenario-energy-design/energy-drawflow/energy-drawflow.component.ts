@@ -361,4 +361,8 @@ export class EnergyDrawflowComponent {
             this.setFormError(true, ' * Complete the form!');
         }
     }
+
+    getData() {
+        console.log(this.editor.export());
+    }
 }

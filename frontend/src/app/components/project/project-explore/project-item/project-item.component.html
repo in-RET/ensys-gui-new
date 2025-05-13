@@ -74,7 +74,10 @@
             <button
                 class="btn btn--action action"
                 type="button"
-                [routerLink]="['../../scenario']"
+                [routerLink]="[
+                    '../../scenario',
+                    { p_id: project.id, p_name: project.name }
+                ]"
                 *ngIf="!project.scenarioList || !project.scenarioList.length"
             >
                 New Scenario

@@ -9,13 +9,23 @@ import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.
     styleUrl: './energy-components.component.scss',
 })
 export class EnergyComponentsComponent {
-    project: any = { name: 'A' };
-    scenario: any = { name: 'A' };
+    project: any = {};
+    scenario: any = {};
 
     @Input() components: any;
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
         new EventEmitter();
+
+    ngOnInit() {
+        let initalData: any = localStorage.getItem('scenario-step-0');
+
+        if (initalData) {
+            initalData = JSON.parse(initalData);
+            this.project['name'] = initalData.projectName;
+            this.scenario['name'] = initalData.name;
+        }
+    }
 
     onClearGridModel() {
         this.clearGridModel.emit();

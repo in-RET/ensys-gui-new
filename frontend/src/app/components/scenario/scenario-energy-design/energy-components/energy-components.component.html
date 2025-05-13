@@ -5,11 +5,11 @@
     >
         <div class="components__title">
             <span
-                >Project: <b> {{ project.name }}</b></span
+                >Project: <b> {{ project?.name || "" }}</b></span
             >
 
             <span>
-                Scenario: <b>{{ scenario.name }}</b></span
+                Scenario: <b>{{ scenario?.name || "" }}</b></span
             >
         </div>
 

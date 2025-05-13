@@ -1,7 +1,7 @@
 <div class="scenario-main">
     <form [formGroup]="form">
         <div class="row g-2">
-            <div class="col-3">
+            <div class="col">
                 <div class="form-floating mb-3">
                     <input
                         type="text"
@@ -19,7 +19,7 @@
             </div>
 
             <!-- datepiocker -->
-            <div class="col-3">
+            <div class="col">
                 <div class="form-floating mb-3">
                     <input
                         type="date"
@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col">
                 <div class="form-floating mb-3">
                     <input
                         type="number"
@@ -56,7 +56,7 @@
                 </div>
             </div>
 
-            <div class="col-2">
+            <div class="col">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -74,47 +74,8 @@
                     <label>Time Step</label>
                 </div>
             </div>
-        </div>
 
-        <div class="row g-2">
-            <div class="col-2">
-                <div class="form-floating mb-3">
-                    <input
-                        type="number"
-                        class="form-control"
-                        formControlName="interestRate"
-                        placeholder="Interest Rate"
-                        required
-                        [ngClass]="{
-                            'is-invalid':
-                                interestRate!.invalid &&
-                                (interestRate!.dirty || interestRate!.touched)
-                        }"
-                    />
-                    <label>Interest Rate</label>
-                </div>
-            </div>
-
-            <div class="col-3">
-                <div class="form-floating mb-3">
-                    <select
-                        class="form-select"
-                        formControlName="userMode"
-                        [ngClass]="{
-                            'is-invalid':
-                                userMode!.invalid &&
-                                (userMode!.dirty || userMode!.touched)
-                        }"
-                    >
-                        <option selected disabled value="">Choose...</option>
-                        <option value="1">Default User</option>
-                        <option value="1">Expert</option>
-                    </select>
-                    <label>User mode</label>
-                </div>
-            </div>
-
-            <div class="col-3">
+            <div class="col">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -135,88 +96,92 @@
             </div>
         </div>
 
-        <hr />
+        <div class="row g-2"></div>
 
-        <h4>Constraints</h4>
+        <section style="display: none">
+            <!-- <hr />
+            <h4>Constraints</h4>
 
-        <div class="math_wrapper">
-            <p>
-                'Bilanziell erneuerbar'/Bilanzielle Autarkie [MWh] (factor) -
+            <div class="math_wrapper">
+                <p>
+                    'Bilanziell erneuerbar'/Bilanzielle Autarkie [MWh] (factor)
+                    -
 
-                <img
-                    src="/static/assets/illustrations/bilanziellErneuerbar.svg"
-                /><br />
-            </p>
-        </div>
-
-        <div class="row g-2">
-            <div class="col-3">
-                <div class="form-check form-switch">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        role="switch"
-                        formControlName="minimal_renewable_factor_active"
-                        (change)="
-                            minimal_renewable_factor_active?.value
-                                ? minimal_renewable_factor?.enable()
-                                : minimal_renewable_factor?.disable()
-                        "
-                    />
-                    <label for="">X</label>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input
-                        type="number"
-                        class="form-control"
-                        formControlName="minimal_renewable_factor"
-                        placeholder="Value"
-                        required
-                        [ngClass]="{
-                            'is-invalid':
-                                minimal_renewable_factor!.invalid &&
-                                (minimal_renewable_factor!.dirty ||
-                                    minimal_renewable_factor!.touched)
-                        }"
-                    />
-                    <label>Value</label>
-                </div>
+                    <img
+                        src="/static/assets/illustrations/bilanziellErneuerbar.svg"
+                    /><br />
+                </p>
             </div>
 
-            <div class="col-4">
-                <div class="form-check form-switch">
-                    <input
-                        class="form-check-input"
-                        type="checkbox"
-                        role="switch"
-                        formControlName="maximum_emissions_active"
-                        (change)="
-                            maximum_emissions_active?.value
-                                ? maximum_emissions?.enable()
-                                : maximum_emissions?.disable()
-                        "
-                    />
-                    <label for="">Maximal CO2 emissions (kgCO2eq/a) </label>
+            <div class="row g-2">
+                <div class="col-3">
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            formControlName="minimal_renewable_factor_active"
+                            (change)="
+                                minimal_renewable_factor_active?.value
+                                    ? minimal_renewable_factor?.enable()
+                                    : minimal_renewable_factor?.disable()
+                            "
+                        />
+                        <label for="">X</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            formControlName="minimal_renewable_factor"
+                            placeholder="Value"
+                            required
+                            [ngClass]="{
+                                'is-invalid':
+                                    minimal_renewable_factor!.invalid &&
+                                    (minimal_renewable_factor!.dirty ||
+                                        minimal_renewable_factor!.touched)
+                            }"
+                        />
+                        <label>Value</label>
+                    </div>
                 </div>
 
-                <div class="form-floating mb-3">
-                    <input
-                        type="number"
-                        class="form-control"
-                        formControlName="maximum_emissions"
-                        placeholder="Value"
-                        required
-                        [ngClass]="{
-                            'is-invalid':
-                                maximum_emissions!.invalid &&
-                                (maximum_emissions!.dirty ||
-                                    maximum_emissions!.touched)
-                        }"
-                    />
-                    <label>Value</label>
+                <div class="col-4">
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            formControlName="maximum_emissions_active"
+                            (change)="
+                                maximum_emissions_active?.value
+                                    ? maximum_emissions?.enable()
+                                    : maximum_emissions?.disable()
+                            "
+                        />
+                        <label for="">Maximal CO2 emissions (kgCO2eq/a) </label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            formControlName="maximum_emissions"
+                            placeholder="Value"
+                            required
+                            [ngClass]="{
+                                'is-invalid':
+                                    maximum_emissions!.invalid &&
+                                    (maximum_emissions!.dirty ||
+                                        maximum_emissions!.touched)
+                            }"
+                        />
+                        <label>Value</label>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div> -->
+        </section>
     </form>
 </div>
