@@ -1,7 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="/">
-            <!-- {% url 'project_search' %} -->
+        <a
+            class="navbar-brand"
+            [routerLink]="user.is_authenticated ? ['projects'] : ['']"
+        >
             <img
                 src="/static/assets/logos/ensys_logo_full.svg"
                 alt="ensys_logo_full"
@@ -75,13 +77,13 @@
                                 <a class="dropdown-item" href="license/"> - </a>
                             </li> -->
 
-                            <li>
+                            <li style="display: none">
                                 <a class="dropdown-item" href="user_feedback">
                                     Feedback
                                 </a>
                             </li>
 
-                            <li>
+                            <li style="display: none">
                                 <a class="dropdown-item" href="user_info/">
                                     Account
                                 </a>
@@ -90,6 +92,15 @@
 
                             <li>
                                 <hr class="dropdown-divider" />
+                            </li>
+
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    [routerLink]="['projects']"
+                                >
+                                    Projects
+                                </a>
                             </li>
 
                             <li>
