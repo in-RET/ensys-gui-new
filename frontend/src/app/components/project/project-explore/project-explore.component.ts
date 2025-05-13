@@ -39,4 +39,18 @@ export class ProjectExploreComponent {
                 },
             });
     }
+
+    deleteProject(id: number) {
+        this.projectService.deleteProject(id).subscribe({
+            next: (value) => {
+                if (value.success) {
+                    this.project_list.splice(
+                        this.project_list.findIndex((x) => x.id == id),
+                        1
+                    );
+                }
+            },
+            error(err) {},
+        });
+    }
 }

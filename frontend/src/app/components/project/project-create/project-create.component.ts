@@ -21,7 +21,7 @@ import { ProjectService } from '../services/project.service';
 })
 export class ProjectCreateComponent {
     form: FormGroup = new FormGroup({
-        id: new FormControl(null, [Validators.required]),
+        id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
         country: new FormControl('', [Validators.required]),
         description: new FormControl(null, [Validators.required]),
@@ -189,7 +189,7 @@ export class ProjectCreateComponent {
     getProjectData(id: number): Observable<any> {
         return this.projectService
             .getProject(id)
-            .pipe(map((res: any) => (res = res.data.projects)));
+            .pipe(map((res: any) => (res = res.data)));
     }
 
     loadProject(id: number) {

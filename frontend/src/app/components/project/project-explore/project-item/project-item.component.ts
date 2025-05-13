@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 import { ProjectService } from '../../services/project.service';
@@ -16,6 +16,8 @@ export class ProjectItemComponent {
     scenarioList!: any[];
 
     @Input() project: any;
+
+    @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
         private projectService: ProjectService,
@@ -36,15 +38,13 @@ export class ProjectItemComponent {
             cancelButtonText: 'Cancel',
         }).then((result) => {
             if (result.isConfirmed) {
+                this._deleteProject(id);
             }
         });
     }
 
-    deleteProject(id: number) {
-        this.projectService.deleteProject(id).subscribe({
-            next(value) {},
-            error(err) {},
-        });
+    _deleteProject(id: number) {
+        this.deleteProject.emit(id);
     }
 
     getScenarios(projectId: number) {

@@ -7,7 +7,7 @@
             data-bs-toggle="dropdown"
             aria-expanded="false"
         >
-            +
+            <b> + </b> Add project/scenario
         </button>
 
         <ul class="dropdown-menu" aria-labelledby="newProjectButton">
@@ -42,7 +42,11 @@
     </div>
 </section>
 
-<app-project-item [project]="project" *ngFor="let project of project_list" />
+<app-project-item
+    [project]="project"
+    *ngFor="let project of project_list"
+    (deleteProject)="deleteProject($event)"
+/>
 
 <section class="projects-empty" *ngIf="!project_list || !project_list.length">
     <div>
