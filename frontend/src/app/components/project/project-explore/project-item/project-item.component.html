@@ -93,10 +93,7 @@
                 <button
                     class="btn btn--success action border p-2"
                     type="button"
-                    [routerLink]="[
-                        '../../scenario',
-                        { p_id: project.id, p_name: project.name }
-                    ]"
+                    (click)="newScenario(project.id, project.name)"
                 >
                     New Scenario
                 </button>

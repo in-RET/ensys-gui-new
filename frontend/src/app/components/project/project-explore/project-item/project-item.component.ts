@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import Swal from 'sweetalert2';
 import { ScenarioService } from '../../../scenario/services/scenario.service';
@@ -19,7 +19,10 @@ export class ProjectItemComponent {
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
 
-    constructor(private scenarioService: ScenarioService) {}
+    constructor(
+        private scenarioService: ScenarioService,
+        private router: Router
+    ) {}
 
     ngOnInit() {
         this.getScenarios(this.project.id);
@@ -60,5 +63,10 @@ export class ProjectItemComponent {
                     console.error(err);
                 },
             });
+    }
+
+    newScenario(pId: string, pName: string) {
+        localStorage.removeItem(`scenario-step-0`);
+        this.router.navigate(['../../scenario', { p_id: pId, p_name: pName }]);
     }
 }
