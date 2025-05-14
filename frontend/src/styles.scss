@@ -2849,3 +2849,9 @@ h6 {
     -ms-user-select: none;
     user-select: none;
 }
+
+/* custom styles */
+.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+}
