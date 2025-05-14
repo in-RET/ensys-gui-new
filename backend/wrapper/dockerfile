@@ -1,9 +1,0 @@
-FROM gurobi/optimizer:latest
-
-# Install ensys with all dependencies, wheels are nice!
-WORKDIR /app
-
-COPY dist/ensys-0.2a7-py3-none-any.whl .
-RUN pip install ensys-0.2a7-py3-none-any.whl
-
-COPY main.py .

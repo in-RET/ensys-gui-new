@@ -1,40 +1,41 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
-from sqlalchemy import JSON, Column
+from sqlalchemy import JSON, Column, Nullable
 from sqlmodel import SQLModel, Field
 
-from ..components.model import ApiEnergysystem
+from ..ensys.components.energysystem import EnEnergysystem
+from ..ensys.common.types import Interval
 
 
 class EnScenario(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    timestep: str = Field(default="1h", min_length=2, max_length=2)
-    period: int = Field(default=365)
-    simulation_year: int = Field(default=datetime.now().year)
-    user_mode: str = Field(default="Novice", min_length=1, max_length=10)
+    interval: Interval = Field(default=Interval.hourly)
+    simulation_year: int = Field(default=datetime.now().year, max_digits=4, decimal_places=0)
+    start_date: date = Field(default=None, nullable=True)
+    time_steps: int | None = Field(default=None, nullable=True)
     project_id: int
-    energysystem_model: ApiEnergysystem
+    energysystem_model: EnEnergysystem
 
 class EnScenarioDB(SQLModel, table=True):
     __tablename__ = "scenarios"
 
     id: int = Field(default=None, primary_key=True)
     name: str = Field(min_length=1, max_length=100)
-    timestep: str = Field(default="1h", min_length=2, max_length=2)
-    period: int = Field(default=365)
-    user_mode: str = Field(default="Novice", min_length=1, max_length=10)
+    interval: float = Field(default=1)
     simulation_year: int = Field(default=datetime.now().year, max_digits=4, decimal_places=0)
+    start_date: date = Field(default=None, nullable=True)
+    time_steps: int | None = Field(default=365, nullable=True)
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
-    energysystem_model: ApiEnergysystem = Field(sa_column=Column(JSON), default={})
+    energysystem_model: EnEnergysystem = Field(sa_column=Column(JSON), default={})
 
 class EnScenarioUpdate(EnScenario):
     name: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
-    timestep: str | None = Field(default=None, min_length=2, max_length=2, nullable=True)
-    period: int | None = Field(default=None, nullable=True)
-    simulation_year: datetime | None = Field(default=None, nullable=True)
-    user_mode: str | None = Field(default=None, min_length=1, max_length=10, nullable=True)
-    energysystem_model: ApiEnergysystem | None = Field(default=None, nullable=True)
+    interval: Interval | None = Field(default=Interval.hourly, nullable=True)
+    simulation_year: date | None = Field(default=datetime.now().year, nullable=True)
+    start_date: date | None = Field(default=None, nullable=True)
+    time_steps: int | None = Field(default=None, nullable=True)
+    energysystem_model: EnEnergysystem | None = Field(default=None, nullable=True)
     project_id: None = None
     user_id: None = None

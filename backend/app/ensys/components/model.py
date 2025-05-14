@@ -1,5 +1,3 @@
-from typing import Union
-
 from .energysystem import EnEnergysystem
 from ..common.basemodel import EnBaseModel
 from ..common.types import Solver
@@ -19,19 +17,19 @@ class EnModel(EnBaseModel):
     )
 
     solver: Solver = Field(
-        Solver.gurobi,
+        default=Solver.gurobi,
         title='Solver',
         description='Solver'
     )
 
     solver_verbose: bool = Field(
-        True,
+        default=True,
         title='Solver verbose',
         description='Print output from the Solver'
     )
 
-    solver_kwargs: Union[dict[str, Union[bool, str, int, float]], None] = Field(
-        None,
+    solver_kwargs: dict[str, bool | str | int | float] | None = Field(
+        default=None,
         title='Solver Extra Arguments',
         description='Extra arguments for the Solver (MIP_GAP etc.)'
     )

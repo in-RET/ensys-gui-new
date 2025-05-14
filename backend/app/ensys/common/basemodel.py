@@ -23,7 +23,7 @@ class EnBaseModel(BaseModel):
     ## pydantic subclass to add special configurations.
     class Config:
         ## Allow arbitrary_types like pandas.DataFrames / pandas.Series which are not allowed by default.
-        #arbitrary_types_allowed = True
+        arbitrary_types_allowed = True
 
         ## Without this configuration it's impossible to pass extra **kwargs to pydantic.baseModel-Objects.
         extra = 'allow'

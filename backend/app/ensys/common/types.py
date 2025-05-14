@@ -30,26 +30,18 @@ class Constraints(Enum):
     equate_variables = 'equate_variables'
 
 
-##  Enumeration for the frequenz of the pandas.date_range needed by the oemof energysystem.
+## Enumeration for the frequenz of the pandas.date_range needed by the oemof energysystem.
 #
-class Frequencies(Enum):
+class Interval(Enum):
     ## Timestep is 15 Minutes
-    quarter_hourly = 'quarter_hourly'
+    quarter_hourly = '0.25'
 
     ## Timestep is 30 Minutes
-    half_hourly = 'half_hourly'
+    half_hourly = '0.5'
 
     ## Timestep is 60 Minutes
-    hourly = 'hourly'
+    hourly = '1'
 
-    ## Timestep is 24 Hours
-    daily = 'daily'
-
-    ## Timestep is 7 Days
-    weekly = 'weekly'
-
-    ## Timestep is 30 Days
-    monthly = 'monthly'
 
 
 ## Enumeration for all selectable solvers.

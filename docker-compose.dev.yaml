@@ -52,7 +52,7 @@ services:
         restart: no
         volumes:
          - /var/run/docker.sock:/var/run/docker.sock
-         - ${LOCAL_DATADIR}:/app/data/simulations
+         - ${HOST_DATADIR}:/${LOCAL_DATADIR}
         depends_on:
           - db
         networks:
@@ -76,5 +76,7 @@ networks:
     ensys:
 
 volumes:
-    static_volume:
-    node_modules:
+  static_volume:
+    driver: local
+  node_modules:
+    driver: local

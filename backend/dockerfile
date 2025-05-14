@@ -11,10 +11,8 @@ RUN apt-get -y install python3-h5py
 RUN apt autoclean
 
 COPY requirements.txt requirements.txt
-COPY wrapper/dist/ensys-0.2a7-py3-none-any.whl ensys-0.2a7-py3-none-any.whl
 
 RUN pip install --upgrade pip
-RUN pip install ensys-0.2a7-py3-none-any.whl
 RUN pip install -r requirements.txt
 
 COPY app/ app/

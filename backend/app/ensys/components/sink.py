@@ -4,7 +4,7 @@ from oemof import solph
 from pydantic import Field
 
 
-## Container which contains the params for an InRetEnsys-Sink-Object
+## Container which contains the params for an EnSys-Sink-Object
 #
 #   @param label: str = "Default Sink"
 #   @param inputs: Dict[str, EnFlow]
@@ -12,13 +12,13 @@ class EnSink(EnBaseModel):
     label: str = Field(
         "Default Sink",
         title='Label',
-        description='Label'
+        description='String holding the label of the Sink object. The label of each object must be unique.'
     )
 
     inputs: dict[str, EnFlow] = Field(
         ...,
         title='Inputs',
-        description='Inputs'
+        description='A dictionary mapping input nodes to corresponding inflows (i.e. input values).'
     )
 
     ## Returns an oemof-object from the given args of this object.
