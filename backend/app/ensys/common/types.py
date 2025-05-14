@@ -34,13 +34,13 @@ class Constraints(Enum):
 #
 class Interval(Enum):
     ## Timestep is 15 Minutes
-    quarter_hourly = '0.25'
+    quarter_hourly = 0.25
 
     ## Timestep is 30 Minutes
-    half_hourly = '0.5'
+    half_hourly = 0.5
 
     ## Timestep is 60 Minutes
-    hourly = '1'
+    hourly = 1
 
 
 

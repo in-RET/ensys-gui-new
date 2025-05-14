@@ -9,7 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = '9d1f84384845'
@@ -24,6 +24,11 @@ def upgrade() -> None:
     op.add_column('scenarios', sa.Column('interval', sa.Float(), nullable=False))
     op.add_column('scenarios', sa.Column('start_date', sa.Date(), nullable=True))
     op.add_column('scenarios', sa.Column('time_steps', sa.Integer(), nullable=True))
+
+    status_enum = postgresql.ENUM('STARTED', 'FINISHED', 'FAILED', 'CANCELED',  name='status', create_type=False)
+    status_enum.create(op.get_bind(), checkfirst=True)
+
+    op.alter_column('scenarios', 'status', type_=status_enum, postgresql_using='status::status')
     op.drop_column('scenarios', 'timestep')
     op.drop_column('scenarios', 'user_mode')
     op.drop_column('scenarios', 'period')
