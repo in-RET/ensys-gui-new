@@ -789,7 +789,7 @@ export class ScenarioEnergyDesignComponent {
         if (_formData) {
             this.setFormError(false, '');
             this.makeNode(_formData);
-            this.modalComponent._closeModal();
+            this.modalComponent._closeModal(true);
         } else {
             this.setFormError(true, ' * Complete the form!');
         }

@@ -24,6 +24,8 @@ export class EnergyDrawflowComponent {
     };
     modalVisibility: boolean = false;
 
+    currentConnection: any;
+
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
 
@@ -39,6 +41,7 @@ export class EnergyDrawflowComponent {
         this.editor.zoom_refresh();
 
         this.editor.on('connectionCreated', (connection: any) => {
+            this.currentConnection = connection;
             this.connectionCreated(connection);
         });
     }
@@ -268,7 +271,7 @@ export class EnergyDrawflowComponent {
                             isReq: true,
                             type: 'check',
                             span: 'auto',
-                            value: true,
+                            value: false,
                             onClick: () => {
                                 this.formComponent.toggleControl(
                                     'nominal_value'
@@ -276,7 +279,7 @@ export class EnergyDrawflowComponent {
 
                                 this.formData.sections.forEach(
                                     (section: any) => {
-                                        if (section.name == 'Non-Investment') {
+                                        if (section.name == 'Inv') {
                                             section.fields.forEach(
                                                 (element: any) => {
                                                     this.formComponent.toggleControl(
@@ -301,7 +304,7 @@ export class EnergyDrawflowComponent {
                 },
 
                 {
-                    name: 'Non-Investment',
+                    name: 'Inv',
                     class: 'col-12',
                     fields: [
                         {
@@ -328,6 +331,103 @@ export class EnergyDrawflowComponent {
                             span: 'auto',
                             disabled: true,
                         },
+
+                        {
+                            name: 'fix ',
+                            placeholder: 'fix ',
+                            label: 'fix',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'positive_gradient_limit ',
+                            placeholder: 'positive_gradient_limit ',
+                            label: 'positive_gradient_limit ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'negative_gradient_limit ',
+                            placeholder: 'negative_gradient_limit ',
+                            label: 'negative_gradient_limit ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'full_load_time_max ',
+                            placeholder: 'full_load_time_max ',
+                            label: 'full_load_time_max ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'full_load_time_min ',
+                            placeholder: 'full_load_time_min ',
+                            label: 'full_load_time_min ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'integer ',
+                            placeholder: 'integer ',
+                            label: 'integer ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'nonconvex',
+                            placeholder: 'nonconvex',
+                            label: 'nonconvex',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'fixed_costs ',
+                            placeholder: 'fixed_costs ',
+                            label: 'fixed_costs ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'lifetime ',
+                            placeholder: 'lifetime ',
+                            label: 'lifetime ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'maximum ',
+                            placeholder: 'maximum ',
+                            label: 'maximum ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'minimum',
+                            placeholder: 'minimum',
+                            label: 'minimum',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        // {
+                        //     name: '',
+                        //     placeholder: '',
+                        //     label: '',
+                        //     type: 'number',
+                        //     span: 'auto',
+                        //     disabled: true,
+                        // },
                     ],
                 },
             ],
@@ -345,7 +445,19 @@ export class EnergyDrawflowComponent {
 
     toggleModal(appear: boolean) {
         this.modalVisibility = appear;
+    }
+
+    closeModal(approve: any) {
+        console.log(approve);
+
+        this.toggleModal(approve);
         this.setFormError(false, '');
+
+        if (!approve) {
+            this.removeSingleConnection(this.currentConnection);
+        }
+
+        this.currentConnection = null;
     }
 
     submitForm_Flow() {
@@ -355,7 +467,7 @@ export class EnergyDrawflowComponent {
             this.setFormError(false, '');
             // make flow
 
-            this.modalComponent._closeModal();
+            this.modalComponent._closeModal(true);
             console.log(_formData);
         } else {
             this.setFormError(true, ' * Complete the form!');

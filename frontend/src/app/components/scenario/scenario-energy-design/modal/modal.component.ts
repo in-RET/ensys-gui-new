@@ -32,8 +32,8 @@ export class ModalComponent {
         }, 0);
     }
 
-    _closeModal() {
+    _closeModal(approve: boolean) {
         this.modal.hide();
-        this.closeModal.emit();
+        this.closeModal.emit(approve);
     }
 }
