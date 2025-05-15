@@ -45,7 +45,7 @@ services:
           context: ./backend
           dockerfile: docker/dockerfile
           args:
-              os_version: linux64
+              os_version: armlinux64
         container_name: backend
         env_file: .env
         command: sh -c "alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 8001"

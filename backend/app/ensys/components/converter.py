@@ -44,7 +44,7 @@ class EnConverter(EnBaseModel):
     #   @param self The Object Pointer
     #   @param energysystem The oemof-Energysystem to reference other objects i.e., for flows.
     #   @return solph.Transformer-Object (oemof)
-    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Transformer:
+    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Converter:
         kwargs = self.build_kwargs(energysystem)
 
-        return solph.components.Transformer(**kwargs)
+        return solph.components.Converter(**kwargs)
