@@ -27,38 +27,85 @@ services:
 
     frontend:
         build:
-          context: frontend
-          dockerfile: dockerfile
+            context: frontend
+            dockerfile: dockerfile
         container_name: frontend
         env_file: .env
         command: "npm start"
         restart: no
         ports:
-          - "${WEB_PORT}:4200"
+            - "${WEB_PORT}:4200"
         networks:
-          - ensys
+            - ensys
         depends_on:
-          - db
+            - db
 
     backend:
         build:
-          context: ./backend
-          dockerfile: docker/dockerfile
-          args:
-              os_version: armlinux64
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: ${OS_VERSION}
         container_name: backend
         env_file: .env
-        command: sh -c "alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 8001"
+        command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
         ports:
-          - '${API_PORT}:8001'
+            - '${API_PORT}:8001'
         restart: no
         volumes:
-          - ${HOST_DATADIR}:${LOCAL_DATADIR}
-          - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
+            - ${HOST_DATADIR}:${LOCAL_DATADIR}
+            - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         depends_on:
-          - db
+            - db
+            - redis
         networks:
-          - ensys
+            - ensys
+
+    redis:
+        image: redis:alpine
+        container_name: redis
+        restart: always
+        env_file: .env
+        command: ["redis-server", "--bind", "redis", "--port", "${REDIS_PORT}"]
+        networks:
+            - ensys
+        volumes:
+            - cache:/data
+
+    #TODO: celery setup
+    celery:
+        build:
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: ${OS_VERSION}
+        container_name: celery
+        env_file: .env
+        command: celery -A app.celery.celery_app worker --concurrency=1 --loglevel=DEBUG
+        volumes:
+            - .:/code
+        networks:
+            - ensys
+        depends_on:
+            - redis
+
+    #TODO: flower setup
+    flower:
+        build:
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: ${OS_VERSION}
+        container_name: flower
+        env_file: .env
+        command: celery -A app.celery.celery_app flower --port=5555
+        ports:
+            - "${FLOWER_PORT}:5555"
+        networks:
+            - ensys
+        depends_on:
+            - redis
+
 
 #  proxy:
 #    build: ./proxy
@@ -78,7 +125,9 @@ networks:
     ensys:
 
 volumes:
-  static_volume:
-    driver: local
-  node_modules:
-    driver: local
+    static_volume:
+        driver: local
+    node_modules:
+        driver: local
+    cache:
+        driver: local

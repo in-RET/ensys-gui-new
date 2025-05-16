@@ -1,5 +1,7 @@
+import os
 from contextlib import asynccontextmanager
 
+from celery import Celery
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette import status
@@ -41,7 +43,7 @@ tags_metadata = [
     },
 ]
 
-app = FastAPI(
+fastapi_app = FastAPI(
     lifespan=lifespan,
     title="EnSys Backend",
     summary="The API and backend for the software package 'EnSys by in.RET'",
@@ -64,7 +66,7 @@ origins = [
     "http://localhost:4200", #TODO: Delete in Production, because security reasons.
 ]
 
-app.add_middleware(
+fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
@@ -73,26 +75,26 @@ app.add_middleware(
 )
 
 # including api routers
-app.include_router(
+fastapi_app.include_router(
     router=users_router,
 )
-app.include_router(
+fastapi_app.include_router(
     router=admin_router,
 )
 
-app.include_router(
+fastapi_app.include_router(
     router=projects_router
 )
 
-app.include_router(
+fastapi_app.include_router(
     router=scenario_router
 )
 
-app.include_router(
+fastapi_app.include_router(
     router=simulation_router
 )
 
-@app.get("/", response_class=HTMLResponse)
+@fastapi_app.get("/", response_class=HTMLResponse)
 async def root():
     html_content = """
     <html>
