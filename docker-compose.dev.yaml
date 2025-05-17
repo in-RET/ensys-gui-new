@@ -45,7 +45,7 @@ services:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
-                os_version: linux64
+                os_version: ${OS_VERSION}
         container_name: backend
         env_file: .env
         command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
@@ -57,8 +57,56 @@ services:
             - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         depends_on:
             - db
+            - redis
         networks:
             - ensys
+
+    redis:
+        image: redis:alpine
+        container_name: redis
+        restart: always
+        env_file: .env
+        command: ["redis-server", "--bind", "redis", "--port", "${REDIS_PORT}"]
+        networks:
+            - ensys
+        volumes:
+            - cache:/data
+
+    #TODO: celery setup
+    celery:
+        build:
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: ${OS_VERSION}
+        container_name: celery
+        env_file: .env
+        command: celery --app=app.celery.celery_app worker --loglevel=INFO
+        volumes:
+            - ${HOST_DATADIR}:${LOCAL_DATADIR}
+            - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
+            - .:/code
+        networks:
+            - ensys
+        depends_on:
+            - redis
+
+    #TODO: flower setup
+    flower:
+        build:
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: ${OS_VERSION}
+        container_name: flower
+        env_file: .env
+        command: celery -A app.celery.celery_app flower --port=5555
+        ports:
+            - "${FLOWER_PORT}:5555"
+        networks:
+            - ensys
+        depends_on:
+            - redis
 
 #  proxy:
 #    build: ./proxy
@@ -81,4 +129,6 @@ volumes:
     static_volume:
         driver: local
     node_modules:
+        driver: local
+    cache:
         driver: local

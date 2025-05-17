@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.0.5",
-    "@angular/cli": "^19.0.5",
+    "@angular/cli": "^19.2.12",
     "@angular/compiler-cli": "^19.0.0",
     "@types/bootstrap": "^5.2.10",
     "@types/drawflow": "^0.0.12",

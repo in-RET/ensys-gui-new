@@ -5,7 +5,8 @@ from datetime import datetime
 from celery import Celery
 from oemof import solph
 from oemof.tools import logger
-from sqlmodel import select
+from sqlalchemy import create_engine
+from sqlmodel import select, Session
 
 from .ensys.components import EnModel
 from .scenario.model import EnScenarioDB
@@ -18,7 +19,13 @@ celery_app = Celery(
 )
 
 @celery_app.task(name="ensys.simulation.optimization.run")
-def simulation_task(scenario_id: int, simulation_model: EnModel, simulation_token, simulation_id, db):
+def simulation_task(scenario_id: int, simulation_id: int):
+    db = Session(create_engine(os.getenv("DATABASE_URL")))
+
+    scenario = db.get(EnScenarioDB, scenario_id)
+    simulation = db.get(EnSimulationDB, simulation_id)
+    simulation_token = simulation.sim_token
+
     dump_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump")
     log_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "log")
 
@@ -35,6 +42,21 @@ def simulation_task(scenario_id: int, simulation_model: EnModel, simulation_toke
         screen_level=logging.INFO,
         file_level=logging.INFO,
         log_path=True)
+
+    # Create Energysystem to be stored
+    energysystem_api = scenario.energysystem_model
+    simulation_model = EnModel(
+        energysystem=energysystem_api
+    )
+
+    simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token))
+    os.makedirs(
+        name=simulation_folder,
+        exist_ok=True
+    )
+
+    with open(os.path.join(simulation_folder, "es_" + simulation_token + ".json"), "wt") as f:
+        f.write(simulation_model.model_dump_json())
 
     logger.info("read scenario data from database")
     scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()

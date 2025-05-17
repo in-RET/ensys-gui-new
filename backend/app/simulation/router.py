@@ -77,25 +77,6 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
     if not validate_user_rights(token=token, scenario_id=scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    # TODO: oemof-energy-system erstellen
-    selected_scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
-
-    # Create Energysystem to be stored
-    energysystem_api = EnEnergysystem(**selected_scenario.energysystem_model)
-    simulation_model = EnModel(
-        energysystem=energysystem_api
-    )
-
-    simulation_token = str(uuid.uuid4())
-    simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token))
-    os.makedirs(
-        name=simulation_folder,
-        exist_ok=True
-    )
-
-    with open(os.path.join(simulation_folder, "es_" + simulation_token + ".json"), "wt") as f:
-        f.write(simulation_model.model_dump_json())
-
     # Get old Simulation and stop it
     running_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id).where(
         EnSimulationDB.status == Status.STARTED.value)).all()
@@ -105,6 +86,9 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
             running_simulation.status = Status.CANCELED.value
             running_simulation.end_date = datetime.now()
             db.commit()
+
+
+    simulation_token = str(uuid.uuid4())
 
     # Create a new Simulation
     simulation = EnSimulationDB(
@@ -119,7 +103,7 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
     db.refresh(simulation)
 
     # Start eines Celery Tasks für die Durchführung der Simulation
-    task = simulation_task.delay(scenario_id, simulation_model, simulation_token, simulation.id, db)
+    task = simulation_task.delay(scenario_id, simulation.id)
     logger.info("Task UUID:", task.id)
 
     return CustomResponse(
