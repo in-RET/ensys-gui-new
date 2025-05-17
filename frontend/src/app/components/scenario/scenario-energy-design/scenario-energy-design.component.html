@@ -4,7 +4,11 @@
         (clearGridModel)="clearGridModel()"
     />
 
-    <app-energy-drawflow class="w-100 h-100 border" (_drop)="drop($event)" />
+    <app-energy-drawflow
+        class="w-100 h-100 border"
+        (_drop)="drop($event)"
+        (editNode)="editNode($event)"
+    />
 </div>
 
 <app-modal

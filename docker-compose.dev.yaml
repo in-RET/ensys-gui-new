@@ -27,38 +27,38 @@ services:
 
     frontend:
         build:
-          context: frontend
-          dockerfile: dockerfile
+            context: frontend
+            dockerfile: dockerfile
         container_name: frontend
         env_file: .env
         command: "npm start"
         restart: no
         ports:
-          - "${WEB_PORT}:4200"
+            - "${WEB_PORT}:4200"
         networks:
-          - ensys
+            - ensys
         depends_on:
-          - db
+            - db
 
     backend:
         build:
-          context: ./backend
-          dockerfile: docker/dockerfile
-          args:
-              os_version: linux64
+            context: ./backend
+            dockerfile: docker/dockerfile
+            args:
+                os_version: linux64
         container_name: backend
         env_file: .env
-        command: sh -c "alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port 8001"
+        command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
         ports:
-          - '${API_PORT}:8001'
+            - "${API_PORT}:8001"
         restart: no
         volumes:
-          - ${HOST_DATADIR}:${LOCAL_DATADIR}
-          - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
+            - ${HOST_DATADIR}:${LOCAL_DATADIR}
+            - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         depends_on:
-          - db
+            - db
         networks:
-          - ensys
+            - ensys
 
 #  proxy:
 #    build: ./proxy
@@ -78,7 +78,7 @@ networks:
     ensys:
 
 volumes:
-  static_volume:
-    driver: local
-  node_modules:
-    driver: local
+    static_volume:
+        driver: local
+    node_modules:
+        driver: local

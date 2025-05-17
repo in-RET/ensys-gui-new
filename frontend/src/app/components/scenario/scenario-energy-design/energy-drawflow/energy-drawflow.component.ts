@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
 import { FormComponent } from '../form/form.component';
@@ -30,8 +36,11 @@ export class EnergyDrawflowComponent {
     modalComponent!: ModalComponent;
 
     @Output('_drop') _drop: EventEmitter<any> = new EventEmitter();
+    @Output('editNode') editNode: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
+
+    constructor(private elementRef: ElementRef) {}
 
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
@@ -43,6 +52,26 @@ export class EnergyDrawflowComponent {
         this.editor.on('connectionCreated', (connection: any) => {
             this.currentConnection = connection;
             this.connectionCreated(connection);
+        });
+
+        this.checkDBClickComponent();
+    }
+
+    checkDBClickComponent() {
+        var transform = '';
+        let _this = this;
+
+        document.addEventListener('dblclick', function (e: any) {
+            const closestNode = e.target.closest('.drawflow-node');
+
+            if (closestNode) {
+                const nodeType = closestNode
+                    .querySelector('.box')
+                    .getAttribute('asset_type_name');
+
+                const topologyNodeId = closestNode.id.split('node-')[1];
+                _this.openModal(topologyNodeId);
+            }
         });
     }
 
@@ -134,15 +163,16 @@ export class EnergyDrawflowComponent {
     ) {
         const ASSET_TYPE_NAME = 'asset_type_name';
         const source_html = `
-        <div class="box" ${ASSET_TYPE_NAME}="${nodeName}"></div>
-    
-        <div class="drawflow-node__name nodeName">
-            <span>
-              ${nodeName}
-            </span>
-        </div>
+            <div class="box" ${ASSET_TYPE_NAME}="${nodeName}"></div>
+        
+            <div class="drawflow-node__name nodeName">
+                <span>
+                ${nodeName}
+                </span>
+            </div>
 
-        <div class="img"></div>`;
+            <div class="img"></div>
+        `;
 
         this.editor.addNode(
             nodeName,
@@ -155,6 +185,8 @@ export class EnergyDrawflowComponent {
             source_html,
             false
         );
+
+        const ex = this.editor.export();
     }
 
     addNode(data: any) {
@@ -167,6 +199,22 @@ export class EnergyDrawflowComponent {
             data.out,
             data
         );
+    }
+    updateNode(nodeId: number, data: any) {
+        const ASSET_TYPE_NAME = 'asset_type_name';
+        this.editor.drawflow.drawflow.Home.data[nodeId].html = `
+            <div class="box" ${ASSET_TYPE_NAME}="${data.name}"></div>
+        
+            <div class="drawflow-node__name nodeName">
+                <span>
+                ${data.name}
+                </span>
+            </div>
+
+            <div class="img"></div>
+        `;
+
+        this.editor.updateNodeDataFromId(nodeId, data);
     }
 
     connectionCreated(connection: any) {
@@ -261,7 +309,7 @@ export class EnergyDrawflowComponent {
         this.formData = {
             sections: [
                 {
-                    name: 'Investment',
+                    name: '',
                     class: 'col-12',
                     fields: [
                         {
@@ -308,103 +356,6 @@ export class EnergyDrawflowComponent {
                     class: 'col-12',
                     fields: [
                         {
-                            name: 'variable_costs',
-                            placeholder: 'variable_costs',
-                            label: 'variable_costs',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'max',
-                            placeholder: 'max',
-                            label: 'max',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'min',
-                            placeholder: 'min',
-                            label: 'min',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-
-                        {
-                            name: 'fix ',
-                            placeholder: 'fix ',
-                            label: 'fix',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'positive_gradient_limit ',
-                            placeholder: 'positive_gradient_limit ',
-                            label: 'positive_gradient_limit ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'negative_gradient_limit ',
-                            placeholder: 'negative_gradient_limit ',
-                            label: 'negative_gradient_limit ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'full_load_time_max ',
-                            placeholder: 'full_load_time_max ',
-                            label: 'full_load_time_max ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'full_load_time_min ',
-                            placeholder: 'full_load_time_min ',
-                            label: 'full_load_time_min ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'integer ',
-                            placeholder: 'integer ',
-                            label: 'integer ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'nonconvex',
-                            placeholder: 'nonconvex',
-                            label: 'nonconvex',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'fixed_costs ',
-                            placeholder: 'fixed_costs ',
-                            label: 'fixed_costs ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
-                            name: 'lifetime ',
-                            placeholder: 'lifetime ',
-                            label: 'lifetime ',
-                            type: 'number',
-                            span: 'auto',
-                            disabled: true,
-                        },
-                        {
                             name: 'maximum ',
                             placeholder: 'maximum ',
                             label: 'maximum ',
@@ -420,14 +371,170 @@ export class EnergyDrawflowComponent {
                             span: 'auto',
                             disabled: true,
                         },
-                        // {
-                        //     name: '',
-                        //     placeholder: '',
-                        //     label: '',
-                        //     type: 'number',
-                        //     span: 'auto',
-                        //     disabled: true,
-                        // },
+                        {
+                            name: 'ep_costs ',
+                            placeholder: 'ep_costs ',
+                            label: 'ep_costs ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'existing ',
+                            placeholder: 'existing ',
+                            label: 'existing ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'nonconvex ',
+                            placeholder: 'nonconvex ',
+                            label: 'nonconvex ',
+                            type: 'text',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'offset ',
+                            placeholder: 'offset ',
+                            label: 'offset',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'overall_maximum ',
+                            placeholder: 'overall_maximum ',
+                            label: 'overall_maximum ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'overall_minimum ',
+                            placeholder: 'overall_minimum ',
+                            label: 'overall_minimum ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+
+                        {
+                            name: 'interest_rate ',
+                            placeholder: 'interest_rate ',
+                            label: 'interest_rate ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                        {
+                            name: 'lifetime ',
+                            placeholder: 'lifetime ',
+                            label: 'lifetime ',
+                            type: 'number',
+                            span: 'auto',
+                            disabled: true,
+                        },
+                    ],
+                },
+
+                {
+                    name: '',
+                    class: 'col-12',
+                    fields: [
+                        {
+                            name: 'variable_costs',
+                            placeholder: 'variable_costs',
+                            label: 'variable_costs',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'max',
+                            placeholder: 'max',
+                            label: 'max',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'min',
+                            placeholder: 'min',
+                            label: 'min',
+                            type: 'number',
+                            span: 'auto',
+                        },
+
+                        {
+                            name: 'fix ',
+                            placeholder: 'fix ',
+                            label: 'fix',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'positive_gradient_limit ',
+                            placeholder: 'positive_gradient_limit ',
+                            label: 'positive_gradient_limit ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'negative_gradient_limit ',
+                            placeholder: 'negative_gradient_limit ',
+                            label: 'negative_gradient_limit ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'full_load_time_max ',
+                            placeholder: 'full_load_time_max ',
+                            label: 'full_load_time_max ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'full_load_time_min ',
+                            placeholder: 'full_load_time_min ',
+                            label: 'full_load_time_min ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'integer ',
+                            placeholder: 'integer ',
+                            label: 'integer ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'nonconvex',
+                            placeholder: 'nonconvex',
+                            label: 'nonconvex',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'fixed_costs ',
+                            placeholder: 'fixed_costs ',
+                            label: 'fixed_costs ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: '_lifetime ',
+                            placeholder: 'lifetime ',
+                            label: 'lifetime ',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'age ',
+                            placeholder: 'age ',
+                            label: 'age ',
+                            type: 'number',
+                            span: 'auto',
+                        },
                     ],
                 },
             ],
@@ -448,8 +555,6 @@ export class EnergyDrawflowComponent {
     }
 
     closeModal(approve: any) {
-        console.log(approve);
-
         this.toggleModal(approve);
         this.setFormError(false, '');
 
@@ -468,7 +573,6 @@ export class EnergyDrawflowComponent {
             // make flow
 
             this.modalComponent._closeModal(true);
-            console.log(_formData);
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
@@ -477,5 +581,10 @@ export class EnergyDrawflowComponent {
     getData() {
         const drawflowData = this.editor.export().drawflow.Home.data;
         return drawflowData;
+    }
+
+    openModal(nodeId: string) {
+        const node = this.editor.getNodeFromId(nodeId);
+        this.editNode.emit({ id: nodeId, name: node.class, data: node.data });
     }
 }
