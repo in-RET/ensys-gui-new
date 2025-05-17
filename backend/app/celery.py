@@ -4,44 +4,45 @@ from datetime import datetime
 
 from celery import Celery
 from oemof import solph
-from oemof.tools import logger
+from prometheus_client import Counter, Gauge, start_http_server
 from sqlalchemy import create_engine
 from sqlmodel import select, Session
 
 from .ensys.components import EnModel
+from .logger import EnsysLogger
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 
 celery_app = Celery(
     "Sellerie",
     broker=f"redis://redis:{os.getenv("REDIS_PORT")}",
-    backend=f"redis://redis:{os.getenv("REDIS_PORT")}"
+    backend=f"redis://redis:{os.getenv("REDIS_PORT")}",
 )
+start_http_server(8000)
+
+task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
+task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
 
 @celery_app.task(name="ensys.simulation.optimization.run")
 def simulation_task(scenario_id: int, simulation_id: int):
-    db = Session(create_engine(os.getenv("DATABASE_URL")))
+    task_counter.inc()
+    task_in_progress.inc()
 
+    db = Session(create_engine(os.getenv("DATABASE_URL")))
     scenario = db.get(EnScenarioDB, scenario_id)
     simulation = db.get(EnSimulationDB, simulation_id)
     simulation_token = simulation.sim_token
 
     dump_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump")
     log_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "log")
-
     os.makedirs(dump_path, exist_ok=True)
     os.makedirs(log_path, exist_ok=True)
 
-    logger.define_logging(
-        logpath=log_path,
-        logfile='oemof.log',
-        file_format="%(asctime)s - %(levelname)s - %(module)s - %(message)s",
-        file_datefmt="%x - %X",
-        screen_format="%(asctime)s-%(levelname)s-%(message)s",
-        screen_datefmt="%H:%M:%S",
-        screen_level=logging.INFO,
-        file_level=logging.INFO,
-        log_path=True)
+    logger = EnsysLogger(
+        name=simulation_token,
+        filename=os.path.join(log_path, f"{simulation_token}.log"),
+        level=logging.DEBUG
+    )
 
     # Create Energysystem to be stored
     energysystem_api = scenario.energysystem_model
@@ -105,9 +106,24 @@ def simulation_task(scenario_id: int, simulation_id: int):
     )
 
     logger.info("update database")
-    simulation = db.get(EnSimulationDB, simulation_id)
     simulation.status = Status.FINISHED.value
     simulation.end_date = datetime.now()
     db.commit()
     db.refresh(simulation)
     logger.info("backgroundtask finished")
+
+    task_in_progress.dec()
+    # try:
+    #
+    # except Exception as ex:
+    #     logger.critical("error - aborting task")
+    #     logger.critical(ex)
+    #
+    #     simulation.status = Status.FAILED.value
+    #     simulation.end_date = datetime.now()
+    #     db.commit()
+    #     db.refresh(simulation)
+    #
+    #     logger.info("backgroundtask finished")
+    #
+    #     task_in_progress.dec()

@@ -7,7 +7,7 @@ from starlette import status
 
 from .model import EnProject, EnProjectDB, EnProjectUpdate
 from ..db import get_db_session
-from ..responses import CustomResponse
+from ..responses import DataResponse
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -35,11 +35,11 @@ def validate_project_owner(project_id: int, token: str, db):
     else:
         raise HTTPException(status_code=403, detail="Permission denied")
 
-@projects_router.post("/")
-async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject, db: Session = Depends(get_db_session)) -> CustomResponse:
+@projects_router.post("/", response_model=DataResponse)
+async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject, db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -60,17 +60,17 @@ async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.add(project)
     db.commit()
 
-    return CustomResponse(
+    return DataResponse(
         data="Project created.",
         success=True,
         errors=None
     )
 
-@projects_router.get("s/")
-async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
+@projects_router.get("s/", response_model=DataResponse)
+async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -90,7 +90,7 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
     for project in projects:
         response_data.append(project.get_return_data())
 
-    return CustomResponse(
+    return DataResponse(
         data={
             "items": response_data,
             "totalCount": len(response_data)
@@ -99,11 +99,11 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
         errors=None
     )
 
-@projects_router.get("/{project_id}")
-async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
+@projects_router.get("/{project_id}", response_model=DataResponse)
+async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -114,7 +114,7 @@ async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_sch
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -123,17 +123,17 @@ async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_sch
         #     )],
         # )
 
-    return CustomResponse(
+    return DataResponse(
         data=db.get(EnProjectDB, project_id).get_return_data(),
         success=True,
         errors=None
     )
 
-@projects_router.patch("/{project_id}")
-async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate, db: Session = Depends(get_db_session)) -> CustomResponse:
+@projects_router.patch("/{project_id}", response_model=DataResponse)
+async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate, db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -144,7 +144,7 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -155,7 +155,7 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db_project = db.get(EnProjectDB, project_id)
     if not db_project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -174,17 +174,17 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.commit()
     db.refresh(db_project)
 
-    return CustomResponse(
+    return DataResponse(
         data="Project Updated.",
         success=True,
         errors=None
     )
 
-@projects_router.delete("/{project_id}")
-async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> CustomResponse:
+@projects_router.delete("/{project_id}", response_model=DataResponse)
+async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -195,7 +195,7 @@ async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -207,7 +207,7 @@ async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_
     db.delete(project)
     db.commit()
 
-    return CustomResponse(
+    return DataResponse(
         data="Project deleted.",
         success=True,
         errors=None

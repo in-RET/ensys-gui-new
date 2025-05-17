@@ -1,24 +1,22 @@
-import os
-import uuid
 from datetime import datetime
 from typing import Annotated
 
 from celery.worker.control import revoke
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from oemof.tools import logger
 from sqlmodel import Session, select
 from starlette import status
-from oemof.tools import logger
+from celery import uuid
 
 from .model import EnSimulationDB, Status
+from ..celery import simulation_task
 from ..db import get_db_session
-from ..ensys.components import EnEnergysystem, EnModel
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
-from ..responses import CustomResponse
+from ..responses import DataResponse, ErrorModel
 from ..scenario.model import EnScenarioDB
 from ..scenario.router import validate_scenario_owner
 from ..security import oauth2_scheme
-from ..celery import simulation_task
 
 simulation_router = APIRouter(
     prefix="/simulation",
@@ -68,7 +66,7 @@ def check_container_status(docker_container, simulation_id, db):
 
 
 
-@simulation_router.post("/start/{scenario_id}", response_model=CustomResponse)
+@simulation_router.post("/start/{scenario_id}", response_model=DataResponse)
 async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
                            token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session), ):
     if not token:
@@ -88,7 +86,7 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
             db.commit()
 
 
-    simulation_token = str(uuid.uuid4())
+    simulation_token = uuid()
 
     # Create a new Simulation
     simulation = EnSimulationDB(
@@ -103,15 +101,15 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
     db.refresh(simulation)
 
     # Start eines Celery Tasks für die Durchführung der Simulation
-    task = simulation_task.delay(scenario_id, simulation.id)
+    task = simulation_task.apply_async((scenario_id, simulation.id), task_id=simulation_token)
     logger.info("Task UUID:", task.id)
 
-    return CustomResponse(
+    return DataResponse(
         data=f"Simulation with id:{simulation.id} and task id:{task.id} started.",
         success=True
     )
 
-@simulation_router.get("/status/{simulation_id}", response_model=CustomResponse)
+@simulation_router.get("/status/{simulation_id}", response_model=DataResponse)
 async def get_simulation_status(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                                 db: Session = Depends(get_db_session)):
     if not token:
@@ -126,14 +124,15 @@ async def get_simulation_status(simulation_id: int, token: Annotated[str, Depend
 
     selected_simulation = db.get(EnSimulationDB, simulation_id)
 
-    return CustomResponse(
+    return DataResponse(
         data=selected_simulation.status,
         success=True
     )
 
-@simulation_router.post("/stop/{scenario_id}", response_model=CustomResponse)
-async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+@simulation_router.post("s/stop/{scenario_id}", response_model=DataResponse)
+async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                           db: Session = Depends(get_db_session)):
+    errors = []
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -146,20 +145,44 @@ async def stop_simulation(scenario_id: int, token: Annotated[str, Depends(oauth2
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found.")
 
     if len(simulations) > 1:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Mehr als 2 Simulationen laufen, du Bob hast vergessen beim Starten die alte zu beenden!")
+        errors.append(ErrorModel(
+            code=status.HTTP_409_CONFLICT,
+            message="Mehr als 2 Simulationen laufen, du Bob hast vergessen beim Starten die alte zu beenden!"
+        ))
 
     # TODO: Wie stoppe ich Background-Tasks?
     # Task manuell stoppen
-    revoke(task_id, terminate=True)
+    for simulation in simulations:
+        revoke(simulation.sim_token, terminate=True)
 
-
-    return CustomResponse(
-        data=f"Simulation with id: stopped.",
-        success=True
+    return DataResponse(
+        data=f"Simulation stopped.",
+        success=True,
+        errors=errors
     )
 
-@simulation_router.get("s/{scenario_id}", response_model=CustomResponse)
+@simulation_router.post("/stop/{simulation_id}", response_model=DataResponse)
+async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+                          db: Session = Depends(get_db_session)):
+    if not token:
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    simulation = db.get(EnSimulationDB, simulation_id)
+    if not simulation:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found.")
+
+    if not validate_user_rights(token=token, scenario_id=simulation.scenario_id, db=db):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    # Task manuell stoppen
+    revoke(simulation.sim_token, terminate=True)
+
+    return DataResponse(
+        data=f"Simulation with id:{simulation.sim_token} stopped.",
+        success=True,
+    )
+
+@simulation_router.get("s/{scenario_id}", response_model=DataResponse)
 async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                           db: Session = Depends(get_db_session)):
     if not token:
@@ -172,12 +195,12 @@ async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2
     if not simulations:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulations found.")
 
-    return CustomResponse(
+    return DataResponse(
         data=simulations,
         success=True,
     )
 
-@simulation_router.get("/{simulation_id}", response_model=CustomResponse)
+@simulation_router.get("/{simulation_id}", response_model=DataResponse)
 async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                          db: Session = Depends(get_db_session)):
     if not token:
@@ -190,7 +213,7 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     if not validate_user_rights(token=token, scenario_id=simulation.scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    return CustomResponse(
+    return DataResponse(
         data=simulation,
         success=True
     )
@@ -198,10 +221,10 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
 
 @simulation_router.delete("/{simulation_id}")
 async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int,
-                            db: Session = Depends(get_db_session)) -> CustomResponse:
+                            db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -214,7 +237,7 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
     db.delete(simulation)
     db.commit()
 
-    return CustomResponse(
+    return DataResponse(
         data="Simulation deleted.",
         success=True
     )

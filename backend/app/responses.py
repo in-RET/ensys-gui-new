@@ -7,9 +7,12 @@ class ErrorModel(BaseModel):
     code: int
     message: str
 
+class ReturnDataModel(BaseModel):
+    items: list[Any]
+    totalCount: int
 
-class CustomResponse(BaseModel):
-    data: Any
+class DataResponse(BaseModel):
+    data: Any | ReturnDataModel
     success: bool
     errors: list[ErrorModel] | None = None
 

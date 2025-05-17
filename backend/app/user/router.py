@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
 from ..db import get_db_session
-from ..responses import CustomResponse, ErrorModel, CustomException
+from ..responses import DataResponse, ErrorModel, CustomException
 from ..security import decode_token, oauth2_scheme, token_secret
 
 users_router = APIRouter(
@@ -34,7 +34,7 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
 
         token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
 
-        # return CustomResponse(
+        # return DataResponse(
         #     data={
         #         "message": "User login successful.",
         #         "access_token": token,
@@ -53,7 +53,7 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         )
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -63,15 +63,15 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         # )
 
 
-@users_router.post("/auth/register", status_code=status.HTTP_201_CREATED)
-async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> CustomResponse:
+@users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=DataResponse)
+async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> DataResponse:
     # Test against same username
     statement = select(EnUserDB).where(EnUserDB.username == user.username)
     results = db.exec(statement).first()
 
     if results is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -86,7 +86,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
     if results is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mail already in use.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -105,14 +105,14 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     db.refresh(db_user)
 
     if db_user.id is not None:
-        return CustomResponse(
+        return DataResponse(
             data=None,
             success=True,
             errors=None
         )
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -122,11 +122,11 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         # )
 
 
-@users_router.get("/")
-async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
+@users_router.get("/", response_model=DataResponse)
+async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -142,7 +142,7 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -151,15 +151,15 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
         #     )]
         # )
     else:
-        return CustomResponse(
+        return DataResponse(
             data=user.model_dump(),
             success=True,
             errors=None
         )
 
 
-@users_router.patch("/")
-async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)) -> CustomResponse:
+@users_router.patch("/", response_model=DataResponse)
+async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate, db: Session = Depends(get_db_session)) -> DataResponse:
     token_data = decode_token(token)
 
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
@@ -167,7 +167,7 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -183,14 +183,14 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
     db.commit()
     db.refresh(user_db)
 
-    return CustomResponse(
+    return DataResponse(
         data=user_db.model_dump(),
         success=True,
         errors=None
     )
 
-@users_router.delete("/")
-async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> CustomResponse:
+@users_router.delete("/", response_model=DataResponse)
+async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
     token_data = decode_token(token)
 
     if not "id" in token_data:
@@ -201,7 +201,7 @@ async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return CustomResponse(
+        # return DataResponse(
         #     data=None,
         #     success=False,
         #     errors=[ErrorModel(
@@ -213,7 +213,7 @@ async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session
     db.delete(user)
     db.commit()
 
-    return CustomResponse(
+    return DataResponse(
         data={
             "message": "User was successfully deleted.",
             "token": token,

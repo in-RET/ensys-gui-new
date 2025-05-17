@@ -11,8 +11,8 @@ class EnScenario(BaseModel):
     name: str = Field(min_length=1, max_length=100)
     interval: float = Field(default=1)
     simulation_year: int = Field(default=datetime.now().year)
-    start_date: date | None = Field(default=None, nullable=True)
-    time_steps: int | None = Field(default=None, nullable=True)
+    start_date: date | None = Field(default=None)
+    time_steps: int | None = Field(default=None)
     project_id: int
     energysystem_model: EnEnergysystem = Field()
 

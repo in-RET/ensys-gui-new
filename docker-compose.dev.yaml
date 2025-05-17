@@ -52,12 +52,10 @@ services:
         ports:
             - '${API_PORT}:8001'
         restart: no
-        volumes:
-            - ${HOST_DATADIR}:${LOCAL_DATADIR}
-            - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         depends_on:
             - db
-            - redis
+            - celery
+            - flower
         networks:
             - ensys
 
@@ -72,7 +70,6 @@ services:
         volumes:
             - cache:/data
 
-    #TODO: celery setup
     celery:
         build:
             context: ./backend
@@ -91,7 +88,6 @@ services:
         depends_on:
             - redis
 
-    #TODO: flower setup
     flower:
         build:
             context: ./backend
