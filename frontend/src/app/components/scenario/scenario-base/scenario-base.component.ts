@@ -97,13 +97,13 @@ export class ScenarioBaseComponent {
     }
 
     saveCurrentStateData(state: number, data: any) {
-        localStorage.removeItem(`scenario-step-${state}`);
-        localStorage.setItem(`scenario-step-${state}`, JSON.stringify(data));
+        localStorage.removeItem(`scenario_data`);
+        localStorage.setItem(`scenario_data`, JSON.stringify(data));
     }
 
     saveScenario() {
         const drawflowData = this.scenarioEnergyDesignComponent.getData();
-        let scenarioData: any = localStorage.getItem('scenario-step-0');
+        let scenarioData: any = localStorage.getItem('scenario_data');
 
         if (
             scenarioData &&

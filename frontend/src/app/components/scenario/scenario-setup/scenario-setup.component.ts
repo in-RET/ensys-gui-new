@@ -73,7 +73,7 @@ export class ScenarioSetupComponent {
     private readonly route = inject(ActivatedRoute);
 
     ngOnInit() {
-        let currentData: any = localStorage.getItem(`scenario-step-0`);
+        let currentData: any = localStorage.getItem(`scenario_data`);
 
         if (
             currentData &&

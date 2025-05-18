@@ -18,7 +18,7 @@ export class EnergyComponentsComponent {
         new EventEmitter();
 
     ngOnInit() {
-        let initalData: any = localStorage.getItem('scenario-step-0');
+        let initalData: any = localStorage.getItem('scenario_data');
 
         if (initalData) {
             initalData = JSON.parse(initalData);

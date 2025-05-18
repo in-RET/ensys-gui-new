@@ -66,7 +66,7 @@ export class ProjectItemComponent {
     }
 
     newScenario(pId: string, pName: string) {
-        localStorage.removeItem(`scenario-step-0`);
+        localStorage.removeItem(`scenario_data`);
         this.router.navigate(['../../scenario', { p_id: pId, p_name: pName }]);
     }
 }
