@@ -29,8 +29,8 @@ export class EnergyDrawflowComponent {
         isShow: false,
     };
     modalVisibility: boolean = false;
-
     currentConnection: any;
+    ASSET_TYPE_NAME: string = 'asset_type_name';
 
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
@@ -54,7 +54,26 @@ export class EnergyDrawflowComponent {
             this.connectionCreated(connection);
         });
 
+        this.editor.on('moduleChanged', (data: any) => {
+            console.log(data);
+        });
+
         this.checkDBClickComponent();
+
+        let CURRENT_DRAWFLOW = localStorage.getItem('CURRENT_DRAWFLOW');
+        CURRENT_DRAWFLOW = CURRENT_DRAWFLOW ? JSON.parse(CURRENT_DRAWFLOW) : '';
+
+        if (CURRENT_DRAWFLOW && CURRENT_DRAWFLOW.trim() != '') {
+            const dataToImport = {
+                drawflow: {
+                    Home: {
+                        data: CURRENT_DRAWFLOW,
+                    },
+                },
+            };
+
+            this.editor.import(dataToImport);
+        }
     }
 
     checkDBClickComponent() {
@@ -87,8 +106,8 @@ export class EnergyDrawflowComponent {
         const nodeGroup = ev.dataTransfer.getData('group');
 
         this.currentPosition = {
-            x: ev.clientX,
-            y: ev.clientY,
+            x: this.getNodePosition(ev.clientX, 'x'),
+            y: this.getNodePosition(ev.clientY, 'y'),
         };
 
         this.currentNode = {
@@ -106,13 +125,28 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    IOBusOptions(nodeId: string, nodeName: string, posX: any, posY: any) {
-        const checkMinMax = (value: any, min: any, max: any) =>
-            value <= min ? min : value >= max ? max : value;
-
-        // const inputs = checkMinMax('---', 1, 1);
-        // const outputs = checkMinMax('---', 1, 1);
-        this.addNodeToDrawFlow(nodeId, nodeName, posX, posY, 3, 6);
+    getNodePosition(position: number, type: 'x' | 'y') {
+        if (type == 'x')
+            return (
+                position *
+                    (this.editor.precanvas.clientWidth /
+                        (this.editor.precanvas.clientWidth *
+                            this.editor.zoom)) -
+                this.editor.precanvas.getBoundingClientRect().x *
+                    (this.editor.precanvas.clientWidth /
+                        (this.editor.precanvas.clientWidth * this.editor.zoom))
+            );
+        else if (type == 'y')
+            return (
+                position *
+                    (this.editor.precanvas.clientHeight /
+                        (this.editor.precanvas.clientHeight *
+                            this.editor.zoom)) -
+                this.editor.precanvas.getBoundingClientRect().y *
+                    (this.editor.precanvas.clientHeight /
+                        (this.editor.precanvas.clientHeight * this.editor.zoom))
+            );
+        else return false;
     }
 
     addNodeToDrawFlow(
@@ -120,27 +154,10 @@ export class EnergyDrawflowComponent {
         name: string,
         pos_x: any,
         pos_y: any,
-        nodeInputs?: any,
-        nodeOutputs?: any,
+        nodeInputs: any,
+        nodeOutputs: any,
         data?: any
     ) {
-        // if (this.editor.editor_mode ==='fixed') return false;
-        // the following translation/transformation is required to correctly drop the nodes in the current clientScreen
-        pos_x =
-            pos_x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom));
-        pos_y =
-            pos_y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom));
-
         this.createNodeObject(
             id,
             name,
@@ -161,9 +178,8 @@ export class EnergyDrawflowComponent {
         pos_x: any,
         pos_y: any
     ) {
-        const ASSET_TYPE_NAME = 'asset_type_name';
         const source_html = `
-            <div class="box" ${ASSET_TYPE_NAME}="${nodeName}"></div>
+            <div class="box" ${this.ASSET_TYPE_NAME}="${nodeName}"></div>
         
             <div class="drawflow-node__name nodeName">
                 <span>
@@ -186,7 +202,12 @@ export class EnergyDrawflowComponent {
             false
         );
 
-        const ex = this.editor.export();
+        // tmporary
+        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        localStorage.setItem(
+            'CURRENT_DRAWFLOW',
+            JSON.stringify(CURRENT_DRAWFLOW)
+        );
     }
 
     addNode(data: any) {
@@ -201,9 +222,8 @@ export class EnergyDrawflowComponent {
         );
     }
     updateNode(nodeId: number, data: any) {
-        const ASSET_TYPE_NAME = 'asset_type_name';
         this.editor.drawflow.drawflow.Home.data[nodeId].html = `
-            <div class="box" ${ASSET_TYPE_NAME}="${data.name}"></div>
+            <div class="box" ${this.ASSET_TYPE_NAME}="${data.name}"></div>
         
             <div class="drawflow-node__name nodeName">
                 <span>

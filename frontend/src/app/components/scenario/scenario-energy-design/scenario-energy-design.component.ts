@@ -162,9 +162,6 @@ export class ScenarioEnergyDesignComponent {
 
     drop(node: any) {
         this.formData = null;
-
-        // this.createdNode['id'] = e.id;
-        // this.createdNode['name'] = e.name;
         this.createdNode = node;
         this.initFormData(this.createdNode.name);
         this.toggleModal(true);

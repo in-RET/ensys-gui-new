@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { DrawflowNode } from 'drawflow';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
@@ -42,7 +41,7 @@ interface ScenarioComponent {
     styleUrl: './scenario-base.component.scss',
 })
 export class ScenarioBaseComponent {
-    currentStep: number = 1;
+    currentStep: number = 0;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
@@ -50,60 +49,45 @@ export class ScenarioBaseComponent {
     @ViewChild('sed')
     scenarioEnergyDesignComponent!: ScenarioEnergyDesignComponent;
 
-    private readonly route = inject(ActivatedRoute);
     scenarioService = inject(ScenarioService);
 
-    projectId!: number | null;
-    projectName!: string | null;
-
     ngOnInit() {
-        const p_id = this.route.snapshot.paramMap.get('p_id');
-        this.projectId = p_id ? +p_id : null;
-
-        const p_name = this.route.snapshot.paramMap.get('p_name');
-        this.projectName = p_name ? p_name : null;
+        this.checkScenarioBaseDataAvailablity();
     }
 
     nextStep() {
-        let currentStateData;
-
         switch (this.currentStep) {
             case 0:
-                currentStateData = this.scenarioSetupComponent.getData();
+                let scenarioBaseData = this.scenarioSetupComponent.getData();
 
-                if (currentStateData) {
-                    currentStateData = {
-                        ...currentStateData,
-                        projectId: this.projectId,
-                        projectName: this.projectName,
-                    };
+                if (scenarioBaseData) {
+                    // scenarioBaseData = {
+                    //     ...scenarioBaseData,
+                    // };
 
-                    this.saveCurrentStateData(
-                        this.currentStep,
-                        currentStateData
-                    );
-                    this.currentStep += 1;
+                    this.saveBaseInfo(scenarioBaseData);
+                    this.goToStep(++this.currentStep);
                 }
                 break;
 
             case 1:
-                // currentStateData = this.energyDrawflowComponent.getData();
+                // scenarioBaseData = this.energyDrawflowComponent.getData();
                 break;
         }
     }
 
     prevtStep() {
-        this.currentStep -= 1;
+        this.goToStep(--this.currentStep);
     }
 
-    saveCurrentStateData(state: number, data: any) {
-        localStorage.removeItem(`scenario_data`);
-        localStorage.setItem(`scenario_data`, JSON.stringify(data));
+    saveBaseInfo(data: any) {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioService.saveBaseInfo_Storage(data);
     }
 
     saveScenario() {
         const drawflowData = this.scenarioEnergyDesignComponent.getData();
-        let scenarioData: any = localStorage.getItem('scenario_data');
+        let scenarioData: any = this.scenarioService.restoreBaseInfo_Storage();
 
         if (
             scenarioData &&
@@ -140,8 +124,6 @@ export class ScenarioBaseComponent {
                 }
             }
 
-            console.log(newScenarioData);
-
             this.scenarioService.createScenario(newScenarioData).subscribe({
                 next: (value) => {
                     console.log(value);
@@ -151,5 +133,17 @@ export class ScenarioBaseComponent {
                 },
             });
         }
+    }
+
+    checkScenarioBaseDataAvailablity() {
+        const Data = this.scenarioService.restoreBaseInfo_Storage();
+
+        if (!Data) {
+            this.goToStep(0);
+        }
+    }
+
+    goToStep(number: number) {
+        this.currentStep = number;
     }
 }

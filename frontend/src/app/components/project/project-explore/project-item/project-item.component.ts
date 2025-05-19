@@ -66,7 +66,13 @@ export class ProjectItemComponent {
     }
 
     newScenario(pId: string, pName: string) {
-        localStorage.removeItem(`scenario_data`);
-        this.router.navigate(['../../scenario', { p_id: pId, p_name: pName }]);
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioService.saveBaseInfo_Storage({
+            project: {
+                id: pId,
+                name: pName,
+            },
+        });
+        this.router.navigate(['../../scenario']);
     }
 }

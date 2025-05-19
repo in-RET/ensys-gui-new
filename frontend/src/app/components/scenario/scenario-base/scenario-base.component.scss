@@ -1,0 +1,6 @@
+::ng-deep input[type="date"]::-webkit-calendar-picker-indicator {
+    // background: transparent;
+    &:focus {
+        outline: none;
+    }
+}
