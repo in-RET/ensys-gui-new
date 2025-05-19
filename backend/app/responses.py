@@ -2,23 +2,26 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from .data.model import GeneralDataModel
+from .errors.model import ErrorModel
+from .results.model import ResultDataModel
 
-class ErrorModel(BaseModel):
-    code: int
-    message: str
 
-class ReturnDataModel(BaseModel):
-    items: list[Any]
-    totalCount: int
-
-class DataResponse(BaseModel):
-    data: Any | ReturnDataModel
+class GeneralResponse(BaseModel):
+    data: None
     success: bool
     errors: list[ErrorModel] | None = None
 
-class CustomException(Exception):
-    def __init__(self, code: int, message: str) -> None:
-        self.error = ErrorModel(code=code, message=message)
+class DataResponse(GeneralResponse):
+    data: GeneralDataModel
 
+class MessageResponse(GeneralResponse):
+    data: str
 
+class ErrorResponse(GeneralResponse):
+    data: None = None
+    success: bool = False
+
+class ResultResponse(GeneralResponse):
+    data: ResultDataModel
 

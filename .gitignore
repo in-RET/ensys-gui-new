@@ -48,7 +48,6 @@ Thumbs.db
 .env
 .angular/
 node_modules/
-data/
 *.sqlite
 /frontend/package-lock.json
 /site/
@@ -57,3 +56,4 @@ data/
 /ensys/.ensys-venv/
 */node_modules/
 .frontend
+storage

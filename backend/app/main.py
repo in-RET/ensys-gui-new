@@ -7,6 +7,7 @@ from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
 from .project.router import projects_router
+from .results.router import results_router
 from .scenario.router import scenario_router
 from .simulation.router import simulation_router
 from .user.router import users_router
@@ -39,6 +40,14 @@ tags_metadata = [
         "name": "default",
         "description": "The root of all evil."
     },
+    {
+        "name": "simulation",
+        "description": "Manage simulations."
+    },
+    {
+        "name": "results",
+        "description": "Get results."
+    }
 ]
 
 
@@ -92,6 +101,10 @@ fastapi_app.include_router(
 
 fastapi_app.include_router(
     router=simulation_router
+)
+
+fastapi_app.include_router(
+    router=results_router
 )
 
 @fastapi_app.get("/", response_class=HTMLResponse)

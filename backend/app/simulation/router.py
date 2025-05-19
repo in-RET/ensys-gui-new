@@ -10,10 +10,11 @@ from celery import uuid
 
 from .model import EnSimulationDB, Status
 from ..celery import simulation_task
+from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..project.model import EnProjectDB
 from ..project.router import validate_project_owner
-from ..responses import DataResponse, ErrorModel
+from ..responses import DataResponse, ErrorModel, MessageResponse
 from ..scenario.model import EnScenarioDB
 from ..scenario.router import validate_scenario_owner
 from ..security import oauth2_scheme
@@ -23,7 +24,7 @@ simulation_router = APIRouter(
     tags=["simulation"]
 )
 
-def validate_user_rights(token, scenario_id, db):
+def validate_user_rights(token, scenario_id, db) -> bool:
     validation_scenario = validate_scenario_owner(
         token=token,
         scenario_id=scenario_id,
@@ -66,9 +67,9 @@ def check_container_status(docker_container, simulation_id, db):
 
 
 
-@simulation_router.post("/start/{scenario_id}", response_model=DataResponse)
+@simulation_router.post("/start/{scenario_id}", response_model=MessageResponse)
 async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
-                           token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session), ):
+                           token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -104,14 +105,14 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
     task = simulation_task.apply_async((scenario_id, simulation.id), task_id=simulation_token)
     logger.info("Task UUID:", task.id)
 
-    return DataResponse(
+    return MessageResponse(
         data=f"Simulation with id:{simulation.id} and task id:{task.id} started.",
         success=True
     )
 
-@simulation_router.get("/status/{simulation_id}", response_model=DataResponse)
+@simulation_router.get("/status/{simulation_id}", response_model=MessageResponse)
 async def get_simulation_status(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                                db: Session = Depends(get_db_session)):
+                                db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -124,14 +125,14 @@ async def get_simulation_status(simulation_id: int, token: Annotated[str, Depend
 
     selected_simulation = db.get(EnSimulationDB, simulation_id)
 
-    return DataResponse(
+    return MessageResponse(
         data=selected_simulation.status,
         success=True
     )
 
-@simulation_router.post("s/stop/{scenario_id}", response_model=DataResponse)
+@simulation_router.post("s/stop/{scenario_id}", response_model=MessageResponse)
 async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                          db: Session = Depends(get_db_session)):
+                          db: Session = Depends(get_db_session)) -> MessageResponse:
     errors = []
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -155,15 +156,15 @@ async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth
     for simulation in simulations:
         revoke(simulation.sim_token, terminate=True)
 
-    return DataResponse(
+    return MessageResponse(
         data=f"Simulation stopped.",
         success=True,
         errors=errors
     )
 
-@simulation_router.post("/stop/{simulation_id}", response_model=DataResponse)
+@simulation_router.post("/stop/{simulation_id}", response_model=MessageResponse)
 async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                          db: Session = Depends(get_db_session)):
+                          db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -177,14 +178,14 @@ async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oaut
     # Task manuell stoppen
     revoke(simulation.sim_token, terminate=True)
 
-    return DataResponse(
+    return MessageResponse(
         data=f"Simulation with id:{simulation.sim_token} stopped.",
         success=True,
     )
 
 @simulation_router.get("s/{scenario_id}", response_model=DataResponse)
 async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                          db: Session = Depends(get_db_session)):
+                          db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -196,13 +197,16 @@ async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulations found.")
 
     return DataResponse(
-        data=simulations,
+        data=GeneralDataModel(
+            items=simulations,
+            totalCount=len(simulations),
+        ),
         success=True,
     )
 
 @simulation_router.get("/{simulation_id}", response_model=DataResponse)
 async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                         db: Session = Depends(get_db_session)):
+                         db: Session = Depends(get_db_session)) -> DataResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -214,14 +218,17 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     return DataResponse(
-        data=simulation,
+        data=GeneralDataModel(
+            items=[simulation],
+            totalCount=1,
+        ),
         success=True
     )
 
 
 @simulation_router.delete("/{simulation_id}")
 async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int,
-                            db: Session = Depends(get_db_session)) -> DataResponse:
+                            db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return DataResponse(
@@ -237,7 +244,7 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
     db.delete(simulation)
     db.commit()
 
-    return DataResponse(
+    return MessageResponse(
         data="Simulation deleted.",
         success=True
     )

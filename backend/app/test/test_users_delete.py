@@ -1,10 +1,10 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import app
+from backend.app.main import fastapi_app
 from backend.app.test.test_constants import get_test_user
 
-client = TestClient(app)
+client = TestClient(fastapi_app)
 
 
 @pytest.mark.order(10)

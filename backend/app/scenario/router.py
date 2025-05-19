@@ -5,9 +5,10 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnScenario, EnScenarioUpdate, EnScenarioDB
+from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..project.router import validate_project_owner
-from ..responses import DataResponse, ErrorModel
+from ..responses import DataResponse, MessageResponse
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -31,8 +32,8 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
     else:
         return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
 
-@scenario_router.post("/", response_model=DataResponse, status_code=status.HTTP_201_CREATED)
-async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario, db: Session = Depends(get_db_session)) -> DataResponse:
+@scenario_router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario, db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return DataResponse(
@@ -67,7 +68,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.add(scenario)
     db.commit()
 
-    return DataResponse(
+    return MessageResponse(
         data="Scenario created.",
         success=True
     )
@@ -104,10 +105,10 @@ async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_s
         response_data.append(scenario.model_dump())
 
     return DataResponse(
-        data={
-            "items": response_data,
-            "totalCount": len(response_data)
-        },
+        data=GeneralDataModel(
+            items=response_data,
+            totalCount=len(response_data)
+        ),
         success=True
     )
 
@@ -161,13 +162,15 @@ async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_s
         # )
 
     return DataResponse(
-        data=scenario.model_dump(),
-        success=True,
-        errors=None
+        data=GeneralDataModel(
+            items=[scenario.model_dump()],
+            totalCount=1
+        ),
+        success=True
     )
 
-@scenario_router.patch("/{scenario_id}", response_model=DataResponse)
-async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, scenario_data: EnScenarioUpdate, db: Session = Depends(get_db_session)) -> DataResponse:
+@scenario_router.patch("/{scenario_id}", response_model=MessageResponse)
+async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, scenario_data: EnScenarioUpdate, db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return DataResponse(
@@ -211,15 +214,14 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.commit()
     db.refresh(db_scenario)
 
-    return DataResponse(
+    return MessageResponse(
         data="Scenario updated.",
-        success=True,
-        errors=None
+        success=True
     )
 
 
-@scenario_router.delete("/{scenario_id}", response_model=DataResponse)
-async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, db: Session = Depends(get_db_session)) -> DataResponse:
+@scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
+async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int, db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return DataResponse(
@@ -247,8 +249,7 @@ async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     db.delete(scenario)
     db.commit()
 
-    return DataResponse(
+    return MessageResponse(
         data="Scenario deleted.",
-        success=True,
-        errors=None
+        success=True
     )

@@ -6,8 +6,6 @@ from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 from starlette import status
 
-from ..responses import CustomException
-
 PASSWORD_MAX_LENGTH = 128
 
 class EnUser(SQLModel):

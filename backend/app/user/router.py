@@ -4,13 +4,15 @@ from typing import Annotated
 from fastapi import Depends, APIRouter, Form, HTTPException
 from jose import jwt
 from passlib.hash import pbkdf2_sha256
+from pyomo.core.base.component_order import items
 from sqlmodel import Session, select
 from starlette import status
 from starlette.responses import JSONResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
+from ..data.model import GeneralDataModel
 from ..db import get_db_session
-from ..responses import DataResponse, ErrorModel, CustomException
+from ..responses import DataResponse, MessageResponse
 from ..security import decode_token, oauth2_scheme, token_secret
 
 users_router = APIRouter(
@@ -63,8 +65,8 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         # )
 
 
-@users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=DataResponse)
-async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> DataResponse:
+@users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
+async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> MessageResponse:
     # Test against same username
     statement = select(EnUserDB).where(EnUserDB.username == user.username)
     results = db.exec(statement).first()
@@ -105,10 +107,9 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     db.refresh(db_user)
 
     if db_user.id is not None:
-        return DataResponse(
-            data=None,
-            success=True,
-            errors=None
+        return MessageResponse(
+            data="",
+            success=True
         )
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
@@ -152,9 +153,11 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)], db: Session =
         # )
     else:
         return DataResponse(
-            data=user.model_dump(),
+            data=GeneralDataModel(
+                items=[user.model_dump()],
+                totalCount=1,
+            ),
             success=True,
-            errors=None
         )
 
 
@@ -184,13 +187,15 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
     db.refresh(user_db)
 
     return DataResponse(
-        data=user_db.model_dump(),
+        data=GeneralDataModel(
+            items=[user.model_dump()],
+            totalCount=1,
+        ),
         success=True,
-        errors=None
     )
 
-@users_router.delete("/", response_model=DataResponse)
-async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
+@users_router.delete("/", response_model=MessageResponse)
+async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> MessageResponse:
     token_data = decode_token(token)
 
     if not "id" in token_data:
@@ -213,12 +218,7 @@ async def delete_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session
     db.delete(user)
     db.commit()
 
-    return DataResponse(
-        data={
-            "message": "User was successfully deleted.",
-            "token": token,
-            "token_type": "bearer",
-        },
-        success=True,
-        errors=None
+    return MessageResponse(
+        data=f"User was successfully deleted.",
+        success=True
     )
