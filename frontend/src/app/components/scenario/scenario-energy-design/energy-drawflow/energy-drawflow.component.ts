@@ -70,12 +70,47 @@ export class EnergyDrawflowComponent {
 
             this.saveCurrentDrawflow();
         });
+        this.editor.on('connectionCreated', (data: any) => {
+            console.log('connectionCreated');
+
+            this.saveCurrentDrawflow();
+        });
+        this.editor.on('connectionRemoved', (data: any) => {
+            console.log('connectionCreated');
+
+            this.saveCurrentDrawflow();
+        });
+        this.editor.on('zoom', (data: any) => {
+            console.log('zoom');
+
+            this.saveCurrentDrawflow();
+        });
         // this.editor.container.addEventListener('compositionupdate', (e: any) => {
 
         // });
 
         this.listenNodeDBClick();
 
+        this.editor.on('contextmenu', (event) => {
+            if (
+                event.target.closest('.drawflow_content_node') != null ||
+                event.target.classList[0] === 'drawflow-node' ||
+                event.target.classList[0] === 'main-path'
+            ) {
+                this.showConextMenu(event.clientX, event.clientY);
+            }
+        });
+
+        this.editor.on('click', (event: any) => {
+            if (event.target.closest('#contextmenu') === null) {
+                this.unShowConextMenu();
+            }
+        });
+
+        this.loadCurrentDrawflow();
+    }
+
+    loadCurrentDrawflow() {
         let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
 
         if (CURRENT_DRAWFLOW) {
@@ -89,21 +124,6 @@ export class EnergyDrawflowComponent {
 
             this.editor.import(dataToImport);
         }
-
-        this.editor.on('contextmenu', (event) => {
-            if (
-                event.target.closest('.drawflow_content_node') != null ||
-                event.target.classList[0] === 'drawflow-node'
-            ) {
-                this.showConextMenu(event.clientX, event.clientY);
-            }
-        });
-
-        this.editor.on('click', (event: any) => {
-            if (event.target.closest('#contextmenu') === null) {
-                this.unShowConextMenu();
-            }
-        });
     }
 
     showConextMenu(x: any, y: any) {
