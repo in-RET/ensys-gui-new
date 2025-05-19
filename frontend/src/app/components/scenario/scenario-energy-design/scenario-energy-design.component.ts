@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
@@ -141,6 +141,8 @@ export class ScenarioEnergyDesignComponent {
 
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
+
+    @Output() fullScreen: EventEmitter<any> = new EventEmitter();
 
     ngOnInit() {}
 
@@ -845,5 +847,9 @@ export class ScenarioEnergyDesignComponent {
 
     getData() {
         return this.energyDrawflowComponent.getData();
+    }
+
+    _fullScreen() {
+        this.fullScreen.emit();
     }
 }

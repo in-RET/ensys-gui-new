@@ -42,12 +42,13 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
+    isFullscreen: boolean = true;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
 
-    @ViewChild('sed')
-    scenarioEnergyDesignComponent!: ScenarioEnergyDesignComponent;
+    @ViewChild('sed', { static: false })
+    scenarioEnergyDesignComponent!: any;
 
     scenarioService = inject(ScenarioService);
 
@@ -145,5 +146,20 @@ export class ScenarioBaseComponent {
 
     goToStep(number: number) {
         this.currentStep = number;
+    }
+
+    fullScreen() {
+        // const elem = this.scenarioEnergyDesignComponent.nativeElement;
+
+        // if (elem.requestFullscreen) {
+        //     elem.requestFullscreen();
+        // } else if (elem.msRequestFullscreen) {
+        //     elem.msRequestFullscreen();
+        // } else if (elem.mozRequestFullScreen) {
+        //     elem.mozRequestFullScreen();
+        // } else if (elem.webkitRequestFullscreen) {
+        //     elem.webkitRequestFullscreen();
+        // }
+        this.isFullscreen = !this.isFullscreen;
     }
 }

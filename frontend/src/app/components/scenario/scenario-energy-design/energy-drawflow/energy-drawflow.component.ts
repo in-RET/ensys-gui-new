@@ -36,6 +36,7 @@ export class EnergyDrawflowComponent {
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
     @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
         new EventEmitter();
+    @Output() fullScreen: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
 
@@ -706,5 +707,9 @@ export class EnergyDrawflowComponent {
             },
             editMode: true,
         });
+    }
+
+    _fullScreen() {
+        this.fullScreen.emit();
     }
 }

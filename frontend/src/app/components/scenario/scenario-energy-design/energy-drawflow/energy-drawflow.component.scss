@@ -32,6 +32,13 @@
         height: 1em;
         cursor: pointer;
     }
+
+    .full-screen {
+        background-image: url("/static/assets/icons/feather/white/maximize.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
 }
 
 ::ng-deep #contextmenu {
