@@ -102,26 +102,11 @@
     stroke: #4682b4;
 }
 .drawflow-delete {
-    position: absolute;
-    display: block;
-    width: 30px;
-    height: 30px;
-    background: #000;
-    color: #fff;
-    z-index: 4;
-    border: 2px solid #fff;
-    line-height: 30px;
-    font-weight: 700;
-    text-align: center;
-    border-radius: 50%;
-    font-family: monospace;
-    cursor: pointer;
+    display: none !important;
 }
 .drawflow > .drawflow-delete {
-    margin-left: -15px;
-    margin-top: 15px;
+    display: none !important;
 }
 .parent-node .drawflow-delete {
-    right: -15px;
-    top: -15px;
+    display: none !important;
 }

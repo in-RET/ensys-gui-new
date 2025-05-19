@@ -89,6 +89,62 @@ export class EnergyDrawflowComponent {
 
             this.editor.import(dataToImport);
         }
+
+        this.editor.on('contextmenu', (event) => {
+            if (
+                event.target.closest('.drawflow_content_node') != null ||
+                event.target.classList[0] === 'drawflow-node'
+            ) {
+                this.showConextMenu(event.clientX, event.clientY);
+            }
+        });
+
+        this.editor.on('click', (event: any) => {
+            if (event.target.closest('#contextmenu') === null) {
+                this.unShowConextMenu();
+            }
+        });
+    }
+
+    showConextMenu(x: any, y: any) {
+        var pos_x =
+            x *
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth * this.editor.zoom)) -
+            this.editor.precanvas.getBoundingClientRect().x *
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth * this.editor.zoom));
+        var pos_y =
+            y *
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight * this.editor.zoom)) -
+            this.editor.precanvas.getBoundingClientRect().y *
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight * this.editor.zoom));
+
+        var contextmenu = document.createElement('div');
+        contextmenu.id = 'contextmenu';
+        contextmenu.innerHTML = `
+               <div class="list-group list-group-flush">
+               <a  class="list-group-item list-group-item-action">
+                          Edit
+                        </a>
+                <a  class="list-group-item list-group-item-action">Delete</a>
+                </div>
+        `;
+        contextmenu.style.display = 'block';
+
+        contextmenu.style.left = pos_x + 'px';
+        contextmenu.style.top = pos_y + 'px';
+
+        this.editor.precanvas.appendChild(contextmenu);
+    }
+
+    unShowConextMenu() {
+        var contextmenu = document.getElementById('contextmenu');
+        if (contextmenu != null) {
+            contextmenu.remove();
+        }
     }
 
     saveCurrentDrawflow() {
