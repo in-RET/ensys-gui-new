@@ -7,17 +7,17 @@
     <app-energy-drawflow
         class="w-100 h-100 border"
         (_drop)="drop($event)"
-        (editNode)="editNode($event)"
+        (showNodeFormModal)="showNodeFormModal($event)"
     />
 </div>
 
 <app-modal
     *ngIf="modalVisibility"
-    [title]="createdNode.name"
+    [title]="currentNode.name"
     (closeModal)="toggleModal(false)"
 >
     <!-- <modal-form>
-        <app-form [formData]="formData" [node]="createdNode" #form />
+        <app-form [formData]="formData" [node]="currentNode" #form />
     </modal-form> -->
 
     <!-- <modal-actions>

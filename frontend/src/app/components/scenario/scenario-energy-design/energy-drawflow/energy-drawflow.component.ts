@@ -1,13 +1,8 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
+import { ScenarioService } from '../../services/scenario.service';
 import { FormComponent } from '../form/form.component';
 import { ModalComponent } from '../modal/modal.component';
 
@@ -32,15 +27,19 @@ export class EnergyDrawflowComponent {
     currentConnection: any;
     ASSET_TYPE_NAME: string = 'asset_type_name';
 
+    selected_nodeId: any;
+    selected_flowId: any;
+
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
 
-    @Output('_drop') _drop: EventEmitter<any> = new EventEmitter();
-    @Output('editNode') editNode: EventEmitter<any> = new EventEmitter();
+    @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
+    @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
+        new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
 
-    constructor(private elementRef: ElementRef) {}
+    constructor(private scenarioService: ScenarioService) {}
 
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
@@ -50,20 +49,36 @@ export class EnergyDrawflowComponent {
         this.editor.zoom_refresh();
 
         this.editor.on('connectionCreated', (connection: any) => {
+            console.log('connectionCreated');
+
             this.currentConnection = connection;
             this.connectionCreated(connection);
         });
 
-        this.editor.on('moduleChanged', (data: any) => {
-            console.log(data);
+        this.editor.on('nodeCreated', (data: any) => {
+            console.log('nodeCreated');
+
+            this.saveCurrentDrawflow();
         });
+        this.editor.on('nodeDataChanged', (data: any) => {
+            console.log('nodeDataChanged');
 
-        this.checkDBClickComponent();
+            this.saveCurrentDrawflow();
+        });
+        this.editor.on('nodeRemoved', (data: any) => {
+            console.log('nodeRemoved');
 
-        let CURRENT_DRAWFLOW = localStorage.getItem('CURRENT_DRAWFLOW');
-        CURRENT_DRAWFLOW = CURRENT_DRAWFLOW ? JSON.parse(CURRENT_DRAWFLOW) : '';
+            this.saveCurrentDrawflow();
+        });
+        // this.editor.container.addEventListener('compositionupdate', (e: any) => {
 
-        if (CURRENT_DRAWFLOW && CURRENT_DRAWFLOW.trim() != '') {
+        // });
+
+        this.listenNodeDBClick();
+
+        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
+
+        if (CURRENT_DRAWFLOW) {
             const dataToImport = {
                 drawflow: {
                     Home: {
@@ -76,11 +91,13 @@ export class EnergyDrawflowComponent {
         }
     }
 
-    checkDBClickComponent() {
-        var transform = '';
-        let _this = this;
+    saveCurrentDrawflow() {
+        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
+    }
 
-        document.addEventListener('dblclick', function (e: any) {
+    listenNodeDBClick() {
+        document.addEventListener('dblclick', (e: any) => {
             const closestNode = e.target.closest('.drawflow-node');
 
             if (closestNode) {
@@ -88,8 +105,8 @@ export class EnergyDrawflowComponent {
                     .querySelector('.box')
                     .getAttribute('asset_type_name');
 
-                const topologyNodeId = closestNode.id.split('node-')[1];
-                _this.openModal(topologyNodeId);
+                this.selected_nodeId = closestNode.id.split('node-')[1];
+                this._showNodeFormModal(this.selected_nodeId);
             }
         });
     }
@@ -116,12 +133,15 @@ export class EnergyDrawflowComponent {
             nodeGroup,
         };
 
-        this._drop.emit({
-            id: nodeId,
-            name: nodeName,
-            group: nodeGroup,
-            x: this.currentPosition.x,
-            y: this.currentPosition.y,
+        this.showNodeFormModal.emit({
+            node: {
+                id: nodeId,
+                name: nodeName,
+                group: nodeGroup,
+                x: this.currentPosition.x,
+                y: this.currentPosition.y,
+            },
+            editMode: false,
         });
     }
 
@@ -201,13 +221,6 @@ export class EnergyDrawflowComponent {
             source_html,
             false
         );
-
-        // tmporary
-        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
-        localStorage.setItem(
-            'CURRENT_DRAWFLOW',
-            JSON.stringify(CURRENT_DRAWFLOW)
-        );
     }
 
     addNode(data: any) {
@@ -223,17 +236,17 @@ export class EnergyDrawflowComponent {
     }
     updateNode(nodeId: number, data: any) {
         this.editor.drawflow.drawflow.Home.data[nodeId].html = `
-            <div class="box" ${this.ASSET_TYPE_NAME}="${data.name}"></div>
-        
+            <div class="box" ${this.ASSET_TYPE_NAME}=" ${data.name}"></div>
+
             <div class="drawflow-node__name nodeName">
                 <span>
-                ${data.name}
+          ${data.name}
                 </span>
             </div>
 
             <div class="img"></div>
         `;
-
+        this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.updateNodeDataFromId(nodeId, data);
     }
 
@@ -585,7 +598,7 @@ export class EnergyDrawflowComponent {
         this.currentConnection = null;
     }
 
-    submitForm_Flow() {
+    submitFormData_Flow() {
         const _formData = this.formComponent.submit();
 
         if (_formData) {
@@ -603,8 +616,19 @@ export class EnergyDrawflowComponent {
         return drawflowData;
     }
 
-    openModal(nodeId: string) {
+    _showNodeFormModal(nodeId: string) {
         const node = this.editor.getNodeFromId(nodeId);
-        this.editNode.emit({ id: nodeId, name: node.class, data: node.data });
+
+        this.showNodeFormModal.emit({
+            node: {
+                id: nodeId,
+                name: node.data.name,
+                group: node.class,
+                x: node.pos_x,
+                y: node.pos_y,
+                data: node.data,
+            },
+            editMode: true,
+        });
     }
 }

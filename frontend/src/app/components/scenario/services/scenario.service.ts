@@ -6,7 +6,8 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
 })
 export class ScenarioService {
     private baseUrl: string = 'http://localhost:9006/scenario';
-    private scenario_localstorage_name = `scenario_data`;
+    private scenario_localstorage_name = 'scenario_data';
+    private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
 
     constructor(private baseHttp: BaseHttpService) {}
 
@@ -22,6 +23,7 @@ export class ScenarioService {
         return this.baseHttp.post(`${this.baseUrl}`, data);
     }
 
+    // base info
     saveBaseInfo_Storage(data: any) {
         localStorage.setItem(
             this.scenario_localstorage_name,
@@ -40,6 +42,24 @@ export class ScenarioService {
 
         if (BaseInfoData && BaseInfoData.trim() != '')
             return JSON.parse(BaseInfoData);
+        else return false;
+    }
+
+    // drawflow
+    saveDrawflow_Storage(data: any) {
+        localStorage.setItem(
+            this.scenario_drawflow_localstorage_name,
+            JSON.stringify(data)
+        );
+    }
+
+    restoreDrawflow_Storage() {
+        const DrawflowData: string | null = localStorage.getItem(
+            this.scenario_drawflow_localstorage_name
+        );
+
+        if (DrawflowData && DrawflowData.trim() != '')
+            return JSON.parse(DrawflowData);
         else return false;
     }
 }

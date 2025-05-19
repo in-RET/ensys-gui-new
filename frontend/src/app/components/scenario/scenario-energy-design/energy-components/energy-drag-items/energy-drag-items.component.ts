@@ -12,8 +12,6 @@ export class EnergyDragItemsComponent {
     @Input() id: any;
 
     drag(ev: any) {
-        console.log('start');
-
         ev.dataTransfer.setData('id', this.id);
         ev.dataTransfer.setData('node', this.name);
         ev.dataTransfer.setData('group', this.group);

@@ -125,14 +125,13 @@ export class ScenarioEnergyDesignComponent {
 
     editor!: Drawflow;
     modalVisibility: boolean = false;
-    createdNode: any = {}; // {name: ....}
+    currentNode: any = {}; // {name: ....}
     formData!: any;
     formError: any = {
         msg: '',
         isShow: false,
     };
     editMode: boolean = false;
-    currentEditNode: any;
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -160,19 +159,14 @@ export class ScenarioEnergyDesignComponent {
         // .then((result) => save_topology());
     }
 
-    drop(node: any) {
-        this.formData = null;
-        this.createdNode = node;
-        this.initFormData(this.createdNode.name);
-        this.toggleModal(true);
-    }
+    drop(e: { node: any; editMode: boolean }) {}
 
-    editNode(e: any) {
-        this.editMode = true;
-        this.currentEditNode = e;
+    showNodeFormModal(e: { node: any; editMode: boolean }) {
         this.formData = null;
+        this.editMode = e.editMode;
+        this.currentNode = e.node;
 
-        this.initFormData(e.name, e.data);
+        this.initFormData(this.currentNode.group, this.currentNode.data);
         this.toggleModal(true);
     }
 
@@ -183,7 +177,7 @@ export class ScenarioEnergyDesignComponent {
 
     makeNode(data: any) {
         if (data)
-            switch (this.createdNode.group) {
+            switch (this.currentNode.group) {
                 case 'production':
                     this.energyDrawflowComponent.addNode({
                         ...data,
@@ -210,7 +204,7 @@ export class ScenarioEnergyDesignComponent {
                     break;
 
                 case 'conversion':
-                    if (this.createdNode.id == 'transformer')
+                    if (this.currentNode.id == 'transformer')
                         this.energyDrawflowComponent.addNode({
                             ...data,
                             inp: data['ports']['inputs']
@@ -226,49 +220,19 @@ export class ScenarioEnergyDesignComponent {
 
     updateNode(data: any) {
         if (data)
-            switch (this.createdNode.group) {
-                case 'production':
-                    this.energyDrawflowComponent.updateNode(
-                        this.currentEditNode.id,
-                        data
-                    );
-                    break;
-
-                case 'bus':
-                case 'storage':
-                    this.energyDrawflowComponent.updateNode(
-                        this.currentEditNode.id,
-                        data
-                    );
-                    break;
-
-                case 'demand':
-                    this.energyDrawflowComponent.updateNode(
-                        this.currentEditNode.id,
-                        data
-                    );
-                    break;
-
-                case 'conversion':
-                    if (this.createdNode.id == 'transformer')
-                        this.energyDrawflowComponent.updateNode(
-                            this.currentEditNode.id,
-                            data
-                        );
-                    break;
-            }
+            this.energyDrawflowComponent.updateNode(this.currentNode.id, data);
     }
 
-    initFormData(nodeName: string, data?: any) {
+    initFormData(name: string, data?: any) {
         // this.form = signal<FormGroup>();
 
         const getFieldData = function (fName: string) {
             return data ? data[fName.toLocaleLowerCase()] : null;
         };
 
-        nodeName = nodeName.toLocaleLowerCase();
+        name = name.toLocaleLowerCase();
 
-        switch (nodeName) {
+        switch (name) {
             case 'source':
                 this.formData = {
                     sections: [
@@ -867,11 +831,13 @@ export class ScenarioEnergyDesignComponent {
 
         if (_formData) {
             this.setFormError(false, '');
-            this.editMode
-                ? this.updateNode(_formData)
-                : this.makeNode(_formData);
+
+            if (this.editMode) {
+                this.updateNode(_formData);
+                this.editMode = false;
+            } else this.makeNode(_formData);
+
             this.modalComponent._closeModal(true);
-            this.editMode = false;
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
