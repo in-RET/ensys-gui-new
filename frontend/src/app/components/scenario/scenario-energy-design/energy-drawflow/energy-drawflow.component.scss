@@ -32,4 +32,28 @@
         height: 1em;
         cursor: pointer;
     }
+
+    .full-screen {
+        background-image: url("/static/assets/icons/feather/white/maximize.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
+}
+
+::ng-deep #contextmenu {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    background: rgb(88, 181, 204);
+    border: 2px solid black;
+    z-index: 10;
+    min-width: 10rem;
+
+    .zoom-in {
+        background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
+        width: 1em;
+        height: 1em;
+        cursor: pointer;
+    }
 }

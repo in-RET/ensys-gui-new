@@ -4,16 +4,21 @@
         (clearGridModel)="clearGridModel()"
     />
 
-    <app-energy-drawflow class="w-100 h-100 border" (_drop)="drop($event)" />
+    <app-energy-drawflow
+        class="w-100 h-100 border"
+        (_drop)="drop($event)"
+        (showNodeFormModal)="showNodeFormModal($event)"
+        (fullScreen)="_fullScreen()"
+    />
 </div>
 
 <app-modal
     *ngIf="modalVisibility"
-    [title]="createdNode.name"
+    [title]="currentNode.name"
     (closeModal)="toggleModal(false)"
 >
     <!-- <modal-form>
-        <app-form [formData]="formData" [node]="createdNode" #form />
+        <app-form [formData]="formData" [node]="currentNode" #form />
     </modal-form> -->
 
     <!-- <modal-actions>

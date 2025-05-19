@@ -107,7 +107,6 @@ services:
         depends_on:
             - redis
 
-
 #  proxy:
 #    build: ./proxy
 #    container_name: gui_proxy

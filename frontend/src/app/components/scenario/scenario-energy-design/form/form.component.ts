@@ -57,7 +57,7 @@ export class FormComponent {
                 section.fields.forEach((field: any) => {
                     let fControl: FormControl = new FormControl(
                         {
-                            value: field['value'] ? field['value'] : 'q',
+                            value: field['value'] ? field['value'] : 1,
                             disabled: field.hasOwnProperty('disabled')
                                 ? true
                                 : null,

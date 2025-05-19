@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
-  selector: 'app-index',
-  imports: [],
-  templateUrl: './index.component.html',
-  styleUrl: './index.component.scss',
+    selector: 'app-index',
+    imports: [FooterComponent],
+    templateUrl: './index.component.html',
+    styleUrl: './index.component.scss',
 })
 export class IndexComponent {}

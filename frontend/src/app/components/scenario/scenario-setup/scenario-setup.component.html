@@ -1,7 +1,7 @@
 <div class="scenario-main">
     <form [formGroup]="form">
         <div class="row g-2">
-            <div class="col">
+            <div class="col-1">
                 <div class="form-floating mb-3">
                     <input
                         type="text"
@@ -13,17 +13,45 @@
                             'is-invalid':
                                 name!.invalid && (name!.dirty || name!.touched)
                         }"
+                        tabindex="1"
                     />
                     <label>Name</label>
                 </div>
             </div>
 
+            <div class="col-2" formGroupName="project">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="id"
+                        [ngClass]="{
+                            'is-invalid':
+                                projectId!.invalid &&
+                                (projectId!.dirty || projectId!.touched)
+                        }"
+                        tabindex="2"
+                    >
+                        <option selected disabled value="null">
+                            Choose...
+                        </option>
+
+                        <option
+                            [value]="project.id"
+                            *ngFor="let project of projectList"
+                        >
+                            {{ project.name }}
+                        </option>
+                    </select>
+                    <label>Project</label>
+                </div>
+            </div>
+
             <!-- datepiocker -->
-            <div class="col">
+            <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
                         type="date"
-                        class="form-control"
+                        class="form-control date"
                         formControlName="sDate"
                         placeholder="Start Date"
                         required
@@ -32,6 +60,7 @@
                                 sDate!.invalid &&
                                 (sDate!.dirty || sDate!.touched)
                         }"
+                        tabindex="3"
                     />
                     <label>Start Date</label>
                 </div>
@@ -51,12 +80,13 @@
                                 (simulationPeriod!.dirty ||
                                     simulationPeriod!.touched)
                         }"
+                        tabindex="4"
                     />
                     <label>Simulation period of one year</label>
                 </div>
             </div>
 
-            <div class="col">
+            <div class="col-2">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -66,6 +96,7 @@
                                 timeStep!.invalid &&
                                 (timeStep!.dirty || timeStep!.touched)
                         }"
+                        tabindex="5"
                     >
                         <option selected disabled value="">Choose...</option>
                         <option value="60">60 min</option>
@@ -75,7 +106,7 @@
                 </div>
             </div>
 
-            <div class="col">
+            <div class="col-2">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -86,6 +117,7 @@
                                 (simulationYear!.dirty ||
                                     simulationYear!.touched)
                         }"
+                        tabindex="6"
                     >
                         <option selected disabled value="">Choose...</option>
                         <option value="2025">2025</option>

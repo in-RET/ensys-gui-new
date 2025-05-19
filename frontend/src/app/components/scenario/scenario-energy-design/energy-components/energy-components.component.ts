@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ScenarioService } from '../../services/scenario.service';
 import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.component';
 
 @Component({
@@ -12,17 +13,18 @@ export class EnergyComponentsComponent {
     project: any = {};
     scenario: any = {};
 
+    scenarioService = inject(ScenarioService);
+
     @Input() components: any;
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
         new EventEmitter();
 
     ngOnInit() {
-        let initalData: any = localStorage.getItem('scenario-step-0');
+        let initalData = this.scenarioService.restoreBaseInfo_Storage();
 
         if (initalData) {
-            initalData = JSON.parse(initalData);
-            this.project['name'] = initalData.projectName;
+            this.project['name'] = initalData.project.name;
             this.scenario['name'] = initalData.name;
         }
     }

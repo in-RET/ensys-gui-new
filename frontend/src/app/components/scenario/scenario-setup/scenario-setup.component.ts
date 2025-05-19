@@ -8,6 +8,8 @@ import {
     Validators,
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { map } from 'rxjs';
+import { ScenarioService } from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -17,6 +19,10 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class ScenarioSetupComponent {
     form: FormGroup = new FormGroup({
+        project: new FormGroup({
+            id: new FormControl(null, [Validators.required]),
+            name: new FormControl(null, [Validators.required]),
+        }),
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl('', [Validators.required]),
         timeStep: new FormControl('', [Validators.required]),
@@ -70,29 +76,64 @@ export class ScenarioSetupComponent {
         return this.form.get('maximum_emissions');
     }
 
+    get project() {
+        return this.form.get('project');
+    }
+
+    get projectId() {
+        return this.form.get('project.id');
+    }
+
     private readonly route = inject(ActivatedRoute);
+    scenarioService = inject(ScenarioService);
+
+    projectList!: any[];
 
     ngOnInit() {
-        let currentData: any = localStorage.getItem(`scenario-step-0`);
+        this.getProjects();
+        this.loadCurrentData();
+
+        this.projectId?.valueChanges.subscribe((id: any) => {
+            this.project?.patchValue({
+                name: this.projectList.find((x) => x.id == id).name,
+            });
+        });
+    }
+
+    getProjects() {
+        this.route.data
+            .pipe(
+                map((res: any) => {
+                    return res.projectList;
+                })
+            )
+            .subscribe((res: any) => {
+                this.projectList = [];
+                this.projectList = res;
+            });
+    }
+
+    loadCurrentData() {
+        let scenarioBaseData: any =
+            this.scenarioService.restoreBaseInfo_Storage();
 
         if (
-            currentData &&
-            currentData.trim() !== '' &&
-            currentData !== null &&
-            currentData !== undefined
+            scenarioBaseData &&
+            scenarioBaseData !== null &&
+            scenarioBaseData !== undefined
         ) {
-            currentData = JSON.parse(currentData);
-            const p_id = this.route.snapshot.paramMap.get('p_id');
-
-            if (p_id && currentData.projectId === +p_id) {
+            if (scenarioBaseData.project.id) {
                 let {
+                    project,
                     name,
                     simulationPeriod,
                     timeStep,
                     sDate,
                     simulationYear,
-                } = currentData;
+                } = scenarioBaseData;
+
                 this.form.patchValue({
+                    project: { id: project.id, name: project.name },
                     name,
                     simulationPeriod,
                     timeStep,
@@ -103,6 +144,7 @@ export class ScenarioSetupComponent {
         }
     }
 
+    // call from ScenarioBaseComponent
     getData() {
         this.form.markAllAsTouched();
         return this.form.valid ? this.form.getRawValue() : false;

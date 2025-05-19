@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
@@ -125,12 +125,13 @@ export class ScenarioEnergyDesignComponent {
 
     editor!: Drawflow;
     modalVisibility: boolean = false;
-    createdNode: any = {}; // {name: ....}
+    currentNode: any = {}; // {name: ....}
     formData!: any;
     formError: any = {
         msg: '',
         isShow: false,
     };
+    editMode: boolean = false;
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -140,6 +141,8 @@ export class ScenarioEnergyDesignComponent {
 
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
+
+    @Output() fullScreen: EventEmitter<any> = new EventEmitter();
 
     ngOnInit() {}
 
@@ -158,11 +161,14 @@ export class ScenarioEnergyDesignComponent {
         // .then((result) => save_topology());
     }
 
-    drop(node: any) {
-        // this.createdNode['id'] = e.id;
-        // this.createdNode['name'] = e.name;
-        this.createdNode = node;
-        this.initFormData(this.createdNode.name);
+    drop(e: { node: any; editMode: boolean }) {}
+
+    showNodeFormModal(e: { node: any; editMode: boolean }) {
+        this.formData = null;
+        this.editMode = e.editMode;
+        this.currentNode = e.node;
+
+        this.initFormData(this.currentNode.group, this.currentNode.data);
         this.toggleModal(true);
     }
 
@@ -173,7 +179,7 @@ export class ScenarioEnergyDesignComponent {
 
     makeNode(data: any) {
         if (data)
-            switch (this.createdNode.group) {
+            switch (this.currentNode.group) {
                 case 'production':
                     this.energyDrawflowComponent.addNode({
                         ...data,
@@ -200,7 +206,7 @@ export class ScenarioEnergyDesignComponent {
                     break;
 
                 case 'conversion':
-                    if (this.createdNode.id == 'transformer')
+                    if (this.currentNode.id == 'transformer')
                         this.energyDrawflowComponent.addNode({
                             ...data,
                             inp: data['ports']['inputs']
@@ -214,11 +220,22 @@ export class ScenarioEnergyDesignComponent {
             }
     }
 
-    initFormData(nodeName: string) {
+    updateNode(data: any) {
+        if (data)
+            this.energyDrawflowComponent.updateNode(this.currentNode.id, data);
+    }
+
+    initFormData(name: string, data?: any) {
         // this.form = signal<FormGroup>();
 
-        switch (nodeName) {
-            case 'Source':
+        const getFieldData = function (fName: string) {
+            return data ? data[fName.toLocaleLowerCase()] : null;
+        };
+
+        name = name.toLocaleLowerCase();
+
+        switch (name) {
+            case 'source':
                 this.formData = {
                     sections: [
                         {
@@ -230,6 +247,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -244,6 +262,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('outputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -264,7 +283,8 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Predefined Source':
+            case 'predefined source':
+            case 'predefinedsource':
                 this.formData = {
                     sections: [
                         {
@@ -276,6 +296,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                 },
                             ],
@@ -289,6 +310,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Source',
                                     label: 'Choose...',
                                     isReq: true,
+                                    value: getFieldData('source'),
                                     type: 'select',
                                     options: [
                                         {
@@ -331,7 +353,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Transformer':
+            case 'transformer':
                 this.formData = {
                     sections: [
                         {
@@ -360,6 +382,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -369,7 +392,8 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Predefined Transformer':
+            case 'predefined transformer':
+            case 'predefinedtransformer':
                 this.formData = {
                     sections: [
                         {
@@ -381,6 +405,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                 },
                             ],
@@ -394,6 +419,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Trafo',
                                     label: 'Choose...',
                                     isReq: true,
+                                    value: getFieldData('trafo'),
                                     type: 'select',
                                     options: [
                                         {
@@ -444,7 +470,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'GenericStorage':
+            case 'genericgtorage':
                 this.formData = {
                     sections: [
                         {
@@ -456,6 +482,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -470,6 +497,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('outputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -484,6 +512,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '4',
                                 },
@@ -493,7 +522,8 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Predefined Storage':
+            case 'predefined storage':
+            case 'predefinedstorage':
                 this.formData = {
                     sections: [
                         {
@@ -505,6 +535,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -519,6 +550,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('outputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -533,6 +565,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '4',
                                 },
@@ -541,6 +574,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Storage',
                                     label: 'Choose...',
                                     isReq: true,
+                                    value: getFieldData('Storage'),
                                     type: 'select',
                                     span: '8',
                                     options: [
@@ -585,7 +619,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Sink':
+            case 'sink':
                 this.formData = {
                     sections: [
                         {
@@ -597,6 +631,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -611,6 +646,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -620,7 +656,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Excess':
+            case 'excess':
                 this.formData = {
                     sections: [
                         {
@@ -632,6 +668,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -646,6 +683,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -655,7 +693,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Export':
+            case 'export':
                 this.formData = {
                     sections: [
                         {
@@ -667,6 +705,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -681,6 +720,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -690,7 +730,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'OEP':
+            case 'oep':
                 this.formData = {
                     sections: [
                         {
@@ -702,6 +742,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -716,6 +757,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -725,7 +767,7 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
-            case 'Bus':
+            case 'bus':
                 this.formData = {
                     sections: [
                         {
@@ -737,6 +779,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('inputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -751,6 +794,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('outputPort_name'),
                                     type: 'text',
                                     span: '8',
                                 },
@@ -766,6 +810,7 @@ export class ScenarioEnergyDesignComponent {
                                     placeholder: 'Name',
                                     label: 'Name',
                                     isReq: true,
+                                    value: getFieldData('name'),
                                     type: 'text',
                                     span: '6',
                                 },
@@ -788,7 +833,12 @@ export class ScenarioEnergyDesignComponent {
 
         if (_formData) {
             this.setFormError(false, '');
-            this.makeNode(_formData);
+
+            if (this.editMode) {
+                this.updateNode(_formData);
+                this.editMode = false;
+            } else this.makeNode(_formData);
+
             this.modalComponent._closeModal(true);
         } else {
             this.setFormError(true, ' * Complete the form!');
@@ -797,5 +847,9 @@ export class ScenarioEnergyDesignComponent {
 
     getData() {
         return this.energyDrawflowComponent.getData();
+    }
+
+    _fullScreen() {
+        this.fullScreen.emit();
     }
 }

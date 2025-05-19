@@ -6,7 +6,7 @@
     // height: calc(
     //     100vh - #{$top-nav-height} - #{$wizard-height +1} - #{$footer-scenario-height +1}
     // );
-    height: 500px;
+    height: 78vh;
     border-top: $gray-border;
 
     .components {
@@ -154,21 +154,26 @@
         width: 2px;
     }
 
+    .drawflow .drawflow-delete {
+        display: none;
+    }
+
     .parent-node .drawflow-delete {
-        content: "X";
-        position: absolute;
-        top: 0;
-        right: 0;
-        background-color: $white;
-        color: black;
-        width: 1.15rem;
-        height: 1.15rem;
-        font-weight: 700;
-        line-height: 1rem;
-        padding-left: 0.25rem;
-        border: 1px solid $primary-gray-color-4;
-        border-radius: 100%;
-        cursor: pointer;
+        // content: "X";
+        // position: absolute;
+        // top: 0;
+        // right: 0;
+        // background-color: $white;
+        // color: black;
+        // width: 1.15rem;
+        // height: 1.15rem;
+        // font-weight: 700;
+        // line-height: 1rem;
+        // padding-left: 0.25rem;
+        // border: 1px solid $primary-gray-color-4;
+        // border-radius: 100%;
+        // cursor: pointer;
+        display: none;
     }
 
     .drawflow .drawflow-node {
@@ -308,20 +313,21 @@
 }
 
 .system-design .parent-node .drawflow-delete {
-    content: "X";
-    position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #fff;
-    color: black;
-    width: 1.15rem;
-    height: 1.15rem;
-    font-weight: 700;
-    line-height: 1rem;
-    padding-left: 0.25rem;
-    border: 1px solid #495965;
-    border-radius: 100%;
-    cursor: pointer;
+    // content: "X";
+    // position: absolute;
+    // top: 0;
+    // right: 0;
+    // background-color: #fff;
+    // color: black;
+    // width: 1.15rem;
+    // height: 1.15rem;
+    // font-weight: 700;
+    // line-height: 1rem;
+    // padding-left: 0.25rem;
+    // border: 1px solid #495965;
+    // border-radius: 100%;
+    // cursor: pointer;
+    display: none;
 }
 
 .system-design .drawflow .drawflow-node {
