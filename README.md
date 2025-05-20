@@ -40,20 +40,7 @@ For further information, please refer to the [Documentation](https://in-ret.gith
     PROXY_PORT=9004
     API_PORT=9006
     ```
-2. Navigate to the wrapper-package-folder
-    ```
-    cd backend/wrapper
-    ```
-3. Create a python environment to build the ensys-wrapper-package
-    ``` bash
-    python -m build --wheel
-    ```
-4. Build the docker image for the optimizer, actually just gurobi is supported
-    ``` bash
-    docker build -t "ensys:0.2a7-gurobi" .
-    ```
-5. Navigate back to the project root
-6. Start the docker-compose project
+2. Start the docker-compose project
     ``` bash
     docker compose build -f docker-compose.dev.yaml up --build #for Development
     docker compose build -f docker-compose.prod.yaml up --build #for production
