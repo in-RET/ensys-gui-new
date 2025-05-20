@@ -33,16 +33,23 @@ export class EnergyDragItemsComponent {
     touchEnd(ev: TouchEvent) {
         ev.preventDefault();
 
-        // const touchItem = ev.touches[0];
+        const touchedElement = document.elementFromPoint(
+            this.touchedItem.clientX,
+            this.touchedItem.clientY
+        );
 
-        this._touchEnd.emit({
-            id: this.id,
-            name: this.name,
-            group: this.group,
-            pos: {
-                x: this.touchedItem.clientX,
-                y: this.touchedItem.clientY,
-            },
-        });
+        if (
+            touchedElement?.className === 'drawflow' ||
+            touchedElement?.id === 'drawflow'
+        )
+            this._touchEnd.emit({
+                id: this.id,
+                name: this.name,
+                group: this.group,
+                pos: {
+                    x: this.touchedItem.clientX,
+                    y: this.touchedItem.clientY,
+                },
+            });
     }
 }
