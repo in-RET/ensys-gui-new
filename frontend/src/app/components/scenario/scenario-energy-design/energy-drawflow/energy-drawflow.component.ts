@@ -31,12 +31,13 @@ export class EnergyDrawflowComponent {
     selected_flowId: any;
 
     @ViewChild(ModalComponent)
-    modalComponent!: ModalComponent;
+    modalComponent: ModalComponent = {} as ModalComponent;
 
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
     @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
         new EventEmitter();
     @Output() fullScreen: EventEmitter<any> = new EventEmitter();
+    @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
 
@@ -108,6 +109,14 @@ export class EnergyDrawflowComponent {
         });
 
         this.loadCurrentDrawflow();
+
+        addEventListener('touchstart', this.onTouchMove, { passive: false });
+        addEventListener('touchend', this.onTouchMove, { passive: false });
+        addEventListener('touchmove', this.onTouchMove, { passive: false });
+    }
+
+    onTouchMove(e: any) {
+        e.preventDefault;
     }
 
     loadCurrentDrawflow() {
@@ -174,6 +183,8 @@ export class EnergyDrawflowComponent {
 
     listenNodeDBClick() {
         document.addEventListener('dblclick', (e: any) => {
+            console.log('recognise DB click');
+
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
@@ -229,6 +240,30 @@ export class EnergyDrawflowComponent {
                 group: nodeGroup,
                 x: this.currentPosition.x,
                 y: this.currentPosition.y,
+            },
+            editMode: false,
+        });
+    }
+
+    onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
+        this.currentPosition = {
+            x: this.getNodePosition(pos.x, 'x'),
+            y: this.getNodePosition(pos.y, 'y'),
+        };
+
+        this.currentNode = {
+            nodeId,
+            nodeName,
+            nodeGroup,
+        };
+
+        this.showNodeFormModal.emit({
+            node: {
+                id: nodeId,
+                name: nodeName,
+                group: nodeGroup,
+                x: pos.x,
+                y: pos.y,
             },
             editMode: false,
         });

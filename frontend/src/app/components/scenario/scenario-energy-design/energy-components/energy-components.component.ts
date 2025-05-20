@@ -19,6 +19,7 @@ export class EnergyComponentsComponent {
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
         new EventEmitter();
+    @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
 
     ngOnInit() {
         let initalData = this.scenarioService.restoreBaseInfo_Storage();
@@ -31,5 +32,9 @@ export class EnergyComponentsComponent {
 
     onClearGridModel() {
         this.clearGridModel.emit();
+    }
+
+    _touchEnd(e: any) {
+        this.touchEnd.emit(e);
     }
 }

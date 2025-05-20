@@ -1,4 +1,11 @@
-<div class="section__component" draggable="true" (dragstart)="drag($event)">
+<div
+    class="section__component"
+    draggable="true"
+    (dragstart)="drag($event)"
+    (touchstart)="touchStart($event)"
+    (touchmove)="touchMove($event)"
+    (touchend)="touchEnd($event)"
+>
     <img
         class="img"
         src="/static/assets/gui/{{ id }}.svg"

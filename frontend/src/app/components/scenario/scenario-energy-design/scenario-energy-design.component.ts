@@ -161,7 +161,9 @@ export class ScenarioEnergyDesignComponent {
         // .then((result) => save_topology());
     }
 
-    drop(e: { node: any; editMode: boolean }) {}
+    touchEnd(e: any) {
+        this.energyDrawflowComponent.onTouchEnd(e.id, e.name, e.group, e.pos);
+    }
 
     showNodeFormModal(e: { node: any; editMode: boolean }) {
         this.formData = null;

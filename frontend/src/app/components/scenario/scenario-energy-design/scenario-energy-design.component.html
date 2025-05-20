@@ -2,11 +2,11 @@
     <app-energy-components
         [components]="components"
         (clearGridModel)="clearGridModel()"
+        (touchEnd)="touchEnd($event)"
     />
 
     <app-energy-drawflow
         class="w-100 h-100 border"
-        (_drop)="drop($event)"
         (showNodeFormModal)="showNodeFormModal($event)"
         (fullScreen)="_fullScreen()"
     />

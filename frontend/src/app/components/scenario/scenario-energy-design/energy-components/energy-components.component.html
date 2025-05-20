@@ -51,6 +51,7 @@
                             [id]="component.id"
                             [name]="component.name"
                             [group]="componet.group_name"
+                            (touchEnd)="_touchEnd($event)"
                         />
                     </ng-container>
                     <!-- {% for component_id, component_name in
