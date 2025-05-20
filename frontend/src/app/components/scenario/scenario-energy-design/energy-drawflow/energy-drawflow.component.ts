@@ -45,7 +45,7 @@ export class EnergyDrawflowComponent {
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
         this.editor = new Drawflow(id);
-        this.editor.zoom = 0.7;
+        this.editor.zoom = 1.7;
         this.editor.start();
         this.editor.zoom_refresh();
 
@@ -83,7 +83,6 @@ export class EnergyDrawflowComponent {
         });
         this.editor.on('zoom', (data: any) => {
             console.log('zoom');
-
             this.saveCurrentDrawflow();
         });
         // this.editor.container.addEventListener('compositionupdate', (e: any) => {
@@ -176,14 +175,27 @@ export class EnergyDrawflowComponent {
     listenNodeDBClick() {
         document.addEventListener('dblclick', (e: any) => {
             const closestNode = e.target.closest('.drawflow-node');
+            const closestEdge = e.target.closest('.main-path');
+
+            // event.target.closest('.drawflow_content_node') != null ||
+            //     event.target.classList[0] === 'drawflow-node' ||
+            //     event.target.classList[0] === 'main-path'
 
             if (closestNode) {
-                const nodeType = closestNode
-                    .querySelector('.box')
-                    .getAttribute('asset_type_name');
+                // const nodeType = closestNode
+                //     .querySelector('.box')
+                //     .getAttribute('asset_type_name');
 
                 this.selected_nodeId = closestNode.id.split('node-')[1];
-                this._showNodeFormModal(this.selected_nodeId);
+                this._showFormModalNode(
+                    this.selected_nodeId,
+                    e.clientX,
+                    e.clientY
+                );
+            }
+
+            if (closestEdge) {
+                this._showFormModal_edge(e.clientX, e.clientY);
             }
         });
     }
@@ -693,20 +705,26 @@ export class EnergyDrawflowComponent {
         return drawflowData;
     }
 
-    _showNodeFormModal(nodeId: string) {
+    _showFormModalNode(nodeId: string, x: number, y: number) {
         const node = this.editor.getNodeFromId(nodeId);
 
-        this.showNodeFormModal.emit({
-            node: {
-                id: nodeId,
-                name: node.data.name,
-                group: node.class,
-                x: node.pos_x,
-                y: node.pos_y,
-                data: node.data,
-            },
-            editMode: true,
-        });
+        // this.showNodeFormModal.emit({
+        //     node: {
+        //         id: nodeId,
+        //         name: node.data.name,
+        //         group: node.class,
+        //         x: node.pos_x,
+        //         y: node.pos_y,
+        //         data: node.data,
+        //     },
+        //     editMode: true,
+        // });
+
+        this.showConextMenu(x, y);
+    }
+
+    _showFormModal_edge(x: number, y: number) {
+        this.showConextMenu(x, y);
     }
 
     _fullScreen() {

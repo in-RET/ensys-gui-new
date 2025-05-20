@@ -168,7 +168,7 @@ export class ScenarioEnergyDesignComponent {
         this.editMode = e.editMode;
         this.currentNode = e.node;
 
-        this.initFormData(this.currentNode.group, this.currentNode.data);
+        this.initFormData(this.currentNode.name, this.currentNode.data);
         this.toggleModal(true);
     }
 
