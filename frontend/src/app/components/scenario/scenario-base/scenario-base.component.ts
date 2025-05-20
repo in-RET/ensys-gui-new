@@ -42,7 +42,7 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
-    isFullscreen: boolean = false;
+    isFullscreen: boolean = true;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
