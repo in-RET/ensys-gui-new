@@ -109,6 +109,11 @@ export class EnergyDrawflowComponent {
             }
         });
 
+        this.editor.on('nodeMoved', (nodeId: any) => {
+            console.log('Change position of node: ' + nodeId);
+            this.saveCurrentDrawflow();
+        });
+
         addEventListener('touchstart', this.touchStart, { passive: false });
         addEventListener('touchend', this.touchEtart, { passive: false });
     }
