@@ -29,6 +29,7 @@ export class EnergyDrawflowComponent {
 
     selected_nodeId: any;
     selected_flowId: any;
+    touchTimer: any;
 
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
@@ -37,7 +38,7 @@ export class EnergyDrawflowComponent {
     @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
         new EventEmitter();
     @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
-    @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
+    @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
 
@@ -46,45 +47,32 @@ export class EnergyDrawflowComponent {
     ngOnInit() {
         var id: any = document.getElementById('drawflow');
         this.editor = new Drawflow(id);
-        this.editor.zoom = 0.5;
+        this.editor.zoom = 0.75;
 
         this.loadDrawflow();
         this.loadCurrentDrawflow();
 
         this.editor.on('connectionCreated', (connection: any) => {
-            console.log('connectionCreated');
-
             this.currentConnection = connection;
             this.connectionCreated(connection);
         });
 
         this.editor.on('nodeCreated', (data: any) => {
-            console.log('nodeCreated');
-
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeDataChanged', (data: any) => {
-            console.log('nodeDataChanged');
-
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeRemoved', (data: any) => {
-            console.log('nodeRemoved');
-
             this.saveCurrentDrawflow();
         });
         this.editor.on('connectionCreated', (data: any) => {
-            console.log('connectionCreated');
-
             this.saveCurrentDrawflow();
         });
         this.editor.on('connectionRemoved', (data: any) => {
-            console.log('connectionCreated');
-
             this.saveCurrentDrawflow();
         });
         this.editor.on('zoom', (data: any) => {
-            console.log('zoom');
             this.saveCurrentDrawflow();
         });
         // this.editor.container.addEventListener('compositionupdate', (e: any) => {
@@ -110,22 +98,27 @@ export class EnergyDrawflowComponent {
         });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
-            console.log('Change position of node: ' + nodeId);
             this.saveCurrentDrawflow();
         });
 
-        addEventListener('touchstart', this.touchStart, { passive: false });
-        addEventListener('touchend', this.touchEtart, { passive: false });
+        addEventListener(
+            'touchstart',
+            (e: any) => {
+                this.touchStart(e);
+            },
+            { passive: false }
+        );
+        addEventListener('touchend', this.touchEnd, { passive: false });
     }
 
-    touchTimer: any;
     touchStart(e: any) {
         e.preventDefault;
 
-        // this.touchTimer = setTimeout(
-        //     this.touchHolding(e) , 500);
+        this.touchTimer = setTimeout(() => {
+            this.touchHolding(e);
+        }, 500);
     }
-    touchEtart(e: any) {
+    touchEnd() {
         if (this.touchTimer) clearTimeout(this.touchTimer);
     }
 
@@ -134,8 +127,6 @@ export class EnergyDrawflowComponent {
         const closestEdge = e.target.closest('.main-path');
 
         if (closestNode || closestEdge) {
-            console.log(e.changedTouches[0].clientX);
-
             this.showConextMenu(
                 e.changedTouches[0].clientX,
                 e.changedTouches[0].clientY
@@ -180,12 +171,17 @@ export class EnergyDrawflowComponent {
 
         var contextmenu = document.createElement('div');
         contextmenu.id = 'contextmenu';
+        contextmenu.className = 'border border-2 rounded border-primary-subtle';
         contextmenu.innerHTML = `
-               <div class="list-group list-group-flush">
-               <a  class="list-group-item list-group-item-action">
+               <div class="list-group list-group-flush rounded">
+               <a  class="list-group-item list-group-item-action d-flex">
+               <i class="edit"></i>
                           Edit
                         </a>
-                <a  class="list-group-item list-group-item-action">Delete</a>
+                <a  class="list-group-item list-group-item-action d-flex">
+                   <i class="trash"></i>
+                   Delete
+                   </a>
                 </div>
         `;
         contextmenu.style.display = 'block';
@@ -231,7 +227,6 @@ export class EnergyDrawflowComponent {
             }
 
             if (closestEdge) {
-                debugger;
                 this._showFormModal_edge(e.clientX, e.clientY);
             }
         });
@@ -252,7 +247,6 @@ export class EnergyDrawflowComponent {
             x: ev.clientX, // this.getNodePosition(ev.clientX, 'x'),
             y: ev.clientY, // this.getNodePosition(ev.clientY, 'y'),
         };
-        console.log(this.currentPosition);
 
         this.currentNode = {
             nodeId,
@@ -375,8 +369,6 @@ export class EnergyDrawflowComponent {
     }
 
     addNode(data: any) {
-        console.log(this.currentPosition);
-
         this.addNodeToDrawFlow(
             this.currentNode.nodeId,
             data.name,

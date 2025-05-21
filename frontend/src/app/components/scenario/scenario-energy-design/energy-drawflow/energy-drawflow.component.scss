@@ -45,8 +45,6 @@
     display: flex;
     align-items: center;
     position: absolute;
-    background: rgb(88, 181, 204);
-    border: 2px solid black;
     z-index: 10;
     min-width: 10rem;
 
@@ -101,4 +99,29 @@
     ::ng-deep .drawflow {
         display: none;
     }
+}
+
+::ng-deep #contextmenu i {
+    width: 24px;
+    height: 24px;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    display: block;
+    background-repeat: no-repeat;
+
+    &.edit {
+        background-image: url("/static/assets/icons/feather/black/edit.svg");
+        filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(53deg)
+            brightness(118%) contrast(119%);
+    }
+
+    &.trash {
+        background-image: url("/static/assets/icons/feather/black/trash.svg");
+        filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(330deg)
+            brightness(118%) contrast(119%);
+    }
+}
+
+::ng-deep .drawflow {
+    cursor: move;
 }
