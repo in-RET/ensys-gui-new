@@ -12,13 +12,13 @@ import { ContentLayoutService } from '../services/content-layout.service';
     standalone: true,
 })
 export class ContentComponent {
-    isFullscreen: boolean = true;
+    isFullscreen: boolean | undefined = true;
 
     contentLayoutService = inject(ContentLayoutService);
 
     ngOnInit() {
         this.contentLayoutService.fullscreenStatus.subscribe(
-            (status: boolean) => (this.isFullscreen = status)
+            (status: boolean | undefined) => (this.isFullscreen = status)
         );
     }
 }

@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
+import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
@@ -144,7 +151,7 @@ export class ScenarioEnergyDesignComponent {
 
     @Output() fullScreen: EventEmitter<any> = new EventEmitter();
 
-    ngOnInit() {}
+    contentLayoutService = inject(ContentLayoutService);
 
     clearGridModel() {
         Swal.fire({
@@ -853,5 +860,9 @@ export class ScenarioEnergyDesignComponent {
 
     _fullScreen() {
         this.fullScreen.emit();
+    }
+
+    ngOnDestroy() {
+        this.contentLayoutService.toggleScreenFull();
     }
 }

@@ -5,8 +5,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
     providedIn: 'root',
 })
 export class ContentLayoutService {
-    private readonly _fullscreenStatus = new BehaviorSubject<boolean>(true);
-    fullscreenStatus: Observable<boolean> =
+    private readonly _fullscreenStatus = new BehaviorSubject<
+        boolean | undefined
+    >(false);
+    fullscreenStatus: Observable<boolean | undefined> =
         this._fullscreenStatus.asObservable();
 
     constructor() {}
