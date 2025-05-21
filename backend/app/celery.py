@@ -1,15 +1,14 @@
-import logging
 import os
 from datetime import datetime
 
 from celery import Celery
+from celery.utils.log import get_task_logger
 from oemof import solph
 from prometheus_client import Counter, Gauge, start_http_server
 from sqlalchemy import create_engine
 from sqlmodel import select, Session
 
 from .ensys.components import EnModel
-from .logger import EnsysLogger
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 
@@ -18,12 +17,11 @@ celery_app = Celery(
     broker=f"redis://redis:{os.getenv("REDIS_PORT")}",
     backend=f"redis://redis:{os.getenv("REDIS_PORT")}",
 )
-start_http_server(8000)
 
 task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
 task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
 
-@celery_app.task(name="ensys.simulation.optimization.run")
+@celery_app.task(name="ensys.optimization")
 def simulation_task(scenario_id: int, simulation_id: int):
     task_counter.inc()
     task_in_progress.inc()
@@ -38,11 +36,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
     os.makedirs(dump_path, exist_ok=True)
     os.makedirs(log_path, exist_ok=True)
 
-    logger = EnsysLogger(
-        name=simulation_token,
-        filename=os.path.join(log_path, f"{simulation_token}.log"),
-        level=logging.DEBUG
-    )
+    logger = get_task_logger(__name__)
 
     # Create Energysystem to be stored
     energysystem_api = scenario.energysystem_model
@@ -62,15 +56,23 @@ def simulation_task(scenario_id: int, simulation_id: int):
     logger.info("read scenario data from database")
     scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
 
+    print(f"Scenario Interval:{scenario.interval}")
+    print(f"Scenario Timesteps:{scenario.time_steps}")
+    print(f"Scenario Startdate:{scenario.start_date}")
+    print(f"Scenario Startdate:{type(scenario.start_date)}")
+    print(f"Scenario Startdate:{scenario.start_date.year}")
+
     logger.info("create oemof energy system")
+    timeindex = solph.create_time_index(
+        start=scenario.start_date,
+        number=scenario.time_steps,
+        interval=scenario.interval,
+    )
+
+    print(f"timeindex:{timeindex}")
     oemof_es: solph.EnergySystem = solph.EnergySystem(
-        timeindex=solph.create_time_index(
-            year=scenario.simulation_year,
-            interval=scenario.interval,
-            number=scenario.time_steps,
-            start=scenario.start_date
-        ),
-        infer_last_interval=True
+        timeindex=timeindex,
+        infer_last_interval=False
     )
 
     oemof_es = simulation_model.energysystem.to_oemof_energysystem(oemof_es)

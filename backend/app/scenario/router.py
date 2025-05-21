@@ -1,3 +1,4 @@
+import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -62,8 +63,13 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
         #     )],
         # )
 
+
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
+
+    with open(os.path.join(os.getenv("LOCAL_DATADIR"), "debug.json"), "wt") as f:
+        f.write(scenario.model_dump_json())
+
 
     db.add(scenario)
     db.commit()

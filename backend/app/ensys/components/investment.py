@@ -13,8 +13,8 @@ from pydantic import Field
 #   @param offset: float = 0.0
 #   @param custom_attributes: Union[None, Dict] = None
 class EnInvestment(EnBaseModel):
-    maximum: float = Field(
-        float("+inf"),
+    maximum: float | None = Field(
+        None, # eigtl. float("+inf"),
         title='Maximum',
         description='Maximum of the additional invested capacity; defined per period p for a multi-period model.'
     )
@@ -99,7 +99,7 @@ class EnInvestment(EnBaseModel):
     #    description='Extra arguments for the object'
     #)
 
-    ##  Returns an oemof-object from the given args of this object.
+    ## Returns an oemof-object from the given args of this object.
     #
     #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
     #

@@ -43,16 +43,16 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
 
     for node in es.nodes:
         if isinstance(node, solph.Bus):
+            print(f"Bus: {node}")
             busses.append(node)
-
 
     # TODO: Dat muss nochmal überdacht werden. Schon gut, aber irgendwie weird.
     for bus in busses:
         graph_data = []
 
         for t, g in solph.views.node(es.results["main"], node=bus)["sequences"].items():
+            print(f"G:{len(g)}")
             idx_asset = abs(t[0].index(bus) - 1)
-            print(idx_asset)
             if idx_asset > 0:
                 time_series = EnTimeSeries(
                     name=str(t[0][1]),
@@ -64,6 +64,7 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
                     data=nan_to_num(g.values) * pow(-1, idx_asset)
                 )
 
+            print(len(time_series.data))
             graph_data.append(time_series)
 
         bus_data: EnDataFrame = EnDataFrame(

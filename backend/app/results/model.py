@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from pydantic import BaseModel
-import pandas as pd
 
 from ..responses import GeneralDataModel
 

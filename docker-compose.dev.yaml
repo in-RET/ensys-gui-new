@@ -55,19 +55,19 @@ services:
         volumes:
             - ./backend/app:/backend/app
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
-        depends_on:
-            - db
-            - celery
-            - flower
         networks:
             - ensys
+        depends_on:
+            - db
+            - flower
+            - celery
 
     redis:
         image: redis:alpine
         container_name: redis
         restart: always
         env_file: .env
-        command: ["redis-server", "--bind", "redis", "--port", "${REDIS_PORT}"]
+        command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
         networks:
             - ensys
         volumes:
@@ -99,7 +99,7 @@ services:
                 os_version: ${OS_VERSION}
         container_name: flower
         env_file: .env
-        command: celery -A app.celery.celery_app flower --port=5555
+        command: celery --app=app.celery.celery_app flower --port=5555
         ports:
             - "${FLOWER_PORT}:5555"
         networks:

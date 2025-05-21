@@ -2,25 +2,30 @@ import logging
 
 
 class EnsysLogger:
-    def __init__(self, name, filename, level=logging.INFO):
-        logging.basicConfig(filename=filename,
-                            format='%(asctime)s %(message)s',
-                            filemode='w',
-                            level=level)
+    logger = None
 
-        logging.getLogger(name)
+    def __init__(self, name, filename, level=logging.INFO):
+        logging.basicConfig(
+            filename=filename,
+            format='%(asctime)s %(message)s',
+            filemode='w',
+            level=level,
+            encoding='utf-8'
+        )
+
+        self.logger = logging.getLogger(name)
 
     def debug(self, msg):
-        logging.debug(msg=f"[----D] {msg}")
+        self.logger.debug(msg=f"[----D] {msg}")
 
     def info(self, msg):
-        logging.info(msg=f"[---I-] {msg}")
+        self.logger.info(msg=f"[---I-] {msg}")
 
     def warn(self, msg):
-        logging.warning(msg=f"[--W--] {msg}")
+        self.logger.warning(msg=f"[--W--] {msg}")
 
     def error(self, msg):
-        logging.error(msg=f"[-E---] {msg}")
+        self.logger.error(msg=f"[-E---] {msg}")
 
     def critical(self, msg):
-        logging.critical(msg=f"[C----]  {msg}")
+        self.logger.critical(msg=f"[C----]  {msg}")

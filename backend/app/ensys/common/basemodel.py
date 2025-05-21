@@ -54,16 +54,10 @@ class EnBaseModel(BaseModel):
                             oemof_io[bus] = value[io_key].to_oemof(energysystem)
 
                     kwargs[key] = oemof_io
-
-                elif key == "nonconvex":
-                    if isinstance(value, bool):
-                        kwargs[key] = value
-                    else:
-                        kwargs[key] = value.to_oemof(energysystem)
-
-                elif key == "investment":
+                elif key == "nonconvex" and not isinstance(value, bool):
                     kwargs[key] = value.to_oemof(energysystem)
-
+                elif key in ["nominal_value", "nominal_storage_capacity"] and not isinstance(value, float):
+                    kwargs[key] = value.to_oemof(energysystem)
                 else:
                     kwargs[key] = value
 

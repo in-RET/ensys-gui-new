@@ -25,10 +25,34 @@ from ..common.types import Interval
 #   @param start_date
 #   @param time_steps
 class EnEnergysystem(EnBaseModel):
-    components: list[EnBus | EnSink | EnSource | EnConverter] = Field(
+    busses: list[EnBus] = Field(
         default=[],
-        title='Components',
-        description='List of all components.'
+        title='Busses',
+        description='List of all busses.'
+    )
+
+    sinks: list[EnSink] = Field(
+        default=[],
+        title='Sinks',
+        description='List of all sinks.'
+    )
+
+    sources: list[EnSource] = Field(
+        default=[],
+        title='Sources',
+        description='List of all sources.'
+    )
+
+    converters: list[EnConverter] = Field(
+        default=[],
+        title='Converters',
+        description='List of all converters.'
+    )
+
+    generic_storages: list[EnGenericStorage] = Field(
+        default=[],
+        title='Generic Storages',
+        description='List of all generic storages.'
     )
 
     constraints: list[EnConstraints] = Field(
@@ -38,16 +62,36 @@ class EnEnergysystem(EnBaseModel):
     )
 
     def add(self, elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints):
-        if type(elem) is EnSink | EnSource | EnBus | EnGenericStorage | EnConverter:
-            self.components.append(elem)
+        if type(elem) is EnSink:
+            self.sinks.append(elem)
+        elif type(elem) is EnSource:
+            self.sources.append(elem)
+        elif type(elem) is EnBus:
+            self.busses.append(elem)
+        elif type(elem) is EnGenericStorage:
+            self.generic_storages.append(elem)
+        elif type(elem) is EnConverter:
+            self.converters.append(elem)
         elif type(elem) is EnConstraints:
             self.constraints.append(elem)
         else:
             raise Exception("Unknown Type given!")
 
     def to_oemof_energysystem(self, energysystem: solph.EnergySystem) -> solph.EnergySystem:
-        for component in self.components:
-            energysystem.add(component.to_oemof(energysystem))
+        for bus in self.busses:
+            energysystem.add(bus.to_oemof(energysystem))
+
+        for sink in self.sinks:
+            energysystem.add(sink.to_oemof(energysystem))
+
+        for source in self.sources:
+            energysystem.add(source.to_oemof(energysystem))
+
+        for converter in self.converters:
+            energysystem.add(converter.to_oemof(energysystem))
+
+        for generic_storage in self.generic_storages:
+            energysystem.add(generic_storage.to_oemof(energysystem))
 
         # TODO: Adding Constraints
 
