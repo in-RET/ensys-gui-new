@@ -136,17 +136,17 @@
         }
 
         &__empty-text {
-            display: inline-block;
+            // display: inline-block;
             // position: absolute;
             // top: 50%;
             // transform: translateY(-50%);
             // transform: translateX(-50%);
             // left: 50%;
 
-            span {
-                color: $primary-color-2;
-                font-weight: 300;
-            }
+            // span {
+            //     color: $primary-color-2;
+            //     font-weight: 300;
+            // }
         }
     }
 
