@@ -36,7 +36,7 @@ export class EnergyDrawflowComponent {
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
     @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
         new EventEmitter();
-    @Output() fullScreen: EventEmitter<any> = new EventEmitter();
+    @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
     @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
@@ -47,8 +47,9 @@ export class EnergyDrawflowComponent {
         var id: any = document.getElementById('drawflow');
         this.editor = new Drawflow(id);
         this.editor.zoom = 0.5;
-        this.editor.start();
-        this.editor.zoom_refresh();
+
+        this.loadDrawflow();
+        this.loadCurrentDrawflow();
 
         this.editor.on('connectionCreated', (connection: any) => {
             console.log('connectionCreated');
@@ -108,11 +109,8 @@ export class EnergyDrawflowComponent {
             }
         });
 
-        this.loadCurrentDrawflow();
-
         addEventListener('touchstart', this.touchStart, { passive: false });
         addEventListener('touchend', this.touchEtart, { passive: false });
-        // addEventListener('touchmove', this.onTouchMove, { passive: false });
     }
 
     touchTimer: any;
@@ -140,6 +138,10 @@ export class EnergyDrawflowComponent {
         }
     }
 
+    loadDrawflow() {
+        this.editor.start();
+        this.editor.zoom_refresh();
+    }
     loadCurrentDrawflow() {
         let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
 
@@ -151,7 +153,6 @@ export class EnergyDrawflowComponent {
                     },
                 },
             };
-
             this.editor.import(dataToImport);
         }
     }
@@ -243,9 +244,10 @@ export class EnergyDrawflowComponent {
         const nodeGroup = ev.dataTransfer.getData('group');
 
         this.currentPosition = {
-            x: this.getNodePosition(ev.clientX, 'x'),
-            y: this.getNodePosition(ev.clientY, 'y'),
+            x: ev.clientX, // this.getNodePosition(ev.clientX, 'x'),
+            y: ev.clientY, // this.getNodePosition(ev.clientY, 'y'),
         };
+        console.log(this.currentPosition);
 
         this.currentNode = {
             nodeId,
@@ -368,6 +370,8 @@ export class EnergyDrawflowComponent {
     }
 
     addNode(data: any) {
+        console.log(this.currentPosition);
+
         this.addNodeToDrawFlow(
             this.currentNode.nodeId,
             data.name,
@@ -782,7 +786,7 @@ export class EnergyDrawflowComponent {
         this.showConextMenu(x, y);
     }
 
-    _fullScreen() {
-        this.fullScreen.emit();
+    _toggleFullScreen() {
+        this.toggleFullScreen.emit();
     }
 }

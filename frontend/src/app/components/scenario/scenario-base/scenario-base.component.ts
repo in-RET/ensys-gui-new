@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
-import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
 import { ScenarioService } from '../services/scenario.service';
@@ -43,7 +42,6 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
-    isFullscreen: boolean = true;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
@@ -52,7 +50,7 @@ export class ScenarioBaseComponent {
     scenarioEnergyDesignComponent!: any;
 
     scenarioService = inject(ScenarioService);
-    contentLayoutService = inject(ContentLayoutService);
+    // contentLayoutService = inject(ContentLayoutService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
@@ -69,7 +67,8 @@ export class ScenarioBaseComponent {
                     // };
 
                     this.saveBaseInfo(scenarioBaseData);
-                    this.goToStep(++this.currentStep);
+                    ++this.currentStep;
+                    // (++this.currentStep);
                 }
                 break;
 
@@ -80,7 +79,7 @@ export class ScenarioBaseComponent {
     }
 
     prevtStep() {
-        this.goToStep(--this.currentStep);
+        --this.currentStep;
     }
 
     saveBaseInfo(data: any) {
@@ -150,7 +149,8 @@ export class ScenarioBaseComponent {
         this.currentStep = number;
     }
 
-    fullScreen() {
-        this.contentLayoutService.toggleScreenFull();
-    }
+    // toggleFullScreen() {
+    //     this.isFullscreen = !this.isFullscreen;
+    //     this.contentLayoutService.setScreenFull(this.isFullscreen);
+    // }
 }

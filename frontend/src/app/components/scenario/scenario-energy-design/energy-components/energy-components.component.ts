@@ -22,6 +22,10 @@ export class EnergyComponentsComponent {
     @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
 
     ngOnInit() {
+        this.getBaseInfoFromStorage();
+    }
+
+    getBaseInfoFromStorage() {
         let initalData = this.scenarioService.restoreBaseInfo_Storage();
 
         if (initalData) {

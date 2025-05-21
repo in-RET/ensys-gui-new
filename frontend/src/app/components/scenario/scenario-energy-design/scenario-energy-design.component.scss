@@ -193,18 +193,3 @@
 .system-design .gui #js-saveDesign.hidden {
     display: none;
 }
-
-.system-design .gui__empty-text {
-    display: inline-block;
-    position: absolute;
-    top: 2rem;
-    transform: translateY(-50%);
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-}
-
-.system-design .gui__empty-text span {
-    color: #343434;
-    font-weight: 300;
-}

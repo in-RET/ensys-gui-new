@@ -2,11 +2,7 @@
 
 <app-scenario-setup *ngIf="currentStep == 0" #setup />
 
-<app-scenario-energy-design
-    *ngIf="currentStep == 1"
-    #sed
-    (fullScreen)="fullScreen()"
-/>
+<app-scenario-energy-design *ngIf="currentStep == 1" #sed />
 
 <app-scenario-footer
     [step]="currentStep"

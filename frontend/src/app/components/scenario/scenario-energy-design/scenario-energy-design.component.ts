@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    EventEmitter,
-    inject,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import { Component, inject, ViewChild } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
@@ -139,6 +133,7 @@ export class ScenarioEnergyDesignComponent {
         isShow: false,
     };
     editMode: boolean = false;
+    isFullscreen: boolean = false;
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -149,7 +144,7 @@ export class ScenarioEnergyDesignComponent {
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
 
-    @Output() fullScreen: EventEmitter<any> = new EventEmitter();
+    // @Output() fullScreen: EventEmitter<any> = new EventEmitter();
 
     contentLayoutService = inject(ContentLayoutService);
 
@@ -858,11 +853,13 @@ export class ScenarioEnergyDesignComponent {
         return this.energyDrawflowComponent.getData();
     }
 
-    _fullScreen() {
-        this.fullScreen.emit();
+    toggleFullScreen() {
+        this.isFullscreen = !this.isFullscreen;
+        this.contentLayoutService.setScreenFull(this.isFullscreen);
     }
 
     ngOnDestroy() {
-        this.contentLayoutService.toggleScreenFull();
+        this.isFullscreen = false;
+        this.contentLayoutService.setScreenFull(this.isFullscreen);
     }
 }

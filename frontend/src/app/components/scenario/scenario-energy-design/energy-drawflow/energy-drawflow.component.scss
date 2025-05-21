@@ -57,3 +57,37 @@
         cursor: pointer;
     }
 }
+
+#drawflow {
+    --d: 2px;
+    background: radial-gradient(
+            circle at var(--d) var(--d),
+            #0000008c calc(var(--d) - 1px),
+            #0000 var(--d)
+        )
+        0 0 / 50px 50px;
+}
+
+::ng-deep .system-design .gui__empty-text {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+
+    span {
+        color: #343434;
+        font-weight: 300;
+    }
+}
+
+.no-data #drawflow {
+    ::ng-deep .gui__empty-text {
+        display: flex;
+    }
+
+    ::ng-deep .drawflow {
+        display: none;
+    }
+}

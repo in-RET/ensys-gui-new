@@ -13,8 +13,7 @@ export class ContentLayoutService {
 
     constructor() {}
 
-    toggleScreenFull() {
-        const currentValue = this._fullscreenStatus.getValue();
-        this._fullscreenStatus.next(!currentValue);
+    setScreenFull(status: boolean) {
+        this._fullscreenStatus.next(status);
     }
 }
