@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
+import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
 import { ScenarioService } from '../services/scenario.service';
@@ -51,6 +52,7 @@ export class ScenarioBaseComponent {
     scenarioEnergyDesignComponent!: any;
 
     scenarioService = inject(ScenarioService);
+    contentLayoutService = inject(ContentLayoutService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
@@ -149,17 +151,6 @@ export class ScenarioBaseComponent {
     }
 
     fullScreen() {
-        // const elem = this.scenarioEnergyDesignComponent.nativeElement;
-
-        // if (elem.requestFullscreen) {
-        //     elem.requestFullscreen();
-        // } else if (elem.msRequestFullscreen) {
-        //     elem.msRequestFullscreen();
-        // } else if (elem.mozRequestFullScreen) {
-        //     elem.mozRequestFullScreen();
-        // } else if (elem.webkitRequestFullscreen) {
-        //     elem.webkitRequestFullscreen();
-        // }
-        this.isFullscreen = !this.isFullscreen;
+        this.contentLayoutService.toggleScreenFull();
     }
 }

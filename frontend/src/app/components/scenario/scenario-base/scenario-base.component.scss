@@ -6,17 +6,24 @@
 }
 
 ::ng-deep .fullscreen {
-    height: 100vh;
-    width: 100vw;
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 2;
-    background-color: #fff;
+    app-scenario-footer,
+    app-scenario-progression,
+    app-scenario-energy-design {
+        // height: 100vh;
+        // width: 100vw;
+        // display: block;
+        // position: absolute;
+        // top: 0;
+        // left: 0;
+        // background-color: #fff;
 
-    .system-design {
-        height: 100vh;
-        width: 100vw;
+        // .system-design {
+        //     height: 100vh;
+        //     width: 100vw;
+        // }
     }
+}
+
+::ng-deep .fullscreen .system-design {
+    height: 100vh !important;
 }

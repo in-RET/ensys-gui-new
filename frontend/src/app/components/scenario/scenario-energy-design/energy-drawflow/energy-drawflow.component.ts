@@ -110,13 +110,34 @@ export class EnergyDrawflowComponent {
 
         this.loadCurrentDrawflow();
 
-        addEventListener('touchstart', this.onTouchMove, { passive: false });
-        addEventListener('touchend', this.onTouchMove, { passive: false });
-        addEventListener('touchmove', this.onTouchMove, { passive: false });
+        addEventListener('touchstart', this.touchStart, { passive: false });
+        addEventListener('touchend', this.touchEtart, { passive: false });
+        // addEventListener('touchmove', this.onTouchMove, { passive: false });
     }
 
-    onTouchMove(e: any) {
+    touchTimer: any;
+    touchStart(e: any) {
         e.preventDefault;
+
+        // this.touchTimer = setTimeout(
+        //     this.touchHolding(e) , 500);
+    }
+    touchEtart(e: any) {
+        if (this.touchTimer) clearTimeout(this.touchTimer);
+    }
+
+    touchHolding(e: any) {
+        const closestNode = e.target.closest('.drawflow-node');
+        const closestEdge = e.target.closest('.main-path');
+
+        if (closestNode || closestEdge) {
+            console.log(e.changedTouches[0].clientX);
+
+            this.showConextMenu(
+                e.changedTouches[0].clientX,
+                e.changedTouches[0].clientY
+            );
+        }
     }
 
     loadCurrentDrawflow() {
@@ -183,8 +204,6 @@ export class EnergyDrawflowComponent {
 
     listenNodeDBClick() {
         document.addEventListener('dblclick', (e: any) => {
-            console.log('recognise DB click');
-
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
@@ -206,6 +225,7 @@ export class EnergyDrawflowComponent {
             }
 
             if (closestEdge) {
+                debugger;
                 this._showFormModal_edge(e.clientX, e.clientY);
             }
         });

@@ -1,19 +1,16 @@
-<div>
-    <app-scenario-progression [step]="currentStep" />
+<app-scenario-progression [step]="currentStep" />
 
-    <app-scenario-setup *ngIf="currentStep == 0" #setup />
+<app-scenario-setup *ngIf="currentStep == 0" #setup />
 
-    <app-scenario-energy-design
-        *ngIf="currentStep == 1"
-        #sed
-        (fullScreen)="fullScreen()"
-        [ngClass]="{ fullscreen: isFullscreen }"
-    />
+<app-scenario-energy-design
+    *ngIf="currentStep == 1"
+    #sed
+    (fullScreen)="fullScreen()"
+/>
 
-    <app-scenario-footer
-        [step]="currentStep"
-        (nextStep)="nextStep()"
-        (prevtStep)="prevtStep()"
-        (saveScenario)="saveScenario()"
-    />
-</div>
+<app-scenario-footer
+    [step]="currentStep"
+    (nextStep)="nextStep()"
+    (prevtStep)="prevtStep()"
+    (saveScenario)="saveScenario()"
+/>
