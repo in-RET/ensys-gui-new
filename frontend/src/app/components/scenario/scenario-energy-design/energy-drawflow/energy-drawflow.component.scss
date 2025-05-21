@@ -125,3 +125,13 @@
 ::ng-deep .drawflow {
     cursor: move;
 }
+
+::ng-deep .drawflow .connection .main-path {
+    stroke-dasharray: 5;
+    animation: dashdraw 0.5s linear infinite;
+}
+@keyframes dashdraw {
+    0% {
+        stroke-dashoffset: 10;
+    }
+}

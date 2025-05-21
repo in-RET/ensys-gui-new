@@ -135,6 +135,8 @@ export class EnergyDrawflowComponent {
     }
 
     loadDrawflow() {
+        this.editor.force_first_input = true;
+        this.editor.curvature = 1;
         this.editor.start();
         this.editor.zoom_refresh();
     }
