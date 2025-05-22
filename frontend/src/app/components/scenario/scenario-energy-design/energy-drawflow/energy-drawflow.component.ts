@@ -131,6 +131,8 @@ export class EnergyDrawflowComponent {
             { passive: false }
         );
         addEventListener('touchend', this.touchEnd, { passive: false });
+
+        this.showModalConnection();
     }
 
     touchStart(e: any) {
@@ -520,11 +522,26 @@ export class EnergyDrawflowComponent {
                     class: 'col-12',
                     fields: [
                         {
-                            name: 'Investment',
-                            placeholder: 'Investment',
-                            label: 'Investment',
+                            name: 'nominal_value',
+                            placeholder: 'nominal_value',
+                            label: 'nominal_value',
                             isReq: true,
-                            type: 'check',
+                            type: 'number',
+                            span: '3',
+                        },
+                    ],
+                },
+
+                {
+                    name: '',
+                    class: 'col-12',
+                    fields: [
+                        {
+                            name: 'Investment',
+                            placeholder: '',
+                            label: '',
+                            isReq: true,
+                            type: 'switch',
                             span: 'auto',
                             value: false,
                             onClick: () => {
@@ -534,7 +551,7 @@ export class EnergyDrawflowComponent {
 
                                 this.formData.sections.forEach(
                                     (section: any) => {
-                                        if (section.name == 'Inv') {
+                                        if (section.name == 'Investment') {
                                             section.fields.forEach(
                                                 (element: any) => {
                                                     this.formComponent.toggleControl(
@@ -547,19 +564,11 @@ export class EnergyDrawflowComponent {
                                 );
                             },
                         },
-                        {
-                            name: 'nominal_value',
-                            placeholder: 'nominal_value',
-                            label: 'nominal_value',
-                            isReq: true,
-                            type: 'text',
-                            span: '4',
-                        },
                     ],
                 },
 
                 {
-                    name: 'Inv',
+                    name: 'Investment',
                     class: 'col-12',
                     fields: [
                         {
@@ -567,7 +576,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'maximum ',
                             label: 'maximum ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -575,7 +584,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'minimum',
                             label: 'minimum',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -583,7 +592,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'ep_costs ',
                             label: 'ep_costs ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -591,7 +600,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'existing ',
                             label: 'existing ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -599,7 +608,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'nonconvex ',
                             label: 'nonconvex ',
                             type: 'text',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -607,7 +616,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'offset ',
                             label: 'offset',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -615,7 +624,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'overall_maximum ',
                             label: 'overall_maximum ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                             disabled: true,
                         },
                         {
@@ -623,7 +632,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'overall_minimum ',
                             label: 'overall_minimum ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                             disabled: true,
                         },
 
@@ -632,7 +641,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'interest_rate ',
                             label: 'interest_rate ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                         {
@@ -640,7 +649,7 @@ export class EnergyDrawflowComponent {
                             placeholder: 'lifetime ',
                             label: 'lifetime ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             disabled: true,
                         },
                     ],
@@ -655,21 +664,21 @@ export class EnergyDrawflowComponent {
                             placeholder: 'variable_costs',
                             label: 'variable_costs',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'max',
                             placeholder: 'max',
                             label: 'max',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'min',
                             placeholder: 'min',
                             label: 'min',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
 
                         {
@@ -677,70 +686,70 @@ export class EnergyDrawflowComponent {
                             placeholder: 'fix ',
                             label: 'fix',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'positive_gradient_limit ',
                             placeholder: 'positive_gradient_limit ',
                             label: 'positive_gradient_limit ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                         },
                         {
                             name: 'negative_gradient_limit ',
                             placeholder: 'negative_gradient_limit ',
                             label: 'negative_gradient_limit ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                         },
                         {
                             name: 'full_load_time_max ',
                             placeholder: 'full_load_time_max ',
                             label: 'full_load_time_max ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                         },
                         {
                             name: 'full_load_time_min ',
                             placeholder: 'full_load_time_min ',
                             label: 'full_load_time_min ',
                             type: 'number',
-                            span: 'auto',
+                            span: '3',
                         },
                         {
                             name: 'integer ',
                             placeholder: 'integer ',
                             label: 'integer ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'nonconvex',
                             placeholder: 'nonconvex',
                             label: 'nonconvex',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'fixed_costs ',
                             placeholder: 'fixed_costs ',
                             label: 'fixed_costs ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: '_lifetime ',
                             placeholder: 'lifetime ',
                             label: 'lifetime ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                         {
                             name: 'age ',
                             placeholder: 'age ',
                             label: 'age ',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                         },
                     ],
                 },

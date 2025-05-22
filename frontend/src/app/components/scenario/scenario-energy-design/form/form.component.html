@@ -112,6 +112,20 @@
                             {{ field.label }}
                         </label>
                     </div>
+
+                    <!-- switcher -->
+                    <div class="" *ngIf="field.type == 'switch'">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                [formControlName]="field.name"
+                                (change)="field.onClick()"
+                            />
+                            <label for=""> {{ field.label }} </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
