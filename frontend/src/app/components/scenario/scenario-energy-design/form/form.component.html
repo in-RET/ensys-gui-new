@@ -72,6 +72,12 @@
                             class="form-select"
                             id="floatingSelect"
                             [formControlName]="field.name"
+                            [ngClass]="{
+                                'is-invalid':
+                                    form.get(field.name)!.invalid &&
+                                    (form.get(field.name)!.dirty ||
+                                        form.get(field.name)!.touched)
+                            }"
                         >
                             <option selected disabled value="null">
                                 {{ field.label }}

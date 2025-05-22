@@ -83,7 +83,7 @@ export class ScenarioEnergyDesignComponent {
                 group_components: [
                     {
                         id: 'genericStorage',
-                        name: 'GenericStorage',
+                        name: 'Generic Storage',
                     },
                     {
                         id: 'predefinedStorage',
@@ -159,6 +159,7 @@ export class ScenarioEnergyDesignComponent {
         }).then((result) => {
             result.isConfirmed &&
                 this.energyDrawflowComponent.editor.clearModuleSelected();
+            this.energyDrawflowComponent.saveCurrentDrawflow();
         });
         // .then((result) => save_topology());
     }
@@ -526,8 +527,8 @@ export class ScenarioEnergyDesignComponent {
                 };
                 break;
 
+            case 'generic storage':
             case 'predefined storage':
-            case 'predefinedstorage':
                 this.formData = {
                     sections: [
                         {
