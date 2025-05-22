@@ -188,6 +188,8 @@ export class ScenarioEnergyDesignComponent {
                 return { ...data, inp: 0, out: 1 };
 
             case 'bus':
+                return { ...data, inp: 1, out: 1 };
+
             case 'storage':
                 return { ...data, inp: 0, out: 1 };
 
@@ -203,8 +205,6 @@ export class ScenarioEnergyDesignComponent {
                         data['ports']['inputs'].length &&
                         data['ports']['outputs'].length
                     ) {
-                        console.log(data['ports']['inputs'].length);
-
                         return {
                             ...data,
                             inp: data['ports']['inputs'].length,
@@ -860,14 +860,18 @@ export class ScenarioEnergyDesignComponent {
         const currentNodeList =
             this.energyDrawflowComponent.editor.drawflow.drawflow.Home.data;
 
-        for (const key in currentNodeList) {
-            if (Object.prototype.hasOwnProperty.call(currentNodeList, key)) {
-                const node = currentNodeList[key];
-                return node.name === nodeName ? false : true;
+        if (currentNodeList) {
+            for (const key in currentNodeList) {
+                if (
+                    Object.prototype.hasOwnProperty.call(currentNodeList, key)
+                ) {
+                    const node = currentNodeList[key];
+                    return node.name === nodeName ? false : true;
+                }
             }
         }
 
-        return undefined;
+        return true;
     }
 
     getData() {

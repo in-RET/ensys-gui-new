@@ -81,13 +81,23 @@ export class EnergyDrawflowComponent {
 
         this.listenNodeDBClick();
 
-        this.editor.on('contextmenu', (event) => {
+        this.editor.on('contextmenu', (e) => {
+            const closestNode = e.target.closest('.drawflow-node');
+            const closestEdge = e.target.closest('.main-path');
+            console.log(closestEdge.id);
+
             if (
-                event.target.closest('.drawflow_content_node') != null ||
-                event.target.classList[0] === 'drawflow-node' ||
-                event.target.classList[0] === 'main-path'
+                // e.target.closest('.drawflow_content_node') != null ||
+                closestNode ||
+                closestEdge
             ) {
-                this.showConextMenu(event.clientX, event.clientY);
+                this.showConextMenu(
+                    e.clientX,
+                    e.clientY,
+                    closestNode
+                        ? closestNode.id.split('node-')[1]
+                        : closestEdge.id.split('node-')[1]
+                );
             }
         });
 
@@ -99,6 +109,18 @@ export class EnergyDrawflowComponent {
 
         this.editor.on('nodeMoved', (nodeId: any) => {
             this.saveCurrentDrawflow();
+        });
+
+        this.editor.on('connectionSelected', (e: any) => {
+            const inputs = this.editor.getNodeFromId(e.input_id);
+            console.log(inputs);
+
+            const outputs = this.editor.getNodeFromId(e.output_id);
+            console.log(outputs);
+
+            if (document.activeElement !== this.editor.container) {
+                this.editor.container.focus();
+            }
         });
 
         addEventListener(
@@ -125,11 +147,12 @@ export class EnergyDrawflowComponent {
     touchHolding(e: any) {
         const closestNode = e.target.closest('.drawflow-node');
         const closestEdge = e.target.closest('.main-path');
-
+        debugger;
         if (closestNode || closestEdge) {
             this.showConextMenu(
                 e.changedTouches[0].clientX,
-                e.changedTouches[0].clientY
+                e.changedTouches[0].clientY,
+                0
             );
         }
     }
@@ -155,28 +178,28 @@ export class EnergyDrawflowComponent {
         }
     }
 
-    showConextMenu(x: any, y: any) {
-        var pos_x =
-            x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom));
-        var pos_y =
-            y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom)) -
-            this.editor.precanvas.getBoundingClientRect().y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom));
+    showConextMenu(x: any, y: any, nodeId: number) {
+        // var pos_x =
+        //     x *
+        //         (this.editor.precanvas.clientWidth /
+        //             (this.editor.precanvas.clientWidth * this.editor.zoom)) -
+        //     this.editor.precanvas.getBoundingClientRect().x *
+        //         (this.editor.precanvas.clientWidth /
+        //             (this.editor.precanvas.clientWidth * this.editor.zoom));
+        // var pos_y =
+        //     y *
+        //         (this.editor.precanvas.clientHeight /
+        //             (this.editor.precanvas.clientHeight * this.editor.zoom)) -
+        //     this.editor.precanvas.getBoundingClientRect().y *
+        //         (this.editor.precanvas.clientHeight /
+        //             (this.editor.precanvas.clientHeight * this.editor.zoom));
 
         var contextmenu = document.createElement('div');
         contextmenu.id = 'contextmenu';
         contextmenu.className = 'border border-2 rounded border-primary-subtle';
         contextmenu.innerHTML = `
                <div class="list-group list-group-flush rounded">
-               <a  class="list-group-item list-group-item-action d-flex">
+               <a  class="list-group-item list-group-item-action d-flex" (click)=showModalEdit()>
                <i class="edit"></i>
                           Edit
                         </a>
@@ -188,8 +211,8 @@ export class EnergyDrawflowComponent {
         `;
         contextmenu.style.display = 'block';
 
-        contextmenu.style.left = pos_x + 'px';
-        contextmenu.style.top = pos_y + 'px';
+        contextmenu.style.left = this.getNodePosition(x, 'x') + 'px';
+        contextmenu.style.top = this.getNodePosition(y, 'y') + 'px';
 
         this.editor.precanvas.appendChild(contextmenu);
     }
@@ -229,7 +252,11 @@ export class EnergyDrawflowComponent {
             }
 
             if (closestEdge) {
-                this._showFormModal_edge(e.clientX, e.clientY);
+                this._showFormModal_edge(
+                    this.selected_nodeId,
+                    e.clientX,
+                    e.clientY
+                );
             }
         });
     }
@@ -763,29 +790,31 @@ export class EnergyDrawflowComponent {
         return drawflowData;
     }
 
-    _showFormModalNode(nodeId: string, x: number, y: number) {
-        const node = this.editor.getNodeFromId(nodeId);
-
-        // this.showNodeFormModal.emit({
-        //     node: {
-        //         id: nodeId,
-        //         name: node.data.name,
-        //         group: node.class,
-        //         x: node.pos_x,
-        //         y: node.pos_y,
-        //         data: node.data,
-        //     },
-        //     editMode: true,
-        // });
-
-        this.showConextMenu(x, y);
+    _showFormModalNode(nodeId: number, x: number, y: number) {
+        this.showConextMenu(x, y, nodeId);
     }
 
-    _showFormModal_edge(x: number, y: number) {
-        this.showConextMenu(x, y);
+    _showFormModal_edge(nodeId: number, x: number, y: number) {
+        this.showConextMenu(x, y, nodeId);
     }
 
     _toggleFullScreen() {
         this.toggleFullScreen.emit();
+    }
+
+    showModalEdit(nodeId: number) {
+        const node = this.editor.getNodeFromId(nodeId);
+
+        this.showNodeFormModal.emit({
+            node: {
+                id: nodeId,
+                name: node.data.name,
+                group: node.class,
+                x: node.pos_x,
+                y: node.pos_y,
+                data: node.data,
+            },
+            editMode: true,
+        });
     }
 }
