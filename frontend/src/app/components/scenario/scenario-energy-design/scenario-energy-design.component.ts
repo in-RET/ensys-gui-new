@@ -182,52 +182,52 @@ export class ScenarioEnergyDesignComponent {
         this.setFormError(false, '');
     }
 
-    makeNode(data: any) {
-        if (data)
-            switch (this.currentNode.group) {
-                case 'production':
-                    this.energyDrawflowComponent.addNode({
-                        ...data,
-                        inp: 0,
-                        out: 1,
-                    });
-                    break;
+    getNodePorts(data: any) {
+        switch (this.currentNode.group) {
+            case 'production':
+                return { ...data, inp: 0, out: 1 };
 
-                case 'bus':
-                case 'storage':
-                    this.energyDrawflowComponent.addNode({
-                        ...data,
-                        inp: 1,
-                        out: 1,
-                    });
-                    break;
+            case 'bus':
+            case 'storage':
+                return { ...data, inp: 0, out: 1 };
 
-                case 'demand':
-                    this.energyDrawflowComponent.addNode({
-                        ...data,
-                        inp: 1,
-                        out: 0,
-                    });
-                    break;
+            case 'demand':
+                return { ...data, inp: 1, out: 0 };
 
-                case 'conversion':
-                    if (this.currentNode.id == 'transformer')
-                        this.energyDrawflowComponent.addNode({
+            case 'conversion':
+                if (this.currentNode.id == 'transformer')
+                    if (
+                        data['ports'] &&
+                        data['ports']['inputs'] &&
+                        data['ports']['outputs'] &&
+                        data['ports']['inputs'].length &&
+                        data['ports']['outputs'].length
+                    ) {
+                        console.log(data['ports']['inputs'].length);
+
+                        return {
                             ...data,
-                            inp: data['ports']['inputs']
-                                ? data['ports']['inputs'].length
-                                : 0,
-                            out: data['ports']['outputs']
-                                ? data['ports']['outputs'].length
-                                : 0,
-                        });
-                    break;
-            }
+                            inp: data['ports']['inputs'].length,
+                            out: data['ports']['outputs'].length,
+                        };
+                    }
+                return { ...data, inp: 1, out: 1 };
+
+            default:
+                return false;
+        }
+    }
+
+    makeNode(val: any) {
+        this.energyDrawflowComponent.addNode({
+            ...val,
+            inp: val.inp,
+            out: val.out,
+        });
     }
 
     updateNode(data: any) {
-        if (data)
-            this.energyDrawflowComponent.updateNode(this.currentNode.id, data);
+        this.energyDrawflowComponent.updateNode(this.currentNode.id, data);
     }
 
     initFormData(name: string, data?: any) {
@@ -834,20 +834,40 @@ export class ScenarioEnergyDesignComponent {
     }
 
     submitFormData() {
-        const _formData = this.formComponent.submit();
+        let _formData = this.formComponent.submit();
+        _formData = this.getNodePorts(_formData);
+
+        const isNodeUnique = this.checkNodeDuplication(_formData.name);
 
         if (_formData) {
-            this.setFormError(false, '');
+            if (isNodeUnique && isNodeUnique !== undefined) {
+                console.log(_formData);
+                this.setFormError(false, '');
 
-            if (this.editMode) {
-                this.updateNode(_formData);
-                this.editMode = false;
-            } else this.makeNode(_formData);
+                if (this.editMode) {
+                    this.updateNode(_formData);
+                    this.editMode = false;
+                } else this.makeNode(_formData);
 
-            this.modalComponent._closeModal(true);
+                this.modalComponent._closeModal(true);
+            } else this.setFormError(true, ' * The name is duplicated!');
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
+    }
+
+    checkNodeDuplication(nodeName: string) {
+        const currentNodeList =
+            this.energyDrawflowComponent.editor.drawflow.drawflow.Home.data;
+
+        for (const key in currentNodeList) {
+            if (Object.prototype.hasOwnProperty.call(currentNodeList, key)) {
+                const node = currentNodeList[key];
+                return node.name === nodeName ? false : true;
+            }
+        }
+
+        return undefined;
     }
 
     getData() {
