@@ -27,9 +27,9 @@ export class ProjectCreateComponent {
         description: new FormControl(null, [Validators.required]),
         latitude: new FormControl(null, [Validators.required]),
         longitude: new FormControl(null, [Validators.required]),
-        currency: new FormControl('', [Validators.required]),
-        unit_energy: new FormControl('', [Validators.required]),
-        unit_co2: new FormControl('', [Validators.required]),
+        currency: new FormControl('EUR', [Validators.required]),
+        unit_energy: new FormControl('MW/MWh', [Validators.required]),
+        unit_co2: new FormControl('t CO2', [Validators.required]),
     });
 
     get name() {
@@ -92,10 +92,7 @@ export class ProjectCreateComponent {
     ) {}
 
     ngOnInit() {
-        // getv regions
-        this.regionService.getAllRegions().subscribe((res) => {
-            this.regionList = res;
-        });
+        this.getRegions();
 
         if (this.route.snapshot.fragment) {
             if (this.route.snapshot.fragment == 'update') {
@@ -107,8 +104,19 @@ export class ProjectCreateComponent {
                 this.loadProject(this.route.snapshot.params['id']);
             }
         } else this.initMap(49.45, 13.89);
+    }
 
-        this.map.wrapLatLngBounds;
+    getRegions() {
+        this.route.data
+            .pipe(
+                map((res: any) => {
+                    return res.regionList;
+                })
+            )
+            .subscribe((res: any) => {
+                this.regionList = [];
+                this.regionList = res;
+            });
     }
 
     initMap(lat: any, lang: any) {
@@ -125,9 +133,7 @@ export class ProjectCreateComponent {
                 'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
 
-        // setTimeout(() => {
-        //     this.map.invalidateSize();
-        // }, 100);
+        // this.map.invalidateSize();
 
         this.map.on('click', (e: any) => {
             if (this.marker) this.map.removeLayer(this.marker);
@@ -142,6 +148,8 @@ export class ProjectCreateComponent {
                 longitude: e.latlng.lng.toFixed(6),
             });
         });
+
+        this.map.wrapLatLngBounds;
     }
 
     submitProject() {
@@ -188,14 +196,18 @@ export class ProjectCreateComponent {
         }
     }
 
-    getProjectData(id: number): Observable<any> {
+    getProjectById(id: number): Observable<any> {
         return this.projectService
             .getProject(id)
-            .pipe(map((res: any) => (res = res.data)));
+            .pipe(
+                map((res: any) =>
+                    res && res.data.items ? (res = res.data.items[0]) : false
+                )
+            );
     }
 
     loadProject(id: number) {
-        this.getProjectData(id)
+        this.getProjectById(id)
             .pipe(
                 map((res: any) => {
                     this.formUpdate(res);
@@ -204,7 +216,7 @@ export class ProjectCreateComponent {
                     return res;
                 })
             )
-            .subscribe((res) => console.log(res));
+            .subscribe();
     }
 
     formUpdate(data: any) {
