@@ -90,79 +90,73 @@ nav.navbar {
     }
 }
 
-@media (min-width: $medium-screen) {
-    .navbar {
-        &.navbar-expand-lg {
-            .container-fluid {
-                @include nav-section-width;
-                justify-content: center;
-            }
-
-            .navbar-collapse {
-                justify-content: flex-end;
-            }
+.navbar {
+    &.navbar-expand-lg {
+        .container-fluid {
+            // @include nav-section-width;
+            // justify-content: center;
         }
 
-        &.navbar-expand-lg.navbar--website .container-fluid {
-            // max-width: $section-max-width;
+        .navbar-collapse {
+            justify-content: flex-end;
+        }
+    }
+
+    .nav-item.locale {
+        position: relative;
+        padding-left: 1.5rem;
+
+        &::before {
+            content: "|";
+            position: absolute;
+            top: 0.5rem;
+            left: 1.1rem;
         }
 
-        .nav-item.locale {
-            position: relative;
-            padding-left: 1.5rem;
+        select {
+            width: auto;
+            border: none;
+            margin: 0.6rem 0 0 1.25rem;
+            padding-right: 0.25rem;
+            color: $primary-color-1;
+            background-color: $white;
+        }
+    }
 
-            &::before {
-                content: "|";
-                position: absolute;
-                top: 0.5rem;
-                left: 1.1rem;
-            }
+    .nav-item .btn {
+        margin-left: 1rem;
+    }
 
-            select {
-                width: auto;
-                border: none;
-                margin: 0.6rem 0 0 1.25rem;
-                padding-right: 0.25rem;
-                color: $primary-color-1;
-                background-color: $white;
-            }
+    .nav-item a.nav-link {
+        padding-left: $space-between-project-elements;
+    }
+
+    .nav-item.dropdown.profile {
+        a {
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
-        .nav-item .btn {
-            margin-left: 1rem;
+        a::after {
+            vertical-align: -3px;
         }
 
-        .nav-item a.nav-link {
-            padding-left: $space-between-project-elements;
+        img {
+            height: 2rem;
+            width: 2rem;
+            @include translateY(3px);
         }
+    }
 
-        .nav-item.dropdown.profile {
-            a {
-                padding-top: 0;
-                padding-bottom: 0;
-            }
+    &.navbar--signup .nav-item.locale::before {
+        content: "";
+    }
 
-            a::after {
-                vertical-align: -3px;
-            }
+    &.navbar--scenario {
+        position: relative;
 
-            img {
-                height: 2rem;
-                width: 2rem;
-                @include translateY(3px);
-            }
-        }
-
-        &.navbar--signup .nav-item.locale::before {
+        .nav-item.locale::before {
             content: "";
-        }
-
-        &.navbar--scenario {
-            position: relative;
-
-            .nav-item.locale::before {
-                content: "";
-            }
         }
     }
 }
