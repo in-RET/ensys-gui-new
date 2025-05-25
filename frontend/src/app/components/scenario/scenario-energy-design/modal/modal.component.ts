@@ -7,7 +7,6 @@ import {
     Output,
     ViewChild,
 } from '@angular/core';
-import * as bootstrap from 'bootstrap';
 
 @Component({
     selector: 'app-modal',
@@ -27,7 +26,10 @@ export class ModalComponent {
 
     ngOnInit() {
         setTimeout(() => {
-            this.modal = new bootstrap.Modal(this.modalRef.nativeElement);
+            // this.modal = new bootstrap.Modal(this.modalRef.nativeElement);
+            this.modal = new (window as any).bootstrap.Modal(
+                this.modalRef.nativeElement
+            );
             this.modal.show();
         }, 0);
     }
