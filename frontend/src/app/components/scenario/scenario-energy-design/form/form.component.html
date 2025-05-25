@@ -126,6 +126,11 @@
                             <label for=""> {{ field.label }} </label>
                         </div>
                     </div>
+
+                    <!-- uploader -->
+                    <div *ngIf="field.type == 'file-upload'">
+                        <app-file-uploader />
+                    </div>
                 </div>
             </div>
         </div>

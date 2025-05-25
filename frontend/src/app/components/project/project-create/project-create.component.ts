@@ -107,6 +107,8 @@ export class ProjectCreateComponent {
                 this.loadProject(this.route.snapshot.params['id']);
             }
         } else this.initMap(49.45, 13.89);
+
+        this.map.wrapLatLngBounds;
     }
 
     initMap(lat: any, lang: any) {
@@ -123,9 +125,9 @@ export class ProjectCreateComponent {
                 'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
 
-        setTimeout(() => {
-            this.map.invalidateSize();
-        }, 100);
+        // setTimeout(() => {
+        //     this.map.invalidateSize();
+        // }, 100);
 
         this.map.on('click', (e: any) => {
             if (this.marker) this.map.removeLayer(this.marker);

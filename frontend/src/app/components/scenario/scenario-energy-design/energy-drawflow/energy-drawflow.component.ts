@@ -132,14 +132,14 @@ export class EnergyDrawflowComponent {
         );
         addEventListener('touchend', this.touchEnd, { passive: false });
 
-        this.showModalConnection();
+        // this.showModalConnection();
     }
 
     touchStart(e: any) {
         e.preventDefault;
 
         this.touchTimer = setTimeout(() => {
-            this.touchHolding(e);
+            // this.touchHolding(e);
         }, 500);
     }
     touchEnd() {
@@ -572,12 +572,12 @@ export class EnergyDrawflowComponent {
                     class: 'col-12',
                     fields: [
                         {
-                            name: 'maximum ',
-                            placeholder: 'maximum ',
+                            name: 'maximum',
+                            placeholder: 'maximum',
                             label: 'maximum ',
-                            type: 'number',
+                            type: 'file-upload',
                             span: '2',
-                            disabled: true,
+                            disabled: false,
                         },
                         {
                             name: 'minimum',
