@@ -7,13 +7,6 @@ export const routes: Routes = [
         path: '',
         children: [
             {
-                path: 'about',
-                loadComponent: () =>
-                    import('../components/legal/about/about.component').then(
-                        (c) => c.AboutComponent
-                    ),
-            },
-            {
                 path: '',
                 loadComponent: () =>
                     import('../core/layout/index/index.component').then(
@@ -21,6 +14,13 @@ export const routes: Routes = [
                     ),
             },
 
+            {
+                path: 'about',
+                loadComponent: () =>
+                    import('../components/legal/about/about.component').then(
+                        (c) => c.AboutComponent
+                    ),
+            },
             {
                 path: 'faq',
                 loadComponent: () =>
