@@ -1,8 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'app-energy-drag-items',
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './energy-drag-items.component.html',
     styleUrl: './energy-drag-items.component.scss',
 })
