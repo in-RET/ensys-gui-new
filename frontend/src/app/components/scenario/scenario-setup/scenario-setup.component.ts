@@ -25,8 +25,8 @@ export class ScenarioSetupComponent {
         }),
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl('', [Validators.required]),
-        timeStep: new FormControl('', [Validators.required]),
         sDate: new FormControl(null, [Validators.required]),
+        timeStep: new FormControl('', [Validators.required]),
         simulationYear: new FormControl('', [Validators.required]),
 
         // minimal_renewable_factor_active: new FormControl(true),

@@ -144,8 +144,6 @@ export class ScenarioEnergyDesignComponent {
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
 
-    // @Output() fullScreen: EventEmitter<any> = new EventEmitter();
-
     contentLayoutService = inject(ContentLayoutService);
 
     clearGridModel() {

@@ -28,9 +28,9 @@
                     *ngFor="let componet of components.items"
                 >
                     <div class="section__title">
-                        <h3>
-                            {{ componet.group_name }}
-                        </h3>
+                        <h6>
+                            {{ componet.group_name | uppercase }}
+                        </h6>
                     </div>
 
                     <ng-container

@@ -1,18 +1,11 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../core/guards/auth-guard.service';
-import { projectResolver } from '../shared/resolvers/project.resolver';
+import { projectsResolver } from '../shared/resolvers/project.resolver';
 
 export const routes: Routes = [
     {
         path: '',
         children: [
-            {
-                path: 'about',
-                loadComponent: () =>
-                    import('../components/legal/about/about.component').then(
-                        (c) => c.AboutComponent
-                    ),
-            },
             {
                 path: '',
                 loadComponent: () =>
@@ -21,6 +14,13 @@ export const routes: Routes = [
                     ),
             },
 
+            {
+                path: 'about',
+                loadComponent: () =>
+                    import('../components/legal/about/about.component').then(
+                        (c) => c.AboutComponent
+                    ),
+            },
             {
                 path: 'faq',
                 loadComponent: () =>
@@ -65,7 +65,7 @@ export const routes: Routes = [
                         '../components/scenario/scenario-base/scenario-base.component'
                     ).then((c) => c.ScenarioBaseComponent),
                 resolve: {
-                    projectList: projectResolver,
+                    projectList: projectsResolver,
                 },
             },
         ],

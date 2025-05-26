@@ -42,55 +42,43 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
-
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
-
     @ViewChild('sed', { static: false })
     scenarioEnergyDesignComponent!: any;
-
     scenarioService = inject(ScenarioService);
     // contentLayoutService = inject(ContentLayoutService);
-
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
     }
-
     nextStep() {
         switch (this.currentStep) {
             case 0:
                 let scenarioBaseData = this.scenarioSetupComponent.getData();
-
                 if (scenarioBaseData) {
                     // scenarioBaseData = {
                     //     ...scenarioBaseData,
                     // };
-
                     this.saveBaseInfo(scenarioBaseData);
                     ++this.currentStep;
                     // (++this.currentStep);
                 }
                 break;
-
             case 1:
                 // scenarioBaseData = this.energyDrawflowComponent.getData();
                 break;
         }
     }
-
     prevtStep() {
         --this.currentStep;
     }
-
     saveBaseInfo(data: any) {
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioService.saveBaseInfo_Storage(data);
     }
-
     saveScenario() {
         const drawflowData = this.scenarioEnergyDesignComponent.getData();
         let scenarioData: any = this.scenarioService.restoreBaseInfo_Storage();
-
         if (
             scenarioData &&
             scenarioData.trim() !== '' &&
@@ -98,7 +86,6 @@ export class ScenarioBaseComponent {
             scenarioData !== undefined
         ) {
             scenarioData = JSON.parse(scenarioData);
-
             let newScenarioData: ScenarioReqData = {
                 name: scenarioData['name'],
                 timestep: scenarioData['timeStep'],
@@ -110,11 +97,9 @@ export class ScenarioBaseComponent {
                     components: [],
                 },
             };
-
             for (const key in drawflowData) {
                 if (Object.prototype.hasOwnProperty.call(drawflowData, key)) {
                     const element: DrawflowNode = drawflowData[key];
-
                     newScenarioData.energysystem_model.components.push({
                         data: element.data,
                         inputs: [],
@@ -125,32 +110,23 @@ export class ScenarioBaseComponent {
                     });
                 }
             }
-
             this.scenarioService.createScenario(newScenarioData).subscribe({
-                next: (value) => {
+                next: (value: any) => {
                     console.log(value);
                 },
-                error: (err) => {
+                error: (err: any) => {
                     console.error(err);
                 },
             });
         }
     }
-
     checkScenarioBaseDataAvailablity() {
         const Data = this.scenarioService.restoreBaseInfo_Storage();
-
         if (!Data) {
             this.goToStep(0);
         }
     }
-
     goToStep(number: number) {
         this.currentStep = number;
     }
-
-    // toggleFullScreen() {
-    //     this.isFullscreen = !this.isFullscreen;
-    //     this.contentLayoutService.setScreenFull(this.isFullscreen);
-    // }
 }

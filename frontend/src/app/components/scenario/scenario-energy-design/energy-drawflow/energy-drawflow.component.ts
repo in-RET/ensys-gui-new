@@ -13,7 +13,7 @@ import { ModalComponent } from '../modal/modal.component';
     styleUrl: './energy-drawflow.component.scss',
 })
 export class EnergyDrawflowComponent {
-    editor!: Drawflow;
+    editor!: any;
     currentNode: any;
     currentPosition: any;
 
@@ -45,13 +45,39 @@ export class EnergyDrawflowComponent {
     constructor(private scenarioService: ScenarioService) {}
 
     ngOnInit() {
-        var id: any = document.getElementById('drawflow');
-        this.editor = new Drawflow(id);
-        this.editor.zoom = 0.75;
+        // this.showModalConnection();
+    }
 
-        this.loadDrawflow();
+    ngAfterViewInit(): void {
+        setTimeout(() => {
+            this.initDrawingBoard();
+        }, 0);
+    }
+
+    private initDrawingBoard() {
+        this.initDrawFlow();
+        this.addEditorEvents();
         this.loadCurrentDrawflow();
+    }
 
+    private initDrawFlow() {
+        if (typeof document !== 'undefined') {
+            const drawFlowHtmlElement = document.getElementById('drawflow');
+            this.editor = new Drawflow(drawFlowHtmlElement as HTMLElement);
+
+            this.editor.reroute = true;
+            this.editor.curvature = 1;
+            // this.editor.reroute_fix_curvature = true;
+            // this.editor.reroute_curvature = 1;
+            this.editor.force_first_input = true;
+            this.editor.zoom = 0.7;
+
+            this.editor.start();
+            this.editor.zoom_refresh();
+        }
+    }
+
+    private addEditorEvents() {
         this.editor.on('connectionCreated', (connection: any) => {
             this.currentConnection = connection;
             this.connectionCreated(connection);
@@ -75,31 +101,27 @@ export class EnergyDrawflowComponent {
         this.editor.on('zoom', (data: any) => {
             this.saveCurrentDrawflow();
         });
-        // this.editor.container.addEventListener('compositionupdate', (e: any) => {
 
+        // this.editor.on('contextmenu', (e:any) => {
+        //     e.preventDefault;
+        //     const closestNode = e.target.closest('.drawflow-node');
+        //     const closestEdge = e.target.closest('.main-path');
+        //     console.log(closestEdge.id);
+
+        //     if (
+        //         // e.target.closest('.drawflow_content_node') != null ||
+        //         closestNode ||
+        //         closestEdge
+        //     ) {
+        //         this.showConextMenu(
+        //             e.clientX,
+        //             e.clientY,
+        //             closestNode
+        //                 ? closestNode.id.split('node-')[1]
+        //                 : closestEdge.id.split('node-')[1]
+        //         );
+        //     }
         // });
-
-        this.listenNodeDBClick();
-
-        this.editor.on('contextmenu', (e) => {
-            const closestNode = e.target.closest('.drawflow-node');
-            const closestEdge = e.target.closest('.main-path');
-            console.log(closestEdge.id);
-
-            if (
-                // e.target.closest('.drawflow_content_node') != null ||
-                closestNode ||
-                closestEdge
-            ) {
-                this.showConextMenu(
-                    e.clientX,
-                    e.clientY,
-                    closestNode
-                        ? closestNode.id.split('node-')[1]
-                        : closestEdge.id.split('node-')[1]
-                );
-            }
-        });
 
         this.editor.on('click', (event: any) => {
             if (event.target.closest('#contextmenu') === null) {
@@ -109,6 +131,10 @@ export class EnergyDrawflowComponent {
 
         this.editor.on('nodeMoved', (nodeId: any) => {
             this.saveCurrentDrawflow();
+        });
+
+        this.editor.on('translate', (position: any) => {
+            // this.saveCurrentDrawflow();
         });
 
         this.editor.on('connectionSelected', (e: any) => {
@@ -132,15 +158,15 @@ export class EnergyDrawflowComponent {
         );
         addEventListener('touchend', this.touchEnd, { passive: false });
 
-        this.showModalConnection();
+        // this.listenNodeDBClick();
     }
 
     touchStart(e: any) {
         e.preventDefault;
 
-        this.touchTimer = setTimeout(() => {
-            this.touchHolding(e);
-        }, 500);
+        // this.touchTimer = setTimeout(() => {
+        //     // this.touchHolding(e);
+        // }, 500);
     }
     touchEnd() {
         if (this.touchTimer) clearTimeout(this.touchTimer);
@@ -159,12 +185,6 @@ export class EnergyDrawflowComponent {
         }
     }
 
-    loadDrawflow() {
-        this.editor.force_first_input = true;
-        this.editor.curvature = 1;
-        this.editor.start();
-        this.editor.zoom_refresh();
-    }
     loadCurrentDrawflow() {
         let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
 
@@ -176,6 +196,7 @@ export class EnergyDrawflowComponent {
                     },
                 },
             };
+
             this.editor.import(dataToImport);
         }
     }
@@ -572,12 +593,12 @@ export class EnergyDrawflowComponent {
                     class: 'col-12',
                     fields: [
                         {
-                            name: 'maximum ',
-                            placeholder: 'maximum ',
+                            name: 'maximum',
+                            placeholder: 'maximum',
                             label: 'maximum ',
-                            type: 'number',
+                            type: 'file-upload',
                             span: '2',
-                            disabled: true,
+                            disabled: false,
                         },
                         {
                             name: 'minimum',

@@ -17,27 +17,6 @@
     [title]="currentNode.name"
     (closeModal)="toggleModal(false)"
 >
-    <!-- <modal-form>
-        <app-form [formData]="formData" [node]="currentNode" #form />
-    </modal-form> -->
-
-    <!-- <modal-actions>
-        <span
-            class="text-danger"
-            style="position: absolute; left: 0; padding-left: 3rem"
-        >
-            * Complete the form!
-        </span>
-
-        <button
-            type="button"
-            class="btn btn--success btn--medium"
-            [disabled]="false"
-        >
-            Save
-        </button>
-    </modal-actions> -->
-
     <div modal-form>
         <app-form [formData]="formData" #form />
     </div>

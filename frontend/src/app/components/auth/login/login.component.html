@@ -69,9 +69,22 @@
             type="submit"
             (click)="logIn()"
             [disabled]="!form.valid"
+            *ngIf="!isDevelopingMode"
         >
             Login
         </button>
+
+        <div
+            *ngIf="isDevelopingMode"
+            class="d-flex justify-content-center gap-2"
+        >
+            <button class="btn" type="button" [routerLink]="['/projects']">
+                Projects
+            </button>
+            <button class="btn" type="button" [routerLink]="['/scenario']">
+                Scenario
+            </button>
+        </div>
 
         <div class="mt-1 text-danger" *ngIf="error && error.messge">
             Error:

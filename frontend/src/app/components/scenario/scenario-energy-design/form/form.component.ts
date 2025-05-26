@@ -13,6 +13,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { FileUploaderComponent } from '../file-uploader/file-uploader.component';
 import { OrderListComponent } from '../order-list/order-list.component';
 
 @Component({
@@ -22,6 +23,7 @@ import { OrderListComponent } from '../order-list/order-list.component';
         FormsModule,
         ReactiveFormsModule,
         OrderListComponent,
+        FileUploaderComponent,
     ],
     templateUrl: './form.component.html',
     styleUrl: './form.component.scss',
@@ -59,7 +61,7 @@ export class FormComponent {
                         {
                             value: field['value'] ? field['value'] : null,
                             disabled: field.hasOwnProperty('disabled')
-                                ? true
+                                ? field['disabled']
                                 : null,
                         },
                         []

@@ -10,41 +10,8 @@
             />
         </a>
 
-        <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-        >
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mb-2 mb-lg-0">
-                <ng-container *ngIf="is_signup_mode">
-                    <!--During scenario creation the nav bar does not display all options-->
-                    <!-- {% if not scenario_create %} -->
-                    <ng-container *ngIf="is_creation_scenario_mode">
-                        <li class="nav-item">
-                            <!--scenario-empty.html-->
-                            <a class="nav-link" href="scenario/select/project">
-                                New Scenario
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <!--project-view.html-->
-                            <a class="nav-link" href="project/search/">
-                                My Projects
-                            </a>
-                        </li>
-                    </ng-container>
-                    <!-- {% endif %} -->
-                </ng-container>
-
                 <!-- user profile -->
                 <ng-container *ngIf="user.is_authenticated">
                     <li class="nav-item dropdown profile">

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { regionsResolver } from '../shared/resolvers/regions.resolver';
 
 export const routes: Routes = [
     {
@@ -14,6 +15,9 @@ export const routes: Routes = [
             import(
                 '../components/project/project-create/project-create.component'
             ).then((c) => c.ProjectCreateComponent),
+        resolve: {
+            regionList: regionsResolver,
+        },
     },
     {
         path: 'update/:id',
@@ -21,6 +25,9 @@ export const routes: Routes = [
             import(
                 '../components/project/project-create/project-create.component'
             ).then((c) => c.ProjectCreateComponent),
+        resolve: {
+            regionList: regionsResolver,
+        },
     },
     {
         path: '**',
