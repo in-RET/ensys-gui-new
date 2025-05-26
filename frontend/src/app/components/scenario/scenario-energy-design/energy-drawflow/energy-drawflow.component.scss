@@ -57,6 +57,7 @@
 }
 
 #drawflow {
+    cursor: move;
     --d: 2px;
     background: radial-gradient(
             circle at var(--d) var(--d),
@@ -68,6 +69,10 @@
     ::ng-deep .gui__empty-text {
         display: none;
     }
+
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 ::ng-deep .gui__empty-text {
@@ -120,10 +125,6 @@
         filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(330deg)
             brightness(118%) contrast(119%);
     }
-}
-
-::ng-deep .drawflow {
-    cursor: move;
 }
 
 ::ng-deep .drawflow .connection .main-path {

@@ -41,7 +41,7 @@ interface ScenarioComponent {
     styleUrl: './scenario-base.component.scss',
 })
 export class ScenarioBaseComponent {
-    currentStep: number = 0;
+    currentStep: number = 1;
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
     @ViewChild('sed', { static: false })

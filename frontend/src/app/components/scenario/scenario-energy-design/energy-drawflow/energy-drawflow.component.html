@@ -1,12 +1,12 @@
 <section
     class="w-100 h-100"
     [ngClass]="{
-        'no-data': (editor.drawflow.drawflow.Home.data | json) === '{}'
+        'no-data': (editor?.drawflow.drawflow.Home.data | json) === '{}'
     }"
 >
     <div
         id="drawflow"
-        class="w-100 h-100"
+        class=""
         (drop)="onDrop($event)"
         (dragover)="allowDrop($event)"
     >
