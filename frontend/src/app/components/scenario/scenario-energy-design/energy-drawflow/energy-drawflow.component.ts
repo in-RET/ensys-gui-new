@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output, ViewChild } from '@angular/core';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Output,
+    Renderer2,
+    ViewChild,
+} from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
 import { ScenarioService } from '../../services/scenario.service';
@@ -13,7 +20,7 @@ import { ModalComponent } from '../modal/modal.component';
     styleUrl: './energy-drawflow.component.scss',
 })
 export class EnergyDrawflowComponent {
-    editor!: any;
+    editor!: Drawflow;
     currentNode: any;
     currentPosition: any;
 
@@ -31,6 +38,8 @@ export class EnergyDrawflowComponent {
     selected_flowId: any;
     touchTimer: any;
 
+    contextmenu!: { id: number } | null;
+
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
 
@@ -41,11 +50,23 @@ export class EnergyDrawflowComponent {
     @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
+    @ViewChild('contextMenu') contextMenuRef!: ElementRef<HTMLDivElement>;
 
-    constructor(private scenarioService: ScenarioService) {}
+    constructor(
+        private scenarioService: ScenarioService,
+        private renderer: Renderer2
+    ) {}
 
     ngOnInit() {
         // this.showModalConnection();
+
+        this.renderer.listen('window', 'click', (e: any) => {
+            if (
+                e.target &&
+                !this.contextMenuRef.nativeElement.contains(e.target)
+            )
+                this.unShowConextMenu();
+        });
     }
 
     ngAfterViewInit(): void {
@@ -67,8 +88,6 @@ export class EnergyDrawflowComponent {
 
             this.editor.reroute = true;
             this.editor.curvature = 1;
-            // this.editor.reroute_fix_curvature = true;
-            // this.editor.reroute_curvature = 1;
             this.editor.force_first_input = true;
             this.editor.zoom = 0.7;
 
@@ -102,34 +121,28 @@ export class EnergyDrawflowComponent {
             this.saveCurrentDrawflow();
         });
 
-        // this.editor.on('contextmenu', (e:any) => {
-        //     e.preventDefault;
-        //     const closestNode = e.target.closest('.drawflow-node');
-        //     const closestEdge = e.target.closest('.main-path');
-        //     console.log(closestEdge.id);
+        this.editor.on('contextmenu', (e: any) => {
+            // e.preventDefault;
+            const closestNode = e.target.closest('.drawflow-node');
+            const closestEdge = e.target.closest('.main-path');
 
-        //     if (
-        //         // e.target.closest('.drawflow_content_node') != null ||
-        //         closestNode ||
-        //         closestEdge
-        //     ) {
-        //         this.showConextMenu(
-        //             e.clientX,
-        //             e.clientY,
-        //             closestNode
-        //                 ? closestNode.id.split('node-')[1]
-        //                 : closestEdge.id.split('node-')[1]
-        //         );
-        //     }
-        // });
-
-        this.editor.on('click', (event: any) => {
-            if (event.target.closest('#contextmenu') === null) {
-                this.unShowConextMenu();
+            if (closestNode || closestEdge) {
+                this.showConextMenu(
+                    e.clientX,
+                    e.clientY,
+                    closestNode
+                        ? closestNode.id.split('node-')[1]
+                        : closestEdge.id.split('node-')[1]
+                );
             }
         });
 
+        this.editor.on('click', (event: any) => {});
+
         this.editor.on('nodeMoved', (nodeId: any) => {
+            console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_x);
+            console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_y);
+
             this.saveCurrentDrawflow();
         });
 
@@ -175,7 +188,7 @@ export class EnergyDrawflowComponent {
     touchHolding(e: any) {
         const closestNode = e.target.closest('.drawflow-node');
         const closestEdge = e.target.closest('.main-path');
-        debugger;
+
         if (closestNode || closestEdge) {
             this.showConextMenu(
                 e.changedTouches[0].clientX,
@@ -202,49 +215,17 @@ export class EnergyDrawflowComponent {
     }
 
     showConextMenu(x: any, y: any, nodeId: number) {
-        // var pos_x =
-        //     x *
-        //         (this.editor.precanvas.clientWidth /
-        //             (this.editor.precanvas.clientWidth * this.editor.zoom)) -
-        //     this.editor.precanvas.getBoundingClientRect().x *
-        //         (this.editor.precanvas.clientWidth /
-        //             (this.editor.precanvas.clientWidth * this.editor.zoom));
-        // var pos_y =
-        //     y *
-        //         (this.editor.precanvas.clientHeight /
-        //             (this.editor.precanvas.clientHeight * this.editor.zoom)) -
-        //     this.editor.precanvas.getBoundingClientRect().y *
-        //         (this.editor.precanvas.clientHeight /
-        //             (this.editor.precanvas.clientHeight * this.editor.zoom));
-
-        var contextmenu = document.createElement('div');
-        contextmenu.id = 'contextmenu';
-        contextmenu.className = 'border border-2 rounded border-primary-subtle';
-        contextmenu.innerHTML = `
-               <div class="list-group list-group-flush rounded">
-               <a  class="list-group-item list-group-item-action d-flex" (click)=showModalEdit()>
-               <i class="edit"></i>
-                          Edit
-                        </a>
-                <a  class="list-group-item list-group-item-action d-flex">
-                   <i class="trash"></i>
-                   Delete
-                   </a>
-                </div>
-        `;
-        contextmenu.style.display = 'block';
-
-        contextmenu.style.left = this.getNodePosition(x, 'x') + 'px';
-        contextmenu.style.top = this.getNodePosition(y, 'y') + 'px';
-
-        this.editor.precanvas.appendChild(contextmenu);
+        this.contextMenuRef.nativeElement.style.display = 'block';
+        this.contextMenuRef.nativeElement.style.left = x + 'px';
+        this.contextMenuRef.nativeElement.style.top = y + 'px';
+        this.contextmenu = {
+            id: nodeId,
+        };
     }
 
     unShowConextMenu() {
-        var contextmenu = document.getElementById('contextmenu');
-        if (contextmenu != null) {
-            contextmenu.remove();
-        }
+        this.contextMenuRef.nativeElement.style.display = 'none';
+        this.contextmenu = null;
     }
 
     saveCurrentDrawflow() {
@@ -310,12 +291,14 @@ export class EnergyDrawflowComponent {
             node: {
                 id: nodeId,
                 name: nodeName,
-                group: nodeGroup,
+                class: nodeId,
                 x: this.currentPosition.x,
                 y: this.currentPosition.y,
             },
             editMode: false,
         });
+
+        console.log(this.currentPosition);
     }
 
     onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
@@ -432,19 +415,23 @@ export class EnergyDrawflowComponent {
         );
     }
     updateNode(nodeId: number, data: any) {
+        console.log(data);
+
+        this.editor.drawflow.drawflow.Home.data[nodeId].name = data.name;
         this.editor.drawflow.drawflow.Home.data[nodeId].html = `
             <div class="box" ${this.ASSET_TYPE_NAME}=" ${data.name}"></div>
 
             <div class="drawflow-node__name nodeName">
                 <span>
-          ${data.name}
+                    ${this.editor.drawflow.drawflow.Home.data[nodeId].name}
                 </span>
             </div>
 
             <div class="img"></div>
         `;
-        this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.updateNodeDataFromId(nodeId, data);
+        this.editor.dispatch('nodeDataChanged', nodeId);
+        this.editor.import(this.editor.export());
     }
 
     connectionCreated(connection: any) {
@@ -807,8 +794,6 @@ export class EnergyDrawflowComponent {
 
         if (_formData) {
             this.setFormError(false, '');
-            // make flow
-
             this.modalComponent._closeModal(true);
         } else {
             this.setFormError(true, ' * Complete the form!');
@@ -821,10 +806,12 @@ export class EnergyDrawflowComponent {
     }
 
     _showFormModalNode(nodeId: number, x: number, y: number) {
+        debugger;
         this.showConextMenu(x, y, nodeId);
     }
 
     _showFormModal_edge(nodeId: number, x: number, y: number) {
+        debugger;
         this.showConextMenu(x, y, nodeId);
     }
 
@@ -832,19 +819,24 @@ export class EnergyDrawflowComponent {
         this.toggleFullScreen.emit();
     }
 
-    showModalEdit(nodeId: number) {
-        const node = this.editor.getNodeFromId(nodeId);
+    showModalEdit() {
+        if (this.contextmenu != null) {
+            const node = this.editor.getNodeFromId(this.contextmenu.id);
 
-        this.showNodeFormModal.emit({
-            node: {
-                id: nodeId,
-                name: node.data.name,
-                group: node.class,
-                x: node.pos_x,
-                y: node.pos_y,
-                data: node.data,
-            },
-            editMode: true,
-        });
+            if (node)
+                this.showNodeFormModal.emit({
+                    node: {
+                        id: this.contextmenu.id,
+                        name: node.data.name,
+                        class: node.class,
+                        x: node.pos_x,
+                        y: node.pos_y,
+                        data: node.data,
+                    },
+                    editMode: true,
+                });
+
+            this.unShowConextMenu();
+        }
     }
 }

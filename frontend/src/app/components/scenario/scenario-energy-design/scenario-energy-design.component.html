@@ -35,7 +35,8 @@
             class="btn btn--success btn--medium"
             (click)="submitFormData()"
         >
-            Save
+            <span *ngIf="!editMode">Save</span>
+            <span *ngIf="editMode">Update</span>
         </button>
     </div>
 </app-modal>

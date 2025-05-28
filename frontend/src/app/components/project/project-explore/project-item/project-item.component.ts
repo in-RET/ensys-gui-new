@@ -67,6 +67,8 @@ export class ProjectItemComponent {
 
     newScenario(pId: string, pName: string) {
         this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioService.removeDrawflow_Storage();
+
         this.scenarioService.saveBaseInfo_Storage({
             project: {
                 id: pId,

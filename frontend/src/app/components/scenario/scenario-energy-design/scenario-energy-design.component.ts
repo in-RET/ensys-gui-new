@@ -155,9 +155,10 @@ export class ScenarioEnergyDesignComponent {
             confirmButtonText: 'Yes, clear everything!',
             cancelButtonText: 'Cancel',
         }).then((result) => {
-            result.isConfirmed &&
+            if (result.isConfirmed) {
                 this.energyDrawflowComponent.editor.clearModuleSelected();
-            this.energyDrawflowComponent.saveCurrentDrawflow();
+                this.energyDrawflowComponent.saveCurrentDrawflow();
+            }
         });
         // .then((result) => save_topology());
     }
@@ -169,9 +170,21 @@ export class ScenarioEnergyDesignComponent {
     showNodeFormModal(e: { node: any; editMode: boolean }) {
         this.formData = null;
         this.editMode = e.editMode;
+
+        this.components.items.forEach(
+            (group: { group_name: string; group_components: any[] }) => {
+                group.group_components.forEach(
+                    (component: { id: string; name: string }) => {
+                        e.node.class === component.id
+                            ? (e.node.group = group.group_name)
+                            : false;
+                    }
+                );
+            }
+        );
         this.currentNode = e.node;
 
-        this.initFormData(this.currentNode.name, this.currentNode.data);
+        this.initFormData(e.node.class, this.currentNode.data);
         this.toggleModal(true);
     }
 
@@ -835,18 +848,19 @@ export class ScenarioEnergyDesignComponent {
         let _formData = this.formComponent.submit();
         _formData = this.getNodePorts(_formData);
 
-        const isNodeUnique = this.checkNodeDuplication(_formData.name);
+        const isNodeUnique = this.checkNodeDuplication(
+            +this.currentNode.id,
+            _formData.name
+        );
 
         if (_formData) {
             if (isNodeUnique && isNodeUnique !== undefined) {
-                console.log(_formData);
-                this.setFormError(false, '');
-
                 if (this.editMode) {
                     this.updateNode(_formData);
                     this.editMode = false;
                 } else this.makeNode(_formData);
 
+                this.setFormError(false, '');
                 this.modalComponent._closeModal(true);
             } else this.setFormError(true, ' * The name is duplicated!');
         } else {
@@ -854,7 +868,7 @@ export class ScenarioEnergyDesignComponent {
         }
     }
 
-    checkNodeDuplication(nodeName: string) {
+    checkNodeDuplication(nodeId: number, nodeName: string) {
         const currentNodeList =
             this.energyDrawflowComponent.editor.drawflow.drawflow.Home.data;
 
@@ -864,7 +878,11 @@ export class ScenarioEnergyDesignComponent {
                     Object.prototype.hasOwnProperty.call(currentNodeList, key)
                 ) {
                     const node = currentNodeList[key];
-                    return node.name === nodeName ? false : true;
+
+                    return nodeId !== node.id &&
+                        (node.name === nodeName || node.data.name === nodeName)
+                        ? false
+                        : true;
                 }
             }
         }

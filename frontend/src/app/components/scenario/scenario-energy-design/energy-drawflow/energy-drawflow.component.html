@@ -1,7 +1,8 @@
 <section
     class="w-100 h-100"
     [ngClass]="{
-        'no-data': (editor?.drawflow.drawflow.Home.data | json) === '{}'
+        'no-data':
+            editor && (editor.drawflow.drawflow.Home.data | json) === '{}'
     }"
 >
     <div
@@ -52,3 +53,29 @@
         </button>
     </div>
 </app-modal>
+
+<!-- <ng-container #contextMenu>
+   ---
+</ng-container> -->
+
+<div
+    id="contextmenu"
+    class="border border-2 rounded border-primary-subtle"
+    style="display: none"
+    #contextMenu
+>
+    <div class="list-group list-group-flush rounded">
+        <a
+            class="list-group-item list-group-item-action d-flex"
+            (click)="showModalEdit()"
+        >
+            <i class="edit"></i>
+            Edit
+        </a>
+
+        <a class="list-group-item list-group-item-action d-flex">
+            <i class="trash"></i>
+            Delete
+        </a>
+    </div>
+</div>

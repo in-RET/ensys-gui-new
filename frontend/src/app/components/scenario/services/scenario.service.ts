@@ -62,4 +62,8 @@ export class ScenarioService {
             return JSON.parse(DrawflowData);
         else return false;
     }
+
+    removeDrawflow_Storage() {
+        localStorage.removeItem(this.scenario_drawflow_localstorage_name);
+    }
 }
