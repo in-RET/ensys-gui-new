@@ -839,4 +839,9 @@ export class EnergyDrawflowComponent {
             this.unShowConextMenu();
         }
     }
+
+    deleteNode(nodeId: number) {
+        this.editor.removeNodeId(`node-${nodeId}`);
+        this.unShowConextMenu();
+    }
 }

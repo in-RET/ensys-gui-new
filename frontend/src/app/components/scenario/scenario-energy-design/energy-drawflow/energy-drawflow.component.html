@@ -73,7 +73,11 @@
             Edit
         </a>
 
-        <a class="list-group-item list-group-item-action d-flex">
+        <a
+            class="list-group-item list-group-item-action d-flex"
+            *ngIf="contextmenu"
+            (click)="deleteNode(contextmenu.id)"
+        >
             <i class="trash"></i>
             Delete
         </a>
