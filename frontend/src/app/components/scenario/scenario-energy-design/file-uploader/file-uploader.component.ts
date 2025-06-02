@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
     selector: 'app-file-uploader',
@@ -8,6 +8,8 @@ import { Component } from '@angular/core';
 })
 export class FileUploaderComponent {
     fileInfo!: string;
+
+    @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
     /**
      * Called when the value of the file input changes, i.e. when a file has been
@@ -47,7 +49,18 @@ export class FileUploaderComponent {
 
         if (input && input.files) {
             const file = input.files[0];
-            this.fileInfo = `${file.name} (${formatBytes(file.size)})`;
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = (e: any) => {
+                    let content = e.target.result;
+                    this.fileInfo = `${file.name} (${formatBytes(file.size)})`;
+                    content = content.split('\r\n').join(',');
+                    this.fileUploaderChange.emit(content);
+                };
+                reader.readAsText(file);
+            }
         }
     }
 }

@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../core/guards/auth-guard.service';
-import { projectsResolver } from '../shared/resolvers/project.resolver';
+import {
+    localStorageProjectResolver,
+    projectsResolver,
+} from '../shared/resolvers/project.resolver';
+import { localStorageScenarioResolver } from '../shared/resolvers/scenario.resolver';
 
 export const routes: Routes = [
     {
@@ -59,13 +63,15 @@ export const routes: Routes = [
 
             {
                 path: 'scenario',
-                canMatch: [AuthGuard],
+                // canMatch: [AuthGuard],
                 loadComponent: () =>
                     import(
                         '../components/scenario/scenario-base/scenario-base.component'
                     ).then((c) => c.ScenarioBaseComponent),
                 resolve: {
                     projectList: projectsResolver,
+                    currentProject: localStorageProjectResolver,
+                    currentScenario: localStorageScenarioResolver,
                 },
             },
         ],

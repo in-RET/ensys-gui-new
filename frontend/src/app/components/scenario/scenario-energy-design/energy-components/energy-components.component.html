@@ -5,11 +5,13 @@
     >
         <div class="components__title">
             <span
-                >Project: <b> {{ project?.name || "" }}</b></span
+                >Project:
+                <b> {{ currentScenario.project?.name || "" }}</b></span
             >
 
             <span>
-                Scenario: <b>{{ scenario?.name || "" }}</b></span
+                Scenario:
+                <b>{{ currentScenario.scenario?.name || "" }}</b></span
             >
         </div>
 
@@ -25,7 +27,7 @@
                 <!-- <div class="section section--{{ group_name }}"> -->
                 <div
                     class="section section--{{ componet.group_name }}"
-                    *ngFor="let componet of components.items"
+                    *ngFor="let componet of components"
                 >
                     <div class="section__title">
                         <h6>

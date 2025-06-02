@@ -1,5 +1,12 @@
-<button class="file-upload-button">
-    <input type="file" #fileInput (change)="onFileSelect(fileInput)" />
-</button>
+<div style="display: flex; justify-content: center">
+    <button class="file-upload-button">
+        <input
+            type="file"
+            #fileInput
+            (change)="onFileSelect(fileInput)"
+            accept=".csv"
+        />
+    </button>
 
-<span class="file-info">{{ fileInfo }}</span>
+    <span class="file-info">{{ fileInfo }}</span>
+</div>

@@ -15,7 +15,7 @@ import { ModalComponent } from '../modal/modal.component';
 
 @Component({
     selector: 'app-energy-drawflow',
-    imports: [CommonModule, ModalComponent, FormComponent],
+    imports: [CommonModule],
     templateUrl: './energy-drawflow.component.html',
     styleUrl: './energy-drawflow.component.scss',
 })
@@ -30,8 +30,7 @@ export class EnergyDrawflowComponent {
         msg: '',
         isShow: false,
     };
-    modalVisibility: boolean = false;
-    currentConnection: any;
+    seelctedConnection: any = { title: '' };
     ASSET_TYPE_NAME: string = 'asset_type_name';
 
     selected_nodeId: any;
@@ -39,13 +38,13 @@ export class EnergyDrawflowComponent {
     touchTimer: any;
 
     contextmenu!: { id: number } | null;
+    editMode: boolean = false;
 
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
 
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
-    @Output('showNodeFormModal') showNodeFormModal: EventEmitter<any> =
-        new EventEmitter();
+    @Output('showFormModal') showFormModal = new EventEmitter();
     @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
     @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
@@ -58,7 +57,7 @@ export class EnergyDrawflowComponent {
     ) {}
 
     ngOnInit() {
-        // this.showModalConnection();
+        //this.showModalConnection();
 
         this.renderer.listen('window', 'click', (e: any) => {
             if (
@@ -89,7 +88,7 @@ export class EnergyDrawflowComponent {
             this.editor.reroute = true;
             this.editor.curvature = 1;
             this.editor.force_first_input = true;
-            this.editor.zoom = 0.7;
+            this.editor.zoom = 0.9;
 
             this.editor.start();
             this.editor.zoom_refresh();
@@ -97,11 +96,6 @@ export class EnergyDrawflowComponent {
     }
 
     private addEditorEvents() {
-        this.editor.on('connectionCreated', (connection: any) => {
-            this.currentConnection = connection;
-            this.connectionCreated(connection);
-        });
-
         this.editor.on('nodeCreated', (data: any) => {
             this.saveCurrentDrawflow();
         });
@@ -111,18 +105,33 @@ export class EnergyDrawflowComponent {
         this.editor.on('nodeRemoved', (data: any) => {
             this.saveCurrentDrawflow();
         });
-        this.editor.on('connectionCreated', (data: any) => {
+
+        this.editor.on('connectionCreated', (connection: any) => {
+            // this.currentConnection = connection;
+            this.connectionCreated(connection);
+
             this.saveCurrentDrawflow();
         });
-        this.editor.on('connectionRemoved', (data: any) => {
+        this.editor.on('connectionRemoved', (connection: any) => {
             this.saveCurrentDrawflow();
         });
+        this.editor.on('connectionSelected', (connection: any) => {
+            // this.currentConnection = connection;
+
+            // const inputs = this.editor.getNodeFromId(connection.input_id);
+            // const outputs = this.editor.getNodeFromId(connection.output_id);
+
+            if (document.activeElement !== this.editor.container) {
+                this.editor.container.focus();
+            }
+        });
+
         this.editor.on('zoom', (data: any) => {
             this.saveCurrentDrawflow();
         });
 
         this.editor.on('contextmenu', (e: any) => {
-            // e.preventDefault;
+            e.preventDefault;
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
@@ -150,18 +159,6 @@ export class EnergyDrawflowComponent {
             // this.saveCurrentDrawflow();
         });
 
-        this.editor.on('connectionSelected', (e: any) => {
-            const inputs = this.editor.getNodeFromId(e.input_id);
-            console.log(inputs);
-
-            const outputs = this.editor.getNodeFromId(e.output_id);
-            console.log(outputs);
-
-            if (document.activeElement !== this.editor.container) {
-                this.editor.container.focus();
-            }
-        });
-
         addEventListener(
             'touchstart',
             (e: any) => {
@@ -184,7 +181,6 @@ export class EnergyDrawflowComponent {
     touchEnd() {
         if (this.touchTimer) clearTimeout(this.touchTimer);
     }
-
     touchHolding(e: any) {
         const closestNode = e.target.closest('.drawflow-node');
         const closestEdge = e.target.closest('.main-path');
@@ -196,73 +192,6 @@ export class EnergyDrawflowComponent {
                 0
             );
         }
-    }
-
-    loadCurrentDrawflow() {
-        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
-
-        if (CURRENT_DRAWFLOW) {
-            const dataToImport = {
-                drawflow: {
-                    Home: {
-                        data: CURRENT_DRAWFLOW,
-                    },
-                },
-            };
-
-            this.editor.import(dataToImport);
-        }
-    }
-
-    showConextMenu(x: any, y: any, nodeId: number) {
-        this.contextMenuRef.nativeElement.style.display = 'block';
-        this.contextMenuRef.nativeElement.style.left = x + 'px';
-        this.contextMenuRef.nativeElement.style.top = y + 'px';
-        this.contextmenu = {
-            id: nodeId,
-        };
-    }
-
-    unShowConextMenu() {
-        this.contextMenuRef.nativeElement.style.display = 'none';
-        this.contextmenu = null;
-    }
-
-    saveCurrentDrawflow() {
-        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
-        this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
-    }
-
-    listenNodeDBClick() {
-        document.addEventListener('dblclick', (e: any) => {
-            const closestNode = e.target.closest('.drawflow-node');
-            const closestEdge = e.target.closest('.main-path');
-
-            // event.target.closest('.drawflow_content_node') != null ||
-            //     event.target.classList[0] === 'drawflow-node' ||
-            //     event.target.classList[0] === 'main-path'
-
-            if (closestNode) {
-                // const nodeType = closestNode
-                //     .querySelector('.box')
-                //     .getAttribute('asset_type_name');
-
-                this.selected_nodeId = closestNode.id.split('node-')[1];
-                this._showFormModalNode(
-                    this.selected_nodeId,
-                    e.clientX,
-                    e.clientY
-                );
-            }
-
-            if (closestEdge) {
-                this._showFormModal_edge(
-                    this.selected_nodeId,
-                    e.clientX,
-                    e.clientY
-                );
-            }
-        });
     }
 
     allowDrop(ev: any) {
@@ -287,18 +216,19 @@ export class EnergyDrawflowComponent {
             nodeGroup,
         };
 
-        this.showNodeFormModal.emit({
-            node: {
-                id: nodeId,
-                name: nodeName,
-                class: nodeId,
-                x: this.currentPosition.x,
-                y: this.currentPosition.y,
-            },
+        this.showFormModal.emit({
+            // node: {
+            //     id: nodeId,
+            //     name: nodeName,
+            //     class: nodeId,
+            //     x: this.currentPosition.x,
+            //     y: this.currentPosition.y,
+            // },
+            id: `${nodeGroup}-${nodeId}`,
+            title: 'title',
+            action: { fn: 'submitFormData', label: 'save' },
             editMode: false,
         });
-
-        console.log(this.currentPosition);
     }
 
     onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
@@ -313,16 +243,36 @@ export class EnergyDrawflowComponent {
             nodeGroup,
         };
 
-        this.showNodeFormModal.emit({
-            node: {
-                id: nodeId,
-                name: nodeName,
-                group: nodeGroup,
-                x: pos.x,
-                y: pos.y,
-            },
-            editMode: false,
-        });
+        // this.showFormModal.emit({
+        //     node: {
+        //         id: nodeId,
+        //         name: nodeName,
+        //         group: nodeGroup,
+        //         x: pos.x,
+        //         y: pos.y,
+        //     },
+        //     editMode: false,
+        // });
+    }
+
+    loadCurrentDrawflow() {
+        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
+
+        if (CURRENT_DRAWFLOW) {
+            const dataToImport = {
+                drawflow: {
+                    Home: {
+                        data: CURRENT_DRAWFLOW,
+                    },
+                },
+            };
+            this.editor.import(dataToImport);
+        }
+    }
+
+    saveCurrentDrawflow() {
+        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
     }
 
     getNodePosition(position: number, type: 'x' | 'y') {
@@ -437,11 +387,15 @@ export class EnergyDrawflowComponent {
     connectionCreated(connection: any) {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
+        // this.currentConnection[
+        //     'title'
+        // ] = `Flow(${nodeOut.name}:${nodeIn.name})`;
+        // this.currentConnection = { ...this.currentConnection };
 
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
 
         if (followRules) {
-            this.showModalConnection();
+            this.showFormModal.emit();
         } else {
             this.removeSingleConnection(connection);
         }
@@ -517,254 +471,6 @@ export class EnergyDrawflowComponent {
         );
     }
 
-    showModalConnection() {
-        this.initFormData();
-        this.toggleModal(true);
-    }
-
-    initFormData() {
-        this.formData = {
-            sections: [
-                {
-                    name: '',
-                    class: 'col-12',
-                    fields: [
-                        {
-                            name: 'nominal_value',
-                            placeholder: 'nominal_value',
-                            label: 'nominal_value',
-                            isReq: true,
-                            type: 'number',
-                            span: '3',
-                        },
-                    ],
-                },
-
-                {
-                    name: '',
-                    class: 'col-12',
-                    fields: [
-                        {
-                            name: 'Investment',
-                            placeholder: '',
-                            label: '',
-                            isReq: true,
-                            type: 'switch',
-                            span: 'auto',
-                            value: false,
-                            onClick: () => {
-                                this.formComponent.toggleControl(
-                                    'nominal_value'
-                                );
-
-                                this.formData.sections.forEach(
-                                    (section: any) => {
-                                        if (section.name == 'Investment') {
-                                            section.fields.forEach(
-                                                (element: any) => {
-                                                    this.formComponent.toggleControl(
-                                                        element.name
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    }
-                                );
-                            },
-                        },
-                    ],
-                },
-
-                {
-                    name: 'Investment',
-                    class: 'col-12',
-                    fields: [
-                        {
-                            name: 'maximum',
-                            placeholder: 'maximum',
-                            label: 'maximum ',
-                            type: 'file-upload',
-                            span: '2',
-                            disabled: false,
-                        },
-                        {
-                            name: 'minimum',
-                            placeholder: 'minimum',
-                            label: 'minimum',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'ep_costs ',
-                            placeholder: 'ep_costs ',
-                            label: 'ep_costs ',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'existing ',
-                            placeholder: 'existing ',
-                            label: 'existing ',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'nonconvex ',
-                            placeholder: 'nonconvex ',
-                            label: 'nonconvex ',
-                            type: 'text',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'offset ',
-                            placeholder: 'offset ',
-                            label: 'offset',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'overall_maximum ',
-                            placeholder: 'overall_maximum ',
-                            label: 'overall_maximum ',
-                            type: 'number',
-                            span: '3',
-                            disabled: true,
-                        },
-                        {
-                            name: 'overall_minimum ',
-                            placeholder: 'overall_minimum ',
-                            label: 'overall_minimum ',
-                            type: 'number',
-                            span: '3',
-                            disabled: true,
-                        },
-
-                        {
-                            name: 'interest_rate ',
-                            placeholder: 'interest_rate ',
-                            label: 'interest_rate ',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                        {
-                            name: 'lifetime ',
-                            placeholder: 'lifetime ',
-                            label: 'lifetime ',
-                            type: 'number',
-                            span: '2',
-                            disabled: true,
-                        },
-                    ],
-                },
-
-                {
-                    name: '',
-                    class: 'col-12',
-                    fields: [
-                        {
-                            name: 'variable_costs',
-                            placeholder: 'variable_costs',
-                            label: 'variable_costs',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'max',
-                            placeholder: 'max',
-                            label: 'max',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'min',
-                            placeholder: 'min',
-                            label: 'min',
-                            type: 'number',
-                            span: '2',
-                        },
-
-                        {
-                            name: 'fix ',
-                            placeholder: 'fix ',
-                            label: 'fix',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'positive_gradient_limit ',
-                            placeholder: 'positive_gradient_limit ',
-                            label: 'positive_gradient_limit ',
-                            type: 'number',
-                            span: '3',
-                        },
-                        {
-                            name: 'negative_gradient_limit ',
-                            placeholder: 'negative_gradient_limit ',
-                            label: 'negative_gradient_limit ',
-                            type: 'number',
-                            span: '3',
-                        },
-                        {
-                            name: 'full_load_time_max ',
-                            placeholder: 'full_load_time_max ',
-                            label: 'full_load_time_max ',
-                            type: 'number',
-                            span: '3',
-                        },
-                        {
-                            name: 'full_load_time_min ',
-                            placeholder: 'full_load_time_min ',
-                            label: 'full_load_time_min ',
-                            type: 'number',
-                            span: '3',
-                        },
-                        {
-                            name: 'integer ',
-                            placeholder: 'integer ',
-                            label: 'integer ',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'nonconvex',
-                            placeholder: 'nonconvex',
-                            label: 'nonconvex',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'fixed_costs ',
-                            placeholder: 'fixed_costs ',
-                            label: 'fixed_costs ',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: '_lifetime ',
-                            placeholder: 'lifetime ',
-                            label: 'lifetime ',
-                            type: 'number',
-                            span: '2',
-                        },
-                        {
-                            name: 'age ',
-                            placeholder: 'age ',
-                            label: 'age ',
-                            type: 'number',
-                            span: '2',
-                        },
-                    ],
-                },
-            ],
-        };
-    }
-
     investFieldsToggleVisible() {}
 
     setFormError(status: boolean, msg: string) {
@@ -774,27 +480,22 @@ export class EnergyDrawflowComponent {
         };
     }
 
-    toggleModal(appear: boolean) {
-        this.modalVisibility = appear;
-    }
-
-    closeModal(approve: any) {
-        this.toggleModal(approve);
-        this.setFormError(false, '');
-
-        if (!approve) {
-            this.removeSingleConnection(this.currentConnection);
-        }
-
-        this.currentConnection = null;
-    }
-
     submitFormData_Flow() {
         const _formData = this.formComponent.submit();
 
         if (_formData) {
-            this.setFormError(false, '');
-            this.modalComponent._closeModal(true);
+            // this.currentConnection.data = _formData;
+            // // save data of connection fields in both sides
+            // this.editor.drawflow.drawflow.Home.data[
+            //     this.currentConnection.output_id
+            // ].data['connections'] = [this.currentConnection];
+            // this.editor.drawflow.drawflow.Home.data[
+            //     this.currentConnection.input_id
+            // ].data['connections'] = [this.currentConnection];
+            // this.saveCurrentDrawflow();
+            // this.setFormError(false, '');
+            // this.modalComponent._closeModal(true);
+            // this.modalVisibility = false;
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
@@ -820,28 +521,118 @@ export class EnergyDrawflowComponent {
     }
 
     showModalEdit() {
-        if (this.contextmenu != null) {
+        this.editMode = true;
+
+        if (this.contextmenu != null && this.contextmenu.id) {
             const node = this.editor.getNodeFromId(this.contextmenu.id);
 
             if (node)
-                this.showNodeFormModal.emit({
-                    node: {
-                        id: this.contextmenu.id,
-                        name: node.data.name,
-                        class: node.class,
-                        x: node.pos_x,
-                        y: node.pos_y,
-                        data: node.data,
-                    },
-                    editMode: true,
-                });
+                // this.showFormModal.emit({
+                //     node: {
+                //         id: this.contextmenu.id,
+                //         name: node.data.name,
+                //         class: node.class,
+                //         x: node.pos_x,
+                //         y: node.pos_y,
+                //         data: node.data,
+                //     },
+                //     editMode: true,
+                // });
 
-            this.unShowConextMenu();
+                this.unShowConextMenu();
+        } else {
+            // var nodeConnectionIn = this.editor.getNodeFromId(
+            //     this.currentConnection.input_id
+            // );
+            // const _connectionData =
+            //     nodeConnectionIn.data['connections'][0].data;
+            // console.log(_connectionData);
+            // this.showModalConnection(_connectionData);
         }
     }
 
     deleteNode(nodeId: number) {
         this.editor.removeNodeId(`node-${nodeId}`);
         this.unShowConextMenu();
+    }
+
+    deleteConnection() {
+        // this.editor.removeSingleConnection(
+        //     this.currentConnection['output_id'],
+        //     this.currentConnection['input_id'],
+        //     this.currentConnection['output_class'],
+        //     this.currentConnection['input_class']
+        // );
+    }
+
+    // R-Click event , Touching events
+    showConextMenu(x: any, y: any, nodeId: number) {
+        this.contextMenuRef.nativeElement.style.display = 'block';
+        this.contextMenuRef.nativeElement.style.left = x + 'px';
+        this.contextMenuRef.nativeElement.style.top = y + 'px';
+
+        if (nodeId)
+            this.contextmenu = {
+                id: nodeId,
+            };
+    }
+
+    unShowConextMenu() {
+        this.contextMenuRef.nativeElement.style.display = 'none';
+        this.contextmenu = null;
+    }
+
+    listenNodeDBClick() {
+        document.addEventListener('dblclick', (e: any) => {
+            const closestNode = e.target.closest('.drawflow-node');
+            const closestEdge = e.target.closest('.main-path');
+
+            // event.target.closest('.drawflow_content_node') != null ||
+            //     event.target.classList[0] === 'drawflow-node' ||
+            //     event.target.classList[0] === 'main-path'
+
+            if (closestNode) {
+                // const nodeType = closestNode
+                //     .querySelector('.box')
+                //     .getAttribute('asset_type_name');
+
+                this.selected_nodeId = closestNode.id.split('node-')[1];
+                this._showFormModalNode(
+                    this.selected_nodeId,
+                    e.clientX,
+                    e.clientY
+                );
+            }
+
+            if (closestEdge) {
+                this._showFormModal_edge(
+                    this.selected_nodeId,
+                    e.clientX,
+                    e.clientY
+                );
+            }
+        });
+    }
+
+    checkNodeDuplication(nodeName: string) {
+        const currentNodeList = this.editor.drawflow.drawflow.Home.data;
+        let isDuplicate = false;
+
+        if (currentNodeList) {
+            for (const key in currentNodeList) {
+                if (
+                    Object.prototype.hasOwnProperty.call(currentNodeList, key)
+                ) {
+                    const node = currentNodeList[key];
+                    node.name === nodeName || node.data.name === nodeName
+                        ? (isDuplicate = false)
+                        : (isDuplicate = true);
+                }
+            }
+
+            return isDuplicate;
+        }
+
+        return true;
     }
 }

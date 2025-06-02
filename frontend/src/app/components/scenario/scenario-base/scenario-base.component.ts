@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DrawflowNode } from 'drawflow';
+import { map } from 'rxjs';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
 import { ScenarioService } from '../services/scenario.service';
@@ -42,26 +44,29 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
+    currentScenario: any;
+
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
     @ViewChild('sed', { static: false })
     scenarioEnergyDesignComponent!: any;
+
     scenarioService = inject(ScenarioService);
-    // contentLayoutService = inject(ContentLayoutService);
+    route = inject(ActivatedRoute);
+    router = inject(Router);
+
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
     }
+
     nextStep() {
         switch (this.currentStep) {
             case 0:
                 let scenarioBaseData = this.scenarioSetupComponent.getData();
+
                 if (scenarioBaseData) {
-                    // scenarioBaseData = {
-                    //     ...scenarioBaseData,
-                    // };
                     this.saveBaseInfo(scenarioBaseData);
                     ++this.currentStep;
-                    // (++this.currentStep);
                 }
                 break;
             case 1:
@@ -72,13 +77,38 @@ export class ScenarioBaseComponent {
     prevtStep() {
         --this.currentStep;
     }
+
     saveBaseInfo(data: any) {
         this.scenarioService.removeBaseInfo_Storage();
-        this.scenarioService.saveBaseInfo_Storage(data);
+
+        const {
+            name,
+            simulationPeriod,
+            sDate,
+            timeStep,
+            simulationYear,
+            project,
+        } = data;
+
+        let _data: any = {
+            project,
+            scenario: {
+                name,
+                simulationPeriod,
+                sDate,
+                timeStep,
+                simulationYear,
+            },
+        };
+
+        this.scenarioService.saveBaseInfo_Storage(_data);
+        this.currentScenario = _data;
     }
+
     saveScenario() {
         const drawflowData = this.scenarioEnergyDesignComponent.getData();
         let scenarioData: any = this.scenarioService.restoreBaseInfo_Storage();
+
         if (
             scenarioData &&
             scenarioData.trim() !== '' &&
@@ -97,6 +127,7 @@ export class ScenarioBaseComponent {
                     components: [],
                 },
             };
+
             for (const key in drawflowData) {
                 if (Object.prototype.hasOwnProperty.call(drawflowData, key)) {
                     const element: DrawflowNode = drawflowData[key];
@@ -110,6 +141,7 @@ export class ScenarioBaseComponent {
                     });
                 }
             }
+
             this.scenarioService.createScenario(newScenarioData).subscribe({
                 next: (value: any) => {
                     console.log(value);
@@ -120,12 +152,28 @@ export class ScenarioBaseComponent {
             });
         }
     }
+
     checkScenarioBaseDataAvailablity() {
-        const Data = this.scenarioService.restoreBaseInfo_Storage();
-        if (!Data) {
-            this.goToStep(0);
-        }
+        this.route.data
+            .pipe(
+                map((res: any) => {
+                    if (res) {
+                        const { currentProject, currentScenario } = res;
+
+                        this.currentScenario = {
+                            project: currentProject,
+                            scenario: currentScenario,
+                        };
+                        return res;
+                    }
+                })
+            )
+            .subscribe((res: any) => {
+                if (!res.currentProject) this.router.navigate(['projects']);
+                else if (!res.currentScenario) this.goToStep(0);
+            });
     }
+
     goToStep(number: number) {
         this.currentStep = number;
     }

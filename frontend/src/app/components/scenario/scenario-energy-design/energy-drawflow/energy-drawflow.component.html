@@ -26,38 +26,6 @@
     </div>
 </section>
 
-<app-modal
-    *ngIf="modalVisibility"
-    [title]="'New Flow'"
-    (closeModal)="closeModal($event)"
->
-    <div modal-form>
-        <app-form [formData]="formData" #form />
-    </div>
-
-    <div modal-actions>
-        <span
-            class="text-danger"
-            style="position: absolute; left: 0; padding-left: 3rem"
-            *ngIf="formError.isShow"
-        >
-            {{ formError.msg }}
-        </span>
-
-        <button
-            type="submit"
-            class="btn btn--success btn--medium"
-            (click)="submitFormData_Flow()"
-        >
-            Save
-        </button>
-    </div>
-</app-modal>
-
-<!-- <ng-container #contextMenu>
-   ---
-</ng-container> -->
-
 <div
     id="contextmenu"
     class="border border-2 rounded border-primary-subtle"
@@ -77,6 +45,13 @@
             class="list-group-item list-group-item-action d-flex"
             *ngIf="contextmenu"
             (click)="deleteNode(contextmenu.id)"
+        >
+            <i class="trash"></i>
+            Delete
+        </a>
+        <a
+            class="list-group-item list-group-item-action d-flex"
+            (click)="deleteConnection()"
         >
             <i class="trash"></i>
             Delete

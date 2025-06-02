@@ -485,7 +485,7 @@
 
 .system-design .drawflow .drawflow-node.sink,
 .system-design .drawflow .drawflow-node.predefinedSink,
-.system-design .drawflow .drawflow-node.predefinedSinkOEP,
+.system-design .drawflow .drawflow-node.OEP,
 .system-design .drawflow .drawflow-node.excess,
 .system-design .drawflow .drawflow-node.export {
     border-bottom-color: #ffd6e0;
@@ -493,7 +493,7 @@
 
 .system-design .drawflow .drawflow-node.sink .img::before,
 .system-design .drawflow .drawflow-node.predefinedSink .img::before,
-.system-design .drawflow .drawflow-node.predefinedSinkOEP .img::before,
+.system-design .drawflow .drawflow-node.OEP .img::before,
 .system-design .drawflow .drawflow-node.excess .img::before,
 .system-design .drawflow .drawflow-node.export .img::before {
     content: "";

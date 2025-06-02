@@ -1,24 +1,30 @@
 <div class="system-design">
     <app-energy-components
         [components]="components"
+        [currentScenario]="currentScenario"
         (clearGridModel)="clearGridModel()"
         (touchEnd)="touchEnd($event)"
     />
 
     <app-energy-drawflow
         class="w-100 h-100 border"
-        (showNodeFormModal)="showNodeFormModal($event)"
+        (showFormModal)="showFormModal($event)"
         (toggleFullScreen)="toggleFullScreen()"
     />
 </div>
 
 <app-modal
-    *ngIf="modalVisibility"
-    [title]="currentNode.name"
-    (closeModal)="toggleModal(false)"
+    *ngIf="
+        formModal_info &&
+        formModal_info.show &&
+        formModal_info.title &&
+        formModal_info.id
+    "
+    [title]="formModal_info.title"
+    (closeModal)="closeModal()"
 >
     <div modal-form>
-        <app-form [formData]="formData" #form />
+        <app-form [formData]="formModal_info.formData" #form />
     </div>
 
     <div modal-actions>
@@ -33,10 +39,10 @@
         <button
             type="submit"
             class="btn btn--success btn--medium"
-            (click)="submitFormData()"
+            (click)="submitFormData(formModal_info.id)"
         >
-            <span *ngIf="!editMode">Save</span>
-            <span *ngIf="editMode">Update</span>
+            <!-- <span *ngIf="!editMode">Save</span> -->
+            <span>{{ formModal_info.action.label }}</span>
         </button>
     </div>
 </app-modal>

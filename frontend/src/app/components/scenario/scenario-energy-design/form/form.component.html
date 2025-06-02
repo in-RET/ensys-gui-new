@@ -131,6 +131,37 @@
                     <div *ngIf="field.type == 'file-upload'">
                         <app-file-uploader />
                     </div>
+
+                    <!-- uploader -->
+                    <div *ngIf="field.type == 'range'" class="card mb-3">
+                        <div class="card-body range-component">
+                            <label class="card-title" *ngIf="!field.isReq"
+                                >{{ field.label | uppercase }}
+                            </label>
+                            <label class="card-title" *ngIf="field.isReq"
+                                >{{ field.label | uppercase }} *</label
+                            >
+                            <app-file-uploader
+                                (fileUploaderChange)="
+                                    fileUploaderChange($event, field.name)
+                                "
+                            />
+
+                            <input
+                                type="number"
+                                class="form-control"
+                                placeholder="value"
+                                [required]="field.isReq"
+                                [formControlName]="field.name"
+                                [ngClass]="{
+                                    'is-invalid':
+                                        form.get(field.name)!.invalid &&
+                                        (form.get(field.name)!.dirty ||
+                                            form.get(field.name)!.touched)
+                                }"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

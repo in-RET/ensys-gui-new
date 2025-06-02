@@ -117,4 +117,8 @@ export class FormComponent {
     disableControl(fControlName: any) {
         this.form.controls[fControlName].disable();
     }
+
+    fileUploaderChange(e: any, fControlName: any) {
+        this.form.controls[fControlName].setValue(e);
+    }
 }

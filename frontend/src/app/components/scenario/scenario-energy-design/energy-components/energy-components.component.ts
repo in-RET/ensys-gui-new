@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { ScenarioService } from '../../services/scenario.service';
 import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.component';
 
@@ -10,29 +11,15 @@ import { EnergyDragItemsComponent } from './energy-drag-items/energy-drag-items.
     styleUrl: './energy-components.component.scss',
 })
 export class EnergyComponentsComponent {
-    project: any = {};
-    scenario: any = {};
-
     scenarioService = inject(ScenarioService);
+    router = inject(Router);
 
     @Input() components: any;
+    @Input() currentScenario: any;
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
         new EventEmitter();
     @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
-
-    ngOnInit() {
-        this.getBaseInfoFromStorage();
-    }
-
-    getBaseInfoFromStorage() {
-        let initalData = this.scenarioService.restoreBaseInfo_Storage();
-
-        if (initalData) {
-            this.project['name'] = initalData.project.name;
-            this.scenario['name'] = initalData.name;
-        }
-    }
 
     onClearGridModel() {
         this.clearGridModel.emit();
