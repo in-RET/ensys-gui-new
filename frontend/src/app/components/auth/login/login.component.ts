@@ -39,7 +39,14 @@ export class LoginComponent {
         private authService: AuthService,
         private authCoreService: AuthCoreService,
         private router: Router
-    ) {}
+    ) {
+        if (this.isDevelopingMode) {
+            this.form.patchValue({
+                user: 'qqq12345678',
+                pass: 'qqq12345678!Q',
+            });
+        }
+    }
 
     logIn() {
         this.authService.logIn(this.user?.value, this.pass?.value).subscribe({
