@@ -34,7 +34,7 @@
 
 .step-footer {
     background-color: $white;
-    height: $footer-scenario-height;
+    // height: 3vh;
     border-top: $gray-border;
     @include flex-column-align-justify-center;
     flex-shrink: 0;

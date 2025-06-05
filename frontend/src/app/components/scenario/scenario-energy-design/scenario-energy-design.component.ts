@@ -44,6 +44,8 @@ class FormModalInfo {
     title: string | undefined = undefined;
     formData: any | undefined = undefined;
     action: any | undefined = undefined;
+    data: any | undefined = undefined;
+    type: 'node' | 'flow' | undefined = undefined;
 }
 
 @Component({
@@ -127,22 +129,33 @@ export class ScenarioEnergyDesignComponent {
         this.energyDrawflowComponent.onTouchEnd(e.id, e.name, e.group, e.pos);
     }
 
+    /**
+     *
+     * @param e => {
+     *  id: `${nodeId}`, // to get formData
+     * }
+     *
+     */
     showFormModal(e: {
+        type: 'node' | 'flow';
         id: string;
         title: string;
         action: any;
         editMode: boolean;
+        data: any;
     }) {
         // clean previous formModal
         this.formModal_info = new FormModalInfo();
 
+        this.formModal_info.type = e.type;
         this.formModal_info.id = e.id;
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
         this.formModal_info.formData = this.energyDesignService.getFormData(
-            e.id.split('-')[1]
+            e.id
         );
         this.formModal_info.show = true;
+        this.formModal_info.data = e.data;
 
         // this.formData = null;
         // this.editMode = e.editMode;
@@ -180,11 +193,17 @@ export class ScenarioEnergyDesignComponent {
 
     // ============================
 
-    makeNode(val: any) {
+    makeNode(formValue: any, formModalInfo: FormModalInfo) {
         this.energyDrawflowComponent.addNode({
-            ...val,
-            inp: val.inp,
-            out: val.out,
+            id: formModalInfo.id,
+            name: formValue.name,
+            data: { ...formValue },
+            inp: formValue.inp,
+            out: formValue.out,
+            position: {
+                x: formModalInfo.data.node.position.x,
+                y: formModalInfo.data.node.position.y,
+            },
         });
     }
 
@@ -199,30 +218,36 @@ export class ScenarioEnergyDesignComponent {
         };
     }
 
-    submitFormData(id: string) {
+    submitFormData() {
         let _formData = this.formComponent.submit();
 
         if (_formData) {
-            _formData = this.energyDesignService.getNodePorts(
-                _formData,
-                id.split('-')[0],
-                id.split('-')[1]
-            );
-
-            const isNodeUnique =
-                this.energyDrawflowComponent.checkNodeDuplication(
-                    _formData.name
+            if (
+                this.formModal_info &&
+                this.formModal_info.id &&
+                this.formModal_info.type === 'node'
+            ) {
+                _formData = this.energyDesignService.getNodePorts(
+                    _formData,
+                    this.formModal_info.data.node.name,
+                    this.formModal_info.id
                 );
 
-            if (isNodeUnique && isNodeUnique !== undefined) {
-                if (this.editMode) {
-                    this.updateNode(_formData);
-                    this.editMode = false;
-                } else this.makeNode(_formData);
+                const isNodeUnique =
+                    this.energyDrawflowComponent.checkNodeDuplication(
+                        _formData.name
+                    );
 
-                this.setFormError(false, '');
-                this.modalComponent._closeModal(false);
-            } else this.setFormError(true, ' * The name is duplicated!');
+                if (isNodeUnique && isNodeUnique !== undefined) {
+                    if (this.editMode) {
+                        this.updateNode(_formData);
+                        this.editMode = false;
+                    } else this.makeNode(_formData, this.formModal_info);
+
+                    this.setFormError(false, '');
+                    this.modalComponent._closeModal(false);
+                } else this.setFormError(true, ' * The name is duplicated!');
+            }
         } else {
             this.setFormError(true, ' * Complete the form!');
         }

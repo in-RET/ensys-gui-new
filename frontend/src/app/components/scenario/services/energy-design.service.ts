@@ -62,7 +62,7 @@ export class EnergyDesignService {
                     ],
                 };
 
-            case 'predefined source':
+            case 'Pre-source':
             case 'predefinedsource':
                 return {
                     sections: [
@@ -169,7 +169,7 @@ export class EnergyDesignService {
                     ],
                 };
 
-            case 'predefined transformer':
+            case 'Pre-transformer':
             case 'predefinedtransformer':
                 return {
                     sections: [
@@ -890,7 +890,7 @@ export class EnergyDesignService {
                     },
                     {
                         id: 'predefinedSource',
-                        name: 'Predefined Source',
+                        name: 'Pre-Source',
                     },
                 ],
             },
@@ -903,7 +903,7 @@ export class EnergyDesignService {
                     },
                     {
                         id: 'predefinedTransformer',
-                        name: 'Predefined Transformer',
+                        name: 'Pre-Transformer',
                     },
                 ],
             },
@@ -912,11 +912,11 @@ export class EnergyDesignService {
                 group_components: [
                     {
                         id: 'genericStorage',
-                        name: 'Generic Storage',
+                        name: 'Storage',
                     },
                     {
                         id: 'predefinedStorage',
-                        name: 'Predefined Storage',
+                        name: 'Pre-Storage',
                     },
                 ],
             },

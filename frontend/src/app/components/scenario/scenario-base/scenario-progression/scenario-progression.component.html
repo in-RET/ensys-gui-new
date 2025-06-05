@@ -1,11 +1,8 @@
-<section class="wizard" style="height: 5vh">
+<section
+    class="wizard border shadow p-3 bg-body-tertiary rounded"
+    style="height: 2rem"
+>
     <div>
-        <!-- <div class="wizard__back">
-            <div>
-                <a [routerLink]="['/projects/explore']">Projects</a>
-            </div>
-        </div> -->
-
         <div class="wizard__steps">
             <ul>
                 <li
@@ -13,6 +10,17 @@
                     [ngClass]="{ active: i == currentStep }"
                 >
                     {{ step }}
+                    <span *ngIf="currentScenario && currentStep == 1 && i == 1">
+                        (
+                        <b class="fw-lighter">
+                            {{ currentScenario.project.name }}
+                        </b>
+                        /
+                        <b class="fw-lighter">
+                            {{ currentScenario.scenario.name }}
+                        </b>
+                        )
+                    </span>
                 </li>
             </ul>
         </div>

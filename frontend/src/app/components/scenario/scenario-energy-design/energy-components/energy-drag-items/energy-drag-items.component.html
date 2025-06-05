@@ -5,14 +5,15 @@
     (touchstart)="touchStart($event)"
     (touchmove)="touchMove($event)"
     (touchend)="touchEnd($event)"
+    [title]="name"
 >
     <img
         class="img"
         src="/static/assets/gui/{{ id }}.svg"
         alt="{{ name }} icon"
     />
-    <span class="name">{{ name }}</span>
-    <span class="drag">
+    <!-- <span class="name">{{ name }}</span> -->
+    <!-- <span class="drag">
         <img [src]="'/static/assets/gui/drag-circles.svg'" alt="Drag element" />
-    </span>
+    </span> -->
 </div>

@@ -1,0 +1,45 @@
+.components__content {
+    overflow-y: hidden;
+
+    &:hover {
+        overflow-y: scroll;
+        &::-webkit-scrollbar {
+            background-color: #7bf1a8;
+            width: 1px !important;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: #c94aff;
+        }
+    }
+
+    .section {
+        &.section--production .section__title {
+            h6 {
+                text-shadow: #ffef9f 1px 0 10px;
+            }
+        }
+
+        &.section--conversion .section__title {
+            h6 {
+                text-shadow: #7bf1a8 1px 0 10px;
+            }
+        }
+
+        &.section--storage .section__title {
+            h6 {
+                text-shadow: #90f1ef 1px 0 10px;
+            }
+        }
+
+        &.section--demand .section__title {
+            h6 {
+                text-shadow: #ffd6e0 1px 0 10px;
+            }
+        }
+        &.section--bus .section__title {
+            h6 {
+                text-shadow: #f4cc9e 1px 0 10px;
+            }
+        }
+    }
+}

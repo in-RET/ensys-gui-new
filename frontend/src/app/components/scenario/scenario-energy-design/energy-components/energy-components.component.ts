@@ -15,7 +15,6 @@ export class EnergyComponentsComponent {
     router = inject(Router);
 
     @Input() components: any;
-    @Input() currentScenario: any;
 
     @Output('clearGridModel') clearGridModel: EventEmitter<any> =
         new EventEmitter();

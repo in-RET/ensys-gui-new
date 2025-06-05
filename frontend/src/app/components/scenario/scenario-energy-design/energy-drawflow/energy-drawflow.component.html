@@ -1,27 +1,31 @@
 <section
-    class="w-100 h-100"
+    class="w-90 h-100"
     [ngClass]="{
         'no-data':
             editor && (editor.drawflow.drawflow.Home.data | json) === '{}'
     }"
 >
-    <div
-        id="drawflow"
-        class=""
-        (drop)="onDrop($event)"
-        (dragover)="allowDrop($event)"
-    >
+    <div id="drawflow" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
         <div class="gui__empty-text">
             <span> Drag and drop components to build your energy system </span>
             <span>DoubleClick: Opens form to enter parameters</span>
             <span>Middle Mousebutton: Mirror the selected block</span>
         </div>
 
-        <div class="bar-zoom">
+        <div class="bar-zoom shadow rounded">
             <i class="full-screen" (click)="_toggleFullScreen()"></i>
             <i class="zoom-in" (click)="editor.zoom_in()"></i>
             <i class="zoom-reset" (click)="editor.zoom_reset()"></i>
             <i class="zoom-out" (click)="editor.zoom_out()"></i>
+            <i
+                class="delete-all"
+                title="Delete All"
+                (click)="clearGridModel()"
+                *ngIf="
+                    editor &&
+                    (editor.drawflow.drawflow.Home.data | json) !== '{}'
+                "
+            ></i>
         </div>
     </div>
 </section>

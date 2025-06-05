@@ -12,32 +12,32 @@
     z-index: 5;
     gap: 0.5rem;
 
-    .zoom-in {
-        background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
+    i {
         width: 1em;
         height: 1em;
         cursor: pointer;
-    }
 
-    .zoom-out {
-        background-image: url("/static/assets/icons/feather/white/zoom-out.svg");
-        width: 1em;
-        height: 1em;
-        cursor: pointer;
-    }
+        &.zoom-in {
+            background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
 
-    .zoom-reset {
-        background-image: url("/static/assets/icons/feather/white/refresh-ccw.svg");
-        width: 1em;
-        height: 1em;
-        cursor: pointer;
-    }
+            cursor: pointer;
+        }
 
-    .full-screen {
-        background-image: url("/static/assets/icons/feather/white/maximize.svg");
-        width: 1em;
-        height: 1em;
-        cursor: pointer;
+        &.zoom-out {
+            background-image: url("/static/assets/icons/feather/white/zoom-out.svg");
+        }
+
+        &.zoom-reset {
+            background-image: url("/static/assets/icons/feather/white/refresh-ccw.svg");
+        }
+
+        &.full-screen {
+            background-image: url("/static/assets/icons/feather/white/maximize.svg");
+        }
+
+        &.delete-all {
+            background-image: url("/static/assets/icons/feather/white/trash.svg");
+        }
     }
 }
 
@@ -62,7 +62,7 @@
     background: radial-gradient(
             circle at var(--d) var(--d),
             #0000008c calc(var(--d) - 1px),
-            #0000 var(--d)
+            #5e65a81e var(--d)
         )
         0 0 / 50px 50px;
 
@@ -86,7 +86,7 @@
     top: 30%;
     position: relative;
     font-size: 1.75rem;
-    background-color: #fff;
+    background-color: #ecedf575;
     padding: 3rem;
     gap: 1rem;
 

@@ -21,8 +21,8 @@ import { ModalComponent } from '../modal/modal.component';
 })
 export class EnergyDrawflowComponent {
     editor!: Drawflow;
-    currentNode: any;
-    currentPosition: any;
+    // currentNode: any;
+    // currentPosition: any;
 
     // form
     formData!: any;
@@ -109,8 +109,7 @@ export class EnergyDrawflowComponent {
         this.editor.on('connectionCreated', (connection: any) => {
             // this.currentConnection = connection;
             this.connectionCreated(connection);
-
-            this.saveCurrentDrawflow();
+            // this.saveCurrentDrawflow();
         });
         this.editor.on('connectionRemoved', (connection: any) => {
             this.saveCurrentDrawflow();
@@ -149,8 +148,8 @@ export class EnergyDrawflowComponent {
         this.editor.on('click', (event: any) => {});
 
         this.editor.on('nodeMoved', (nodeId: any) => {
-            console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_x);
-            console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_y);
+            // console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_x);
+            // console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_y);
 
             this.saveCurrentDrawflow();
         });
@@ -205,16 +204,16 @@ export class EnergyDrawflowComponent {
         const nodeName = ev.dataTransfer.getData('node');
         const nodeGroup = ev.dataTransfer.getData('group');
 
-        this.currentPosition = {
-            x: ev.clientX, // this.getNodePosition(ev.clientX, 'x'),
-            y: ev.clientY, // this.getNodePosition(ev.clientY, 'y'),
-        };
+        // this.currentPosition = {
+        //     x: ev.clientX, // this.getNodePosition(ev.clientX, 'x'),
+        //     y: ev.clientY, // this.getNodePosition(ev.clientY, 'y'),
+        // };
 
-        this.currentNode = {
-            nodeId,
-            nodeName,
-            nodeGroup,
-        };
+        // this.currentNode = {
+        //     nodeId,
+        //     nodeName,
+        //     nodeGroup,
+        // };
 
         this.showFormModal.emit({
             // node: {
@@ -224,25 +223,33 @@ export class EnergyDrawflowComponent {
             //     x: this.currentPosition.x,
             //     y: this.currentPosition.y,
             // },
-            id: `${nodeGroup}-${nodeId}`,
+            type: 'node',
+            id: `${nodeId}`,
             title: 'title',
             action: { fn: 'submitFormData', label: 'save' },
             editMode: false,
+            data: {
+                node: {
+                    name: nodeGroup,
+                    position: {
+                        x: ev.clientX,
+                        y: ev.clientY,
+                    },
+                },
+            },
         });
     }
 
     onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
-        this.currentPosition = {
-            x: this.getNodePosition(pos.x, 'x'),
-            y: this.getNodePosition(pos.y, 'y'),
-        };
-
-        this.currentNode = {
-            nodeId,
-            nodeName,
-            nodeGroup,
-        };
-
+        // this.currentPosition = {
+        //     x: this.getNodePosition(pos.x, 'x'),
+        //     y: this.getNodePosition(pos.y, 'y'),
+        // };
+        // this.currentNode = {
+        //     nodeId,
+        //     nodeName,
+        //     nodeGroup,
+        // };
         // this.showFormModal.emit({
         //     node: {
         //         id: nodeId,
@@ -353,19 +360,21 @@ export class EnergyDrawflowComponent {
         );
     }
 
-    addNode(data: any) {
+    addNode(node: any) {
+        console.log(node);
+
         this.addNodeToDrawFlow(
-            this.currentNode.nodeId,
-            data.name,
-            this.currentPosition.x,
-            this.currentPosition.y,
-            data.inp,
-            data.out,
-            data
+            node.id,
+            node.name,
+            node.position.x,
+            node.position.y,
+            node.inp,
+            node.out,
+            node.data
         );
     }
     updateNode(nodeId: number, data: any) {
-        console.log(data);
+        // console.log(data);
 
         this.editor.drawflow.drawflow.Home.data[nodeId].name = data.name;
         this.editor.drawflow.drawflow.Home.data[nodeId].html = `
@@ -615,10 +624,10 @@ export class EnergyDrawflowComponent {
     }
 
     checkNodeDuplication(nodeName: string) {
-        const currentNodeList = this.editor.drawflow.drawflow.Home.data;
         let isDuplicate = false;
+        const currentNodeList = this.editor.drawflow.drawflow.Home.data;
 
-        if (currentNodeList) {
+        if (currentNodeList && JSON.stringify(currentNodeList) !== '{}') {
             for (const key in currentNodeList) {
                 if (
                     Object.prototype.hasOwnProperty.call(currentNodeList, key)
@@ -634,5 +643,22 @@ export class EnergyDrawflowComponent {
         }
 
         return true;
+    }
+
+    clearGridModel() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, clear everything!',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                this.editor.clearModuleSelected();
+                this.saveCurrentDrawflow();
+            }
+        });
+        // .then((result) => save_topology());
     }
 }
