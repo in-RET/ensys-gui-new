@@ -655,9 +655,9 @@ footer a {
     color: #343434 !important;
 }
 
-.nav-link {
-    color: #343434 !important;
-}
+// .nav-link {
+//     color: #343434 !important;
+// }
 
 .project a:link {
     color: #343434 !important;
@@ -671,9 +671,9 @@ footer a:link {
     color: #343434 !important;
 }
 
-.nav-link:link {
-    color: #343434 !important;
-}
+// .nav-link:link {
+//     color: #343434 !important;
+// }
 
 .project a:hover {
     color: #343434 !important;
@@ -1299,7 +1299,7 @@ a.dropdown-item:active {
 
 .step-footer {
     background-color: #f4f7f9;
-    height: 3rem;
+    height: 7vh;
     border-top: 2px solid #f4f7f9;
     display: flex;
     flex-direction: column;

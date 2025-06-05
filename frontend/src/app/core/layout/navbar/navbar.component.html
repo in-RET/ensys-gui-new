@@ -1,5 +1,8 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid px-3">
+<nav
+    class="navbar navbar-expand-lg navbar-light bg-light"
+    style="display: none"
+>
+    <div class="container-fluid">
         <a
             class="navbar-brand"
             [routerLink]="user.is_authenticated ? ['projects'] : ['']"
@@ -11,7 +14,7 @@
         </a>
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mb-2 mb-lg-0">
+            <ul class="navbar-nav mb-2 mb-lg-0" style="align-items: center">
                 <!-- user profile -->
                 <ng-container *ngIf="user.is_authenticated">
                     <li class="nav-item dropdown profile">
@@ -81,13 +84,10 @@
 
                 <ng-container *ngIf="!user.is_authenticated">
                     <li class="nav-item">
-                        <!-- pages/projects-view-empty.html -->
-
                         <a class="nav-link" href="auth/login"> Log In </a>
                     </li>
 
                     <li class="nav-item">
-                        <!-- pages/signup.html -->
                         <a
                             class="btn btn--small"
                             href="auth/signup"
@@ -101,3 +101,122 @@
         </div>
     </div>
 </nav>
+
+<header class="py-3 mb-3 border-bottom">
+    <div class="container-fluid d-grid gap-3 align-items-center">
+        <div
+            class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"
+        >
+            <a
+                href="/"
+                class="d-flex align-items-center mb-2 mb-lg-0 link-body-emphasis text-decoration-none"
+            >
+                <img
+                    class="bi me-2"
+                    style="height: 2rem"
+                    src="/static/assets/logos/ensys_logo_full.svg"
+                    alt="ensys_logo_full"
+                />
+            </a>
+
+            <ul
+                class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+            >
+                <ng-container *ngIf="!user.is_authenticated">
+                    <li>
+                        <a href="#" class="nav-link px-2 link-body-emphasis"
+                            >Overview</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link px-2 link-body-emphasis"
+                            >Inventory</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link px-2 link-body-emphasis"
+                            >Customers</a
+                        >
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link px-2 link-body-emphasis"
+                            >Products</a
+                        >
+                    </li>
+                </ng-container>
+            </ul>
+
+            <ng-container *ngIf="user.is_authenticated">
+                <div class="dropdown text-end">
+                    <a
+                        href="#"
+                        class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                    >
+                        <img
+                            src="/static/assets/icons/i_profile.svg"
+                            alt="mdo"
+                            width="32"
+                            height="32"
+                            class="rounded-circle"
+                        />
+                    </a>
+
+                    <ul class="dropdown-menu text-small">
+                        <li style="display: none">
+                            <a class="dropdown-item" href="user_feedback">
+                                Feedback
+                            </a>
+                        </li>
+
+                        <li style="display: none">
+                            <a class="dropdown-item" href="user_info/">
+                                Account
+                            </a>
+                        </li>
+                        <!-- account.html -->
+
+                        <li>
+                            <a
+                                class="dropdown-item"
+                                [routerLink]="['projects']"
+                            >
+                                Projects
+                            </a>
+                        </li>
+
+                        <li>
+                            <hr class="dropdown-divider" />
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item" (click)="logout()">
+                                Log Out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </ng-container>
+
+            <ng-container *ngIf="!user.is_authenticated">
+                <div class="text-end">
+                    <button
+                        type="button"
+                        class="btn btn-light text-dark me-2"
+                        [routerLink]="['auth/login']"
+                    >
+                        Login
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        [routerLink]="['auth/signup']"
+                    >
+                        Sign-up
+                    </button>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+</header>
