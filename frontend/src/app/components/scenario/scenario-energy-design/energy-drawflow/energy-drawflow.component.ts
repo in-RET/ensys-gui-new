@@ -225,7 +225,7 @@ export class EnergyDrawflowComponent {
             // },
             type: 'node',
             id: `${nodeId}`,
-            title: 'title',
+            title: `${nodeName}`,
             action: { fn: 'submitFormData', label: 'save' },
             editMode: false,
             data: {
@@ -396,15 +396,19 @@ export class EnergyDrawflowComponent {
     connectionCreated(connection: any) {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
-        // this.currentConnection[
-        //     'title'
-        // ] = `Flow(${nodeOut.name}:${nodeIn.name})`;
-        // this.currentConnection = { ...this.currentConnection };
-
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
 
         if (followRules) {
-            this.showFormModal.emit();
+            this.showFormModal.emit({
+                type: 'flow',
+                id: '_flow', //`${nodeOut.id}-${nodeIn.id}`,
+                title: `Flow(${nodeOut.name}:${nodeIn.name})`,
+                action: { fn: 'submitFormData', label: 'save' },
+                editMode: false,
+                data: {
+                    connection: connection,
+                },
+            });
         } else {
             this.removeSingleConnection(connection);
         }
@@ -487,27 +491,6 @@ export class EnergyDrawflowComponent {
             msg: msg,
             isShow: status,
         };
-    }
-
-    submitFormData_Flow() {
-        const _formData = this.formComponent.submit();
-
-        if (_formData) {
-            // this.currentConnection.data = _formData;
-            // // save data of connection fields in both sides
-            // this.editor.drawflow.drawflow.Home.data[
-            //     this.currentConnection.output_id
-            // ].data['connections'] = [this.currentConnection];
-            // this.editor.drawflow.drawflow.Home.data[
-            //     this.currentConnection.input_id
-            // ].data['connections'] = [this.currentConnection];
-            // this.saveCurrentDrawflow();
-            // this.setFormError(false, '');
-            // this.modalComponent._closeModal(true);
-            // this.modalVisibility = false;
-        } else {
-            this.setFormError(true, ' * Complete the form!');
-        }
     }
 
     getData() {
@@ -660,5 +643,16 @@ export class EnergyDrawflowComponent {
             }
         });
         // .then((result) => save_topology());
+    }
+
+    saveConnectionInNodes(connection: any) {
+        this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+            'connections'
+        ] = [connection];
+
+        this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+            'connections'
+        ] = [connection];
+        this.saveCurrentDrawflow();
     }
 }

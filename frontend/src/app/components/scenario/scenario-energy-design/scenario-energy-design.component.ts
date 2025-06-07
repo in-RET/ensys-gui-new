@@ -154,9 +154,11 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.formData = this.energyDesignService.getFormData(
             e.id
         );
-        this.formModal_info.show = true;
+
         this.formModal_info.data = e.data;
 
+        // appear Modal
+        this.formModal_info.show = true;
         // this.formData = null;
         // this.editMode = e.editMode;
         // this.components.items.forEach(
@@ -219,34 +221,46 @@ export class ScenarioEnergyDesignComponent {
     }
 
     submitFormData() {
-        let _formData = this.formComponent.submit();
+        let formData = this.formComponent.submit();
 
-        if (_formData) {
+        if (formData) {
             if (
                 this.formModal_info &&
                 this.formModal_info.id &&
                 this.formModal_info.type === 'node'
             ) {
-                _formData = this.energyDesignService.getNodePorts(
-                    _formData,
+                formData = this.energyDesignService.getNodePorts(
+                    formData,
                     this.formModal_info.data.node.name,
                     this.formModal_info.id
                 );
 
                 const isNodeUnique =
                     this.energyDrawflowComponent.checkNodeDuplication(
-                        _formData.name
+                        formData.name
                     );
 
                 if (isNodeUnique && isNodeUnique !== undefined) {
                     if (this.editMode) {
-                        this.updateNode(_formData);
+                        this.updateNode(formData);
                         this.editMode = false;
-                    } else this.makeNode(_formData, this.formModal_info);
+                    } else this.makeNode(formData, this.formModal_info);
 
                     this.setFormError(false, '');
                     this.modalComponent._closeModal(false);
                 } else this.setFormError(true, ' * The name is duplicated!');
+            } else if (
+                this.formModal_info &&
+                this.formModal_info.id &&
+                this.formModal_info.type === 'flow'
+            ) {
+                // save data of connection fields in both sides
+                this.energyDrawflowComponent.saveConnectionInNodes(
+                    this.formModal_info.data.connection
+                );
+
+                this.setFormError(false, '');
+                this.modalComponent._closeModal(true);
             }
         } else {
             this.setFormError(true, ' * Complete the form!');
