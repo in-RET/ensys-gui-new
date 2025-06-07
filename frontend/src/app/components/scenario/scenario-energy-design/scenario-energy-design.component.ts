@@ -39,6 +39,7 @@ interface EnergySystemModel {
 }
 
 class FormModalInfo {
+    _id: number | undefined = undefined;
     id: string | undefined = undefined;
     show: boolean = false;
     title: string | undefined = undefined;
@@ -46,6 +47,7 @@ class FormModalInfo {
     action: any | undefined = undefined;
     data: any | undefined = undefined;
     type: 'node' | 'flow' | undefined = undefined;
+    editMode: boolean = false;
 }
 
 @Component({
@@ -95,7 +97,10 @@ export class ScenarioEnergyDesignComponent {
     ngOnInit() {
         this.loadEnergyComponents();
         // this.getBaseInfoFromStorage();
-        this.toggleFullScreen();
+
+        setTimeout(() => {
+            this.toggleFullScreen();
+        }, 0);
     }
 
     loadEnergyComponents() {
@@ -138,8 +143,9 @@ export class ScenarioEnergyDesignComponent {
      *
      */
     showFormModal(e: {
-        type: 'node' | 'flow';
+        _id: number;
         id: string;
+        type: 'node' | 'flow';
         title: string;
         action: any;
         editMode: boolean;
@@ -148,39 +154,21 @@ export class ScenarioEnergyDesignComponent {
         // clean previous formModal
         this.formModal_info = new FormModalInfo();
 
+        this.formModal_info._id = e._id;
         this.formModal_info.type = e.type;
         this.formModal_info.id = e.id;
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
         this.formModal_info.formData = this.energyDesignService.getFormData(
-            e.id
+            e.id,
+            e.data
         );
-
         this.formModal_info.data = e.data;
+        this.formModal_info.editMode = e.editMode;
 
         // appear Modal
         this.formModal_info.show = true;
-        // this.formData = null;
-        // this.editMode = e.editMode;
-        // this.components.items.forEach(
-        //     (group: { group_name: string; group_components: any[] }) => {
-        //         group.group_components.forEach(
-        //             (component: { id: string; name: string }) => {
-        //                 e.node.class === component.id
-        //                     ? (e.node.group = group.group_name)
-        //                     : false;
-        //             }
-        //         );
-        //     }
-        // );
-        // this.currentNode = e.node;
-        // this.initFormData(e.node.class, this.currentNode.data);
-        // this.toggleModal(true);
     }
-    // showModalConnection(data?: any) {
-    //     this.initFormData(data);
-    //     this.toggleModal(true);
-    // }
 
     toggleModal(appear: boolean) {}
 
@@ -210,8 +198,8 @@ export class ScenarioEnergyDesignComponent {
         });
     }
 
-    updateNode(data: any) {
-        // this.energyDrawflowComponent.updateNode(this.currentNode.id, data);
+    updateNode(nodeId: number, data: any) {
+        this.energyDrawflowComponent.updateNode(nodeId, data);
     }
 
     setFormError(status: boolean, msg: string) {
@@ -228,24 +216,31 @@ export class ScenarioEnergyDesignComponent {
             if (
                 this.formModal_info &&
                 this.formModal_info.id &&
+                this.formModal_info._id &&
                 this.formModal_info.type === 'node'
             ) {
-                formData = this.energyDesignService.getNodePorts(
-                    formData,
-                    this.formModal_info.data.node.name,
-                    this.formModal_info.id
-                );
-
-                const isNodeUnique =
+                const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
+                        this.formModal_info._id,
                         formData.name
                     );
 
-                if (isNodeUnique && isNodeUnique !== undefined) {
-                    if (this.editMode) {
-                        this.updateNode(formData);
-                        this.editMode = false;
-                    } else this.makeNode(formData, this.formModal_info);
+                if (!isNodeNameDuplicate && isNodeNameDuplicate !== undefined) {
+                    if (!this.formModal_info.editMode) {
+                        formData = this.energyDesignService.getNodePorts(
+                            formData,
+                            this.formModal_info.data.node.groupName,
+                            this.formModal_info.id
+                        );
+
+                        this.makeNode(formData, this.formModal_info);
+                    } else if (
+                        this.formModal_info.editMode &&
+                        this.formModal_info._id
+                    ) {
+                        this.updateNode(this.formModal_info._id, formData);
+                        this.formModal_info = new FormModalInfo();
+                    }
 
                     this.setFormError(false, '');
                     this.modalComponent._closeModal(false);

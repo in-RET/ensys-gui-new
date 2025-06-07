@@ -56,7 +56,7 @@
 >
     <div class="list-group list-group-flush rounded">
         <div
-            class="list-group-item list-group-item-action d-flex justify-content-between submenu-parent position-relative"
+            class="list-group-item d-flex justify-content-between submenu-parent position-relative"
         >
             <span> Node </span>
             <span> <i class="arrow-right"></i> </span>
@@ -64,24 +64,25 @@
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"
             >
-                <a
+                <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
+                    (click)="showModalEdit()"
                 >
-                    Edit
+                    <span> Edit</span>
                     <i class="edit"></i>
-                </a>
+                </div>
 
-                <a
+                <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
                 >
-                    Delete
+                    <span> Delete</span>
                     <i class="trash"></i>
-                </a>
+                </div>
             </div>
         </div>
 
         <div
-            class="list-group-item list-group-item-action d-flex justify-content-between submenu-parent position-relative"
+            class="list-group-item d-flex justify-content-between submenu-parent position-relative"
         >
             <span> Flow(s) </span>
             <span> <i class="arrow-right"></i> </span>
@@ -89,19 +90,19 @@
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"
             >
-                <a
+                <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
                 >
-                    Edit
+                    <span> Edit</span>
                     <i class="edit"></i>
-                </a>
+                </div>
 
-                <a
+                <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
                 >
-                    Delete
+                    <span> Delete</span>
                     <i class="trash"></i>
-                </a>
+                </div>
             </div>
         </div>
     </div>

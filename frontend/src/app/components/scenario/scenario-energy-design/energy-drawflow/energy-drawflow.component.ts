@@ -37,7 +37,7 @@ export class EnergyDrawflowComponent {
     selected_flowId: any;
     touchTimer: any;
 
-    contextmenu!: { id: number } | null;
+    contextmenu!: { nodeId: number } | null;
     editMode: boolean = false;
 
     @ViewChild(ModalComponent)
@@ -58,20 +58,12 @@ export class EnergyDrawflowComponent {
 
     ngOnInit() {
         //this.showModalConnection();
-
-        this.renderer.listen('window', 'click', (e: any) => {
-            if (
-                e.target &&
-                !this.contextMenuRef.nativeElement.contains(e.target)
-            )
-                this.unShowConextMenu();
-        });
     }
 
-    ngAfterViewInit(): void {
+    ngAfterViewInit() {
         setTimeout(() => {
             this.initDrawingBoard();
-        }, 0);
+        }, 10);
     }
 
     private initDrawingBoard() {
@@ -136,7 +128,8 @@ export class EnergyDrawflowComponent {
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
-            if (closestNode || closestEdge) {
+            // if (closestNode || closestEdge) {
+            if (closestNode) {
                 this.showConextMenu(
                     e.clientX,
                     e.clientY,
@@ -147,7 +140,18 @@ export class EnergyDrawflowComponent {
             }
         });
 
-        this.editor.on('click', (event: any) => {});
+        this.editor.on('click', (event: any) => {
+            this.unShowConextMenu();
+        });
+
+        this.renderer.listen('window', 'click', (e: any) => {
+            if (
+                e.target &&
+                !this.contextMenuRef.nativeElement.contains(e.target)
+            ) {
+                this.unShowConextMenu();
+            }
+        });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
             // console.log(this.editor.drawflow.drawflow.Home.data[nodeId].pos_x);
@@ -228,11 +232,11 @@ export class EnergyDrawflowComponent {
             type: 'node',
             id: `${nodeId}`,
             title: `${nodeName}`,
-            action: { fn: 'submitFormData', label: 'save' },
+            action: { fn: 'submitFormData', label: 'Save' },
             editMode: false,
             data: {
                 node: {
-                    name: nodeGroup,
+                    groupName: nodeGroup,
                     position: {
                         x: ev.clientX,
                         y: ev.clientY,
@@ -339,7 +343,7 @@ export class EnergyDrawflowComponent {
     ) {
         const source_html = `
             <div class="box" ${this.ASSET_TYPE_NAME}="${nodeName}"></div>
-        
+
             <div class="drawflow-node__name nodeName">
                 <span>
                 ${nodeName}
@@ -517,23 +521,21 @@ export class EnergyDrawflowComponent {
     showModalEdit() {
         this.editMode = true;
 
-        if (this.contextmenu != null && this.contextmenu.id) {
-            const node = this.editor.getNodeFromId(this.contextmenu.id);
+        if (this.contextmenu != null && this.contextmenu.nodeId) {
+            const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
 
             if (node)
-                // this.showFormModal.emit({
-                //     node: {
-                //         id: this.contextmenu.id,
-                //         name: node.data.name,
-                //         class: node.class,
-                //         x: node.pos_x,
-                //         y: node.pos_y,
-                //         data: node.data,
-                //     },
-                //     editMode: true,
-                // });
+                this.showFormModal.emit({
+                    type: 'node',
+                    id: node.class,
+                    title: `Edit: ${node.name}`,
+                    action: { fn: 'submitFormData', label: 'Update' },
+                    editMode: true,
+                    data: node.data,
+                    _id: this.contextmenu.nodeId,
+                });
 
-                this.unShowConextMenu();
+            this.unShowConextMenu();
         } else {
             // var nodeConnectionIn = this.editor.getNodeFromId(
             //     this.currentConnection.input_id
@@ -567,7 +569,7 @@ export class EnergyDrawflowComponent {
 
         if (nodeId)
             this.contextmenu = {
-                id: nodeId,
+                nodeId: nodeId,
             };
     }
 
@@ -608,8 +610,7 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    checkNodeDuplication(nodeName: string) {
-        let isDuplicate = false;
+    checkNodeDuplication(nodeId: number, nodeName: string) {
         const currentNodeList = this.editor.drawflow.drawflow.Home.data;
 
         if (currentNodeList && JSON.stringify(currentNodeList) !== '{}') {
@@ -618,16 +619,18 @@ export class EnergyDrawflowComponent {
                     Object.prototype.hasOwnProperty.call(currentNodeList, key)
                 ) {
                     const node = currentNodeList[key];
-                    node.name === nodeName || node.data.name === nodeName
-                        ? (isDuplicate = false)
-                        : (isDuplicate = true);
+
+                    if (node.id != nodeId)
+                        if (
+                            node.name === nodeName ||
+                            node.data.name === nodeName
+                        )
+                            return true;
                 }
             }
-
-            return isDuplicate;
         }
 
-        return true;
+        return false;
     }
 
     clearGridModel() {
