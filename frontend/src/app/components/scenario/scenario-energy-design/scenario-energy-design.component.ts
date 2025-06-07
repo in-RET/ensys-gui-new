@@ -95,6 +95,7 @@ export class ScenarioEnergyDesignComponent {
     ngOnInit() {
         this.loadEnergyComponents();
         // this.getBaseInfoFromStorage();
+        this.toggleFullScreen();
     }
 
     loadEnergyComponents() {

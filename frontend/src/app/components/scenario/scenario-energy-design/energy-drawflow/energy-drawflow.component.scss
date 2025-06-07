@@ -19,7 +19,6 @@
 
         &.zoom-in {
             background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
-
             cursor: pointer;
         }
 
@@ -42,18 +41,11 @@
 }
 
 ::ng-deep #contextmenu {
-    display: flex;
+    display: none;
     align-items: center;
     position: absolute;
     z-index: 10;
     min-width: 10rem;
-
-    .zoom-in {
-        background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
-        width: 1em;
-        height: 1em;
-        cursor: pointer;
-    }
 }
 
 #drawflow {
@@ -109,7 +101,7 @@
 ::ng-deep #contextmenu i {
     width: 24px;
     height: 24px;
-    margin-right: 0.5rem;
+    // margin-right: 0.5rem;
     cursor: pointer;
     display: block;
     background-repeat: no-repeat;
@@ -125,6 +117,10 @@
         filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(330deg)
             brightness(118%) contrast(119%);
     }
+
+    &.arrow-right {
+        background-image: url("/static/assets/icons/feather/black/arrow-right.svg");
+    }
 }
 
 ::ng-deep .drawflow .connection .main-path {
@@ -135,4 +131,20 @@
     0% {
         stroke-dashoffset: 10;
     }
+}
+
+.submenu-parent {
+    cursor: pointer;
+}
+
+.nested-menu {
+    top: 0;
+    left: 100%;
+    display: none;
+    min-width: 150px;
+    z-index: 1000;
+}
+
+.submenu-parent:hover .nested-menu {
+    display: block;
 }

@@ -2,6 +2,7 @@
     <app-energy-components
         [components]="components"
         (touchEnd)="touchEnd($event)"
+        *ngIf="!isFullscreen"
     />
 
     <app-energy-drawflow

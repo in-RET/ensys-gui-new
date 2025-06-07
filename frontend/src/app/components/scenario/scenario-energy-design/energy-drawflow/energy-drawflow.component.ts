@@ -85,7 +85,7 @@ export class EnergyDrawflowComponent {
             const drawFlowHtmlElement = document.getElementById('drawflow');
             this.editor = new Drawflow(drawFlowHtmlElement as HTMLElement);
 
-            this.editor.reroute = true;
+            this.editor.reroute = false;
             this.editor.curvature = 1;
             this.editor.force_first_input = true;
             this.editor.zoom = 0.9;
@@ -130,6 +130,8 @@ export class EnergyDrawflowComponent {
         });
 
         this.editor.on('contextmenu', (e: any) => {
+            this.unShowConextMenu();
+
             e.preventDefault;
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');

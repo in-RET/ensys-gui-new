@@ -30,35 +30,79 @@
     </div>
 </section>
 
-<div
+<!-- <div
     id="contextmenu"
     class="border border-2 rounded border-primary-subtle"
-    style="display: none"
     #contextMenu
 >
     <div class="list-group list-group-flush rounded">
-        <a
-            class="list-group-item list-group-item-action d-flex"
-            (click)="showModalEdit()"
-        >
+        <a class="list-group-item list-group-item-action d-flex">
             <i class="edit"></i>
             Edit
         </a>
 
-        <a
-            class="list-group-item list-group-item-action d-flex"
-            *ngIf="contextmenu"
-            (click)="deleteNode(contextmenu.id)"
-        >
+        <a class="list-group-item list-group-item-action d-flex">
             <i class="trash"></i>
             Delete
         </a>
-        <a
-            class="list-group-item list-group-item-action d-flex"
-            (click)="deleteConnection()"
+    </div>
+</div> -->
+
+<!-- Context Menu -->
+<div
+    #contextMenu
+    id="contextmenu"
+    class="border border-2 rounded position-absolute bg-white"
+>
+    <div class="list-group list-group-flush rounded">
+        <div
+            class="list-group-item list-group-item-action d-flex justify-content-between submenu-parent position-relative"
         >
-            <i class="trash"></i>
-            Delete
-        </a>
+            <span> Node </span>
+            <span> <i class="arrow-right"></i> </span>
+
+            <div
+                class="nested-menu list-group position-absolute bg-white border rounded"
+            >
+                <a
+                    class="list-group-item list-group-item-action d-flex justify-content-between"
+                >
+                    Edit
+                    <i class="edit"></i>
+                </a>
+
+                <a
+                    class="list-group-item list-group-item-action d-flex justify-content-between"
+                >
+                    Delete
+                    <i class="trash"></i>
+                </a>
+            </div>
+        </div>
+
+        <div
+            class="list-group-item list-group-item-action d-flex justify-content-between submenu-parent position-relative"
+        >
+            <span> Flow(s) </span>
+            <span> <i class="arrow-right"></i> </span>
+
+            <div
+                class="nested-menu list-group position-absolute bg-white border rounded"
+            >
+                <a
+                    class="list-group-item list-group-item-action d-flex justify-content-between"
+                >
+                    Edit
+                    <i class="edit"></i>
+                </a>
+
+                <a
+                    class="list-group-item list-group-item-action d-flex justify-content-between"
+                >
+                    Delete
+                    <i class="trash"></i>
+                </a>
+            </div>
+        </div>
     </div>
 </div>
