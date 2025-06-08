@@ -38,7 +38,6 @@ export class EnergyDrawflowComponent {
     touchTimer: any;
 
     contextmenu!: { nodeId: number } | null;
-    editMode: boolean = false;
 
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
@@ -519,8 +518,6 @@ export class EnergyDrawflowComponent {
     }
 
     showModalEdit() {
-        this.editMode = true;
-
         if (this.contextmenu != null && this.contextmenu.nodeId) {
             const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
 
@@ -547,9 +544,25 @@ export class EnergyDrawflowComponent {
         }
     }
 
-    deleteNode(nodeId: number) {
-        this.editor.removeNodeId(`node-${nodeId}`);
-        this.unShowConextMenu();
+    deleteSelectedNode() {
+        if (this.contextmenu != null && this.contextmenu.nodeId) {
+            const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
+            this.unShowConextMenu();
+
+            Swal.fire({
+                title: `Removing node: ${node.name}`,
+                text: 'Are you sure?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes',
+                cancelButtonText: 'Cancel',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.editor.removeNodeId(`node-${node.id}`);
+                    this.saveCurrentDrawflow();
+                }
+            });
+        }
     }
 
     deleteConnection() {
@@ -647,7 +660,6 @@ export class EnergyDrawflowComponent {
                 this.saveCurrentDrawflow();
             }
         });
-        // .then((result) => save_topology());
     }
 
     saveConnectionInNodes(connection: any) {
