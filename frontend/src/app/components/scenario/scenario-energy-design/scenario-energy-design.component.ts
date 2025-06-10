@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import {
+    Component,
+    inject,
+    Input,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+} from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
@@ -8,6 +15,7 @@ import { EnergyComponentsComponent } from './energy-components/energy-components
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
 import { ModalComponent } from './modal/modal.component';
+import { OrderListComponent } from './order-list/order-list.component';
 
 interface EnergySystemModel {
     project_id: string;
@@ -58,6 +66,7 @@ class FormModalInfo {
         FormComponent,
         EnergyComponentsComponent,
         EnergyDrawflowComponent,
+        OrderListComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -89,6 +98,12 @@ export class ScenarioEnergyDesignComponent {
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
 
+    // ports
+    @ViewChildren('transform_inputs')
+    transform_inputs!: QueryList<OrderListComponent>;
+    @ViewChildren('transform_outputs')
+    transform_outputs!: QueryList<OrderListComponent>;
+
     @Input() currentScenario: any;
 
     contentLayoutService = inject(ContentLayoutService);
@@ -99,7 +114,7 @@ export class ScenarioEnergyDesignComponent {
         // this.getBaseInfoFromStorage();
 
         setTimeout(() => {
-            this.toggleFullScreen();
+            // this.toggleFullScreen();
         }, 0);
     }
 
@@ -216,16 +231,25 @@ export class ScenarioEnergyDesignComponent {
             if (
                 this.formModal_info &&
                 this.formModal_info.id &&
-                this.formModal_info._id &&
+                (this.formModal_info._id || !this.formModal_info.editMode) &&
                 this.formModal_info.type === 'node'
             ) {
                 const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
-                        this.formModal_info._id,
-                        formData.name
+                        formData.name,
+                        this.formModal_info._id
                     );
 
                 if (!isNodeNameDuplicate && isNodeNameDuplicate !== undefined) {
+                    // transform situation
+                    if (this.formModal_info.id === 'transformer') {
+                        formData = this.energyDesignService.getTransformPorts(
+                            formData,
+                            this.transform_inputs,
+                            this.transform_outputs
+                        );
+                    }
+
                     if (!this.formModal_info.editMode) {
                         formData = this.energyDesignService.getNodePorts(
                             formData,

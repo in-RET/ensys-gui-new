@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    Input,
-    QueryList,
-    ViewChild,
-    ViewChildren,
-} from '@angular/core';
+import { Component, Input } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -14,7 +8,6 @@ import {
     Validators,
 } from '@angular/forms';
 import { FileUploaderComponent } from '../file-uploader/file-uploader.component';
-import { OrderListComponent } from '../order-list/order-list.component';
 
 @Component({
     selector: 'app-form',
@@ -22,7 +15,6 @@ import { OrderListComponent } from '../order-list/order-list.component';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        OrderListComponent,
         FileUploaderComponent,
     ],
     templateUrl: './form.component.html',
@@ -44,10 +36,8 @@ export class FormComponent {
         return this._formData;
     }
 
-    @ViewChild('inputs') orderList_inputs!: OrderListComponent;
-    @ViewChild('outputs') orderList_outputs!: OrderListComponent;
-
-    @ViewChildren('orderIitems') orderIitems!: QueryList<OrderListComponent>;
+    // @ViewChild('inputs') orderList_inputs!: OrderListComponent;
+    // @ViewChild('outputs') orderList_outputs!: OrderListComponent;
 
     ngOnInit() {}
 
@@ -79,28 +69,16 @@ export class FormComponent {
     }
 
     submit() {
+        const formData = this.checkFormValidation();
+        return formData;
+    }
+
+    checkFormValidation() {
         if (this.form.valid) {
-            const formValue = this.form.getRawValue();
-
-            const hasMultiplePorts = this.formData.sections.find(
-                (x: any) => x.name == 'Ports' && x.hasMultiplePorts
-            );
-
-            if (hasMultiplePorts) {
-                formValue['ports'] = {};
-
-                this.orderIitems.forEach((element: OrderListComponent) => {
-                    if (element.id == 'inputs')
-                        formValue['ports']['inputs'] = element.data;
-                    else if (element.id == 'outputs')
-                        formValue['ports']['outputs'] = element.data;
-                });
-            }
-
-            return formValue;
+            return this.form.getRawValue();
         } else {
             this.form.markAllAsTouched();
-            false;
+            return false;
         }
     }
 

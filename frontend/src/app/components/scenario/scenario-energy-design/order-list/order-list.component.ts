@@ -21,18 +21,8 @@ export class OrderListComponent {
     @Input() data!: OrderItem[];
     @Input() label!: string;
     @Input() id!: string;
-    // @Input() name!: string;
 
-    // @Output('') : EventEmitter<any> =
-    //     new EventEmitter<any>();
-
-    ngOnInit() {
-        // this.data = [
-        //     { id: 0, name: 'a' },
-        //     { id: 1, name: 'b' },
-        //     { id: 2, name: 'c' },
-        // ];
-    }
+    ngOnInit() {}
 
     addItem() {
         !this.data ? (this.data = []) : null;

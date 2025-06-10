@@ -209,25 +209,7 @@ export class EnergyDrawflowComponent {
         const nodeName = ev.dataTransfer.getData('node');
         const nodeGroup = ev.dataTransfer.getData('group');
 
-        // this.currentPosition = {
-        //     x: ev.clientX, // this.getNodePosition(ev.clientX, 'x'),
-        //     y: ev.clientY, // this.getNodePosition(ev.clientY, 'y'),
-        // };
-
-        // this.currentNode = {
-        //     nodeId,
-        //     nodeName,
-        //     nodeGroup,
-        // };
-
         this.showFormModal.emit({
-            // node: {
-            //     id: nodeId,
-            //     name: nodeName,
-            //     class: nodeId,
-            //     x: this.currentPosition.x,
-            //     y: this.currentPosition.y,
-            // },
             type: 'node',
             id: `${nodeId}`,
             title: `${nodeName}`,
@@ -580,10 +562,13 @@ export class EnergyDrawflowComponent {
         this.contextMenuRef.nativeElement.style.left = x + 'px';
         this.contextMenuRef.nativeElement.style.top = y + 'px';
 
-        if (nodeId)
+        if (nodeId) {
+            const node = this.editor.getNodeFromId(nodeId);
+            debugger;
             this.contextmenu = {
                 nodeId: nodeId,
             };
+        }
     }
 
     unShowConextMenu() {
@@ -623,7 +608,7 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    checkNodeDuplication(nodeId: number, nodeName: string) {
+    checkNodeDuplication(nodeName: string, nodeId?: number) {
         const currentNodeList = this.editor.drawflow.drawflow.Home.data;
 
         if (currentNodeList && JSON.stringify(currentNodeList) !== '{}') {
@@ -633,7 +618,7 @@ export class EnergyDrawflowComponent {
                 ) {
                     const node = currentNodeList[key];
 
-                    if (node.id != nodeId)
+                    if (node.id != nodeId || !nodeId)
                         if (
                             node.name === nodeName ||
                             node.data.name === nodeName

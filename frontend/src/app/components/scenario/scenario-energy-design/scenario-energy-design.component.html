@@ -23,6 +23,27 @@
     (closeModal)="closeModal()"
 >
     <div modal-form>
+        <!-- ports -->
+        <div class="row mb-3" *ngIf="formModal_info.id === 'transformer'">
+            <div class="col-6">
+                <app-order-list
+                    label="Inputs"
+                    [id]="formModal_info.id"
+                    #transform_inputs
+                    data-name="'name'"
+                />
+            </div>
+
+            <div class="col-6">
+                <app-order-list
+                    label="Outputs"
+                    [id]="formModal_info.id"
+                    #transform_outputs
+                    data-name="'name'"
+                />
+            </div>
+        </div>
+
         <app-form [formData]="formModal_info.formData" #form />
     </div>
 

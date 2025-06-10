@@ -11,39 +11,6 @@
                     [ngClass]="field.span ? 'col-md-' + field.span : 'col-md'"
                     *ngFor="let field of section.fields"
                 >
-                    <!-- ports -->
-                    <div class="row mb-3" *ngIf="section.name === 'Ports'">
-                        <app-order-list
-                            [label]="field.label"
-                            [id]="field.name"
-                            #orderIitems
-                            data-name="field.name"
-                        />
-
-                        <!-- <ng-template #port>
-                            <input
-                                type="text"
-                                class="form-control"
-                                placeholder="Name"
-                            />
-                        </ng-template> -->
-
-                        <!-- <div class="col-md-6">
-                            <ng-template>
-                                <app-order-list [label]="'Outputs'" #outputs />
-                            </ng-template>
-
-                            <ng-template #port>
-                                <label>Output</label>
-                                <input
-                                    type="text"
-                                    class="form-control"
-                                    placeholder="Name"
-                                />
-                            </ng-template>
-                        </div> -->
-                    </div>
-
                     <!-- text / number -->
                     <div
                         class="form-floating mb-3"
@@ -166,5 +133,4 @@
             </div>
         </div>
     </form>
-    <!-- <ng-content></ng-content> -->
 </ng-container>

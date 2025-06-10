@@ -1,5 +1,6 @@
 import { Injectable, ViewChild } from '@angular/core';
 import { FormComponent } from '../scenario-energy-design/form/form.component';
+import { OrderListComponent } from '../scenario-energy-design/order-list/order-list.component';
 
 @Injectable({
     providedIn: 'root',
@@ -134,23 +135,23 @@ export class EnergyDesignService {
             case 'transformer':
                 return {
                     sections: [
-                        {
-                            name: 'Ports',
-                            class: 'col-12',
-                            hasMultiplePorts: true,
-                            fields: [
-                                {
-                                    name: 'inputs',
-                                    label: 'Inputs',
-                                    span: '6',
-                                },
-                                {
-                                    name: 'outputs',
-                                    label: 'Outputs',
-                                    span: '6',
-                                },
-                            ],
-                        },
+                        // {
+                        //     name: 'Ports',
+                        //     class: 'col-12',
+                        //     hasMultiplePorts: true,
+                        //     fields: [
+                        //         {
+                        //             name: 'inputs',
+                        //             label: 'Inputs',
+                        //             span: '6',
+                        //         },
+                        //         {
+                        //             name: 'outputs',
+                        //             label: 'Outputs',
+                        //             span: '6',
+                        //         },
+                        //     ],
+                        // },
                         {
                             name: 'Name',
                             class: 'col-6',
@@ -860,12 +861,15 @@ export class EnergyDesignService {
             case 'conversion':
                 if (nodeId == 'transformer')
                     if (
-                        data['ports'] &&
-                        data['ports']['inputs'] &&
-                        data['ports']['outputs'] &&
-                        data['ports']['inputs'].length &&
-                        data['ports']['outputs'].length
+                        // data['ports'] &&
+                        // data['ports']['inputs'] &&
+                        // data['ports']['outputs'] &&
+                        // data['ports']['inputs'].length &&
+                        // data['ports']['outputs'].length
+                        true
                     ) {
+                        debugger;
+
                         return {
                             ...data,
                             inp: data['ports']['inputs'].length,
@@ -951,5 +955,22 @@ export class EnergyDesignService {
                 ],
             },
         ];
+    }
+
+    getTransformPorts(formData: any, inputList: any, outputList: any) {
+        formData['ports'] = {};
+
+        inputList.forEach((element: OrderListComponent) => {
+            // if (element.id == 'inputs')
+            formData['ports']['inputs'] = element.data;
+            // else if (element.id == 'outputs')
+            //     formData['ports']['outputs'] = element.data;
+        });
+
+        outputList.forEach((element: OrderListComponent) => {
+            formData['ports']['outputs'] = element.data;
+        });
+
+        return formData;
     }
 }
