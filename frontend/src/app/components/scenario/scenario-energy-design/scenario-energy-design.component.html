@@ -28,23 +28,45 @@
             <div class="col-6">
                 <app-order-list
                     label="Inputs"
-                    [id]="formModal_info.id"
+                    [withType]="true"
+                    [typeList]="[
+                        { id: 0, name: 'A' },
+                        { id: 1, name: 'Default' }
+                    ]"
+                    [typeLabel]="'Factors...'"
+                    [data]="
+                        formModal_info.data.ports
+                            ? formModal_info.data.ports.inputs
+                            : null
+                    "
                     #transform_inputs
-                    data-name="'name'"
                 />
             </div>
 
             <div class="col-6">
                 <app-order-list
                     label="Outputs"
-                    [id]="formModal_info.id"
+                    [withType]="true"
+                    [typeList]="[
+                        { id: 0, name: 'A' },
+                        { id: 1, name: 'Default' }
+                    ]"
+                    [typeLabel]="'Factors...'"
+                    [data]="
+                        formModal_info.data.ports
+                            ? formModal_info.data.ports.outputs
+                            : null
+                    "
                     #transform_outputs
-                    data-name="'name'"
                 />
             </div>
         </div>
 
-        <app-form [formData]="formModal_info.formData" #form />
+        <app-form
+            [formData]="formModal_info.formData"
+            (onSubmit)="submitFormData()"
+            #form
+        />
     </div>
 
     <div modal-actions>

@@ -135,23 +135,6 @@ export class EnergyDesignService {
             case 'transformer':
                 return {
                     sections: [
-                        // {
-                        //     name: 'Ports',
-                        //     class: 'col-12',
-                        //     hasMultiplePorts: true,
-                        //     fields: [
-                        //         {
-                        //             name: 'inputs',
-                        //             label: 'Inputs',
-                        //             span: '6',
-                        //         },
-                        //         {
-                        //             name: 'outputs',
-                        //             label: 'Outputs',
-                        //             span: '6',
-                        //         },
-                        //     ],
-                        // },
                         {
                             name: 'Name',
                             class: 'col-6',
@@ -845,6 +828,33 @@ export class EnergyDesignService {
     }
 
     getNodePorts(data: any, groupName: string, nodeId: string) {
+        let transformDataFn = (data: any) => {
+            let _data: any;
+
+            if (groupName !== 'conversion') {
+                let { name, inputport_name, outputport_name } = data;
+                _data = {
+                    name,
+                    ports: {},
+                };
+
+                if (data.inputport_name) {
+                    _data.ports['inputs'] = [];
+                    _data.ports.inputs.push({ id: 0, name: inputport_name });
+                }
+                if (data.outputport_name) {
+                    _data.ports['outputs'] = [];
+                    _data.ports.outputs.push({ id: 0, name: outputport_name });
+                }
+
+                return _data;
+            } else {
+                return data;
+            }
+        };
+
+        data = transformDataFn(data);
+
         switch (groupName) {
             case 'production':
                 return { ...data, inp: 0, out: 1 };
@@ -861,22 +871,20 @@ export class EnergyDesignService {
             case 'conversion':
                 if (nodeId == 'transformer')
                     if (
-                        // data['ports'] &&
-                        // data['ports']['inputs'] &&
-                        // data['ports']['outputs'] &&
-                        // data['ports']['inputs'].length &&
-                        // data['ports']['outputs'].length
-                        true
+                        data &&
+                        data['ports'] &&
+                        data['ports']['inputs'] &&
+                        data['ports']['outputs'] &&
+                        data['ports']['inputs'].length &&
+                        data['ports']['outputs'].length
                     ) {
-                        debugger;
-
                         return {
                             ...data,
                             inp: data['ports']['inputs'].length,
                             out: data['ports']['outputs'].length,
                         };
                     }
-                return { ...data, inp: 1, out: 1 };
+                return false; // { ...data, inp: 1, out: 1 };
 
             default:
                 return false;
@@ -961,10 +969,7 @@ export class EnergyDesignService {
         formData['ports'] = {};
 
         inputList.forEach((element: OrderListComponent) => {
-            // if (element.id == 'inputs')
             formData['ports']['inputs'] = element.data;
-            // else if (element.id == 'outputs')
-            //     formData['ports']['outputs'] = element.data;
         });
 
         outputList.forEach((element: OrderListComponent) => {

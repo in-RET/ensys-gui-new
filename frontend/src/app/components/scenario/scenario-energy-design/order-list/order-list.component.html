@@ -2,12 +2,23 @@
     <h6>{{ label }}</h6>
 
     <form class="d-flex flex-row">
-        <input
-            type="text"
-            class="form-control w-100"
-            placeholder="Name"
-            [formControl]="name"
-        />
+        <div class="d-flex gap-1">
+            <input
+                type="text"
+                class="form-control w-100"
+                placeholder="Name"
+                [formControl]="name"
+            />
+
+            <select class="form-select" [formControl]="type" *ngIf="withType">
+                <option selected disabled value="null">
+                    {{ typeLabel || "Type..." }}
+                </option>
+                <option [ngValue]="type" *ngFor="let type of typeList">
+                    {{ type.name }}
+                </option>
+            </select>
+        </div>
 
         <div class="d-flex flex-row gap-1 justify-content-between px-3">
             <button
@@ -59,7 +70,10 @@
                 [ngClass]="{ active: selectedItem === item.id }"
                 (click)="selectItem(item.id)"
             >
-                <span>{{ item.name }} </span>
+                <span>{{ item.name }}</span>
+                <span *ngIf="withType && item.type">
+                    : {{ item.type.name }}
+                </span>
             </div>
         </div>
 

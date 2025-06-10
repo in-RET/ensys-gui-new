@@ -5,6 +5,12 @@ import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 interface OrderItem {
     id: number;
     name: string;
+    type?: OrderType;
+}
+
+class OrderType {
+    id!: number;
+    name!: string;
 }
 
 @Component({
@@ -16,27 +22,46 @@ interface OrderItem {
 export class OrderListComponent {
     selectedItem!: number | null;
     name: FormControl = new FormControl('');
+    type: FormControl = new FormControl();
     editableMode: boolean = false;
 
     @Input() data!: OrderItem[];
     @Input() label!: string;
-    @Input() id!: string;
+    @Input() withType: boolean = false;
+    @Input() typeList!: OrderType[];
+    @Input() typeLabel!: string;
 
     ngOnInit() {}
 
     addItem() {
-        !this.data ? (this.data = []) : null;
+        if (this.withType) {
+            if (this.type.value && this.name.value.trim('')) {
+                !this.data ? (this.data = []) : null;
 
-        if (this.name.value.trim('')) {
-            const newItem: OrderItem = {
-                id: this.data.length,
-                name: this.name.value,
-            };
+                this.data.push({
+                    id: this.data.length,
+                    name: this.name.value,
+                    type: this.type.value,
+                });
 
-            this.data.push(newItem);
-            this.name.setValue('');
+                this.name.setValue('');
+                this.type.setValue(null);
+            }
+        } else {
+            if (this.name.value.trim('')) {
+                !this.data ? (this.data = []) : null;
+
+                this.data.push({
+                    id: this.data.length,
+                    name: this.name.value,
+                });
+
+                this.name.setValue('');
+                this.type.setValue(null);
+            }
         }
     }
+
     selectItem(id: number) {
         if (!this.editableMode) {
             id === this.selectedItem
@@ -62,12 +87,14 @@ export class OrderListComponent {
     edit() {
         const i = this.data.findIndex((x) => x.id == this.selectedItem);
         this.name.patchValue(this.data[i].name);
+        this.type.patchValue(this.data[i].type);
         this.editableMode = true;
     }
 
     clearEditMode() {
         this.selectedItem = null;
         this.name.setValue('');
+        this.type.setValue(null);
         this.editableMode = false;
     }
 
@@ -75,6 +102,7 @@ export class OrderListComponent {
         if (status) {
             const i = this.data.findIndex((x) => x.id == this.selectedItem);
             this.data[i].name = this.name.value;
+            this.withType ? (this.data[i].type = this.type.value) : false;
         }
 
         this.clearEditMode();

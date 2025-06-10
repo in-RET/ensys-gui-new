@@ -564,7 +564,7 @@ export class EnergyDrawflowComponent {
 
         if (nodeId) {
             const node = this.editor.getNodeFromId(nodeId);
-            debugger;
+
             this.contextmenu = {
                 nodeId: nodeId,
             };

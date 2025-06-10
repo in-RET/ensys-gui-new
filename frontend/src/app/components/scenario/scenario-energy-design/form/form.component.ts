@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -24,7 +24,6 @@ export class FormComponent {
     form!: FormGroup;
     formVisible: boolean = false;
 
-    // @Input() formData!: any;
     _formData: any;
     @Input() set formData(d: any) {
         if (d) {
@@ -36,10 +35,7 @@ export class FormComponent {
         return this._formData;
     }
 
-    // @ViewChild('inputs') orderList_inputs!: OrderListComponent;
-    // @ViewChild('outputs') orderList_outputs!: OrderListComponent;
-
-    ngOnInit() {}
+    @Output('onSubmit') _onSubmit: EventEmitter<any> = new EventEmitter<any>();
 
     initForm(formData: any) {
         this.form = new FormGroup({});
@@ -71,6 +67,10 @@ export class FormComponent {
     submit() {
         const formData = this.checkFormValidation();
         return formData;
+    }
+
+    onSubmit() {
+        this._onSubmit.emit();
     }
 
     checkFormValidation() {

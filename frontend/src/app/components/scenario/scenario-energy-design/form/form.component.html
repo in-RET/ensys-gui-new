@@ -1,5 +1,10 @@
 <ng-container *ngIf="form && formVisible">
-    <form class="row" [formGroup]="form" (ngSubmit)="submit()">
+    <form
+        class="row"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        (keydown.enter)="onSubmit()"
+    >
         <div
             [ngClass]="section.class"
             *ngFor="let section of formData.sections"

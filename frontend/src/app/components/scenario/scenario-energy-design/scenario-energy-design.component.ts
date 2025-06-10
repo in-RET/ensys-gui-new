@@ -200,10 +200,12 @@ export class ScenarioEnergyDesignComponent {
     // ============================
 
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
+        let { ports } = formValue;
+
         this.energyDrawflowComponent.addNode({
             id: formModalInfo.id,
             name: formValue.name,
-            data: { ...formValue },
+            data: { ports },
             inp: formValue.inp,
             out: formValue.out,
             position: {
@@ -250,26 +252,40 @@ export class ScenarioEnergyDesignComponent {
                         );
                     }
 
-                    if (!this.formModal_info.editMode) {
+                    if (formData && !this.formModal_info.editMode) {
                         formData = this.energyDesignService.getNodePorts(
                             formData,
                             this.formModal_info.data.node.groupName,
                             this.formModal_info.id
                         );
 
-                        this.makeNode(formData, this.formModal_info);
+                        if (formData) {
+                            this.makeNode(formData, this.formModal_info);
+
+                            this.setFormError(false, '');
+                            this.modalComponent._closeModal(false);
+                        } else
+                            this.setFormError(
+                                true,
+                                ' * The ports are not completed!'
+                            );
                     } else if (
+                        this.formModal_info &&
                         this.formModal_info.editMode &&
                         this.formModal_info._id
                     ) {
                         this.updateNode(this.formModal_info._id, formData);
-                        this.formModal_info = new FormModalInfo();
-                    }
 
-                    this.setFormError(false, '');
-                    this.modalComponent._closeModal(false);
-                } else this.setFormError(true, ' * The name is duplicated!');
-            } else if (
+                        this.formModal_info = new FormModalInfo();
+                        this.setFormError(false, '');
+                        this.modalComponent._closeModal(false);
+                    }
+                } else {
+                    this.setFormError(true, ' * The name is duplicated!');
+                }
+            }
+            // flow
+            else if (
                 this.formModal_info &&
                 this.formModal_info.id &&
                 this.formModal_info.type === 'flow'
