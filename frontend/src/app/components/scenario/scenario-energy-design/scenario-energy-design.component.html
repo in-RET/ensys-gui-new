@@ -28,7 +28,6 @@
             <div class="col-6">
                 <app-order-list
                     label="Inputs"
-                    [withType]="true"
                     [typeList]="[
                         { id: 0, name: 'A' },
                         { id: 1, name: 'Default' }
@@ -39,6 +38,8 @@
                             ? formModal_info.data.ports.inputs
                             : null
                     "
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num']"
                     #transform_inputs
                 />
             </div>
@@ -46,7 +47,6 @@
             <div class="col-6">
                 <app-order-list
                     label="Outputs"
-                    [withType]="true"
                     [typeList]="[
                         { id: 0, name: 'A' },
                         { id: 1, name: 'Default' }
@@ -57,6 +57,8 @@
                             ? formModal_info.data.ports.outputs
                             : null
                     "
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num', 'typ']"
                     #transform_outputs
                 />
             </div>

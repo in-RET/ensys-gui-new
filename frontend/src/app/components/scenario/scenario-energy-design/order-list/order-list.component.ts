@@ -1,16 +1,23 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
 
 interface OrderItem {
     id: number;
-    name: string;
+    name?: string;
+    number?: number;
     type?: OrderType;
 }
 
 class OrderType {
-    id!: number;
-    name!: string;
+    id: number = -1;
+    name: string = '';
 }
 
 @Component({
@@ -21,44 +28,104 @@ class OrderType {
 })
 export class OrderListComponent {
     selectedItem!: number | null;
-    name: FormControl = new FormControl('');
-    type: FormControl = new FormControl();
     editableMode: boolean = false;
+    message!: { type: 'error'; txt: string } | null;
 
+    form!: FormGroup;
+
+    get name() {
+        return this.form.controls['name'];
+    }
+    get num() {
+        return this.form.controls['num'];
+    }
+    get typ() {
+        return this.form.controls['typ'];
+    }
+
+    @Input() fields!: ('name' | 'num' | 'typ')[];
     @Input() data!: OrderItem[];
     @Input() label!: string;
-    @Input() withType: boolean = false;
+
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;
+    @Input() acceptDuplicate: boolean = true;
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.initialForm();
+    }
+
+    initialForm() {
+        this.form = new FormGroup({});
+        this.fields.forEach((element) => {
+            this.form.addControl(
+                element,
+                new FormControl(null, [Validators.required])
+            );
+        });
+    }
 
     addItem() {
-        if (this.withType) {
-            if (this.type.value && this.name.value.trim('')) {
-                !this.data ? (this.data = []) : null;
+        if (this.form.valid) {
+            if (!this.data) this.data = [];
 
-                this.data.push({
-                    id: this.data.length,
-                    name: this.name.value,
-                    type: this.type.value,
-                });
+            this.addNewItemToList(
+                this.name?.value,
+                this.num?.value,
+                this.typ?.value
+            );
+        }
+    }
 
-                this.name.setValue('');
-                this.type.setValue(null);
-            }
+    addNewItemToList(name?: string, number?: number, type?: OrderType) {
+        const checkDuplicate = (orderList: OrderItem[], itemName: string) => {
+            const arr = new Set(orderList.map((item: OrderItem) => item.name));
+            const isDuplicate = arr.has(itemName);
+            return isDuplicate;
+        };
+
+        if (this.acceptDuplicate) {
+            this.data.push({
+                id: this.data.length,
+                name: name,
+                number: number,
+                type: type,
+            });
+
+            this.clearMessage();
+            this.clearForms();
         } else {
-            if (this.name.value.trim('')) {
-                !this.data ? (this.data = []) : null;
+            const isDuplicate = checkDuplicate(this.data, this.name.value);
 
+            if (!isDuplicate) {
                 this.data.push({
                     id: this.data.length,
-                    name: this.name.value,
+                    name: name,
+                    number: number,
+                    type: type,
                 });
 
-                this.name.setValue('');
-                this.type.setValue(null);
+                this.clearMessage();
+                this.clearForms();
+            } else {
+                this.setMessage('error', 'Duplicate Name!');
+                this.name.setErrors({ incorrect: true });
             }
+        }
+    }
+
+    clearForms() {
+        this.name.setValue(null);
+        this.name.setErrors(null);
+
+        if (this.fields.includes('num')) {
+            this.num.setValue(null);
+            this.num.setErrors(null);
+        }
+
+        if (this.fields.includes('typ')) {
+            this.typ.setValue(null);
+            this.typ.setErrors(null);
         }
     }
 
@@ -87,25 +154,89 @@ export class OrderListComponent {
     edit() {
         const i = this.data.findIndex((x) => x.id == this.selectedItem);
         this.name.patchValue(this.data[i].name);
-        this.type.patchValue(this.data[i].type);
+
+        if (this.fields.includes('num'))
+            this.num.patchValue(this.data[i].number);
+
+        if (this.fields.includes('typ')) this.typ.setValue(this.data[i].type);
+
         this.editableMode = true;
+    }
+
+    onEdit(approve: boolean) {
+        const checkDuplicate = (
+            orderList: OrderItem[],
+            itemName: string,
+            itemId: number
+        ) => {
+            const arr = new Set(
+                orderList
+                    .filter((item: OrderItem) => {
+                        return item.id != itemId;
+                    })
+                    .map((item: OrderItem) => item.name || '')
+            );
+
+            const isDuplicate = arr.has(itemName);
+            return isDuplicate;
+        };
+
+        if (approve) {
+            if (this.form.valid) {
+                const i = this.data.findIndex((x) => x.id == this.selectedItem);
+
+                if (this.acceptDuplicate) {
+                    this.data[i].name = this.name.value;
+
+                    if (this.fields.includes('num'))
+                        this.data[i].number = this.num.value;
+
+                    if (this.fields.includes('typ'))
+                        this.data[i].type = this.typ.value;
+
+                    this.clearEditMode();
+                    this.clearForms();
+                    this.clearMessage();
+                } else {
+                    const isDuplicate = checkDuplicate(
+                        this.data,
+                        this.name.value,
+                        this.data[i].id
+                    );
+
+                    if (!isDuplicate) {
+                        this.data[i].name = this.name.value;
+
+                        if (this.fields.includes('num'))
+                            this.data[i].number = this.num.value;
+
+                        if (this.fields.includes('typ'))
+                            this.data[i].type = this.typ.value;
+
+                        this.clearEditMode();
+                        this.clearForms();
+                        this.clearMessage();
+                    } else {
+                        this.setMessage('error', 'Duplicate Name!');
+                        this.name.setErrors({ incorrect: true });
+                    }
+                }
+            } else {
+                this.form.markAsDirty();
+                this.form.markAsTouched();
+                this.form.markAsPristine();
+                this.form.markAllAsTouched();
+            }
+        } else {
+            this.clearEditMode();
+            this.clearForms();
+            this.clearMessage();
+        }
     }
 
     clearEditMode() {
         this.selectedItem = null;
-        this.name.setValue('');
-        this.type.setValue(null);
         this.editableMode = false;
-    }
-
-    editItem(status: boolean) {
-        if (status) {
-            const i = this.data.findIndex((x) => x.id == this.selectedItem);
-            this.data[i].name = this.name.value;
-            this.withType ? (this.data[i].type = this.type.value) : false;
-        }
-
-        this.clearEditMode();
     }
 
     moveItemUpDown(direction: 'down' | 'up') {
@@ -151,5 +282,13 @@ export class OrderListComponent {
 
     getData() {
         return this.data;
+    }
+
+    setMessage(type: 'error', txt: string) {
+        this.message = { type: type, txt: txt };
+    }
+
+    clearMessage() {
+        this.message = null;
     }
 }

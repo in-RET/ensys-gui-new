@@ -1,16 +1,43 @@
 <section class="p-2 border border-primary-subtle rounded">
     <h6>{{ label }}</h6>
-
-    <form class="d-flex flex-row">
+    <p *ngIf="message" [ngClass]="{ 'text-danger': message.type === 'error' }">
+        {{ message.txt }}
+    </p>
+    <form class="d-flex flex-row" [formGroup]="form">
         <div class="d-flex gap-1">
+            <!-- inp text -->
             <input
                 type="text"
                 class="form-control w-100"
                 placeholder="Name"
-                [formControl]="name"
+                formControlName="name"
+                [ngClass]="{
+                    'is-invalid': name.invalid && (name.dirty || name.touched)
+                }"
+                *ngIf="name"
             />
 
-            <select class="form-select" [formControl]="type" *ngIf="withType">
+            <!-- inp number -->
+            <input
+                type="number"
+                class="form-control w-100"
+                placeholder="Number"
+                formControlName="num"
+                [ngClass]="{
+                    'is-invalid': num.invalid && (num.dirty || num.touched)
+                }"
+                *ngIf="num"
+            />
+
+            <!-- type list -->
+            <select
+                class="form-select"
+                formControlName="typ"
+                [ngClass]="{
+                    'is-invalid': typ.invalid && (typ.dirty || typ.touched)
+                }"
+                *ngIf="typ"
+            >
                 <option selected disabled value="null">
                     {{ typeLabel || "Type..." }}
                 </option>
@@ -20,6 +47,7 @@
             </select>
         </div>
 
+        <!-- actions -->
         <div class="d-flex flex-row gap-1 justify-content-between px-3">
             <button
                 class="btn btn--success"
@@ -38,7 +66,7 @@
                 <button
                     type="submit"
                     class="btn btn-secondary"
-                    (click)="editItem(true)"
+                    (click)="onEdit(true)"
                 >
                     <img
                         src="../../../../../static/assets/icons/feather/white/check.svg"
@@ -48,9 +76,9 @@
                 </button>
 
                 <button
-                    type="reset"
+                    type="button"
                     class="btn btn-secondary"
-                    (click)="editItem(false)"
+                    (click)="onEdit(false)"
                 >
                     <img
                         src="../../../../../static/assets/icons/feather/white/x.svg"
@@ -71,7 +99,10 @@
                 (click)="selectItem(item.id)"
             >
                 <span>{{ item.name }}</span>
-                <span *ngIf="withType && item.type">
+                <span *ngIf="fields.includes('num')">
+                    : {{ item.number }}
+                </span>
+                <span *ngIf="fields.includes('typ') && item.type">
                     : {{ item.type.name }}
                 </span>
             </div>

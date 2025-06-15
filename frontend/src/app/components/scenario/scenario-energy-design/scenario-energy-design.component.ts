@@ -1,12 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    inject,
-    Input,
-    QueryList,
-    ViewChild,
-    ViewChildren,
-} from '@angular/core';
+import { Component, inject, Input, ViewChild } from '@angular/core';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
@@ -99,10 +92,10 @@ export class ScenarioEnergyDesignComponent {
     modalComponent!: ModalComponent;
 
     // ports
-    @ViewChildren('transform_inputs')
-    transform_inputs!: QueryList<OrderListComponent>;
-    @ViewChildren('transform_outputs')
-    transform_outputs!: QueryList<OrderListComponent>;
+    @ViewChild('transform_inputs')
+    transform_inputs!: OrderListComponent;
+    @ViewChild('transform_outputs')
+    transform_outputs!: OrderListComponent;
 
     @Input() currentScenario: any;
 
@@ -160,6 +153,7 @@ export class ScenarioEnergyDesignComponent {
     showFormModal(e: {
         _id: number;
         id: string;
+        node: any;
         type: 'node' | 'flow';
         title: string;
         action: any;
@@ -174,11 +168,17 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.id = e.id;
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
+
+        if (e.editMode) {
+            e.data['name'] = e.node.name;
+        }
+
         this.formModal_info.formData = this.energyDesignService.getFormData(
             e.id,
             e.data
         );
         this.formModal_info.data = e.data;
+
         this.formModal_info.editMode = e.editMode;
 
         // appear Modal
@@ -200,12 +200,12 @@ export class ScenarioEnergyDesignComponent {
     // ============================
 
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
-        let { ports } = formValue;
+        // let { ports } = formValue;
 
         this.energyDrawflowComponent.addNode({
             id: formModalInfo.id,
             name: formValue.name,
-            data: { ports },
+            data: formValue,
             inp: formValue.inp,
             out: formValue.out,
             position: {
@@ -215,8 +215,8 @@ export class ScenarioEnergyDesignComponent {
         });
     }
 
-    updateNode(nodeId: number, data: any) {
-        this.energyDrawflowComponent.updateNode(nodeId, data);
+    updateNode(nodeId: number, data: any, nodeType: string) {
+        this.energyDrawflowComponent.updateNode(nodeId, data, nodeType);
     }
 
     setFormError(status: boolean, msg: string) {
@@ -269,12 +269,18 @@ export class ScenarioEnergyDesignComponent {
                                 true,
                                 ' * The ports are not completed!'
                             );
-                    } else if (
+                    }
+                    // edit mode
+                    else if (
                         this.formModal_info &&
                         this.formModal_info.editMode &&
                         this.formModal_info._id
                     ) {
-                        this.updateNode(this.formModal_info._id, formData);
+                        this.updateNode(
+                            this.formModal_info._id,
+                            formData,
+                            this.formModal_info.id
+                        );
 
                         this.formModal_info = new FormModalInfo();
                         this.setFormError(false, '');

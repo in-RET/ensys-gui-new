@@ -88,24 +88,29 @@ export class EnergyDrawflowComponent {
 
     private addEditorEvents() {
         this.editor.on('nodeCreated', (data: any) => {
+            console.log('nodeCreated');
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeDataChanged', (data: any) => {
+            console.log('nodeDataChanged');
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeRemoved', (data: any) => {
+            console.log('nodeRemoved');
             this.saveCurrentDrawflow();
         });
 
         this.editor.on('connectionCreated', (connection: any) => {
-            // this.currentConnection = connection;
+            console.log('connectionCreated');
             this.connectionCreated(connection);
-            // this.saveCurrentDrawflow();
         });
         this.editor.on('connectionRemoved', (connection: any) => {
+            console.log('connectionRemoved');
             this.saveCurrentDrawflow();
         });
         this.editor.on('connectionSelected', (connection: any) => {
+            console.log('connectionSelected');
+
             // this.currentConnection = connection;
 
             // const inputs = this.editor.getNodeFromId(connection.input_id);
@@ -360,24 +365,73 @@ export class EnergyDrawflowComponent {
             node.data
         );
     }
-    updateNode(nodeId: number, data: any) {
-        // console.log(data);
+    updateNode(nodeId: number, data: any, nodeType: string) {
+        let currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
 
-        this.editor.drawflow.drawflow.Home.data[nodeId].name = data.name;
-        this.editor.drawflow.drawflow.Home.data[nodeId].html = `
+        currentNode.name = data.name;
+        currentNode.html = `
             <div class="box" ${this.ASSET_TYPE_NAME}=" ${data.name}"></div>
 
             <div class="drawflow-node__name nodeName">
                 <span>
-                    ${this.editor.drawflow.drawflow.Home.data[nodeId].name}
+                    ${currentNode.name}
                 </span>
             </div>
 
             <div class="img"></div>
         `;
         this.editor.updateNodeDataFromId(nodeId, data);
+
+        if (nodeType === 'transformer') {
+            // remove/reorder port if it changed
+            this.updatePortsAfterEdit({ ...currentNode }, data);
+        }
+
         this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.import(this.editor.export());
+    }
+
+    updatePortsAfterEdit(currentNode: any, changedData: any) {
+        currentNode.inputs = Object.entries(currentNode.inputs).map(
+            ([name]) => ({ name })
+        );
+        currentNode.outputs = Object.entries(currentNode.outputs).map(
+            ([name]) => ({ name })
+        );
+
+        const syncPorts = (original: any, modified: any, isInput: boolean) => {
+            const originalIds = new Set(original.map((item: any) => item.name));
+            const modifiedIds = new Set(modified.map((item: any) => item.code));
+
+            // Find removed item(s)
+            const removed = original
+                .filter((item: any) => !modifiedIds.has(item.name))
+                .map((obj: any) => obj.name);
+
+            // Find added item(s)
+            const added = modified
+                .filter((item: any) => !originalIds.has(item.code))
+                .map((obj: any) => obj.code);
+
+            // Add new items
+            for (const item of added) {
+                console.log('Added:' + item);
+                isInput
+                    ? this.editor.addNodeInput(currentNode.id)
+                    : this.editor.addNodeOutput(currentNode.id);
+            }
+
+            // Add new items
+            for (const item of removed) {
+                console.log('Removed:' + item);
+                isInput
+                    ? this.editor.removeNodeInput(currentNode.id, item)
+                    : this.editor.removeNodeOutput(currentNode.id, item);
+            }
+        };
+
+        syncPorts(currentNode.inputs, changedData.ports.inputs, true);
+        syncPorts(currentNode.outputs, changedData.ports.outputs, false);
     }
 
     connectionCreated(connection: any) {
@@ -486,12 +540,10 @@ export class EnergyDrawflowComponent {
     }
 
     _showFormModalNode(nodeId: number, x: number, y: number) {
-        debugger;
         this.showConextMenu(x, y, nodeId);
     }
 
     _showFormModal_edge(nodeId: number, x: number, y: number) {
-        debugger;
         this.showConextMenu(x, y, nodeId);
     }
 
@@ -507,6 +559,7 @@ export class EnergyDrawflowComponent {
                 this.showFormModal.emit({
                     type: 'node',
                     id: node.class,
+                    node: node,
                     title: `Edit: ${node.name}`,
                     action: { fn: 'submitFormData', label: 'Update' },
                     editMode: true,
