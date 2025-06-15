@@ -178,7 +178,6 @@ export class ScenarioEnergyDesignComponent {
             e.data
         );
         this.formModal_info.data = e.data;
-
         this.formModal_info.editMode = e.editMode;
 
         // appear Modal
@@ -215,8 +214,13 @@ export class ScenarioEnergyDesignComponent {
         });
     }
 
-    updateNode(nodeId: number, data: any, nodeType: string) {
-        this.energyDrawflowComponent.updateNode(nodeId, data, nodeType);
+    updateNode(data: any, nodeInfo: FormModalInfo) {
+        if (nodeInfo.id && nodeInfo._id)
+            this.energyDrawflowComponent.updateNode(
+                nodeInfo._id,
+                nodeInfo.id,
+                data
+            );
     }
 
     setFormError(status: boolean, msg: string) {
@@ -230,61 +234,37 @@ export class ScenarioEnergyDesignComponent {
         let formData = this.formComponent.submit();
 
         if (formData) {
-            if (
-                this.formModal_info &&
-                this.formModal_info.id &&
-                (this.formModal_info._id || !this.formModal_info.editMode) &&
-                this.formModal_info.type === 'node'
-            ) {
+            // new-node
+            if (this.formModal_info.type === 'node' && this.formModal_info.id) {
                 const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
                         formData.name,
                         this.formModal_info._id
                     );
 
-                if (!isNodeNameDuplicate && isNodeNameDuplicate !== undefined) {
-                    // transform situation
-                    if (this.formModal_info.id === 'transformer') {
-                        formData = this.energyDesignService.getTransformPorts(
-                            formData,
-                            this.transform_inputs,
-                            this.transform_outputs
-                        );
-                    }
+                if (!isNodeNameDuplicate) {
+                    // add port count(in-out) + transform data
+                    formData = this.energyDesignService.getNodePorts(
+                        formData,
+                        this.formModal_info.id,
+                        this.transform_inputs,
+                        this.transform_outputs,
+                        this.formModal_info.data.node?.groupName
+                    );
 
-                    if (formData && !this.formModal_info.editMode) {
-                        formData = this.energyDesignService.getNodePorts(
-                            formData,
-                            this.formModal_info.data.node.groupName,
-                            this.formModal_info.id
-                        );
-
-                        if (formData) {
+                    if (formData) {
+                        if (!this.formModal_info.editMode)
                             this.makeNode(formData, this.formModal_info);
-
-                            this.setFormError(false, '');
-                            this.modalComponent._closeModal(false);
-                        } else
-                            this.setFormError(
-                                true,
-                                ' * The ports are not completed!'
-                            );
-                    }
-                    // edit mode
-                    else if (
-                        this.formModal_info &&
-                        this.formModal_info.editMode &&
-                        this.formModal_info._id
-                    ) {
-                        this.updateNode(
-                            this.formModal_info._id,
-                            formData,
-                            this.formModal_info.id
-                        );
+                        else this.updateNode(formData, this.formModal_info);
 
                         this.formModal_info = new FormModalInfo();
                         this.setFormError(false, '');
                         this.modalComponent._closeModal(false);
+                    } else {
+                        this.setFormError(
+                            true,
+                            ' * The form is not completed!'
+                        );
                     }
                 } else {
                     this.setFormError(true, ' * The name is duplicated!');
@@ -292,9 +272,9 @@ export class ScenarioEnergyDesignComponent {
             }
             // flow
             else if (
-                this.formModal_info &&
-                this.formModal_info.id &&
-                this.formModal_info.type === 'flow'
+                this.formModal_info.type === 'flow' &&
+                this.formModal_info.editMode &&
+                this.formModal_info.id
             ) {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
@@ -307,6 +287,8 @@ export class ScenarioEnergyDesignComponent {
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
+
+        return true;
     }
 
     getData() {

@@ -353,8 +353,6 @@ export class EnergyDrawflowComponent {
     }
 
     addNode(node: any) {
-        console.log(node);
-
         this.addNodeToDrawFlow(
             node.id,
             node.name,
@@ -365,7 +363,7 @@ export class EnergyDrawflowComponent {
             node.data
         );
     }
-    updateNode(nodeId: number, data: any, nodeType: string) {
+    updateNode(nodeId: number, nodeType: string, data: any) {
         let currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
 
         currentNode.name = data.name;

@@ -815,11 +815,30 @@ export class EnergyDesignService {
         ];
     }
 
-    getNodePorts(data: any, groupName: string, nodeId: string) {
+    getNodePorts(
+        data: any,
+        nodeId: string,
+        transform_inputs: any,
+        transform_outputs: any,
+        groupName?: string
+    ) {
         let transformDataFn = (data: any) => {
             let _data: any;
 
-            if (nodeId !== 'transformer') {
+            if (nodeId === 'transformer') {
+                // add port(in-out) list to the node
+                if (
+                    transform_inputs.data.length &&
+                    transform_outputs.data.length
+                ) {
+                    _data = this.getTransformPorts(
+                        data,
+                        transform_inputs,
+                        transform_outputs
+                    );
+                    return _data;
+                } else return false;
+            } else if (nodeId !== 'transformer') {
                 let { inputport_name, outputport_name } = data;
                 _data = {
                     ...data,
@@ -848,7 +867,6 @@ export class EnergyDesignService {
                 return data;
             }
         };
-
         data = transformDataFn(data);
 
         switch (groupName) {
@@ -887,7 +905,7 @@ export class EnergyDesignService {
                 return false;
 
             default:
-                return false;
+                return data;
         }
     }
 
