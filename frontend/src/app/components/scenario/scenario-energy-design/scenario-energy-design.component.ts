@@ -271,11 +271,7 @@ export class ScenarioEnergyDesignComponent {
                 }
             }
             // flow
-            else if (
-                this.formModal_info.type === 'flow' &&
-                this.formModal_info.editMode &&
-                this.formModal_info.id
-            ) {
+            else if (this.formModal_info.type === 'flow') {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
                     this.formModal_info.data.connection
