@@ -1,13 +1,14 @@
+import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
     selector: 'app-file-uploader',
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './file-uploader.component.html',
     styleUrl: './file-uploader.component.scss',
 })
 export class FileUploaderComponent {
-    fileInfo!: string;
+    fileInfo!: { name: string; label: string; data: any } | null;
 
     @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
@@ -55,12 +56,38 @@ export class FileUploaderComponent {
 
                 reader.onload = (e: any) => {
                     let content = e.target.result;
-                    this.fileInfo = `${file.name} (${formatBytes(file.size)})`;
-                    content = content.split('\r\n').join(',');
+                    this.fileInfo = { name: '', label: '', data: null };
+                    this.fileInfo.name = `${file.name} (${formatBytes(
+                        file.size
+                    )})`;
+                    content = this.formatList(content); //content.split('\r\n').join(',');
+
+                    this.fileInfo.label = this.shortenList(content);
+                    this.fileInfo.data = content;
                     this.fileUploaderChange.emit(content);
                 };
                 reader.readAsText(file);
             }
         }
+    }
+
+    formatList(rawStr: string) {
+        const arr = rawStr.trim().split(/\r?\n/).filter(Boolean); // Split on \n or \r\n and remove empty lines
+        if (arr.length <= 4) return arr.join(','); // No need to shorten
+        return arr.join(',');
+    }
+
+    shortenList(str: string) {
+        let arr = str.split(',');
+        if (arr.length <= 4) return str; // Nothing to shorten
+
+        let firstTwo = arr.slice(0, 2);
+        let lastTwo = arr.slice(-2);
+        return [...firstTwo, '...', ...lastTwo].join(',');
+    }
+
+    clearFileData() {
+        this.fileUploaderChange.emit(null);
+        this.fileInfo = null;
     }
 }

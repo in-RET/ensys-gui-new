@@ -85,7 +85,7 @@ export class ScenarioEnergyDesignComponent {
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
 
-    @ViewChild(FormComponent)
+    @ViewChild('form')
     formComponent!: FormComponent;
 
     @ViewChild(ModalComponent)
@@ -175,13 +175,22 @@ export class ScenarioEnergyDesignComponent {
 
         this.formModal_info.formData = this.energyDesignService.getFormData(
             e.id,
-            e.data
+            e.data,
+            this.toggleInvestFields.bind(this)
         );
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
 
         // appear Modal
         this.formModal_info.show = true;
+    }
+
+    toggleInvestFields(investmentFields: string[]) {
+        this.formComponent.toggleControl('nominal_value');
+
+        investmentFields.forEach((fieldName: string) => {
+            this.formComponent.toggleControl(fieldName);
+        });
     }
 
     toggleModal(appear: boolean) {}
@@ -197,31 +206,6 @@ export class ScenarioEnergyDesignComponent {
     }
 
     // ============================
-
-    makeNode(formValue: any, formModalInfo: FormModalInfo) {
-        // let { ports } = formValue;
-
-        this.energyDrawflowComponent.addNode({
-            id: formModalInfo.id,
-            name: formValue.name,
-            data: formValue,
-            inp: formValue.inp,
-            out: formValue.out,
-            position: {
-                x: formModalInfo.data.node.position.x,
-                y: formModalInfo.data.node.position.y,
-            },
-        });
-    }
-
-    updateNode(data: any, nodeInfo: FormModalInfo) {
-        if (nodeInfo.id && nodeInfo._id)
-            this.energyDrawflowComponent.updateNode(
-                nodeInfo._id,
-                nodeInfo.id,
-                data
-            );
-    }
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
@@ -252,10 +236,21 @@ export class ScenarioEnergyDesignComponent {
                         this.formModal_info.data.node?.groupName
                     );
 
+                    formData['connections'] =
+                        this.formModal_info.data['connections'];
+
                     if (formData) {
                         if (!this.formModal_info.editMode)
                             this.makeNode(formData, this.formModal_info);
-                        else this.updateNode(formData, this.formModal_info);
+                        else if (
+                            this.formModal_info.editMode &&
+                            this.formModal_info._id
+                        )
+                            this.updateNode(
+                                formData,
+                                this.formModal_info._id,
+                                this.formModal_info.id
+                            );
 
                         this.formModal_info = new FormModalInfo();
                         this.setFormError(false, '');
@@ -274,7 +269,8 @@ export class ScenarioEnergyDesignComponent {
             else if (this.formModal_info.type === 'flow') {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
-                    this.formModal_info.data.connection
+                    this.formModal_info.data.connection,
+                    formData
                 );
 
                 this.setFormError(false, '');
@@ -285,6 +281,25 @@ export class ScenarioEnergyDesignComponent {
         }
 
         return true;
+    }
+
+    makeNode(formValue: any, formModalInfo: FormModalInfo) {
+        this.energyDrawflowComponent.addNode({
+            id: formModalInfo.id,
+            name: formValue.name,
+            data: formValue,
+            inp: formValue.inp,
+            out: formValue.out,
+            position: {
+                x: formModalInfo.data.node.position.x,
+                y: formModalInfo.data.node.position.y,
+            },
+        });
+    }
+
+    updateNode(data: any, nodeId: number, nodeType: string) {
+        if (nodeId && nodeType)
+            this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
     }
 
     getData() {

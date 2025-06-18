@@ -97,6 +97,10 @@ export class FormComponent {
     }
 
     fileUploaderChange(e: any, fControlName: any) {
+        this.form.controls[fControlName].disabled
+            ? this.form.controls[fControlName].enable()
+            : this.form.controls[fControlName].disable();
+
         this.form.controls[fControlName].setValue(e);
     }
 }

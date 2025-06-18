@@ -26,8 +26,8 @@ export class ScenarioSetupComponent {
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl('', [Validators.required]),
         sDate: new FormControl(null, [Validators.required]),
-        timeStep: new FormControl('', [Validators.required]),
-        simulationYear: new FormControl('', [Validators.required]),
+        timeStep: new FormControl(null, [Validators.required]),
+        simulationYear: new FormControl(null, [Validators.required]),
 
         // minimal_renewable_factor_active: new FormControl(true),
         // minimal_renewable_factor: new FormControl(
@@ -114,26 +114,29 @@ export class ScenarioSetupComponent {
     }
 
     loadCurrentData() {
-        let scenarioBaseData: any =
+        let scenarioBaseData: { project: any; scenario: any } =
             this.scenarioService.restoreBaseInfo_Storage();
 
-        if (
-            scenarioBaseData &&
-            scenarioBaseData !== null &&
-            scenarioBaseData !== undefined
-        ) {
-            if (scenarioBaseData.project.id) {
+        if (scenarioBaseData) {
+            if (scenarioBaseData.project) {
+                this.form.patchValue({
+                    project: {
+                        id: scenarioBaseData.project.id,
+                        name: scenarioBaseData.project.name,
+                    },
+                });
+            }
+
+            if (scenarioBaseData.scenario) {
                 let {
-                    project,
                     name,
                     simulationPeriod,
                     timeStep,
                     sDate,
                     simulationYear,
-                } = scenarioBaseData;
+                } = scenarioBaseData.scenario;
 
                 this.form.patchValue({
-                    project: { id: project.id, name: project.name },
                     name,
                     simulationPeriod,
                     timeStep,

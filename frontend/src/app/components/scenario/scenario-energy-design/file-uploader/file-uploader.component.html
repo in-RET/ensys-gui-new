@@ -1,5 +1,5 @@
-<div style="display: flex; justify-content: center">
-    <button class="file-upload-button">
+<div style="display: flex; justify-content: center; min-height: 3rem">
+    <button class="file-upload-button" *ngIf="!fileInfo">
         <input
             type="file"
             #fileInput
@@ -8,5 +8,13 @@
         />
     </button>
 
-    <span class="file-info">{{ fileInfo }}</span>
+    <div class="d-flex align-items-center" *ngIf="fileInfo">
+        <span class="file-info">{{ fileInfo.label }}</span>
+        <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            (click)="clearFileData()"
+        ></button>
+    </div>
 </div>

@@ -1,15 +1,12 @@
-import { Injectable, ViewChild } from '@angular/core';
-import { FormComponent } from '../scenario-energy-design/form/form.component';
+import { Injectable } from '@angular/core';
 
 @Injectable({
     providedIn: 'root',
 })
 export class EnergyDesignService {
-    @ViewChild(FormComponent) formComponent!: FormComponent;
-
     constructor() {}
 
-    getFormData(name: string, data?: any) {
+    getFormData(name: string, data?: any, callback?: any) {
         const getFieldData = function (fName: string) {
             return data ? data[fName.toLocaleLowerCase()] : null;
         };
@@ -569,10 +566,33 @@ export class EnergyDesignService {
                             class: 'col-12',
                             fields: [
                                 {
+                                    name: 'Investment',
+                                    placeholder: '',
+                                    label: 'InV',
+                                    isReq: false,
+                                    type: 'switch',
+                                    span: 'auto',
+                                    value: false,
+                                    onClick: () => {
+                                        const InvestmentFields =
+                                            this.getInvestmentFields().map(
+                                                (elm: any) => elm.name
+                                            );
+
+                                        callback(InvestmentFields);
+                                    },
+                                },
+                            ],
+                        },
+
+                        {
+                            name: '',
+                            class: 'col-12',
+                            fields: [
+                                {
                                     name: 'nominal_value',
                                     placeholder: 'nominal_value',
                                     label: 'nominal_value',
-                                    isReq: true,
                                     type: 'number',
                                     span: '3',
                                     value: getFieldData('nominal_value'),
@@ -581,121 +601,20 @@ export class EnergyDesignService {
                         },
 
                         {
-                            name: '',
-                            class: 'col-12',
-                            fields: [
-                                {
-                                    name: 'maximum',
-                                    placeholder: 'maximum',
-                                    label: 'maximum ',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'minimum',
-                                    placeholder: 'minimum',
-                                    label: 'minimum',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'ep_costs ',
-                                    placeholder: 'ep_costs ',
-                                    label: 'ep_costs ',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'existing ',
-                                    placeholder: 'existing ',
-                                    label: 'existing ',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'nonconvex ',
-                                    placeholder: 'nonconvex ',
-                                    label: 'nonconvex ',
-                                    type: 'text',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'offset ',
-                                    placeholder: 'offset ',
-                                    label: 'offset',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'overall_maximum ',
-                                    placeholder: 'overall_maximum ',
-                                    label: 'overall_maximum ',
-                                    type: 'number',
-                                    span: '3',
-                                },
-                                {
-                                    name: 'overall_minimum ',
-                                    placeholder: 'overall_minimum ',
-                                    label: 'overall_minimum ',
-                                    type: 'number',
-                                    span: '3',
-                                },
-
-                                {
-                                    name: 'interest_rate ',
-                                    placeholder: 'interest_rate ',
-                                    label: 'interest_rate ',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                                {
-                                    name: 'lifetime ',
-                                    placeholder: 'lifetime ',
-                                    label: 'lifetime ',
-                                    type: 'number',
-                                    span: '2',
-                                },
-                            ],
-                        },
-
-                        {
-                            name: '',
-                            class: 'col-12',
-                            fields: [
-                                {
-                                    name: 'Investment',
-                                    placeholder: '',
-                                    label: '',
-                                    isReq: false,
-                                    type: 'switch',
-                                    span: 'auto',
-                                    value: false,
-                                    onClick: () => {
-                                        this.formComponent.toggleControl(
-                                            'nominal_value'
-                                        );
-
-                                        const InvestmentFields =
-                                            this.getInvestmentFields().map(
-                                                (elm: any) => elm.name
-                                            );
-                                        InvestmentFields.forEach(
-                                            (fieldName: string) => {
-                                                debugger;
-                                                this.formComponent.toggleControl(
-                                                    fieldName
-                                                );
-                                            }
-                                        );
-                                    },
-                                },
-                            ],
-                        },
-
-                        {
                             name: 'Investment',
                             class: 'col-12',
-                            fields: this.getInvestmentFields(),
+                            fields: this.getInvestmentFields().map(
+                                (elm: any) => {
+                                    elm['disabled'] = true;
+                                    return elm;
+                                }
+                            ),
+                        },
+
+                        {
+                            name: '',
+                            class: 'col-12',
+                            fields: this.getDefaultFields(),
                         },
                     ],
                 };
@@ -708,109 +627,172 @@ export class EnergyDesignService {
     private getInvestmentFields() {
         return [
             {
+                name: 'maximum',
+                placeholder: 'maximum',
+                label: 'maximum',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'minimum',
+                placeholder: 'minimum',
+                label: 'minimum',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'ep_costs',
+                placeholder: 'ep_costs',
+                label: 'ep_costs',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'existing',
+                placeholder: 'existing',
+                label: 'existing',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'nonconvex',
+                placeholder: 'nonconvex',
+                label: 'nonconvex',
+                type: 'text',
+                span: 'auto',
+            },
+            {
+                name: 'offset',
+                placeholder: 'offset',
+                label: 'offset',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'overall_maximum',
+                placeholder: 'overall_maximum',
+                label: 'overall_maximum',
+                type: 'number',
+                span: '3',
+            },
+            {
+                name: 'overall_minimum',
+                placeholder: 'overall_minimum',
+                label: 'overall_minimum',
+                type: 'number',
+                span: '3',
+            },
+
+            {
+                name: 'interest_rate',
+                placeholder: 'interest_rate',
+                label: 'interest_rate',
+                type: 'number',
+                span: 'auto',
+            },
+            {
+                name: 'lifetime',
+                placeholder: 'lifetime',
+                label: 'lifetime',
+                type: 'number',
+                span: 'auto',
+            },
+        ];
+    }
+
+    private getDefaultFields() {
+        return [
+            {
                 name: 'variable_costs',
                 placeholder: 'variable_costs',
                 label: 'variable_costs',
                 type: 'range',
-                span: '3',
-                disabled: true,
+                span: '4',
             },
             {
                 name: 'max',
                 placeholder: 'max',
                 label: 'max',
                 type: 'range',
-                span: '2',
-                disabled: true,
+                span: '4',
             },
             {
                 name: 'min',
                 placeholder: 'min',
                 label: 'min',
                 type: 'range',
-                span: '2',
-                disabled: true,
+                span: '4',
+            },
+            {
+                name: 'fix',
+                placeholder: 'fix',
+                label: 'fix',
+                type: 'range',
+                span: '4',
+            },
+            {
+                name: 'positive_gradient_limit',
+                placeholder: 'positive_gradient_limit',
+                label: 'positive_gradient_limit',
+                type: 'range',
+                span: '4',
+            },
+            {
+                name: 'negative_gradient_limit',
+                placeholder: 'negative_gradient_limit',
+                label: 'negative_gradient_limit',
+                type: 'range',
+                span: '4',
+            },
+            {
+                name: 'fixed_costs',
+                placeholder: 'fixed_costs',
+                label: 'fixed_costs',
+                type: 'range',
+                span: '4',
             },
 
             {
-                name: 'fix ',
-                placeholder: 'fix ',
-                label: 'fix',
-                type: 'range',
-                span: '2',
-                disabled: true,
-            },
-            {
-                name: 'positive_gradient_limit ',
-                placeholder: 'positive_gradient_limit ',
-                label: 'positive_gradient_limit ',
-                type: 'range',
-                span: '4',
-                disabled: true,
-            },
-            {
-                name: 'negative_gradient_limit ',
-                placeholder: 'negative_gradient_limit ',
-                label: 'negative_gradient_limit ',
-                type: 'range',
-                span: '4',
-                disabled: true,
-            },
-            {
-                name: 'full_load_time_max ',
-                placeholder: 'full_load_time_max ',
-                label: 'full_load_time_max ',
+                name: 'full_load_time_max',
+                placeholder: 'full_load_time_max',
+                label: 'full_load_time_max',
                 type: 'number',
-                span: '3',
-                disabled: true,
+                span: 'auto',
             },
             {
-                name: 'full_load_time_min ',
-                placeholder: 'full_load_time_min ',
-                label: 'full_load_time_min ',
+                name: 'full_load_time_min',
+                placeholder: 'full_load_time_min',
+                label: 'full_load_time_min',
                 type: 'number',
-                span: '3',
-                disabled: true,
+                span: 'auto',
             },
             {
-                name: 'integer ',
-                placeholder: 'integer ',
-                label: 'integer ',
+                name: 'integer',
+                placeholder: 'integer',
+                label: 'integer',
                 type: 'number',
-                span: '2',
-                disabled: true,
+                span: 'auto',
             },
             {
-                name: 'nonconvex',
+                name: '_nonconvex',
                 placeholder: 'nonconvex',
                 label: 'nonconvex',
                 type: 'number',
-                span: '2',
-                disabled: true,
+                span: 'auto',
             },
             {
-                name: 'fixed_costs ',
-                placeholder: 'fixed_costs ',
-                label: 'fixed_costs ',
-                type: 'range',
-                span: '3',
-                disabled: true,
-            },
-            {
-                name: '_lifetime ',
-                placeholder: 'lifetime ',
-                label: 'lifetime ',
+                name: '_lifetime',
+                placeholder: 'lifetime',
+                label: 'lifetime',
                 type: 'number',
-                span: '2',
-                disabled: true,
+                span: 'auto',
             },
             {
-                name: 'age ',
-                placeholder: 'age ',
-                label: 'age ',
+                name: 'age',
+                placeholder: 'age',
+                label: 'age',
                 type: 'number',
-                span: '2',
-                disabled: true,
+                span: 'auto',
             },
         ];
     }

@@ -48,7 +48,7 @@
             >
                 <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
-                    (click)="showModalEdit()"
+                    (click)="showModalEdit('node')"
                 >
                     <span> Edit</span>
                     <i class="edit"></i>
@@ -65,11 +65,20 @@
         </div>
 
         <!-- flows -->
+        <!-- in -->
         <div
             class="submenu-parent list-group-item d-flex justify-content-between position-relative"
             *ngFor="let item of contextmenu?.nodeConnections?.in; let i = index"
         >
-            <span> Flow(in)-{{ item.source.name }} </span>
+            <span>
+                <img
+                    src="../../../../../static/assets/icons/node-port/port-in.svg"
+                    alt="port-in"
+                />
+                {{ item.source.node.name }}
+                :
+                {{ item.source.port.name }}
+            </span>
             <span> <i class="arrow-right"></i> </span>
 
             <div
@@ -77,6 +86,7 @@
             >
                 <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
+                    (click)="showModalEdit('flow')"
                 >
                     <span> Edit</span>
                     <i class="edit"></i>
@@ -93,11 +103,20 @@
             </div>
         </div>
 
+        <!-- out -->
         <div
             class="submenu-parent list-group-item d-flex justify-content-between position-relative"
             *ngFor="let item of contextmenu?.nodeConnections?.out"
         >
-            <span> Flow(out)-{{ item.destination.name }}</span>
+            <span>
+                <img
+                    src="../../../../../static/assets/icons/node-port/port-out.svg"
+                    alt="port-out"
+                />
+                {{ item.destination.node.name }}
+                :
+                {{ item.destination.port.name }}
+            </span>
             <span> <i class="arrow-right"></i> </span>
 
             <div
@@ -105,6 +124,7 @@
             >
                 <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
+                    (click)="showModalEdit('flow')"
                 >
                     <span> Edit</span>
                     <i class="edit"></i>
