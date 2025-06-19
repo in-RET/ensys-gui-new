@@ -196,7 +196,11 @@ export class ScenarioEnergyDesignComponent {
     toggleModal(appear: boolean) {}
 
     closeModal(approve: boolean) {
-        if (!approve && !this.formModal_info.editMode)
+        if (
+            this.formModal_info.type === 'flow' &&
+            !this.formModal_info.editMode &&
+            !approve
+        )
             this.energyDrawflowComponent.removeSingleConnection(
                 this.formModal_info.data.connection
             );
@@ -299,13 +303,13 @@ export class ScenarioEnergyDesignComponent {
             this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
     }
 
-    getData() {
-        return this.energyDrawflowComponent.getData();
-    }
-
     toggleFullScreen() {
         this.isFullscreen = !this.isFullscreen;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
+    }
+
+    getData() {
+        return this.energyDrawflowComponent.getData();
     }
 
     ngOnDestroy() {

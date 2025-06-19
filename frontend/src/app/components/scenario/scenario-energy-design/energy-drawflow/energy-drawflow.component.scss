@@ -148,3 +148,7 @@
 .submenu-parent:hover .nested-menu {
     display: block;
 }
+
+::ng-deep .drawflow .drawflow-node.hover-drop {
+    background: pink;
+}

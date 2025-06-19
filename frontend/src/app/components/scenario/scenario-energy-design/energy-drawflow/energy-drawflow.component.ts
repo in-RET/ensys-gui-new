@@ -78,7 +78,10 @@ export class EnergyDrawflowComponent {
     private initDrawFlow() {
         if (typeof document !== 'undefined') {
             const drawFlowHtmlElement = document.getElementById('drawflow');
-            this.editor = new Drawflow(drawFlowHtmlElement as HTMLElement);
+            // this.editor = new Drawflow(drawFlowHtmlElement as HTMLElement);
+            this.editor = new Drawflowoverride(
+                drawFlowHtmlElement as HTMLElement
+            );
 
             this.editor.reroute = false;
             this.editor.curvature = 1;
@@ -536,11 +539,6 @@ export class EnergyDrawflowComponent {
         };
     }
 
-    getData() {
-        const drawflowData = this.editor.export().drawflow.Home.data;
-        return drawflowData;
-    }
-
     _showFormModalNode(nodeId: number, x: number, y: number) {
         this.showConextMenu(x, y, nodeId);
     }
@@ -913,4 +911,13 @@ export class EnergyDrawflowComponent {
         delete this.editor.drawflow.drawflow.Home.data[connection.input_id]
             .data['connections'][connection.input_class];
     }
+
+    getData() {
+        const drawflowData = this.editor.export().drawflow.Home.data;
+        return drawflowData;
+    }
+}
+
+class Drawflowoverride extends Drawflow {
+    removeConnection(e: any) {}
 }
