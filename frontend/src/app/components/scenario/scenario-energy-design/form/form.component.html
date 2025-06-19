@@ -110,14 +110,15 @@
                             <label
                                 class="card-title text-center"
                                 *ngIf="!field.isReq"
-                                >{{ field.label | uppercase }}
+                                >{{ field.label }}
                             </label>
                             <label
                                 class="card-title text-center"
                                 *ngIf="field.isReq"
-                                >{{ field.label | uppercase }} *</label
+                                >{{ field.label }} *</label
                             >
                             <app-file-uploader
+                                [data]="field.value"
                                 (fileUploaderChange)="
                                     fileUploaderChange($event, field.name)
                                 "

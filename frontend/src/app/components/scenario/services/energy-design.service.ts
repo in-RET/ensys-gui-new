@@ -591,8 +591,8 @@ export class EnergyDesignService {
                             fields: [
                                 {
                                     name: 'nominal_value',
-                                    placeholder: 'nominal_value',
-                                    label: 'nominal_value',
+                                    placeholder: 'Nominal Value',
+                                    label: 'Nominal Value',
                                     type: 'number',
                                     span: '3',
                                     value: getFieldData('nominal_value'),
@@ -705,6 +705,15 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             item['value'] = getFieldData(item.name);
+            item['label'] = item['label']
+                .split(/[-_]/g)
+                .map(
+                    (word: string) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLocaleLowerCase()
+                )
+                .join(' ')
+                .trim();
             return item;
         });
     }
@@ -809,6 +818,25 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             item['value'] = getFieldData(item.name);
+            if (item['value']) item['disabled'] = true;
+            item['label'] = item['label']
+                .split(/[-_]/g)
+                .map(
+                    (word: string) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLocaleLowerCase()
+                )
+                .join(' ')
+                .trim();
+            item['placeholder'] = item['placeholder']
+                .split(/[-_]/g)
+                .map(
+                    (word: string) =>
+                        word.charAt(0).toUpperCase() +
+                        word.slice(1).toLocaleLowerCase()
+                )
+                .join(' ')
+                .trim();
             return item;
         });
     }

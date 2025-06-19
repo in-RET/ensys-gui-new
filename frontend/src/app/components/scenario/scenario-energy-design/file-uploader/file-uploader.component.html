@@ -1,14 +1,24 @@
-<div style="display: flex; justify-content: center; min-height: 3rem">
-    <button class="file-upload-button" *ngIf="!fileInfo">
+<div class="file-upload border border-success rounded">
+    <ng-container *ngIf="!fileInfo">
+        <img
+            class="img"
+            src="/static/assets/icons/feather/black/upload-cloud.svg"
+            alt="upload"
+        />
         <input
             type="file"
             #fileInput
             (change)="onFileSelect(fileInput)"
             accept=".csv"
+            class="border rounded"
         />
-    </button>
+    </ng-container>
 
-    <div class="d-flex align-items-center" *ngIf="fileInfo">
+    <div
+        class="d-flex align-items-center"
+        *ngIf="fileInfo"
+        style="width: 100%; justify-content: space-between; padding: 0.5rem"
+    >
         <span class="file-info">{{ fileInfo.label }}</span>
         <button
             type="button"

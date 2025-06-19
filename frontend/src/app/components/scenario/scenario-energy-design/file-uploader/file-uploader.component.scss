@@ -1,20 +1,27 @@
-.file-upload-button {
-    background-color: #ff5252;
-    border-radius: 50%;
-    height: 3rem;
-    overflow: hidden;
-    position: relative;
-    width: 3rem;
+.file-info {
+    color: #999;
+    font-family: Lato;
+}
 
-    &::after {
-        content: "⇪";
-        color: #fff;
-        font-size: 1.5rem;
-        text-align: center;
+.file-upload {
+    display: flex;
+    justify-content: center;
+    min-height: 3rem;
+    border-style: dashed !important;
+    position: relative;
+    // cursor: pointer;
+
+    .img {
+        filter: invert(50%);
+    }
+
+    span {
+        display: flex;
+        align-items: center;
     }
 
     input[type="file"] {
-        font-size: 100px;
+        // font-size: 100px;
         left: 0;
         opacity: 0;
         position: absolute;
@@ -23,9 +30,8 @@
         height: 100%;
         cursor: pointer;
     }
-}
 
-.file-info {
-    color: #999;
-    font-family: Lato;
+    ::-webkit-file-upload-button {
+        cursor: pointer;
+    }
 }

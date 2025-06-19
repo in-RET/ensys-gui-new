@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
     selector: 'app-file-uploader',
@@ -10,8 +10,16 @@ import { Component, EventEmitter, Output } from '@angular/core';
 export class FileUploaderComponent {
     fileInfo!: { name: string; label: string; data: any } | null;
 
+    @Input() data: any;
     @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
+    ngOnInit() {
+        if (this.data) {
+            this.fileInfo = { name: '', label: '', data: null };
+            this.fileInfo.label = this.shortenList(this.data);
+            this.fileInfo.data = this.data;
+        }
+    }
     /**
      * Called when the value of the file input changes, i.e. when a file has been
      * selected for upload.
@@ -81,8 +89,8 @@ export class FileUploaderComponent {
         let arr = str.split(',');
         if (arr.length <= 4) return str; // Nothing to shorten
 
-        let firstTwo = arr.slice(0, 2);
-        let lastTwo = arr.slice(-2);
+        let firstTwo = arr.slice(0, 4);
+        let lastTwo = arr.slice(-4);
         return [...firstTwo, '...', ...lastTwo].join(',');
     }
 
