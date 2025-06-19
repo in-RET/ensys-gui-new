@@ -153,7 +153,7 @@ export class ScenarioEnergyDesignComponent {
     showFormModal(e: {
         _id: number;
         id: string;
-        node: any;
+        node?: any;
         type: 'node' | 'flow';
         title: string;
         action: any;
@@ -169,7 +169,7 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
 
-        if (e.editMode) {
+        if (e.editMode && e.node) {
             e.data['name'] = e.node.name;
         }
 
@@ -195,14 +195,14 @@ export class ScenarioEnergyDesignComponent {
 
     toggleModal(appear: boolean) {}
 
-    closeModal() {
-        // this.toggleModal(approve);
-        this.formModal_info.show = false;
+    closeModal(approve: boolean) {
+        if (!approve && !this.formModal_info.editMode)
+            this.energyDrawflowComponent.removeSingleConnection(
+                this.formModal_info.data.connection
+            );
+
+        this.formModal_info = new FormModalInfo();
         this.setFormError(false, '');
-        // if (!approve && !this.editMode) {
-        //     this.removeSingleConnection(this.currentConnection);
-        // }
-        // this.editMode = false;
     }
 
     // ============================
@@ -252,9 +252,7 @@ export class ScenarioEnergyDesignComponent {
                                 this.formModal_info.id
                             );
 
-                        this.formModal_info = new FormModalInfo();
-                        this.setFormError(false, '');
-                        this.modalComponent._closeModal(false);
+                        this.modalComponent._closeModal(true);
                     } else {
                         this.setFormError(
                             true,
@@ -273,7 +271,6 @@ export class ScenarioEnergyDesignComponent {
                     formData
                 );
 
-                this.setFormError(false, '');
                 this.modalComponent._closeModal(true);
             }
         } else {

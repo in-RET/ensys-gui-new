@@ -572,10 +572,10 @@ export class EnergyDesignService {
                                     isReq: false,
                                     type: 'switch',
                                     span: 'auto',
-                                    value: false,
+                                    value: getFieldData('Investment'),
                                     onClick: () => {
                                         const InvestmentFields =
-                                            this.getInvestmentFields().map(
+                                            this.getInvestmentFields(data).map(
                                                 (elm: any) => elm.name
                                             );
 
@@ -596,6 +596,7 @@ export class EnergyDesignService {
                                     type: 'number',
                                     span: '3',
                                     value: getFieldData('nominal_value'),
+                                    disabled: getFieldData('Investment'),
                                 },
                             ],
                         },
@@ -603,9 +604,11 @@ export class EnergyDesignService {
                         {
                             name: 'Investment',
                             class: 'col-12',
-                            fields: this.getInvestmentFields().map(
+                            fields: this.getInvestmentFields(data).map(
                                 (elm: any) => {
-                                    elm['disabled'] = true;
+                                    const isInvSelected: boolean =
+                                        getFieldData('Investment');
+                                    elm['disabled'] = !isInvSelected;
                                     return elm;
                                 }
                             ),
@@ -614,7 +617,7 @@ export class EnergyDesignService {
                         {
                             name: '',
                             class: 'col-12',
-                            fields: this.getDefaultFields(),
+                            fields: this.getDefaultFields(data),
                         },
                     ],
                 };
@@ -624,7 +627,10 @@ export class EnergyDesignService {
         }
     }
 
-    private getInvestmentFields() {
+    private getInvestmentFields(data: any) {
+        const getFieldData = function (fName: string) {
+            return data ? data[fName.toLocaleLowerCase()] : null;
+        };
         return [
             {
                 name: 'maximum',
@@ -697,10 +703,17 @@ export class EnergyDesignService {
                 type: 'number',
                 span: 'auto',
             },
-        ];
+        ].map((item: any) => {
+            item['value'] = getFieldData(item.name);
+            return item;
+        });
     }
 
-    private getDefaultFields() {
+    private getDefaultFields(data: any) {
+        const getFieldData = function (fName: string) {
+            return data ? data[fName.toLocaleLowerCase()] : null;
+        };
+
         return [
             {
                 name: 'variable_costs',
@@ -794,7 +807,10 @@ export class EnergyDesignService {
                 type: 'number',
                 span: 'auto',
             },
-        ];
+        ].map((item: any) => {
+            item['value'] = getFieldData(item.name);
+            return item;
+        });
     }
 
     getNodePorts(

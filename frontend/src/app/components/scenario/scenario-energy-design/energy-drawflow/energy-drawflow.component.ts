@@ -439,7 +439,7 @@ export class EnergyDrawflowComponent {
         if (followRules) {
             this.showFormModal.emit({
                 type: 'flow',
-                id: '_flow', //`${nodeOut.id}-${nodeIn.id}`,
+                id: '_flow',
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
                 action: { fn: 'submitFormData', label: 'save' },
                 editMode: false,
@@ -553,7 +553,13 @@ export class EnergyDrawflowComponent {
         this.toggleFullScreen.emit();
     }
 
-    showModalEdit(type: 'node' | 'flow') {
+    showModalEdit(
+        type: 'node' | 'flow',
+        connection?: {
+            source: { node: any; port: any };
+            destination: { node: any; port: any };
+        }
+    ) {
         if (type == 'node') {
             if (this.contextmenu != null) {
                 const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
@@ -572,14 +578,31 @@ export class EnergyDrawflowComponent {
 
                 this.unShowConextMenu();
             }
-        } else {
+        } else if (type == 'flow' && connection) {
             if (this.contextmenu != null) {
                 var nodeConnectionIn = this.editor.getNodeFromId(
                     this.contextmenu.nodeId
                 );
-                const _connectionData = nodeConnectionIn.data['connections'];
+                const _connectionData: { baseInfo: any; formInfo: any } =
+                    nodeConnectionIn.data['connections'][
+                        connection.source.port.id
+                    ] ||
+                    nodeConnectionIn.data['connections'][
+                        connection.destination.port.id
+                    ];
 
-                // this.showModalConnection(_connectionData);
+                _connectionData.formInfo['connection'] =
+                    _connectionData.baseInfo;
+                this.showFormModal.emit({
+                    type: 'flow',
+                    id: '_flow', //`${nodeOut.id}-${nodeIn.id}`,
+                    title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
+                    action: { fn: 'submitFormData', label: 'save' },
+                    editMode: true,
+                    data: _connectionData.formInfo,
+                });
+
+                this.unShowConextMenu();
             }
         }
     }
