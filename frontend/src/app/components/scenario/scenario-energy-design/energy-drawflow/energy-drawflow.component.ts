@@ -293,10 +293,13 @@ export class EnergyDrawflowComponent {
         };
 
         const snapConnection = (e: any) => {
-            const tempPath = this.editor.container.querySelector(
+            const connectionPathList = this.editor.container.querySelectorAll(
                 '.connection .main-path'
             );
-            if (!tempPath) return;
+            const connectionPath_current =
+                connectionPathList[connectionPathList.length - 1];
+
+            if (!connectionPath_current) return;
 
             let closest = null;
             let minDist = Infinity;
@@ -325,16 +328,19 @@ export class EnergyDrawflowComponent {
 
             snapTarget = closest;
 
-            const svg = this.editor.container.querySelector('.connection');
+            const connectionList =
+                this.editor.container.querySelectorAll('.connection');
+            const svg = connectionList[connectionList.length - 1];
+
             if (svg) {
                 const svgRect = svg.getBoundingClientRect();
 
                 // Get starting point from d attribute (M x1 y1)
-                const d: any = tempPath.getAttribute('d');
-
+                const d: any = connectionPath_current.getAttribute('d');
                 const match = /M\s*(-?\d+(?:\.\d+)?)\s*(-?\d+(?:\.\d+)?)/.exec(
                     d
                 );
+
                 if (!match) return;
 
                 if (snapTarget) {
@@ -350,11 +356,11 @@ export class EnergyDrawflowComponent {
                     );
 
                     new_d_svg_d_param = new_d_svg_d_param.join(' ');
+
                     endX = this.getNodePosition(snapTarget.x, 'x') || 0;
                     endY = snapTarget.z + 5;
-                    const newD = `${new_d_svg_d_param}, ${endX} ${endY}`;
-
-                    tempPath.setAttribute('d', newD);
+                    const newD = `${new_d_svg_d_param}  ${endX} ${endY}`;
+                    connectionPath_current.setAttribute('d', newD);
                 }
             }
         };
