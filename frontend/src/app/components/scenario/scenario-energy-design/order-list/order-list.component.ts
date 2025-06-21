@@ -116,17 +116,11 @@ export class OrderListComponent {
 
     clearForms() {
         this.name.setValue(null);
-        this.name.setErrors(null);
 
-        if (this.fields.includes('num')) {
-            this.num.setValue(null);
-            this.num.setErrors(null);
-        }
+        if (document.activeElement instanceof HTMLElement)
+            document.activeElement.blur();
 
-        if (this.fields.includes('typ')) {
-            this.typ.setValue(null);
-            this.typ.setErrors(null);
-        }
+        this.form.reset();
     }
 
     selectItem(id: number) {

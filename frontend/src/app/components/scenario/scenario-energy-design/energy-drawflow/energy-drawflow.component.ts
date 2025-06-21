@@ -21,7 +21,7 @@ import { ModalComponent } from '../modal/modal.component';
 })
 export class EnergyDrawflowComponent {
     editor!: Drawflow;
-    flowZoom: number = 1.2;
+    flowZoom: number = 1;
     // currentNode: any;
     // currentPosition: any;
 
