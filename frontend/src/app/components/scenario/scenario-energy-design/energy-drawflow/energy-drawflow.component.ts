@@ -236,7 +236,7 @@ export class EnergyDrawflowComponent {
                         centerY - e.clientY
                     );
 
-                    if (dist < minDist && dist < 50) {
+                    if (dist < minDist && dist < 100) {
                         // Adjust threshold for magnetic strength
                         minDist = dist;
                         closest = port;
@@ -307,8 +307,8 @@ export class EnergyDrawflowComponent {
             ports_in.forEach((port) => {
                 const rect = port.getBoundingClientRect();
 
-                const centerX = rect.left + (rect.width * this.editor.zoom) / 2;
-                const centerY = rect.top + (rect.height * this.editor.zoom) / 2;
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
                 // const centerY = this.getNodePosition(rect.y, 'y') || 0;
 
                 const dist = Math.hypot(
