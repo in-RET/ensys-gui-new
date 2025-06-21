@@ -21,6 +21,7 @@ import { ModalComponent } from '../modal/modal.component';
 })
 export class EnergyDrawflowComponent {
     editor!: Drawflow;
+    flowZoom: number = 1.9;
     // currentNode: any;
     // currentPosition: any;
 
@@ -86,7 +87,7 @@ export class EnergyDrawflowComponent {
             this.editor.reroute = false;
             this.editor.curvature = 1;
             this.editor.force_first_input = true;
-            this.editor.zoom = 0.9;
+            this.editor.zoom = this.flowZoom;
 
             this.editor.start();
             this.editor.zoom_refresh();
@@ -182,6 +183,181 @@ export class EnergyDrawflowComponent {
         addEventListener('touchend', this.touchEnd, { passive: false });
 
         // this.listenNodeDBClick();
+        this.connectionMagneticSnap();
+    }
+
+    connectionMagneticSnap() {
+        let isConnecting: boolean = false;
+        let snapTarget: any = null;
+        let ports_all: NodeListOf<Element>;
+        let ports_in: NodeListOf<Element>;
+        let ports_out: NodeListOf<Element>;
+
+        this.editor.container.addEventListener('mousedown', (e: any) => {
+            if (
+                e.target.classList.contains('output') ||
+                e.target.classList.contains('input')
+            ) {
+                isConnecting = true;
+            }
+        });
+        this.editor.container.addEventListener('mouseup', () => {
+            isConnecting = false;
+            removeAllportsHighlight();
+            snapTarget = null;
+        });
+        this.editor.container.addEventListener('mousemove', (e) => {
+            ports_all =
+                this.editor.container.querySelectorAll('.output, .input');
+            ports_in = this.editor.container.querySelectorAll('.input');
+            ports_out = this.editor.container.querySelectorAll('.output');
+
+            makeIputPortsHihlight(e);
+
+            if (isConnecting) snapConnection(e);
+        });
+
+        const removeAllportsHighlight = () => {
+            ports_all.forEach((p) => p.classList.remove('magnet-highlight'));
+        };
+
+        const makeIputPortsHihlight = (e: any) => {
+            let closest: any = null;
+            let minDist = Infinity;
+
+            if (!isConnecting) {
+                ports_out.forEach((port: any) => {
+                    const rect = port.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+
+                    const dist = Math.hypot(
+                        centerX - e.clientX,
+                        centerY - e.clientY
+                    );
+
+                    if (dist < minDist && dist < 50) {
+                        // Adjust threshold for magnetic strength
+                        minDist = dist;
+                        closest = port;
+                    }
+                });
+
+                if (closest) {
+                    // You can optionally add a visual highlight
+                    ports_out.forEach((p) =>
+                        p.classList.remove('magnet-highlight')
+                    );
+                    closest.classList.add('magnet-highlight');
+
+                    // Optional: Snap the temporary SVG line to this port visually
+                    // You would need to manually update the SVG path (trickier but doable)
+                } else {
+                    ports_out.forEach((p) =>
+                        p.classList.remove('magnet-highlight')
+                    );
+                }
+            } else {
+                ports_in.forEach((port: any) => {
+                    const rect = port.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+
+                    const dist = Math.hypot(
+                        centerX - e.clientX,
+                        centerY - e.clientY
+                    );
+
+                    if (dist < minDist && dist < 100) {
+                        // Adjust threshold for magnetic strength
+                        minDist = dist;
+                        closest = port;
+                    }
+                });
+
+                if (closest) {
+                    // You can optionally add a visual highlight
+                    ports_in.forEach((p) =>
+                        p.classList.remove('magnet-highlight')
+                    );
+                    closest.classList.add('magnet-highlight');
+
+                    // Optional: Snap the temporary SVG line to this port visually
+                    // You would need to manually update the SVG path (trickier but doable)
+                } else {
+                    ports_in.forEach((p) =>
+                        p.classList.remove('magnet-highlight')
+                    );
+                }
+            }
+        };
+
+        const snapConnection = (e: any) => {
+            const tempPath = this.editor.container.querySelector(
+                '.connection .main-path'
+            );
+            if (!tempPath) return;
+
+            let closest = null;
+            let minDist = Infinity;
+
+            ports_in.forEach((port) => {
+                const rect = port.getBoundingClientRect();
+
+                const centerX = rect.left + (rect.width * this.editor.zoom) / 2;
+                const centerY = rect.top + (rect.height * this.editor.zoom) / 2;
+                // const centerY = this.getNodePosition(rect.y, 'y') || 0;
+
+                const dist = Math.hypot(
+                    centerX - e.clientX,
+                    centerY - e.clientY
+                );
+
+                if (dist < minDist && dist < 100) {
+                    minDist = dist;
+                    closest = {
+                        x: centerX,
+                        y: centerY,
+                        z: this.getNodePosition(rect.y, 'y') || 0,
+                    };
+                }
+            });
+
+            snapTarget = closest;
+
+            const svg = this.editor.container.querySelector('.connection');
+            if (svg) {
+                const svgRect = svg.getBoundingClientRect();
+
+                // Get starting point from d attribute (M x1 y1)
+                const d: any = tempPath.getAttribute('d');
+
+                const match = /M\s*(-?\d+(?:\.\d+)?)\s*(-?\d+(?:\.\d+)?)/.exec(
+                    d
+                );
+                if (!match) return;
+
+                if (snapTarget) {
+                    let endX = snapTarget.x - svgRect.left;
+                    let endY = snapTarget.y - svgRect.top;
+
+                    const svg_d_param = d
+                        .split(' ')
+                        .filter((x: string) => x.trim() != '');
+                    let new_d_svg_d_param = svg_d_param.splice(
+                        0,
+                        svg_d_param.length - 2
+                    );
+
+                    new_d_svg_d_param = new_d_svg_d_param.join(' ');
+                    endX = this.getNodePosition(snapTarget.x, 'x') || 0;
+                    endY = snapTarget.z + 5;
+                    const newD = `${new_d_svg_d_param}, ${endX} ${endY}`;
+
+                    tempPath.setAttribute('d', newD);
+                }
+            }
+        };
     }
 
     touchStart(e: any) {
