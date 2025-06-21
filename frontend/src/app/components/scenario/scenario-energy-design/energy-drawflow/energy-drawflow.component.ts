@@ -21,7 +21,7 @@ import { ModalComponent } from '../modal/modal.component';
 })
 export class EnergyDrawflowComponent {
     editor!: Drawflow;
-    flowZoom: number = 1.9;
+    flowZoom: number = 1.2;
     // currentNode: any;
     // currentPosition: any;
 
@@ -188,6 +188,7 @@ export class EnergyDrawflowComponent {
 
     connectionMagneticSnap() {
         let isConnecting: boolean = false;
+        let snapSource: any = null;
         let snapTarget: any = null;
         let ports_all: NodeListOf<Element>;
         let ports_in: NodeListOf<Element>;
@@ -204,8 +205,17 @@ export class EnergyDrawflowComponent {
         this.editor.container.addEventListener('mouseup', () => {
             isConnecting = false;
             removeAllportsHighlight();
+
+            if (snapTarget)
+                getConnectionOfNode(
+                    snapTarget.port.parentNode.parentNode,
+                    snapTarget.port.getAttribute('class'),
+                    snapSource.parentNode.parentNode,
+                    snapSource.getAttribute('class')
+                );
             snapTarget = null;
         });
+
         this.editor.container.addEventListener('mousemove', (e) => {
             ports_all =
                 this.editor.container.querySelectorAll('.output, .input');
@@ -249,9 +259,7 @@ export class EnergyDrawflowComponent {
                         p.classList.remove('magnet-highlight')
                     );
                     closest.classList.add('magnet-highlight');
-
-                    // Optional: Snap the temporary SVG line to this port visually
-                    // You would need to manually update the SVG path (trickier but doable)
+                    snapSource = closest;
                 } else {
                     ports_out.forEach((p) =>
                         p.classList.remove('magnet-highlight')
@@ -322,6 +330,7 @@ export class EnergyDrawflowComponent {
                         x: centerX,
                         y: centerY,
                         z: this.getNodePosition(rect.y, 'y') || 0,
+                        port: port,
                     };
                 }
             });
@@ -362,6 +371,44 @@ export class EnergyDrawflowComponent {
                     const newD = `${new_d_svg_d_param}  ${endX} ${endY}`;
                     connectionPath_current.setAttribute('d', newD);
                 }
+            }
+        };
+
+        const getConnectionOfNode = (
+            node_in: Element,
+            portClass_in: string,
+            node_out: Element,
+            portClass_out: string
+        ) => {
+            const nodeId_in = node_in.getAttribute('id')?.split('node-')[1];
+            const portName_in = portClass_in?.split(' ')[1];
+            const nodeId_out = node_out.getAttribute('id')?.split('node-')[1];
+            const portName_out = portClass_out?.split(' ')[1];
+
+            if (nodeId_in && nodeId_out) {
+                // connection: {}
+                // input_class = input_1
+                // input_id = 1
+                // output_class ...
+                // output_id ...
+                let newConnection: {
+                    input_class: string;
+                    input_id: string;
+                    output_class: string;
+                    output_id: string;
+                } = {
+                    input_class: portName_in,
+                    input_id: nodeId_in?.toString(),
+                    output_class: portName_out,
+                    output_id: nodeId_out,
+                };
+
+                this.editor.addConnection(
+                    newConnection.output_id,
+                    newConnection.input_id,
+                    newConnection.output_class,
+                    newConnection.input_class
+                );
             }
         };
     }
@@ -688,10 +735,10 @@ export class EnergyDrawflowComponent {
                 nodeOut.outputs[connection.output_class].connections;
 
             return (
-                (nodeIn['class'] !== 'bus' && inputConnections.length == 1
+                (nodeIn['class'] !== 'bus' && inputConnections.length <= 1
                     ? true
                     : false) ||
-                (nodeOut['class'] !== 'bus' && outputConnections.length == 1
+                (nodeOut['class'] !== 'bus' && outputConnections.length <= 1
                     ? true
                     : false)
             );
