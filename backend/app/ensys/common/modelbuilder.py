@@ -6,15 +6,32 @@ import time
 import pandas as pd
 from oemof import solph, tools
 
-from .types import Constraints, Frequencies, Solver
+from .types import Constraints, Solver, Interval
 from ..components import EnEnergysystem, EnModel
 
 
-## Init Modelbuilder, load and optimise the configuration.
-#
-#   @param ConfigFile Path to the Configfile, which contains the EnsysConfiguration
-#   @param DumpFile Path to the Dumpfile where the oemof-energysystem and the results should be stored.
 class ModelBuilder:
+    """
+    ModelBuilder is a class responsible for constructing and solving an energy system
+    model based on a configuration file. It provides functionality to parse the input
+    configuration, log necessary details, handle file operations, and integrate with
+    oemof-solph for energy system modeling and optimization.
+
+    The intended use case is to manage energy systems, build components from the
+    provided configuration, apply constraints and run optimizations using a defined
+    solver.
+
+    :ivar WORKING_DIRECTORY: Path to the working directory where configurations and
+        intermediate files will be stored.
+    :type WORKING_DIRECTORY: str
+    :ivar LOGGING_DIRECTORY: Path to the directory for storing log files.
+    :type LOGGING_DIRECTORY: str
+    :ivar DUMPING_DIRECTORY: Path to the directory for storing dump files.
+    :type DUMPING_DIRECTORY: str
+    :ivar logger: Logger instance for logging messages and events during energy
+        system construction and solving.
+    :type logger: logging.Logger
+    """
     WORKING_DIRECTORY = os.getcwd()
     LOGGING_DIRECTORY = os.path.join(WORKING_DIRECTORY, "logs")
     DUMPING_DIRECTORY = os.path.join(WORKING_DIRECTORY, "dumps")
@@ -28,6 +45,24 @@ class ModelBuilder:
                  dumpdir: str,
                  only_lp: bool = False
                  ) -> None:
+        """
+        Initializes an instance with specified configuration and directory settings. This constructor also handles the loading
+        of the model configuration from a JSON file, sets up logging, and initiates the energy system building process based on
+        the parameters provided. An exception is raised if the configuration file does not follow the expected JSON format.
+
+        :param ConfigFile: Path to the JSON configuration file that defines the energy system model.
+        :type ConfigFile: str
+        :param DumpFile: File path where the results or intermediary data will be saved during the process.
+        :type DumpFile: str
+        :param wdir: Working directory path within the current directory to be used for intermediate processing.
+        :type wdir: str
+        :param logdir: Directory path for saving log files generated during execution.
+        :type logdir: str
+        :param dumpdir: Directory path for saving system dump files.
+        :type dumpdir: str
+        :param only_lp: Indicator for whether only linear programming should be used in the energy system solver.
+        :type only_lp: bool, optional
+        """
 
         self.WORKING_DIRECTORY = os.path.join(os.getcwd(), wdir)
         if not os.path.exists(self.WORKING_DIRECTORY):
@@ -54,7 +89,8 @@ class ModelBuilder:
         else:
             raise Exception("Fileformat is not valid!")
 
-        tools.logger.define_logging(logpath=self.LOGGING_DIRECTORY, logfile=logfile, file_level=logging.INFO, screen_level=logging.INFO)
+        tools.logger.define_logging(logpath=self.LOGGING_DIRECTORY, logfile=logfile, file_level=logging.INFO,
+                                    screen_level=logging.INFO)
         self.logger.info("Start Building and solving")
 
         if hasattr(model, "solver_kwargs") and model.solver_kwargs is not None:
@@ -62,15 +98,34 @@ class ModelBuilder:
         else:
             cmdline_opts = {}
 
-        self.BuildEnergySystem(model.energysystem, DumpFile, model.solver, model.solver_verbose, cmdline_opts=cmdline_opts, only_lp=only_lp)
+        self.BuildEnergySystem(model.energysystem, DumpFile, model.solver, model.solver_verbose,
+                               cmdline_opts=cmdline_opts, only_lp=only_lp)
 
-    ##  Build an energysystem from the config.
-    #
-    #   @param es energysystem from the binary config file
-    #   @param file filename of the final dumpfile
-    #   @param solver Solver to use for optimisation in Pyomo
-    #   @param solver_verbose Should the Solver print the output
-    def BuildEnergySystem(self, es: EnEnergysystem, file: str, solver: Solver, solver_verbose: bool, cmdline_opts: dict, only_lp: bool):
+    def BuildEnergySystem(self, es: EnEnergysystem, file: str, solver: Solver, solver_verbose: bool, cmdline_opts: dict,
+                          only_lp: bool):
+        """
+        Builds an energy system from a configuration file and prepares it for optimization.
+        The method constructs an oemof energy system based on the provided configuration,
+        populates it with components, adds constraints if specified, prepares log and LP
+        files, and optionally solves the optimization problem.
+
+        :param es: The energy system configuration object containing attributes such as
+            start_date, time_steps, frequenz, components, and constraints.
+        :type es: EnEnergysystem
+        :param file: The configuration file for building the energy system.
+        :type file: str
+        :param solver: The solver to be used for optimization.
+        :type solver: Solver
+        :param solver_verbose: Boolean flag indicating whether detailed output by the solver
+            should be logged.
+        :type solver_verbose: bool
+        :param cmdline_opts: A dictionary of command-line options for the solver.
+        :type cmdline_opts: dict
+        :param only_lp: Boolean flag indicating if only the LP file should be stored without
+            solving.
+        :type only_lp: bool
+        :return: None
+        """
         logging.basicConfig(filename='ensys.log', level=logging.INFO)
         self.logger.info("Build an Energysystem from config file.")
         filename = os.path.basename(file)
@@ -78,24 +133,18 @@ class ModelBuilder:
         ##########################################################################
         # Build the oemof-energysystem
         ##########################################################################
-        if es.frequenz is Frequencies.quarter_hourly:
+        if es.frequenz is Interval.quarter_hourly:
             freq = "15min"
-        elif es.frequenz is Frequencies.half_hourly:
+        elif es.frequenz is Interval.half_hourly:
             freq = "30min"
-        elif es.frequenz is Frequencies.hourly:
-            freq = "H"
-        elif es.frequenz is Frequencies.daily:
-            freq = "D"
-        elif es.frequenz is Frequencies.weekly:
-            freq = "7D"
-        elif es.frequenz is Frequencies.monthly:
-            freq = "M"
+        elif es.frequenz is Interval.hourly:
+            freq = "1h"
         else:
             freq = "H"
 
         timeindex = pd.date_range(start=es.start_date,
-                                periods=es.time_steps,
-                                freq=freq)
+                                  periods=es.time_steps,
+                                  freq=freq)
 
         oemof_es = solph.EnergySystem(
             timeindex=timeindex
@@ -117,9 +166,9 @@ class ModelBuilder:
 
         self.logger.info("Build completed.")
 
-        #pre_dump_file = open(os.path.join(self.DUMPING_DIRECTORY, filename.replace(".dump", "_pre-dump.dump")), "wt")
-        #json_str = json.dumps(oemof_es.__dict__)
-        #pickle.dump(json_str, pre_dump_file)
+        # pre_dump_file = open(os.path.join(self.DUMPING_DIRECTORY, filename.replace(".dump", "_pre-dump.dump")), "wt")
+        # json_str = json.dumps(oemof_es.__dict__)
+        # pickle.dump(json_str, pre_dump_file)
 
         ##########################################################################
         # Initiate the energy system model

@@ -38,8 +38,7 @@ extra_javascript:
 nav:
     - 'Home': index.md
     - 'Developer Doc Help': possibilities.md
-    - 'Backend':
-          - 'Home': backend/index.md
+    - 'Backend': backend/index.md
     - 'Ensys':
           - 'Home': ensys/index.md
           - 'Common':

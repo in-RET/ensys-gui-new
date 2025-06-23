@@ -1,26 +1,35 @@
-from ..common.basemodel import EnBaseModel
-from ..common.types import Constraints
 from pydantic import Field
 
+from ..common.basemodel import EnBaseModel
+from ..common.types import Constraints
 
-## Container which contains the params for constraints
-#
-#   @param typ Type of the Constraints, all possible types are given in the Enum types.Constraints
-#   @param var1 (pyomo.environ.Var) – First variable, to be set to equal with Var2 and multiplied with factor1.
-#   @param var2 (pyomo.environ.Var) – Second variable, to be set equal to @f$Var1 * factor1@f$.
-#   @param factor1 (float) – Factor to define the proportion between the variables.
-#   @param name (str) – Optional name for the equation e.g. in the LP file. By default the name is: equate + string representation of var1 and var2.
-#   @param keyword (string) – keyword to consider (searches all NonConvexFlows)
-#   @param quantity (pyomo.core.base.var.IndexedVar) – Shared Pyomo variable for all components of a type.
-#   @param limit_name (string) – Name of the constraint to create
-#   @param components (list of components) – list of components of the same type
-#   @param weights (list of numeric values) – has to have the same length as the list of components
-#   @param limit (numeric) – Absolute limit of keyword attribute for the energy system.
-#   @param flows (list of flows) – flows (have to be NonConvex) in the format [(in, out)]
-#   @param constraint_name (string) – name for the constraint
-#   @param upper_limit (integer) – maximum number of active flows in the list
-#   @param lower_limit (integer) – minimum number of active flows in the list
+
 class EnConstraints(EnBaseModel):
+    """
+    Represents constraint definitions used for various optimization models.
+
+    The `EnConstraints` class is used for defining constraints within an optimization
+    framework. It allows the user to configure various parameters of the constraint, such as
+    the variables involved, proportional factors, limits, and weights. Additionally, the
+    class provides functionality to parse its data into a format suited for downstream
+    usage.
+
+    :ivar typ: Type of the Constraints, all possible types are given in the Enum types.Constraints
+    :ivar var1: First variable, to be set to equal with Var2 and multiplied with factor1.
+    :ivar var2: Second variable, to be set equal to (Var1 * factor1).
+    :ivar factor1: Factor to define the proportion between the variables.
+    :ivar name: Optional name for the equation e.g. in the LP file. By default the name is: equate + string representation of var1 and var2.
+    :ivar keyword: Keyword to consider (searches all NonConvexFlows).
+    :ivar quantity: Shared Pyomo variable for all components of a type.
+    :ivar limit_name: Name of the constraint to create.
+    :ivar components: List of components from the same type.
+    :ivar weights: It has to have the same length as the list of components
+    :ivar limit: Absolute limit of keyword attribute for the energy system.
+    :ivar flows: List or dictionary that describes flows relevant to the constraint.
+    :ivar constraint_name: Name assigned to the constraint.
+    :ivar upper_limit: Maximum number of active flows in the list
+    :ivar lower_limit: Minimum number of active flows in the list
+    """
     typ: Constraints | None = Field(
         None,
         title='Typ',
@@ -39,7 +48,7 @@ class EnConstraints(EnBaseModel):
         description='Second variable, to be set equal to (Var1 * factor1).'
     )
 
-    factor1: float | None= Field(
+    factor1: float | None = Field(
         None,
         title='factor1',
         description='Factor to define the proportion between the variables.',
@@ -111,11 +120,20 @@ class EnConstraints(EnBaseModel):
         description=''
     )
 
-    ## Returns a dictionary of the given args of this object.
-    #
-    #   @param self The Object Pointer
-    #   @return dictionary of kwargs
     def to_oemof(self) -> dict[str, dict]:
+        """
+        Converts the attributes of the current instance into a dictionary format.
+
+        This method iterates through all the attributes of the instance, excluding the
+        attribute named "typ". If an attribute is not `None`, it is added to the resulting
+        dictionary. The resulting dictionary represents the instance in a format compatible
+        for further usage or processing.
+
+        :return: A dictionary representation of the instance where keys are attribute names
+                 and values are their corresponding data, excluding attributes that are `None`
+                 or named "typ".
+        :rtype: dict[str, dict]
+        """
         args = {}
         for var in vars(self):
             if var != "typ":

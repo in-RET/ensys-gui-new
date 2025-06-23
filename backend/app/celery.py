@@ -23,6 +23,28 @@ task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in 
 
 @celery_app.task(name="ensys.optimization")
 def simulation_task(scenario_id: int, simulation_id: int):
+    """
+    Perform simulation task including data preparation, energy system creation, optimization,
+    and result processing.
+
+    This function is a Celery task that interacts with a database to fetch simulation and
+    scenario data. It creates an energy system model, optimizes using the oemof library,
+    processes the results, and updates the database with the results of the simulation.
+
+    Detailed actions performed by the function include:
+    - Fetching scenario and simulation details from the database.
+    - Preparing necessary directory structures and dumping input data.
+    - Configuring and initializing the oemof energy system.
+    - Solving an optimization model using specified solver parameters.
+    - Writing optimization results to files for further analysis.
+    - Updating the status of the simulation task in the database.
+
+    :param scenario_id: Identifier of the scenario to be simulated.
+    :type scenario_id: int
+    :param simulation_id: Identifier of the simulation instance.
+    :type simulation_id: int
+    :return: None
+    """
     task_counter.inc()
     task_in_progress.inc()
 

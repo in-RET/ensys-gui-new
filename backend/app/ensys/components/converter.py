@@ -5,13 +5,28 @@ from .flow import EnFlow
 from ..common.basemodel import EnBaseModel
 
 
-## Container which contains the params for an EnSys-Transformer-Object
-#
-#   @param label: str = "Default Transformer"
-#   @param inputs: Dict[str, EnFlow] = None
-#   @param outputs: Dict[str, EnFlow] = None
-#   @param conversion_factors: Dict = None
 class EnConverter(EnBaseModel):
+    """
+    Represents a converter class for modeling energy systems.
+
+    This class is designed to manage conversion processes between inputs and
+    outputs in an energy system model. It allows defining inflows and outflows
+    with specific conversion factors and integrates with `oemof` to build
+    compatible energy system components. The `label` attribute ensures that each
+    converter has a unique, identifiable name in the system.
+
+    :ivar label: A unique label identifying the converter.
+    :type label: str
+    :ivar inputs: Dictionary of inflows with their starting nodes.
+    :type inputs: dict[str, EnFlow]
+    :ivar outputs: Dictionary of outflows with their ending nodes.
+    :type outputs: dict[str, EnFlow]
+    :ivar conversion_factors: Dictionary of conversion factors, where each key
+        corresponds to connected nodes and values can be a scalar or a list of
+        conversion factors for time-dependent variations. If unspecified, defaults
+        to 1 for all flows.
+    :type conversion_factors: dict[str, float | list[float]]
+    """
     label: str = Field(
         "Default Converter",
         title='Label',
@@ -36,15 +51,21 @@ class EnConverter(EnBaseModel):
         description='Dictionary containing conversion factors for conversion of each flow. Keys must be the connected nodes (typically Buses). The dictionary values can either be a scalar or an iterable with individual conversion factors for each time step. Default: 1. If no conversion_factor is given for an in- or outflow, the conversion_factor is set to 1'
     )
 
-    ## Returns an oemof-object from the given args of this object.
-    #
-    #   Builds a dictionary with all keywords given by the object
-    #   and returns the oemof object initialized with these 'kwargs'.
-    #
-    #   @param self The Object Pointer
-    #   @param energysystem The oemof-Energysystem to reference other objects i.e., for flows.
-    #   @return solph.Transformer-Object (oemof)
+
     def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Converter:
+        """
+        Converts the current instance into an oemof.solph Converter object and integrates
+        it into the provided oemof EnergySystem. This method prepares and builds the
+        necessary keyword arguments from the instance's state and passes them into
+        the Converter component.
+
+        :param energysystem: An oemof.solph EnergySystem instance that serves as a
+            container storing energy models, components, and their relations.
+        :type energysystem: solph.EnergySystem
+        :return: An oemof.solph.Converter instance initialized and built using the
+            processed arguments from this instance's data.
+        :rtype: solph.components.Converter
+        """
         kwargs = self.build_kwargs(energysystem)
 
         return solph.components.Converter(**kwargs)

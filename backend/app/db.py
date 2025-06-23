@@ -9,5 +9,17 @@ from sqlmodel import Session
 db_engine = create_engine(os.getenv("DATABASE_URL"))
 
 def get_db_session():
+    """
+    Creates and provides a database session.
+
+    This function is designed to yield a database session for interacting with the
+    database. The session is created using the given database engine and is
+    managed within a context to ensure proper cleanup after usage.
+
+    Yields:
+        session: A database session object for database operations.
+
+    :return: Yields database session objects.
+    """
     with Session(db_engine) as session:
         yield session

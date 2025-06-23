@@ -1,25 +1,67 @@
-from ..common.basemodel import EnBaseModel
-from .investment import EnInvestment
-from .nonconvex import EnNonConvex
 from oemof import solph
 from pydantic import Field
 
+from .investment import EnInvestment
+from .nonconvex import EnNonConvex
+from ..common.basemodel import EnBaseModel
 
-## Container which contains the params for an oemof-flow
-#
-#   @param nominal_value
-#   @param fix
-#   @param min
-#   @param max
-#   @param positive_gradient
-#   @param negative_gradient
-#   @param summed_max
-#   @param summed_min
-#   @param variable_costs
-#   @param investement Ensys-Investment-Object, if the Flow should be optimized for an Investmentlimit.
-#   @param nonconvex Ensys-NonConvex-Object, if the Flow should be nonconvex. Non possible if the flow is an Investmentflow.
-#   @param custom_attributes Keyword-Arguments for special Keywords, used by constraints.
+
 class EnFlow(EnBaseModel):
+    """
+    Represents an energy flow model designed to manage and optimize energy-related variables
+    and constraints in an energy system. It includes parameters such as nominal values,
+    variable costs, bounds, gradients, and additional constraints like nonconvex flows,
+    lifetime, or custom attributes.
+
+    This class is typically employed in optimization scenarios where energy flows
+    between nodes in a system are analyzed and adjusted based on various input parameters
+    to minimize costs or adhere to specific constraints.
+
+    :ivar nominal_value: The nominal value of the flow. If set, the corresponding optimization
+        variable of the flow object will be bounded by this value multiplied with
+        min(lower bound)/max(upper bound).
+    :type nominal_value: float | EnInvestment
+    :ivar variable_costs: The costs associated with one unit of the flow per hour. These costs
+        for each timestep will be added to the objective expression of the optimization problem.
+    :type variable_costs: float | list[float] | None
+    :ivar min: Normed minimum value of the flow.
+    :type min: float | list[float] | None
+    :ivar max: Normed maximum value of the flow. The absolute maximum flow will be calculated
+        by multiplying nominal_value with max.
+    :type max: float | list[float] | None
+    :ivar fix: Normed fixed value for the flow variable. It will be multiplied with
+        nominal_value to get the absolute value.
+    :type fix: float | list[float] | None
+    :ivar positive_gradient_limit: Normed upper bound on the positive difference
+        (flow[t-1] < flow[t]) of two consecutive flow values.
+    :type positive_gradient_limit: dict | None
+    :ivar negative_gradient_limit: Normed upper bound on the negative difference
+        (flow[t-1] > flow[t]) of two consecutive flow values.
+    :type negative_gradient_limit: dict | None
+    :ivar full_load_time_max: Maximum energy transported by the flow, expressed as the
+        time (in hours) the flow would have to run at nominal capacity (nominal_value).
+    :type full_load_time_max: int | None
+    :ivar full_load_time_min: Minimum energy transported by the flow, expressed as the
+        time (in hours) the flow would have to run at nominal capacity (nominal_value).
+    :type full_load_time_min: int | None
+    :ivar integer: If True, the flow values will be bounded to integers.
+    :type integer: bool | None
+    :ivar nonconvex: If a nonconvex flow object is specified, the flow's constraints
+        will be significantly altered based on the NonConvexFlow model.
+    :type nonconvex: EnNonConvex | None
+    :ivar fixed_costs: Fixed costs associated with a flow, provided on a yearly basis.
+        Applicable only for a multi-period model.
+    :type fixed_costs: float | list[float] | None
+    :ivar lifetime: Lifetime of a flow (in years). When reached (considering the initial age),
+        the flow is forced to 0. Applicable only for a multi-period model.
+    :type lifetime: int | None
+    :ivar age: Age of a flow (in years). When reached (considering the initial age),
+        the flow is forced to 0. Applicable only for a multi-period model.
+    :type age: int | None
+    :ivar custom_attributes: Custom attributes provided as a dictionary for customized
+        investment limits or additional properties.
+    :type custom_attributes: dict | None
+    """
     nominal_value: float | EnInvestment = Field(
         None,
         title='Nominal Value',
@@ -116,15 +158,18 @@ class EnFlow(EnBaseModel):
         description="Custom Attributes as dictionary for custom investment limits."
     )
 
-    ## Returns an oemof-object from the given args of this object.
-    #
-    #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
-    #
-    #   @param self The Object Pointer
-    #   @param energysystem The oemof-Energysystem to reference other objects i.e. for flows.
-    #   @return solph.Flow-Object (oemof)
     def to_oemof(self, energysystem: solph.EnergySystem) -> solph.Flow:
+        """
+        Converts the current instance into an oemof.solph.Flow object using the provided
+        energy system and internal parameters. The method prepares the necessary
+        arguments from the instance and inputs, constructs the Flow object, and
+        returns it.
+
+        :param energysystem: The energy system object used to derive specific
+            characteristics for the flow conversion (oemof.solph.EnergySystem).
+        :return: A corresponding oemof.solph.Flow object built using the instance
+            parameters and the energy system context (oemof.solph.Flow).
+        """
         kwargs = self.build_kwargs(energysystem)
 
         return solph.Flow(**kwargs)
-

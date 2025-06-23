@@ -6,6 +6,7 @@ from starlette import status
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
+from .oep.router import oep_router
 from .project.router import projects_router
 from .results.router import results_router
 from .scenario.router import scenario_router
@@ -15,9 +16,22 @@ from .user.router import users_router
 
 @asynccontextmanager
 async def lifespan(fastapi_app: FastAPI):
+    """
+    Manages the lifespan of a FastAPI application, handling setup during startup and cleanup
+    during shutdown.
+
+    This function is meant to be used as an async context manager for setting up and tearing
+    down application-wide resources or configurations in a uniform way.
+
+    :param fastapi_app: Instance of the FastAPI application
+    :type fastapi_app: FastAPI
+    :return: Async context for managing the lifespan of the FastAPI application
+    :rtype: AsyncIterator[None]
+    """
     # startup event
     yield
     # shutdown events
+
 
 tags_metadata = [
     {
@@ -50,8 +64,6 @@ tags_metadata = [
     }
 ]
 
-
-
 fastapi_app = FastAPI(
     lifespan=lifespan,
     title="EnSys Backend",
@@ -72,7 +84,7 @@ fastapi_app = FastAPI(
 origins = [
     "http://localhost:9003",
     "http://localhost:9004",
-    "http://localhost:4200", #TODO: Delete in Production, because security reasons.
+    "http://localhost:4200",  # TODO: Delete in Production, because security reasons.
 ]
 
 fastapi_app.add_middleware(
@@ -106,6 +118,11 @@ fastapi_app.include_router(
 fastapi_app.include_router(
     router=results_router
 )
+
+fastapi_app.include_router(
+    router=oep_router
+)
+
 
 @fastapi_app.get("/", response_class=HTMLResponse)
 async def root():

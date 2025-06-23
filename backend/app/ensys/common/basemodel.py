@@ -1,12 +1,34 @@
 from oemof import solph
-from pydantic import BaseModel, model_validator, Field
+from pydantic import BaseModel, model_validator
 
 
 ## Container for a configuration
 class EnBaseModel(BaseModel):
+    """
+    Specialized Pydantic BaseModel for managing energy system components.
+
+    This class extends the functionality of Pydantic's BaseModel by adding methods
+    for removing empty attributes and building keyword arguments for oemof.solph
+    components. It is designed for applications in energy systems modeling, particularly
+    when working with the oemof.solph framework. The class provides utility methods
+    to handle energy system components, including proper management of complex
+    data structures and configurations.
+    """
 
     @model_validator(mode='after')
     def remove_empty(self):
+        """
+        Removes attributes with `None` values from the object.
+
+        This method iterates through all attributes of the object and identifies
+        those with a value of `None`. It collects these attributes into a list
+        and then removes them from the object. This helps in cleaning up empty
+        or irrelevant data within the object's state.
+
+        :raises AttributeError: If an attribute cannot be deleted for any reason.
+        :return: The modified object with `None` value attributes removed.
+        :rtype: object
+        """
 
         delList = []
 
@@ -19,21 +41,42 @@ class EnBaseModel(BaseModel):
 
         return self
 
-
     ## pydantic subclass to add special configurations.
     class Config:
-        ## Allow arbitrary_types like pandas.DataFrames / pandas.Series which are not allowed by default.
-        arbitrary_types_allowed = True
+        """
+        Configuration class for customizing behavior of Pydantic objects.
 
-        ## Without this configuration it's impossible to pass extra **kwargs to pydantic.baseModel-Objects.
+        This class is used to specify custom configuration options for Pydantic models,
+        particularly for enabling support for arbitrary data types like pandas DataFrame
+        and pandas Series, as well as allowing additional keyword arguments (**kwargs)
+        to be passed to Pydantic's BaseModel instances.
+
+        :ivar arbitrary_types_allowed: Enables support for arbitrary data types that
+            are not natively supported by Pydantic by default, such as pandas DataFrames
+            or pandas Series.
+        :type arbitrary_types_allowed: bool
+        :ivar extra: Specifies the extra attributes or fields behavior in Pydantic models.
+            Setting this to 'allow' permits passing extra **kwargs that are not explicitly
+            defined in Pydantic BaseModel.
+        :type extra: str
+        """
+        arbitrary_types_allowed = True
         extra = 'allow'
 
-    ## Build a dict of arguments for the init of the oemof objects.
-    #
-    #   @return Dictionary with all variables of the given object.
-    #   @param self The Object pointer
-    #   @param energysystem Oemof-Energysystem
     def build_kwargs(self, energysystem: solph.EnergySystem) -> dict[str, dict]:
+        """
+        Builds keyword arguments for creating oemof.solph components from the provided
+        EnergySystem and the attributes of the instance. Special handling is implemented
+        for specific attributes like "inputs", "outputs", "conversion_factors", "nonconvex",
+        "nominal_value", and "nominal_storage_capacity" to properly handle their conversion
+        or dependency on the provided EnergySystem.
+
+        :param energysystem: An instance of the oemof.solph.EnergySystem class used to
+            resolve dependencies and references for creating keyword arguments.
+        :return: A dictionary containing keyword arguments for initializing oemof.solph
+            components, with special attributes processed and mapped accordingly.
+        :rtype: dict[str, dict]
+        """
         kwargs = {}
         special_keys = ["inputs", "outputs", "conversion_factors"]
 
@@ -62,4 +105,3 @@ class EnBaseModel(BaseModel):
                     kwargs[key] = value
 
         return kwargs
-

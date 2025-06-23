@@ -1,3 +1,6 @@
+!!! danger
+    This is the prototype documentation and need a rework!
+
 !!! info
     If you find some bugs don't hesitate to mail at <a href="mailto:ensys@hs-nordhausen.de">Hochschule Nordhausen</a>
 

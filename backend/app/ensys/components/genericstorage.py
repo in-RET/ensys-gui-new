@@ -1,30 +1,68 @@
-from ..common.basemodel import EnBaseModel
-from .flow import EnFlow
-from .investment import EnInvestment
 from oemof import solph
 from pydantic import Field
 
+from .flow import EnFlow
+from .investment import EnInvestment
+from ..common.basemodel import EnBaseModel
 
-##  Container which contains the params for an oemof-genericstorage
-#
-#   @param label: str = "Default Storage"
-#   @param inputs: Dict[str, InRetEnsysFlow]
-#   @param outputs: Dict[str, InRetEnsysFlow]
-#   @param nominal_storage_capacity: float] = None
-#   @param invest_relation_input_capacity: float] = None
-#   @param invest_relation_output_capacity: float] = None
-#   @param invest_relation_input_output: float] = None
-#   @param initial_storage_level: float] = None
-#   @param balanced: bool = True
-#   @param loss_rate: float = 0.0
-#   @param fixed_losses_relative: float] = None
-#   @param fixed_losses_absolute: float] = None
-#   @param inflow_conversion_factor: float = 1
-#   @param outflow_conversion_factor: float = 1
-#   @param min_storage_level: float = 0
-#   @param max_storage_level: float = 1
-#   @param investment: EnInvestment] = None
+
 class EnGenericStorage(EnBaseModel):
+    """
+    Represents a generic energy storage model with various attributes related to
+    inputs, outputs, capacities, efficiencies, and losses.
+
+    This class models an energy storage system with different properties such as
+    storage capacity, inflow and outflow conversions, losses, and investment
+    options. The class is designed to handle energy optimization tasks and can
+    be translated into an oemof (Open Energy Modelling Framework)-compatible
+    GenericStorage object.
+
+    :ivar label: Default label for the energy storage instance.
+    :ivar inputs: Dictionary representing inflows to the storage. Keys are the
+        ending nodes of the inflows.
+    :ivar outputs: Dictionary representing outflows from the storage. Keys are
+        the ending nodes of the outflows.
+    :ivar nominal_storage_capacity: Absolute nominal storage capacity. This can
+        be a fixed value or an EnInvestment object for investment optimization.
+    :ivar invest_relation_input_capacity: Ratio between the investment variable
+        of the input flow and the investment variable of the storage.
+    :ivar invest_relation_output_capacity: Ratio between the investment variable
+        of the output flow and the investment variable of the storage.
+    :ivar invest_relation_input_output: Ratio between the investment variable of
+        the output flow and the investment variable of the input flow. Used to
+        fix relationships between flow investments.
+    :ivar initial_storage_level: Relative storage content before the first
+        timestep of optimization (value between 0 and 1). Cannot be used with
+        investment mode in multi-period models.
+    :ivar balanced: Indicates whether the total inflow and outflow are balanced
+        (coupling the storage level of the first and last time step).
+    :ivar loss_rate: Relative loss of storage content per hour.
+    :ivar fixed_losses_relative: Losses proportional to the nominal storage
+        capacity but independent of storage content. Not supported in
+        investment mode.
+    :ivar fixed_losses_absolute: Losses independent of both storage content and
+        nominal storage capacity. Not supported in investment mode.
+    :ivar inflow_conversion_factor: Efficiency associated with inflow to the
+        storage.
+    :ivar outflow_conversion_factor: Efficiency associated with outflow from
+        the storage.
+    :ivar min_storage_level: Minimum storage level as a fraction of nominal
+        storage capacity or invested capacity. Value between 0 and 1. Can be
+        set for each timestep using a sequence.
+    :ivar max_storage_level: Maximum storage level as a fraction of nominal
+        storage capacity or invested capacity. Value between 0 and 1. Can be
+        set for each timestep using a sequence.
+    :ivar investment: Object determining whether nominal storage capacity is
+        optimized. If used, nominal_storage_capacity should not be set.
+    :ivar storage_costs: Cost (per energy unit) for maintaining energy in the
+        storage.
+    :ivar lifetime_inflow: Lifetime of inflow, applicable for multi-period
+        models with investment in storage capacity and defined
+        invest_relation_input_capacity.
+    :ivar lifetime_outflow: Lifetime of outflow, applicable for multi-period
+        models with investment in storage capacity and defined
+        invest_relation_output_capacity.
+    """
     label: str = Field(
         "Default GenericStorage",
         title='Label',
@@ -144,14 +182,23 @@ class EnGenericStorage(EnBaseModel):
         description='Determine the lifetime of an outflow; only applicable for multi-period models which can invest in storage capacity and have an invest_relation_output_capacity defined.'
     )
 
-    ## Returns an oemof-object from the given args of this object.
-    #
-    #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
-    #
-    #   @param self The Object Pointer
-    #   @param energysystem The oemof-Energysystem to reference other objects i.e. for flows.
-    #   @return solph.GenericStorage-Object (oemof)
+
     def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.GenericStorage:
+        """
+        Converts the current storage object to an oemof-compatible
+        GenericStorage component.
+
+        This method takes an oemof EnergySystem object as input,
+        builds the appropriate arguments for an oemof GenericStorage,
+        and then returns the created GenericStorage component.
+
+        :param energysystem: The specified oemof EnergySystem object required for
+            creating the GenericStorage component.
+        :type energysystem: solph.EnergySystem
+        :return: A GenericStorage component created and populated
+            using the provided EnergySystem and associated parameters.
+        :rtype: solph.components.GenericStorage
+        """
         kwargs = self.build_kwargs(energysystem)
 
         return solph.components.GenericStorage(**kwargs)

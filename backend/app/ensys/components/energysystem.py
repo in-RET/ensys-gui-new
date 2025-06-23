@@ -1,7 +1,5 @@
-import datetime
-
-from pydantic import Field
 from oemof import solph
+from pydantic import Field
 
 from .bus import EnBus
 from .constraints import EnConstraints
@@ -10,21 +8,33 @@ from .genericstorage import EnGenericStorage
 from .sink import EnSink
 from .source import EnSource
 from ..common.basemodel import EnBaseModel
-from ..common.types import Interval
 
 
-## Container which contains the params for an EnEnergysystem
-#
-#   @param busses
-#   @param sinks
-#   @param sources
-#   @param transformers
-#   @param storages
-#   @param constraints
-#   @param frequenz
-#   @param start_date
-#   @param time_steps
 class EnEnergysystem(EnBaseModel):
+    """
+    Represents an energy system model, encapsulating multiple components such as buses,
+    sinks, sources, converters, storages, and constraints. This class provides methods
+    to add components to the energy system and to convert it into a compatible format
+    for integration with the oemof library.
+
+    Designed to handle different types of energy system elements, each of which is
+    stored in its respective categorized list. The class allows for integration with
+    external energy system processing tools by supporting the transformation of its
+    components.
+
+    :ivar busses: List of all buses in the energy system.
+    :type busses: list[EnBus]
+    :ivar sinks: List of all sinks in the energy system.
+    :type sinks: list[EnSink]
+    :ivar sources: List of all sources in the energy system.
+    :type sources: list[EnSource]
+    :ivar converters: List of all converters in the energy system.
+    :type converters: list[EnConverter]
+    :ivar generic_storages: List of all generic storages in the energy system.
+    :type generic_storages: list[EnGenericStorage]
+    :ivar constraints: List of all constraints in the energy system.
+    :type constraints: list[EnConstraints]
+    """
     busses: list[EnBus] = Field(
         default=[],
         title='Busses',
@@ -62,6 +72,18 @@ class EnEnergysystem(EnBaseModel):
     )
 
     def add(self, elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints):
+        """
+        Adds an element to the corresponding list based on its type. Determines
+        the type of the given element and appends it to its respective
+        container (e.g., sinks, sources, busses, etc.). Raises an exception
+        if the type of the element is not recognized.
+
+        :param elem: The element to be added. It should be one of the following
+                     types: EnSink, EnSource, EnBus, EnGenericStorage,
+                     EnConverter, or EnConstraints.
+        :type elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints
+        :return: None
+        """
         if type(elem) is EnSink:
             self.sinks.append(elem)
         elif type(elem) is EnSource:
@@ -78,6 +100,18 @@ class EnEnergysystem(EnBaseModel):
             raise Exception("Unknown Type given!")
 
     def to_oemof_energysystem(self, energysystem: solph.EnergySystem) -> solph.EnergySystem:
+        """
+        Converts the internal energy system components to an oemof energy system and adds
+        them to the provided oemof energy system instance. Each component in the internal
+        energy system is iterated through, converted to its corresponding oemof object,
+        and subsequently added to the provided energy system. This includes busses, sinks,
+        sources, converters, and generic storages.
+
+        :param energysystem: The oemof energy system instance to which the converted components
+            of the internal energy system are added.
+        :return: An updated oemof energy system instance containing all converted components.
+        :rtype: solph.EnergySystem
+        """
         for bus in self.busses:
             energysystem.add(bus.to_oemof(energysystem))
 

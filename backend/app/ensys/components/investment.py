@@ -1,20 +1,58 @@
-from ..common.basemodel import EnBaseModel
 from oemof import solph
 from pydantic import Field
 
+from ..common.basemodel import EnBaseModel
 
-## Container which contains the params for an oemof-investment
-#
-#   @param maximum: float = float("+inf")
-#   @param minimum: float = 0.0
-#   @param ep_costs: float = 0.0
-#   @param existing: float = 0.0
-#   @param nonconvex: bool = False
-#   @param offset: float = 0.0
-#   @param custom_attributes: Union[None, Dict] = None
+
 class EnInvestment(EnBaseModel):
+    """
+    Represents an investment model for energy system components.
+
+    This class defines the properties and configurations for managing investments in energy
+    system components. The attributes include limits on capacity investment, cost-related
+    parameters, and constraints for both standard and multi-period models. It supports
+    nonconvex investments and custom limits through additional configurations.
+
+    :ivar maximum: Maximum additional invested capacity; defined per period in a
+        multi-period model.
+    :ivar minimum: Minimum additional invested capacity. Defines the threshold when
+        nonconvex is True; defined per period in a multi-period model.
+    :ivar ep_costs: Equivalent periodical costs or investment expenses per flow capacity
+        in both standard and multi-period models.
+    :ivar existing: Installed capacity without additional investment costs; not applicable
+        if nonconvex is True.
+    :ivar nonconvex: Flag to enable binary variables for investment status, allowing offset
+        costs independent of invested flow capacity.
+    :ivar offset: Fixed costs for nonconvex investments.
+    :ivar overall_maximum: Overall maximum capacity investment, applicable to
+        multi-period models.
+    :ivar overalL_minimum: Overall minimum capacity investment, applicable to
+        multi-period models.
+    :ivar lifetime: Lifetime of the unit in years, applicable to multi-period models.
+    :ivar age: Start age of the unit in years at the beginning of optimization,
+        applicable to multi-period models.
+    :ivar interest_rate: Interest rate for annuities calculation in a multi-period
+        model; defaults to the model's discount rate if unspecified.
+    :ivar fixed_costs: Fixed costs per period in nominal terms, applicable to
+        multi-period models.
+    :ivar custom_attributes: Dictionary of custom constraints or attributes for
+        investment.
+    :type maximum: float | None
+    :type minimum: float
+    :type ep_costs: float
+    :type existing: float
+    :type nonconvex: bool
+    :type offset: float
+    :type overall_maximum: float | None
+    :type overalL_minimum: float | None
+    :type lifetime: int | None
+    :type age: int | None
+    :type interest_rate: float | None
+    :type fixed_costs: float | None
+    :type custom_attributes: dict
+    """
     maximum: float | None = Field(
-        None, # eigtl. float("+inf"),
+        None,  # eigtl. float("+inf"),
         title='Maximum',
         description='Maximum of the additional invested capacity; defined per period p for a multi-period model.'
     )
@@ -93,20 +131,28 @@ class EnInvestment(EnBaseModel):
         description="Custom Attributes as dictionary for custom investment limits."
     )
 
-    #kwargs: Dict = Field(
+    # kwargs: Dict = Field(
     #    None,
     #    title='kwargs',
     #    description='Extra arguments for the object'
-    #)
+    # )
 
-    ## Returns an oemof-object from the given args of this object.
-    #
-    #   Builts a dictionary with all keywords given by the object and returns the oemof object initialised with these 'kwargs'.
-    #
-    #   @param self The Object Pointer
-    #   @param energysystem The oemof-Energysystem to reference other objects i.e. for flows.
-    #   @return solph.Investment-Object (oemof)
     def to_oemof(self, energysystem: solph.EnergySystem) -> solph.Investment:
+        """
+        Converts the object's internal configuration to an oemof.solph Investment object.
+
+        This method takes an oemof EnergySystem object and uses the provided system
+        configuration to construct and return an oemof.solph Investment object. The
+        generated Investment object encapsulates investment-related parameters for
+        use in energy system modeling, particularly for optimization.
+
+        :param energysystem: The oemof.solph EnergySystem object containing the
+            necessary system configuration and parameters.
+        :type energysystem: solph.EnergySystem
+        :return: An oemof.solph Investment object constructed based on the internal
+            configuration and the provided EnergySystem object.
+        :rtype: solph.Investment
+        """
         kwargs = self.build_kwargs(energysystem)
 
         return solph.Investment(**kwargs)
