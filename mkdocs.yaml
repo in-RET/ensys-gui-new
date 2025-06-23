@@ -7,92 +7,127 @@ repo_name: in-RET/ensys-gui-new
 repo_url: https://github.com/in-RET/ensys-gui-new
 
 plugins:
-    - glightbox
+  - glightbox
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [backend] # google# search packages in the src folder
+          options:
+            docstring_style: sphinx
 markdown_extensions:
-    - toc:
-        permalink: true
-    - attr_list
-    - md_in_html
-    - admonition
-    - pymdownx.details
-    - pymdownx.highlight:
-          anchor_linenums: true
-          use_pygments: true
-    - pymdownx.inlinehilite
-    - pymdownx.snippets
-    - pymdownx.superfences:
-        custom_fences:
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+  - admonition
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+      use_pygments: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-    - pymdownx.arithmatex:
-        generic: true
-    - pymdownx.tabbed:
-        alternate_style: true
-    - pymdownx.tasklist:
-        custom_checkbox: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 extra_javascript:
-    - js/mathjax.js
-    - https://polyfill.io/v3/polyfill.min.js?features=es6
-    - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - js/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 nav:
-    - 'Home': index.md
-    - 'Developer Doc Help': possibilities.md
-    - 'Backend': backend/index.md
-    - 'Ensys':
-          - 'Home': ensys/index.md
-          - 'Common':
-                - 'Konfigurationscontainer': ensys/common/config.md
-                - 'Modelbuilder': ensys/common/modelbuilder.md
-          - 'Components':
-                - 'Energysystem': ensys/components/energysystem.md
-                - 'Bus': ensys/components/bus.md
-                - 'Flow': ensys/components/flow.md
-                - 'Sink': ensys/components/sink.md
-                - 'Source': ensys/components/source.md
-                - 'Storage': ensys/components/storage.md
-                - 'Transformer': ensys/components/transformer.md
-                - 'Investment': ensys/components/investment.md
-                - 'NonConvex': ensys/components/nonconvex.md
-                - 'Release Notes': ensys/release-notes.md
-    - 'About': about.md
+  - 'Home': index.md
+  - 'Developer Doc Help': possibilities.md
+  - 'Frontend':
+      - 'Home': frontend/dev.md
+  - 'Backend':
+      - 'Home': backend/index.md
+      - 'Auxillary':
+        - 'main': backend/api/main.md
+        - 'celery': backend/api/celery.md
+        - 'db': backend/api/db.md
+        - 'logger': backend/api/logger.md
+        - 'responses': backend/api/responses.md
+        - 'security': backend/api/security.md
+      - 'Router':
+        - 'admin': backend/api/router/admin.md
+        - 'user': backend/api/router/user.md
+        - 'oep': backend/api/router/oep.md
+        - 'project': backend/api/router/project.md
+        - 'results': backend/api/router/results.md
+        - 'scenario': backend/api/router/scenario.md
+        - 'simulation': backend/api/router/simulation.md
+        - 'user': backend/api/router/user.md
+      - 'Models':
+        - 'data': backend/api/models/data.md
+        - 'errors': backend/api/models/errors.md
+        - 'data': backend/api/models/data.md
+        - 'project': backend/api/models/project.md
+        - 'results': backend/api/models/results.md
+        - 'scenario': backend/api/models/scenario.md
+        - 'simulation': backend/api/models/simulation.md
+        - 'user': backend/api/models/user.md
+  - 'Ensys':
+      - 'Home': ensys/index.md
+      - 'Common':
+          - 'Konfigurationscontainer': ensys/common/config.md
+          - 'Modelbuilder': ensys/common/modelbuilder.md
+      - 'Components':
+          - 'Energysystem': ensys/components/energysystem.md
+          - 'Bus': ensys/components/bus.md
+          - 'Flow': ensys/components/flow.md
+          - 'Sink': ensys/components/sink.md
+          - 'Source': ensys/components/source.md
+          - 'Storage': ensys/components/storage.md
+          - 'Transformer': ensys/components/transformer.md
+          - 'Investment': ensys/components/investment.md
+          - 'NonConvex': ensys/components/nonconvex.md
+          - 'Release Notes': ensys/release-notes.md
+  - 'About': about.md
 
 theme:
-    name: material
-    favicon: assets/favicon.svg
-    logo: assets/favicon.svg
-    icon:
-        repo: fontawesome/brands/github
-        admonition:
-            <type>: material/alert-outline
-    palette:
-        # Palette toggle for light mode
-        - media: "(prefers-color-scheme: light)"
-          scheme: default
-          primary: teal
-          accent: teal
-          toggle:
-            icon: material/brightness-7
-            name: Switch to dark mode
+  name: material
+  favicon: assets/favicon.svg
+  logo: assets/favicon.svg
+  icon:
+    repo: fontawesome/brands/github
+    admonition:
+      <type>: material/alert-outline
+  palette:
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
 
 
-        # Palette toggle for dark mode
-        - media: "(prefers-color-scheme: dark)"
-          scheme: slate
-          primary: teal
-          accent: teal
-          toggle:
-            icon: material/brightness-4
-            name: Switch to light mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
 
-    language: en
-    features:
-        - content.tabs.link
-        - content.code.copy
+  language: en
+  features:
+    - content.tabs.link
+    - content.code.copy
 
 extra:
-    social:
-        - icon: fontawesome/solid/envelope
-          link: mailto:ensys@hs-nordhausen.de
-    generator: true
+  social:
+    - icon: fontawesome/solid/envelope
+      link: mailto:ensys@hs-nordhausen.de
+  generator: true
 copyright: Copyright &copy; 2025 Institut für regenerative Energietechnik
