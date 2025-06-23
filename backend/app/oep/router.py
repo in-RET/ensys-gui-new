@@ -37,9 +37,7 @@ def get_oep_client():
     )
 
 
-@oep_router.get("/{table_name}",
-                description=Path(os.path.join(os.getcwd(), 'docs/backend/api/oep_router/get_oep_data.md')).read_text(),
-                summary="Get OEP Data")
+@oep_router.get("/{table_name}")
 async def get_oep_data(token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
                        oep_cli: OepClient = Depends(get_oep_client)) -> DataResponse:
     """
