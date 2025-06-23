@@ -1,12 +1,12 @@
 from datetime import datetime
 from typing import Annotated
 
+from celery import uuid
 from celery.worker.control import revoke
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from oemof.tools import logger
 from sqlmodel import Session, select
 from starlette import status
-from celery import uuid
 
 from .model import EnSimulationDB, Status
 from ..celery import simulation_task
@@ -24,7 +24,25 @@ simulation_router = APIRouter(
     tags=["simulation"]
 )
 
+
 def validate_user_rights(token, scenario_id, db) -> bool:
+    """
+    Validates a user's rights to access a specific scenario within a project. The function first
+    validates whether the user is the owner of the given scenario, and subsequently verifies ownership of the
+    associated project. Raises appropriate HTTP exceptions if the user is unauthorized or if the specified
+    scenario or project does not exist.
+
+    :param token: Authentication token of the user.
+    :type token: str
+    :param scenario_id: ID of the scenario to validate access for.
+    :type scenario_id: int
+    :param db: Database session/connection object used for querying related data.
+    :type db: Session
+    :return: A boolean indicating whether the user is authorized to access the scenario.
+    :rtype: bool
+    :raises HTTPException: If the user is unauthorized or the specified scenario or project is not found.
+    """
+
     validation_scenario = validate_scenario_owner(
         token=token,
         scenario_id=scenario_id,
@@ -53,6 +71,20 @@ def validate_user_rights(token, scenario_id, db) -> bool:
 
 
 def check_container_status(docker_container, simulation_id, db):
+    """
+    Check the status of a Docker container and update the status of an associated simulation
+    in the database accordingly.
+
+    This function waits for the completion of a Docker container and retrieves its exit code.
+    If the exit code indicates an error, an HTTPException is raised with the container logs.
+    Otherwise, it updates the simulation's status to finished, sets the end date, and commits
+    the changes to the database.
+
+    :param docker_container: Docker container object representing the container to be monitored
+    :param simulation_id: The unique identifier of the simulation associated with the Docker container
+    :param db: Database session object used for querying and persisting updates
+    :return: None
+    """
     result_dict = docker_container.wait()
 
     simulation = db.get(EnSimulationDB, simulation_id)
@@ -66,10 +98,27 @@ def check_container_status(docker_container, simulation_id, db):
         db.refresh(simulation)
 
 
-
 @simulation_router.post("/start/{scenario_id}", response_model=MessageResponse)
 async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
-                           token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> MessageResponse:
+                           token: Annotated[str, Depends(oauth2_scheme)],
+                           db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Starts a new simulation for a given scenario and ensures any currently running simulations
+    for the same scenario are stopped. It creates a new simulation entry in the database, generates
+    a unique task ID, and initiates the simulation task.
+
+    :param scenario_id: The ID of the scenario for which the simulation is being started.
+    :type scenario_id: int
+    :param background_tasks: The background tasks object provided by FastAPI's dependency injection.
+    :type background_tasks: BackgroundTasks
+    :param token: The authentication token used to authenticate and authorize the user.
+    :type token: str
+    :param db: The session used for database interaction, provided by dependency injection.
+    :type db: Session
+    :return: A response containing success information and details of the initiated task.
+    :rtype: MessageResponse
+    :raises HTTPException: If authentication or authorization fails.
+    """
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -85,7 +134,6 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
             running_simulation.status = Status.CANCELED.value
             running_simulation.end_date = datetime.now()
             db.commit()
-
 
     simulation_token = uuid()
 
@@ -110,9 +158,24 @@ async def start_simulation(scenario_id: int, background_tasks: BackgroundTasks,
         success=True
     )
 
+
 @simulation_router.get("/status/{simulation_id}", response_model=MessageResponse)
 async def get_simulation_status(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                                 db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    This function retrieves the status of a specific simulation based on the provided simulation ID.
+    It performs authentication and authorization checks to ensure proper access control. If the
+    simulation exists and the user has the required access permissions, it fetches and returns
+    the simulation's status wrapped in a success response.
+
+    :param simulation_id: ID of the simulation to retrieve status for.
+    :param token: Access token provided by the client for authorization.
+    :param db: Database session required to access simulation data.
+    :return: A `MessageResponse` instance containing the simulation's status if found and accessible.
+    :raises HTTPException:
+        - 401 Unauthorized if the provided token is invalid or the user lacks appropriate rights.
+        - 404 Not Found if the simulation with the specified ID does not exist.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -130,9 +193,28 @@ async def get_simulation_status(simulation_id: int, token: Annotated[str, Depend
         success=True
     )
 
+
 @simulation_router.post("s/stop/{scenario_id}", response_model=MessageResponse)
 async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                          db: Session = Depends(get_db_session)) -> MessageResponse:
+                           db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Stop active simulations for a specified scenario.
+
+    This endpoint allows stopping all running simulations associated with a specific
+    scenario. Authorization and user permission checks are performed before proceeding.
+    If more than one simulation is found, a conflict error is reported. Additionally,
+    background tasks associated with the simulations are terminated.
+
+    :param scenario_id: ID of the scenario whose simulations are to be stopped.
+    :type scenario_id: int
+    :param token: Authentication token for user validation.
+    :type token: str
+    :param db: Database session for querying and updating simulation data.
+    :type db: Session
+    :return: Response object indicating success or failure of the operation along
+             with details of any encountered errors.
+    :rtype: MessageResponse
+    """
     errors = []
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -162,9 +244,32 @@ async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth
         errors=errors
     )
 
+
 @simulation_router.post("/stop/{simulation_id}", response_model=MessageResponse)
 async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                           db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Stops a simulation with the specified simulation ID. This operation first
+    validates the user's authentication and authorization using the provided
+    token, then retrieves the simulation from the database. If the simulation is
+    found and the user has the appropriate rights, the simulation task is
+    manually stopped through the 'revoke' method. A success message is returned
+    upon successful completion.
+
+    :param simulation_id: The identifier of the simulation to be stopped.
+    :type simulation_id: int
+    :param token: A token to validate user authentication and authorization.
+    :type token: str
+    :param db: The database session dependency used to access and query the
+        database.
+    :type db: Session
+    :return: A message response indicating a success message and the ID of the
+        stopped simulation.
+    :rtype: MessageResponse
+    :raises HTTPException: Raises a 401 Unauthorized error if the token is missing
+        or invalid, or if the user is not authorized. Raises a 404 Not Found error
+        if the specified simulation ID does not exist.
+    """
     if not token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -183,9 +288,24 @@ async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oaut
         success=True,
     )
 
+
 @simulation_router.get("s/{scenario_id}", response_model=DataResponse)
 async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                           db: Session = Depends(get_db_session)) -> DataResponse:
+    """
+    Handles fetching simulation data for a specific scenario, ensuring the user is
+    authenticated and authorized to access the data. If the user is not authenticated
+    or authorized, it raises corresponding HTTP exceptions. If no simulations are found
+    for the provided scenario ID, a 404 Not Found error is returned.
+
+    :param scenario_id: The ID of the scenario for which simulations are retrieved.
+    :param token: The authentication token provided by the user, validated
+                  using the oauth2 scheme.
+    :param db: The database session dependency object for querying and accessing
+               the database.
+    :return: A DataResponse object containing the simulation data (items and count)
+             with a success flag.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -204,9 +324,21 @@ async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2
         success=True,
     )
 
+
 @simulation_router.get("/{simulation_id}", response_model=DataResponse)
 async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                          db: Session = Depends(get_db_session)) -> DataResponse:
+    """
+    Fetches and returns simulation data based on the specified simulation ID. The request
+    must include a valid authentication token. The function verifies user rights before
+    retrieving the simulation. If the simulation does not exist or the user lacks the
+    necessary permissions, appropriate HTTP exceptions are raised.
+
+    :param simulation_id: The ID of the simulation to be fetched.
+    :param token: The authentication token for validating the request.
+    :param db: Database session dependency injected to access the database.
+    :return: A `DataResponse` object containing the simulation data and metadata.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -229,6 +361,16 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
 @simulation_router.delete("/{simulation_id}")
 async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int,
                             db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Deletes a simulation from the database based on the given simulation ID. The user must be authenticated
+    via a token for the operation to proceed.
+
+    :param token: The authenticated token required to access the endpoint.
+    :param simulation_id: The ID of the simulation to be deleted.
+    :param db: The database session used to retrieve and delete the simulation record.
+
+    :return: A response indicating whether the simulation was successfully deleted.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
         # return DataResponse(

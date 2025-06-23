@@ -9,6 +9,7 @@ from .model import EnProject, EnProjectDB, EnProjectUpdate
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
+from ..scenario.model import EnScenarioDB
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -17,7 +18,26 @@ projects_router = APIRouter(
     tags=["project"],
 )
 
+
 def validate_project_owner(project_id: int, token: str, db):
+    """
+    Validates whether the user associated with a given token is the owner of a project
+    identified by the provided project_id. Verifies the token's authenticity, fetches
+    the project from the database, and compares its ownership details to ensure the user
+    has the necessary permissions to access or modify the project.
+
+    :param project_id: ID of the project whose ownership is being validated
+    :type project_id: int
+    :param token: JWT token provided for authentication and identifying the user
+    :type token: str
+    :param db: Database session object used to query project and user information
+    :type db: Session
+    :return: Returns True if the token user is the owner of the project, otherwise raises an exception
+    :rtype: bool
+
+    :raises HTTPException: If the project is not found in the database (404)
+    :raises HTTPException: If the user associated with the token does not own the project (403)
+    """
     # Get Database-Session and token-data
     token_data = decode_token(token)
 
@@ -36,18 +56,32 @@ def validate_project_owner(project_id: int, token: str, db):
     else:
         raise HTTPException(status_code=403, detail="Permission denied")
 
+
 @projects_router.post("/", response_model=MessageResponse)
-async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject, db: Session = Depends(get_db_session)) -> MessageResponse:
+async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
+                         db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Creates a new project and stores it in the database. The function checks
+    the authentication token, decodes it, retrieves the authenticated user's
+    details, and associates the project data with the user. The new project is
+    saved to the database, and a success response is returned.
+
+    :param token: Authentication token obtained from the user. Used to validate
+                  user identity and permission.
+    :type token: str
+    :param project_data: Project data containing information required to create a
+                         new project in the database.
+    :type project_data: EnProject
+    :param db: Database session dependency. Used for interacting with the database.
+    :type db: Session
+    :raises HTTPException: Raised with a 401 status code if the user is not
+                           authenticated due to missing or invalid token.
+    :return: An object containing a success message indicating the project has
+             been created.
+    :rtype: MessageResponse
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )],
-        # )
 
     token_data = decode_token(token)
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
@@ -66,18 +100,27 @@ async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_
         success=True
     )
 
+
 @projects_router.get("s/", response_model=DataResponse)
-async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
+async def read_projects(token: Annotated[str, Depends(oauth2_scheme)],
+                        db: Session = Depends(get_db_session)) -> DataResponse:
+    """
+    Fetches and returns a list of projects associated with the authenticated user.
+    The function validates the provided token, retrieves the associated user
+    details, and fetches all projects corresponding to the user. The result
+    includes details of all retrieved projects wrapped in a standardized response.
+
+    :param token: The authentication token extracted from the request.
+    :type token: str
+    :param db: The database session dependency used to execute queries.
+    :type db: Session
+    :return: A standardized response containing a list of projects for
+        the authenticated user, along with the total count of projects.
+    :rtype: DataResponse
+    :raises HTTPException: If the provided token is missing or invalid.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )],
-        # )
 
     token_data = decode_token(token)
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
@@ -98,29 +141,31 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)], db: Sessi
         success=True
     )
 
+
 @projects_router.get("/{project_id}", response_model=DataResponse)
-async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)) -> DataResponse:
+async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+                       db: Session = Depends(get_db_session)) -> DataResponse:
+    """
+    Retrieves project details by the given project ID. This endpoint fetches details about a
+    project from the database after validating the provided authentication token and confirming
+    ownership of the project by the authenticated user.
+
+    :param project_id: The unique identifier of the project to retrieve.
+    :type project_id: int
+    :param token: Authentication token provided by the user for accessing the endpoint.
+    :type token: str
+    :param db: Database session used for accessing stored data.
+    :type db: Session
+    :return: The response containing project data wrapped in a structured response model.
+    :rtype: DataResponse
+    :raises HTTPException: If authentication fails or if the user is not authorized to access
+        the specified project.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )],
-        # )
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authorized."
-        #     )],
-        # )
 
     return DataResponse(
         data=GeneralDataModel(
@@ -130,43 +175,33 @@ async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_sch
         success=True
     )
 
+
 @projects_router.patch("/{project_id}", response_model=MessageResponse)
-async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate, db: Session = Depends(get_db_session)) -> MessageResponse:
+async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate,
+                         db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Updates the details of an existing project. This endpoint allows authenticated
+    and authorized users to modify the properties of a given project. The function
+    fetches the project by its ID, validates the user's ownership of the project,
+    and updates the provided information in the database.
+
+    :param token: The authentication token of the user making the request.
+    :param project_id: The unique identifier of the project to be updated.
+    :param project_data: The new data to update the project with.
+    :param db: The database session used for querying and updating project details.
+    :return: A `MessageResponse` object indicating the success of the operation.
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )],
-        # )
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authorized."
-        #     )],
-        # )
+
     db_project = db.get(EnProjectDB, project_id)
     if not db_project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_404_NOT_FOUND,
-        #         message="Project not found."
-        #     )]
-        # )
 
     new_project_data = project_data.model_dump(exclude_none=True)
-    print(new_project_data)
 
     db_project.sqlmodel_update(new_project_data)
     db_project.date_updated = datetime.now()
@@ -180,35 +215,41 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
         success=True
     )
 
+
 @projects_router.delete("/{project_id}", response_model=MessageResponse)
-async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> MessageResponse:
+async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
+                         db: Session = Depends(get_db_session)) -> MessageResponse:
+    """
+    Deletes a project and all associated scenarios from the database. It requires the
+    authenticated user to be the owner of the project to execute this operation.
+
+    :param token: A string representing the authentication token of the requesting user.
+    :param project_id: An integer representing the ID of the project to be deleted.
+    :param db: A SQLAlchemy session object for database operations.
+    :return: A `MessageResponse` object confirming successful deletion of the project
+             and all its related scenarios.
+
+    :raises HTTPException:
+        - If authentication token is missing (`401 Unauthorized`).
+        - If the authenticated user is not authorized to delete the specified project (`401 Unauthorized`).
+    """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )],
-        # )
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authorized."
-        #     )],
-        # )
+
     project = db.get(EnProjectDB, project_id)
+
+    scenarios = db.exec(select(EnScenarioDB).where(EnScenarioDB.project_id == project.id))
+    for scenario in scenarios:
+        db.delete(scenario)
+
     db.delete(project)
     db.commit()
 
     return MessageResponse(
-        data="Project deleted.",
+        data="Project deleted and all scenarios deleted.",
         success=True
     )
 
