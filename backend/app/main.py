@@ -126,6 +126,17 @@ fastapi_app.include_router(
 
 @fastapi_app.get("/", response_class=HTMLResponse)
 async def root():
+    """
+    Handles the root endpoint of the FastAPI application, which responds with an HTML page
+    providing a welcome message and links to documentation.
+
+    Provides a simple HTML-based response notifying users about the available documentation
+    resources. The background and content are customized with inline CSS styling for user
+    visual experience.
+
+    :return: HTMLResponse containing the welcome page content and HTTP status code 200.
+    :rtype: HTMLResponse
+    """
     html_content = """
     <html>
         <head>

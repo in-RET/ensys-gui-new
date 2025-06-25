@@ -112,10 +112,18 @@ async def get_results(simulation_id: int, token: Annotated[str, Depends(oauth2_s
     if the simulation does not exist or if the request is unauthenticated.
 
     :param simulation_id: The unique identifier of the simulation.
+    :type simulation_id: int
     :param token: The OAuth2 token for authentication.
+    :type token: str
     :param db: Database session dependency, used to query the database.
+    :type db: Session
     :return: A ResultResponse object containing simulation results if successful, or an
              ErrorResponse object containing error details if an error occurs.
+    :rtype: ResultResponse | ErrorResponse
+
+    :raises HTTPException: If the request is unauthenticated.
+    :raises HTTPException: If the simulation does not exist.
+    :raises HTTPException: If the simulation status is unknown.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")

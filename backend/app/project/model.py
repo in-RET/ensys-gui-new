@@ -13,23 +13,23 @@ class EnProject(SQLModel):
     in a database. The attributes include constraints for data validation.
 
     :ivar name: The name of the project must be between 1 and 100 characters.
-    :type name: str
+    :type name: Str
     :ivar description: An optional description of the project, up to 255 characters.
-    :type description: str | None
+    :type description: Str | None
     :ivar country: The country where the project is located, max length of 40 characters.
-    :type country: str
+    :type country: Str
     :ivar unit_energy: The energy unit associated with the project, max length of 10 characters.
-    :type unit_energy: str
+    :type unit_energy: Str
     :ivar unit_co2: The CO2 unit associated with the project, max length of 10 characters.
-    :type unit_co2: str
+    :type unit_co2: Str
     :ivar currency: The currency used in the project, max length of 8 characters.
-    :type currency: str
+    :type currency: Str
     :ivar longitude: The longitude coordinate of the project location. Can be null.
-    :type longitude: float
+    :type longitude: Float
     :ivar latitude: The latitude coordinate of the project location. Can be null.
-    :type latitude: float
+    :type latitude: Float
     :ivar is_favorite: Indicates if the project is marked as a favorite. Defaults to False.
-    :type is_favorite: bool
+    :type is_favorite: Bool
     """
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, min_length=1, max_length=255, nullable=True)
@@ -40,7 +40,8 @@ class EnProject(SQLModel):
     longitude: float = Field(nullable=True)
     latitude: float = Field(nullable=True)
     is_favorite: bool = Field(default=False)
-    #viewers: list[int] = Field(default=None, nullable=True)
+    # viewers: list[int] = Field(default=None, nullable=True)
+
 
 class EnProjectDB(EnProject, table=True):
     """
@@ -51,13 +52,13 @@ class EnProjectDB(EnProject, table=True):
     details such as project ID, associated user ID, creation timestamp, and update timestamp.
 
     :ivar id: Unique identifier for the project.
-    :type id: int
+    :type id: Int
     :ivar user_id: ID of the user associated with the project.
-    :type user_id: int
+    :type user_id: Int
     :ivar date_created: Timestamp indicating when the project was created.
-    :type date_created: datetime
+    :type date_created: Datetime
     :ivar date_updated: Timestamp indicating when the project was last updated or None if not updated.
-    :type date_updated: datetime | None
+    :type date_updated: Datetime | None
     """
     __tablename__ = "projects"
 
@@ -68,6 +69,7 @@ class EnProjectDB(EnProject, table=True):
 
     def get_return_data(self):
         return self.dict(exclude={"user_id"})
+
 
 class EnProjectUpdate(EnProject):
     """

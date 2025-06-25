@@ -1,5 +1,4 @@
 import os
-from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -22,14 +21,15 @@ def get_oep_client():
 
     This function accesses environment variables to retrieve the necessary
     credentials and configurations required for creating an OepClient instance.
-    It utilizes `os.getenv` to obtain the `OEP_TOKEN` and `OEP_TOPIC` values for
+    It uses `os.getenv` to get the `OEP_TOKEN` and `OEP_TOPIC` values for
     authentication and topic management, respectively. The OepClient instance is
     yielded, allowing the caller to manage resources appropriately.
 
-    :yield:
+    :return:
         OepClient: A generator that yields an instance of the OepClient class
         configured with a token and a default schema retrieved from the
         environment variables.
+    :rtype: OepClient
     """
     yield OepClient(
         token=os.getenv("OEP_TOKEN"),
@@ -49,9 +49,15 @@ async def get_oep_data(token: Annotated[str, Depends(oauth2_scheme)], table_name
     the retrieved items, their total count, and a success status indicator.
 
     :param token: A bearer token for authentication.
+    :type token: str
     :param table_name: The name of the table to retrieve data from.
-    :param oep_cli: An instance of the OEP client to interact with the backend database.
+    :type table_name: str
+    :param oep_cli: An instance of the OEP client to interact with the backend database. Dependency injection.
+    :type oep_cli: OepClient
     :return: A `DataResponse` object containing the data, total count, and success status.
+    :rtype: DataResponse
+
+    :raises HTTPException: If the token is invalid or not provided.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -79,8 +85,11 @@ async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_
 
     :param token: The authentication token obtained via the OAuth2 scheme.
     :param table_name: The name of the table for which metadata is to be retrieved.
-    :param oep_cli: Instance of the OepClient dependency for interacting with the OEP API.
+    :param oep_cli: Instance of the OepClient dependency for interacting with the OEP API. Dependency injection.
     :return: A DataResponse containing the retrieved metadata and its total count.
+    :rtype: DataResponse
+
+    :raises HTTPException: If the token is invalid or not provided.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")

@@ -1,5 +1,3 @@
-# About inretensys-backend
-
 ## Software
 to be done.
 

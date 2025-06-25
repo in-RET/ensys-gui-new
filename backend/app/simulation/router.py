@@ -28,18 +28,20 @@ simulation_router = APIRouter(
 def validate_user_rights(token, scenario_id, db) -> bool:
     """
     Validates a user's rights to access a specific scenario within a project. The function first
-    validates whether the user is the owner of the given scenario, and subsequently verifies ownership of the
+    validates whether the user is the owner of the given scenario and subsequently verifies ownership of the
     associated project. Raises appropriate HTTP exceptions if the user is unauthorized or if the specified
     scenario or project does not exist.
 
     :param token: Authentication token of the user.
-    :type token: str
+    :type token: Str
     :param scenario_id: ID of the scenario to validate access for.
-    :type scenario_id: int
-    :param db: Database session/connection object used for querying related data.
+    :type scenario_id: Int
+    :param db: Database session/connection object used for querying related data. Dependency injection.
     :type db: Session
+
     :return: A boolean indicating whether the user is authorized to access the scenario.
-    :rtype: bool
+    :rtype: Bool
+
     :raises HTTPException: If the user is unauthorized or the specified scenario or project is not found.
     """
 
@@ -81,9 +83,13 @@ def check_container_status(docker_container, simulation_id, db):
     the changes to the database.
 
     :param docker_container: Docker container object representing the container to be monitored
+    :type docker_container: DockerContainer
     :param simulation_id: The unique identifier of the simulation associated with the Docker container
-    :param db: Database session object used for querying and persisting updates
+    :type simulation_id: int
+    :param db: Database session object used for querying and persisting updates. Dependency injection.
+    :type db: Session
     :return: None
+    :rtype: None
     """
     result_dict = docker_container.wait()
 
@@ -169,9 +175,14 @@ async def get_simulation_status(simulation_id: int, token: Annotated[str, Depend
     the simulation's status wrapped in a success response.
 
     :param simulation_id: ID of the simulation to retrieve status for.
+    :type simulation_id: Int
     :param token: Access token provided by the client for authorization.
-    :param db: Database session required to access simulation data.
+    :type token: Str
+    :param db: Database session is required to access simulation data. Dependency injection.
+    :type db: Session
     :return: A `MessageResponse` instance containing the simulation's status if found and accessible.
+    :rtype: MessageResponse
+
     :raises HTTPException:
         - 401 Unauthorized if the provided token is invalid or the user lacks appropriate rights.
         - 404 Not Found if the simulation with the specified ID does not exist.
@@ -206,12 +217,12 @@ async def stop_simulations(scenario_id: int, token: Annotated[str, Depends(oauth
     background tasks associated with the simulations are terminated.
 
     :param scenario_id: ID of the scenario whose simulations are to be stopped.
-    :type scenario_id: int
+    :type scenario_id: Int
     :param token: Authentication token for user validation.
-    :type token: str
+    :type token: Str
     :param db: Database session for querying and updating simulation data.
     :type db: Session
-    :return: Response object indicating success or failure of the operation along
+    :return: Response object indicating the success or failure of the operation along
              with details of any encountered errors.
     :rtype: MessageResponse
     """
@@ -257,11 +268,11 @@ async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oaut
     upon successful completion.
 
     :param simulation_id: The identifier of the simulation to be stopped.
-    :type simulation_id: int
+    :type simulation_id: Int
     :param token: A token to validate user authentication and authorization.
-    :type token: str
-    :param db: The database session dependency used to access and query the
-        database.
+    :type token: Str
+    :param db: The database session is used to access and query the
+        database. Dependency injection.
     :type db: Session
     :return: A message response indicating a success message and the ID of the
         stopped simulation.
@@ -293,18 +304,21 @@ async def stop_simulation(simulation_id: int, token: Annotated[str, Depends(oaut
 async def get_simulations(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                           db: Session = Depends(get_db_session)) -> DataResponse:
     """
-    Handles fetching simulation data for a specific scenario, ensuring the user is
-    authenticated and authorized to access the data. If the user is not authenticated
-    or authorized, it raises corresponding HTTP exceptions. If no simulations are found
-    for the provided scenario ID, a 404 Not Found error is returned.
+    Retrieve a list of simulations associated with a specific scenario.
 
-    :param scenario_id: The ID of the scenario for which simulations are retrieved.
-    :param token: The authentication token provided by the user, validated
-                  using the oauth2 scheme.
-    :param db: The database session dependency object for querying and accessing
-               the database.
-    :return: A DataResponse object containing the simulation data (items and count)
-             with a success flag.
+    This function fetches simulations from the database that are linked to the
+    given `scenario_id`. It authenticates the request using a token and validates
+    the user's rights for the specified scenario. If no simulations are found,
+    an appropriate HTTP error is raised.
+
+    :param scenario_id: Identifier of the scenario for which simulations are requested.
+    :type scenario_id: int
+    :param token: A string token used for authentication and authorization.
+    :type token: str
+    :param db: A database session used for querying the simulations. Dependency injection.
+    :type db: Session
+    :return: A DataResponse object containing the list of simulations matched
+        to the specified scenario, the total count of simulations, and a success flag.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -335,9 +349,15 @@ async def get_simulation(simulation_id: int, token: Annotated[str, Depends(oauth
     necessary permissions, appropriate HTTP exceptions are raised.
 
     :param simulation_id: The ID of the simulation to be fetched.
+    :type simulation_id: Int
     :param token: The authentication token for validating the request.
-    :param db: Database session dependency injected to access the database.
+    :type token: Str
+    :param db: Database session to access the database. Dependency injection.
+    :type db: Session
     :return: A `DataResponse` object containing the simulation data and metadata.
+    :raises HTTPException: If the user is not authorized.
+    :raises HTTPException: If the specified simulation does not exist.
+    :raises HTTPException: If the user does not have access to the simulation.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -366,10 +386,16 @@ async def delete_simulation(token: Annotated[str, Depends(oauth2_scheme)], simul
     via a token for the operation to proceed.
 
     :param token: The authenticated token required to access the endpoint.
+    :type token: Str
     :param simulation_id: The ID of the simulation to be deleted.
-    :param db: The database session used to retrieve and delete the simulation record.
+    :type simulation_id: Int
+    :param db: The database session is used to retrieve and delete the simulation record. Dependency injection.
+    :type db: Session
 
     :return: A response indicating whether the simulation was successfully deleted.
+    :rtype: MessageResponse
+
+    :raises HTTPException: If the user is not authenticated
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")

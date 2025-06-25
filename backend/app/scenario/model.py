@@ -18,16 +18,16 @@ class EnScenario(BaseModel):
     an energy modeling system.
 
     :ivar name: Name of the energy scenario. Must be between 1 and 100 characters.
-    :type name: str
+    :type name: Str
     :ivar start_date: The starting date for the scenario. Defaults to the current date.
-    :type start_date: date
+    :type start_date: Date
     :ivar time_steps: The number of time steps in the scenario. Can be None for no specific
                       limit or defaults to 8760.
-    :type time_steps: int | None
+    :type time_steps: Int | None
     :ivar interval: The interval between each time step in hours. Defaults to 1.0.
-    :type interval: float
+    :type interval: Float
     :ivar project_id: Identifier for the project to which the scenario belongs.
-    :type project_id: int
+    :type project_id: Int
     :ivar energysystem_model: The associated energy system model for the scenario.
     :type energysystem_model: EnEnergysystem
     """
@@ -43,32 +43,32 @@ class EnScenarioDB(SQLModel, table=True):
     Represents the database model for energy scenario information.
 
     This class defines a database model for storing information about
-    energy scenarios. It utilizes SQLModel with table mapping enabled
+    energy scenarios. It uses SQLModel with table mapping enabled
     to represent the corresponding table in the database. The class
     includes various fields that describe properties of the energy
     scenario, such as its name, associated project and user IDs, start
     date, time steps, and other relevant details.
 
     :ivar id: Primary key of the scenario record.
-    :type id: int
-    :ivar name: Name of the energy scenario, must be between 1 and 100
+    :type id: Int
+    :ivar name: Name of the energy scenario must be between 1 and 100
         characters in length.
-    :type name: str
+    :type name: Str
     :ivar start_date: Start date of the energy scenario. This is a required
         field.
-    :type start_date: date
+    :type start_date: Date
     :ivar time_steps: Number of time steps in the energy scenario.
         Defaults to 8760 if not provided and is nullable.
-    :type time_steps: int | None
+    :type time_steps: Int | None
     :ivar interval: Time interval associated with the energy scenario.
         Defaults to 1.
-    :type interval: float
+    :type interval: Float
     :ivar project_id: Foreign key referencing the associated project for
         the scenario.
-    :type project_id: int
+    :type project_id: Int
     :ivar user_id: Foreign key referencing the user associated with the
         scenario.
-    :type user_id: int
+    :type user_id: Int
     :ivar energysystem_model: JSONB column storing the energy system
         model associated with the scenario. Defaults to an empty
         dictionary.
@@ -97,14 +97,14 @@ class EnScenarioUpdate(EnScenario):
 
     :ivar name: Optional name of the scenario, which must be a string with a
         minimum length of 1 character and a maximum length of 100 characters.
-    :type name: str | None
+    :type name: Str | None
     :ivar interval: Optional interval defining the time step size, where the value
         is a float.
-    :type interval: float | None
+    :type interval: Float | None
     :ivar start_date: Optional start date for the scenario, represented as a date object.
-    :type start_date: date | None
+    :type start_date: Date | None
     :ivar time_steps: Optional total number of time steps in the simulation.
-    :type time_steps: int | None
+    :type time_steps: Int | None
     :ivar energysystem_model: Optional reference to an energy system model
         associated with the scenario.
     :type energysystem_model: EnEnergysystem | None

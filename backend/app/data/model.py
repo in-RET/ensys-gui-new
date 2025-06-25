@@ -1,22 +1,20 @@
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class GeneralDataModel(BaseModel):
     """
-    GeneralDataModel is a data model class that represents a generic data structure
-    with a list of items and their total count.
+    Represents a general data model with a collection of items and the total count of items.
 
-    This class is designed for use cases where a representation of a collection
-    of items alongside a count of those items is needed. It can serve as a base
-    structure for applications working with paginated datasets, collections, or
-    other similar utilities.
+    This class is used to encapsulate a collection of items along with their total count in a
+    data structure. It serves as a general-purpose representation of data collections and is
+    flexible in handling any type of items within the list.
 
     :ivar items: A list of items representing the data collection.
     :type items: list[Any]
     :ivar totalCount: The total number of items in the collection.
-    :type totalCount: int
+    :type totalCount: Int
     """
-    items: list[Any]
-    totalCount: int
+    items: list[Any] = Field(..., description="A list of items representing the data collection.")
+    totalCount: int = Field(..., description="The total number of items in the collection.")

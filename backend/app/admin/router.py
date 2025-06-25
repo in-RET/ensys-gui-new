@@ -18,6 +18,7 @@ async def root():
     code, which is used as an Easter egg for humorous purposes.
 
     :return: None
+    :rtype: NoneType
     :raises HTTPException: Always raised with status code 418 and detail "I'm a teapot".
     """
     raise HTTPException(status_code=418, detail="I'm a teapot.")

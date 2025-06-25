@@ -27,7 +27,7 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
 
     :param scenario_id: ID of the scenario to validate ownership for.
     :type scenario_id: int
-    :param db: Database session for executing queries and retrieving data.
+    :param db: Database session for executing queries and retrieving data. Dependency injection.
     :type db: Session
     :param token: Authentication token representing the logged-in user.
     :type token: str
@@ -57,22 +57,19 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
 async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
                           db: Session = Depends(get_db_session)) -> MessageResponse:
     """
-    Handles the creation of a new scenario within the system. It performs authentication, validates
-    whether the token corresponds to an authorized user for the given project, and inserts the new
-    scenario data into the database if all checks pass. Additionally, for debugging purposes, it
-    saves the scenario data into a local JSON file.
+    Creates a new scenario and stores it in the database. The endpoint is
+    protected and requires a valid token. It validates the ownership of the
+    project before proceeding. This function adds a new scenario to the
+    database and commits the changes.
 
-    :param token: Bearer token used for authentication and validation of the user request
-    :type token: str
-    :param scenario_data: Instance of EnScenario containing details of the scenario to be created
+    :param token: A valid authentication token to verify the user's identity.
+    :type token: Str
+    :param scenario_data: The data object containing the scenario details.
     :type scenario_data: EnScenario
-    :param db: Database session object used to perform database operations
+    :param db: The database session dependency for executing queries. Dependency injection.
     :type db: Session
-    :return: A MessageResponse object indicating whether the scenario creation was successful,
-             along with a success status
+    :return: A response indicating the success of the scenario creation.
     :rtype: MessageResponse
-    :raises HTTPException: Raised with status code 401 for scenarios such as missing authentication
-                           or unauthorized access
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -105,16 +102,21 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
 async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                          db: Session = Depends(get_db_session)) -> DataResponse:
     """
-    Reads and retrieves scenarios associated with the given project identifier.
-    The function requires the user to be authenticated and authorized as the
-    owner of the project. It fetches scenarios from the database, maps them
-    to the required model, and returns the response encapsulated in a data model.
+    Reads scenarios associated with a specific project based on the provided project ID.
+    This route ensures that the user is both authenticated and authorized before retrieving
+    the scenarios, which are fetched from the database using the project ID.
 
-    :param project_id: The unique identifier of the project whose scenarios are to be retrieved.
-    :param token: The bearer token used for authentication and authorization.
-    :param db: The SQLAlchemy Session dependency used to interact with the database.
-    :return: A DataResponse object containing the retrieved scenarios, the total count
-        of scenarios, and a success status.
+    :param project_id: The ID of the project whose scenarios need to be retrieved.
+    :type project_id: Int
+    :param token: OAuth2-compliant access token used for user authentication.
+    :type token: Str
+    :param db: The database session dependency is used to access database functions. Dependency injection.
+    :type db: Session
+    :return: A structured response containing the scenario data and a success flag.
+    :rtype: DataResponse
+
+    :raises HTTPException: If the user is not authenticated (HTTP 401).
+    :raises HTTPException: If the user is not authorized to access the project (HTTP 401).
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -142,21 +144,21 @@ async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_s
 async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
                         db: Session = Depends(get_db_session)) -> DataResponse:
     """
-    Handles the retrieval of a specific scenario by its ID. It validates the user's
-    authentication and ownership of the scenario and its associated project before
-    returning the scenario details.
+    Retrieve scenario details by scenario ID.
 
-    :param scenario_id: The ID of the scenario to be retrieved.
+    This endpoint allows an authenticated user to fetch information about a specific scenario
+    based on its ID. It first validates the user's authentication and ownership of the scenario
+    and associated project before retrieving the data. If the authentication or ownership checks
+    fail, appropriate HTTP exceptions are raised.
+
+    :param scenario_id: ID of the scenario to fetch
     :type scenario_id: int
-    :param token: Bearer token for user authentication and authorization.
+    :param token: Authentication token for the user
     :type token: str
-    :param db: SQLAlchemy database session dependency.
+    :param db: Database session dependency. Dependency injection.
     :type db: Session
-    :return: A response containing the scenario details, wrapped in a DataResponse.
+    :return: Response containing the scenario data
     :rtype: DataResponse
-    :raises HTTPException: Raised with status 401 if the token is invalid, the user
-        is not authenticated, or not authorized to access the scenario.
-    :raises HTTPException: Raised with status 404 if the specified scenario is not found.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -186,23 +188,30 @@ async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_s
 async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int,
                           scenario_data: EnScenarioUpdate, db: Session = Depends(get_db_session)) -> MessageResponse:
     """
-    Updates an existing scenario given its ID. This function verifies the authentication token,
-    validates scenario ownership, and checks the existence of the scenario in the database.
-    The scenario details are updated only if all validations pass. The updated data is then
-    saved to the database.
+    Updates an existing scenario identified by its ID. This endpoint allows updating
+    specific fields of a scenario with new data provided in the `scenario_data` object.
+    The function requires authentication and ownership validation to proceed. If the
+    provided token is invalid or the user is not authorized, the operation will not
+    be performed. Additionally, it checks whether the specified scenario exists in
+    the database before attempting any updates.
 
-    :param token: Authentication bearer token for verifying the user's session.
+    :param token: A bearer token for authorization that validates the user's access
+                  and ownership of the scenario.
     :type token: str
-    :param scenario_id: Integer representing the unique identifier of the scenario to update.
+    :param scenario_id: The unique identifier of the scenario to be updated.
     :type scenario_id: int
-    :param scenario_data: Pydantic model object containing the updated scenario data fields.
+    :param scenario_data: Data for updating the specified scenario. Only fields that
+                          are included in this object and are allowed to be updated
+                          will be modified.
     :type scenario_data: EnScenarioUpdate
-    :param db: Dependency-injected SQLAlchemy database session object.
+    :param db: A database session to interact with the scenario database. Dependency injection.
     :type db: Session
-    :return: A response message indicating whether the scenario was updated successfully.
+    :return: A `MessageResponse` indicating the success status of the operation
+             and a message confirming the update.
     :rtype: MessageResponse
-    :raises HTTPException: Raised with appropriate status codes if authentication fails,
-                           ownership validation fails, or the scenario is not found.
+    :raises HTTPException: Raised when the token is invalid, the user is unauthorized,
+                           the scenario does not exist in the database, or any other
+                           issue preventing the update operation occurs.
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
@@ -242,7 +251,7 @@ async def delete_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     :type token: str
     :param scenario_id: Unique identifier of the scenario to be deleted.
     :type scenario_id: int
-    :param db: Database session used for querying and deleting the scenario.
+    :param db: Database session used for querying and deleting the scenario. Dependency injection.
     :type db: Session
     :return: MessageResponse confirming successful deletion.
     :rtype: MessageResponse

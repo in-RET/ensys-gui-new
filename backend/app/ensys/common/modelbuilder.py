@@ -14,7 +14,7 @@ class ModelBuilder:
     """
     ModelBuilder is a class responsible for constructing and solving an energy system
     model based on a configuration file. It provides functionality to parse the input
-    configuration, log necessary details, handle file operations, and integrate with
+    configuration, log the necessary details, handle file operations, and integrate with
     oemof-solph for energy system modeling and optimization.
 
     The intended use case is to manage energy systems, build components from the

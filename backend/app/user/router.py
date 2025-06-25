@@ -102,6 +102,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
                Type: Session
     :return: A response model indicating the success of the operation.
              Returns a MessageResponse object on success.
+    :rtype: MessageResponse
 
     :raises HTTPException:
         - If the username is already in use (HTTP status 409).

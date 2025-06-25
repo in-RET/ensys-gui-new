@@ -43,54 +43,61 @@ extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 nav:
-  - 'Home': index.md
-  - 'Developer Doc Help': possibilities.md
+  - 'Welcome': index.md
+  - 'Getting Started': getting_started.md
+  - 'About': about.md
   - 'Frontend':
       - 'Home': frontend/dev.md
   - 'Backend':
       - 'Home': backend/index.md
-      - 'Auxillary':
-        - 'main': backend/api/main.md
-        - 'celery': backend/api/celery.md
-        - 'db': backend/api/db.md
-        - 'logger': backend/api/logger.md
-        - 'responses': backend/api/responses.md
-        - 'security': backend/api/security.md
-      - 'Router':
-        - 'admin': backend/api/router/admin.md
-        - 'user': backend/api/router/user.md
-        - 'oep': backend/api/router/oep.md
-        - 'project': backend/api/router/project.md
-        - 'results': backend/api/router/results.md
-        - 'scenario': backend/api/router/scenario.md
-        - 'simulation': backend/api/router/simulation.md
-        - 'user': backend/api/router/user.md
-      - 'Models':
-        - 'data': backend/api/models/data.md
-        - 'errors': backend/api/models/errors.md
-        - 'data': backend/api/models/data.md
-        - 'project': backend/api/models/project.md
-        - 'results': backend/api/models/results.md
-        - 'scenario': backend/api/models/scenario.md
-        - 'simulation': backend/api/models/simulation.md
-        - 'user': backend/api/models/user.md
+      - 'Getting Started':
+        - 'Docker': backend/docker.md
+      - 'Developer':
+        - 'Auxillary':
+          - 'main': backend/api/main.md
+          - 'celery': backend/api/celery.md
+          - 'db': backend/api/db.md
+          - 'logger': backend/api/logger.md
+          - 'responses': backend/api/responses.md
+          - 'security': backend/api/security.md
+        - 'Router':
+          - 'admin': backend/api/router/admin.md
+          - 'user': backend/api/router/user.md
+          - 'oep': backend/api/router/oep.md
+          - 'project': backend/api/router/project.md
+          - 'results': backend/api/router/results.md
+          - 'scenario': backend/api/router/scenario.md
+          - 'simulation': backend/api/router/simulation.md
+          - 'user': backend/api/router/user.md
+        - 'Models':
+          - 'data': backend/api/models/data.md
+          - 'errors': backend/api/models/errors.md
+          - 'data': backend/api/models/data.md
+          - 'project': backend/api/models/project.md
+          - 'results': backend/api/models/results.md
+          - 'scenario': backend/api/models/scenario.md
+          - 'simulation': backend/api/models/simulation.md
+          - 'user': backend/api/models/user.md
   - 'Ensys':
       - 'Home': ensys/index.md
       - 'Common':
-          - 'Konfigurationscontainer': ensys/common/config.md
+          - 'BaseModels': ensys/common/basemodel.md
+          - 'Types': ensys/common/types.md
           - 'Modelbuilder': ensys/common/modelbuilder.md
       - 'Components':
           - 'Energysystem': ensys/components/energysystem.md
+          - 'Simulationmodel': ensys/components/model.md
           - 'Bus': ensys/components/bus.md
           - 'Flow': ensys/components/flow.md
           - 'Sink': ensys/components/sink.md
           - 'Source': ensys/components/source.md
-          - 'Storage': ensys/components/storage.md
-          - 'Transformer': ensys/components/transformer.md
+          - 'Storage': ensys/components/genericstorage.md
+          - 'Transformer': ensys/components/converter.md
           - 'Investment': ensys/components/investment.md
           - 'NonConvex': ensys/components/nonconvex.md
-          - 'Release Notes': ensys/release-notes.md
-  - 'About': about.md
+          - 'Constraints': ensys/components/constraints.md
+  - 'Release Notes': release-notes.md
+  - 'Developer Doc Help': possibilities.md
 
 theme:
   name: material

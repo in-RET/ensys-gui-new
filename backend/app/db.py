@@ -16,10 +16,8 @@ def get_db_session():
     database. The session is created using the given database engine and is
     managed within a context to ensure proper cleanup after usage.
 
-    Yields:
-        session: A database session object for database operations.
-
     :return: Yields database session objects.
+    :rtype: Session
     """
     with Session(db_engine) as session:
         yield session

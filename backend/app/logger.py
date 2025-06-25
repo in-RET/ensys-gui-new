@@ -72,7 +72,7 @@ class EnsysLogger:
 
     def error(self, msg):
         """
-        Logs an error message with a prefixed format.
+        Logs an error message prefixed with the custom identifier "[-E---]".
 
         :param msg: The message string to be logged.
         :type msg: str

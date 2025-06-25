@@ -43,7 +43,9 @@ def simulation_task(scenario_id: int, simulation_id: int):
     :type scenario_id: int
     :param simulation_id: Identifier of the simulation instance.
     :type simulation_id: int
+
     :return: None
+    :rtype: NoneType
     """
     task_counter.inc()
     task_in_progress.inc()
