@@ -10,16 +10,28 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class FileUploaderComponent {
     fileInfo!: { name: string; label: string; data: any } | null;
 
-    @Input() data: any;
+    _data: any;
+    @Input() set data(d: any) {
+        if (d) {
+            if (d) {
+                this._data = d;
+                const isRangeVal = d.split(',').length > 1;
+
+                if (isRangeVal) {
+                    this.fileInfo = { name: '', label: '', data: null };
+                    this.fileInfo.label = this.shortenList(this.data);
+                    this.fileInfo.data = d;
+                }
+            }
+        } else this._data = null;
+    }
+    get data() {
+        return this._data;
+    }
+
     @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
-    ngOnInit() {
-        if (this.data) {
-            this.fileInfo = { name: '', label: '', data: null };
-            this.fileInfo.label = this.shortenList(this.data);
-            this.fileInfo.data = this.data;
-        }
-    }
+    ngOnInit() {}
     /**
      * Called when the value of the file input changes, i.e. when a file has been
      * selected for upload.

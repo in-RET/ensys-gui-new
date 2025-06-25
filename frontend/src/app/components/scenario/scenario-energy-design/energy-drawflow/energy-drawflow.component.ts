@@ -130,6 +130,7 @@ export class EnergyDrawflowComponent {
         });
 
         this.editor.on('zoom', (data: any) => {
+            console.log('zoom', data);
             this.saveCurrentDrawflow();
         });
 
@@ -156,6 +157,14 @@ export class EnergyDrawflowComponent {
             this.unShowConextMenu();
         });
 
+        this.editor.on('nodeMoved', (nodeId: any) => {
+            this.saveCurrentDrawflow();
+        });
+
+        this.editor.on('translate', (position: any) => {
+            // this.saveCurrentDrawflow();
+        });
+
         this.renderer.listen('window', 'click', (e: any) => {
             if (
                 e.target &&
@@ -165,25 +174,18 @@ export class EnergyDrawflowComponent {
             }
         });
 
-        this.editor.on('nodeMoved', (nodeId: any) => {
-            this.saveCurrentDrawflow();
-        });
-
-        this.editor.on('translate', (position: any) => {
-            // this.saveCurrentDrawflow();
-        });
+        this.connectionMagneticSnap();
 
         addEventListener(
             'touchstart',
             (e: any) => {
-                this.touchStart(e);
+                // this.touchStart(e);
             },
             { passive: false }
         );
         addEventListener('touchend', this.touchEnd, { passive: false });
 
         // this.listenNodeDBClick();
-        this.connectionMagneticSnap();
     }
 
     connectionMagneticSnap() {
@@ -677,6 +679,7 @@ export class EnergyDrawflowComponent {
                 editMode: false,
                 data: {
                     connection: connection,
+                    oep: true,
                 },
             });
         } else {

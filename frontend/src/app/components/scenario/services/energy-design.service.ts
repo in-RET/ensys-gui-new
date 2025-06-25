@@ -11,6 +11,8 @@ export class EnergyDesignService {
             return data ? data[fName.toLocaleLowerCase()] : null;
         };
 
+        // const isFlowVisible
+
         switch (name.toLocaleLowerCase()) {
             case 'source':
                 return {
@@ -562,8 +564,37 @@ export class EnergyDesignService {
                 return {
                     sections: [
                         {
+                            name: 'OEP',
+                            class: 'col-12 d-flex flex-column justify-content-center align-items-end',
+                            visible: true,
+                            fields: [
+                                {
+                                    name: 'OEP',
+                                    placeholder: 'Switch On/Off',
+                                    label: '',
+                                    isReq: false,
+                                    type: 'switch',
+                                    span: 'auto',
+                                    class: '',
+                                    value: getFieldData('OEP'),
+                                    onClick: () => {
+                                        const InvestmentFields =
+                                            this.getInvestmentFields(data).map(
+                                                (elm: any) => elm.name
+                                            );
+
+                                        callback['toggleInvisibleOEPSection'](
+                                            InvestmentFields
+                                        );
+                                    },
+                                },
+                            ],
+                        },
+
+                        {
                             name: '',
                             class: 'col-12',
+                            visible: !getFieldData('OEP'),
                             fields: [
                                 {
                                     name: 'Investment',
@@ -579,7 +610,9 @@ export class EnergyDesignService {
                                                 (elm: any) => elm.name
                                             );
 
-                                        callback(InvestmentFields);
+                                        callback['toggleInvestFields'](
+                                            InvestmentFields
+                                        );
                                     },
                                 },
                             ],
@@ -588,6 +621,7 @@ export class EnergyDesignService {
                         {
                             name: '',
                             class: 'col-12',
+                            visible: !getFieldData('OEP'),
                             fields: [
                                 {
                                     name: 'nominal_value',
@@ -604,6 +638,7 @@ export class EnergyDesignService {
                         {
                             name: 'Investment',
                             class: 'col-12',
+                            visible: !getFieldData('OEP'),
                             fields: this.getInvestmentFields(data).map(
                                 (elm: any) => {
                                     const isInvSelected: boolean =
@@ -617,6 +652,7 @@ export class EnergyDesignService {
                         {
                             name: '',
                             class: 'col-12',
+                            visible: !getFieldData('OEP'),
                             fields: this.getDefaultFields(data),
                         },
                     ],
@@ -818,7 +854,14 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             item['value'] = getFieldData(item.name);
-            if (item['value']) item['disabled'] = true;
+
+            // check if its a range/number value
+            if (item['value']) {
+                const isRangeVal = item['value'].split(',').length > 1;
+
+                if (isRangeVal) item['disabled'] = true;
+            }
+
             item['label'] = item['label']
                 .split(/[-_]/g)
                 .map(
@@ -828,6 +871,7 @@ export class EnergyDesignService {
                 )
                 .join(' ')
                 .trim();
+
             item['placeholder'] = item['placeholder']
                 .split(/[-_]/g)
                 .map(
@@ -837,6 +881,7 @@ export class EnergyDesignService {
                 )
                 .join(' ')
                 .trim();
+
             return item;
         });
     }

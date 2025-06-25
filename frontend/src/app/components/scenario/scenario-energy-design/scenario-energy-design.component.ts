@@ -176,8 +176,9 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.formData = this.energyDesignService.getFormData(
             e.id,
             e.data,
-            this.toggleInvestFields.bind(this)
+            this.defineCallbackFlowForm(e.id)
         );
+
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
 
@@ -185,11 +186,30 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.show = true;
     }
 
+    defineCallbackFlowForm(flowType: 'node' | '_flow' | string) {
+        if (flowType == '_flow') {
+            let callbackList: any = [];
+            callbackList['toggleInvestFields'] =
+                this.toggleInvestFields.bind(this);
+            callbackList['toggleInvisibleOEPSection'] =
+                this.toggleInvisibleOEPSection.bind(this);
+            return callbackList;
+        } else return false;
+    }
+
     toggleInvestFields(investmentFields: string[]) {
         this.formComponent.toggleControl('nominal_value');
 
         investmentFields.forEach((fieldName: string) => {
             this.formComponent.toggleControl(fieldName);
+        });
+    }
+
+    toggleInvisibleOEPSection() {
+        this.formComponent.formData.sections.forEach((section: any) => {
+            if (section.name === 'OEP') {
+                //section.invisible = !section.invisible;
+            } else section.visible = !section.visible;
         });
     }
 
