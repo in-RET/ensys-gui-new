@@ -46,12 +46,10 @@ nav:
   - 'Welcome': index.md
   - 'Getting Started': getting_started.md
   - 'About': about.md
-  - 'Frontend':
-      - 'Home': frontend/dev.md
+  - 'Frontend': frontend/dev.md
   - 'Backend':
       - 'Home': backend/index.md
-      - 'Getting Started':
-        - 'Docker': backend/docker.md
+      - 'Getting Started': backend/getting_started.md
       - 'Developer':
         - 'Auxillary':
           - 'main': backend/api/main.md
@@ -85,14 +83,14 @@ nav:
           - 'Types': ensys/common/types.md
           - 'Modelbuilder': ensys/common/modelbuilder.md
       - 'Components':
-          - 'Energysystem': ensys/components/energysystem.md
           - 'Simulationmodel': ensys/components/model.md
+          - 'Energysystem': ensys/components/energysystem.md
           - 'Bus': ensys/components/bus.md
           - 'Flow': ensys/components/flow.md
           - 'Sink': ensys/components/sink.md
           - 'Source': ensys/components/source.md
           - 'Storage': ensys/components/genericstorage.md
-          - 'Transformer': ensys/components/converter.md
+          - 'Converter': ensys/components/converter.md
           - 'Investment': ensys/components/investment.md
           - 'NonConvex': ensys/components/nonconvex.md
           - 'Constraints': ensys/components/constraints.md
@@ -103,6 +101,9 @@ theme:
   name: material
   favicon: assets/favicon.svg
   logo: assets/favicon.svg
+  font:
+    text: Roboto Mono
+    code: Courier
   icon:
     repo: fontawesome/brands/github
     admonition:
@@ -131,6 +132,10 @@ theme:
   features:
     - content.tabs.link
     - content.code.copy
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - navigation.sections
 
 extra:
   social:

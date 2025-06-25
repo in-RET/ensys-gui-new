@@ -1,7 +1,13 @@
-!!! danger
-    This is the prototype documentation and need a rework!
+---
+hide:
+  - navigation
+  - toc
+---
 
-!!! info
+!!! warning
+    This is the prototype documentation!
+
+!!! tip
     If you find some bugs don't hesitate to mail at <a href="mailto:ensys@hs-nordhausen.de">Hochschule Nordhausen</a>
 
 <figure markdown>

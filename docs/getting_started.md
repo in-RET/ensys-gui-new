@@ -1,3 +1,9 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
 ## Requirements
 - python3.11
 - docker
@@ -51,15 +57,15 @@
     docker compose build -f docker-compose.prod.yaml up --build #for production
     ```
 
-Now you can access the various tools via a browser:
+3. Now you can access the various tools via a browser
 
-!!! note
-    Links are only for local deployment
+    !!! note
+        Links are only for local deployment
 
-- [Frontend](http://localhost:9003)
-- [Backend](http://localhost:9006)
-  - Documentation:
-    - [Swagger UI](http://localhost:9006/docs)
-    - [ReDocs](http://localhost:9006/redoc)
-- [pgAdmin](http://localhost:9005)
-- [flower](http://localhost:9008)
+      - [Frontend](http://localhost:9003)
+      - [Backend](http://localhost:9006)
+        - Documentation:
+          - [Swagger UI](http://localhost:9006/docs)
+          - [ReDocs](http://localhost:9006/redoc)
+        - [pgAdmin](http://localhost:9005)
+        - [flower](http://localhost:9008)
