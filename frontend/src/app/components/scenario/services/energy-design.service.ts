@@ -989,10 +989,6 @@ export class EnergyDesignService {
                         id: 'source',
                         name: 'Source',
                     },
-                    {
-                        id: 'predefinedSource',
-                        name: 'Pre-Source',
-                    },
                 ],
             },
             {
@@ -1002,10 +998,6 @@ export class EnergyDesignService {
                         id: 'transformer',
                         name: 'Transformer',
                     },
-                    {
-                        id: 'predefinedTransformer',
-                        name: 'Pre-Transformer',
-                    },
                 ],
             },
             {
@@ -1014,10 +1006,6 @@ export class EnergyDesignService {
                     {
                         id: 'genericStorage',
                         name: 'Storage',
-                    },
-                    {
-                        id: 'predefinedStorage',
-                        name: 'Pre-Storage',
                     },
                 ],
             },

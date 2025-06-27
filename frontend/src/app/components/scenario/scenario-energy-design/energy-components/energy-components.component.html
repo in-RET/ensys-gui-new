@@ -8,12 +8,6 @@
                 class="section section--{{ componet.group_name }}"
                 *ngFor="let componet of components"
             >
-                <!-- <div class="section__title">
-                        <h6>
-                            {{ componet.group_name | uppercase }}
-                        </h6>
-                    </div> -->
-
                 <ng-container
                     *ngFor="let component of componet.group_components"
                 >
@@ -24,14 +18,6 @@
                         (touchEnd)="_touchEnd($event)"
                     />
                 </ng-container>
-                <!-- {% for component_id, component_name in
-            group_components.items %} {% include
-            'scenario/topology_drag_items.html' with
-            name=component_name 
-            alt=component_name|add:"icon"
-            image=component_id|add:".svg" 
-            data_node=component_id %}
-            {% endfor %} -->
             </div>
         </div>
     </div>
