@@ -6,15 +6,19 @@ site_author: in.RET
 repo_name: in-RET/ensys-gui-new
 repo_url: https://github.com/in-RET/ensys-gui-new
 
+docs_dir: ../src
+
 plugins:
-  - glightbox
   - search
+  - glightbox
   - mkdocstrings:
       handlers:
         python:
-          paths: [backend] # google# search packages in the src folder
+          paths: [../../backend] # search packages in the src folder
           options:
-            docstring_style: sphinx
+            docstring_style: sphinx # google
+  #- git-revision-date-localized
+
 markdown_extensions:
   - toc:
       permalink: true
@@ -51,6 +55,7 @@ nav:
       - 'Home': backend/index.md
       - 'Getting Started': backend/getting_started.md
       - 'Developer':
+        - 'Alembic': backend/alembic.md
         - 'Auxillary':
           - 'main': backend/api/main.md
           - 'celery': backend/api/celery.md
