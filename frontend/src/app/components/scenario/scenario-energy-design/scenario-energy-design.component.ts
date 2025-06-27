@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
@@ -104,11 +105,21 @@ export class ScenarioEnergyDesignComponent {
 
     ngOnInit() {
         this.loadEnergyComponents();
-        // this.getBaseInfoFromStorage();
+    }
 
-        setTimeout(() => {
-            // this.toggleFullScreen();
-        }, 0);
+    ngAfterViewInit() {
+        this.setComponentsToolTip();
+    }
+
+    setComponentsToolTip() {
+        const tooltipTriggerList = Array.from(
+            document.querySelectorAll('[data-bs-toggle="tooltip"]')
+        );
+        console.log(tooltipTriggerList);
+
+        tooltipTriggerList.forEach((tooltipTriggerEl) => {
+            new Tooltip(tooltipTriggerEl);
+        });
     }
 
     loadEnergyComponents() {

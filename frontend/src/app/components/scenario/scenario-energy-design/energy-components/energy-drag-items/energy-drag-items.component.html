@@ -6,6 +6,9 @@
     (touchmove)="touchMove($event)"
     (touchend)="touchEnd($event)"
     [title]="name"
+    data-bs-toggle="tooltip"
+    data-bs-placement="right"
+    [attr.data-bs-title]="name"
 >
     <img
         class="img"
