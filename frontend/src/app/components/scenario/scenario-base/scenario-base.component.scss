@@ -27,3 +27,11 @@
 ::ng-deep .fullscreen .system-design {
     height: 100vh !important;
 }
+
+::ng-deep .step-footer {
+    display: flex;
+}
+
+::ng-deep main {
+    height: 86vh !important;
+}
