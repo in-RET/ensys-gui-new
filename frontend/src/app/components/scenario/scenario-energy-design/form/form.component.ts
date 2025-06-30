@@ -41,7 +41,7 @@ export class FormComponent {
         this.form = new FormGroup({});
 
         formData.sections.forEach((section: any) => {
-            if (section.name !== 'Ports')
+            if (section.name !== 'Ports' && section.fields)
                 section.fields.forEach((field: any) => {
                     let fControl: FormControl = new FormControl(
                         {

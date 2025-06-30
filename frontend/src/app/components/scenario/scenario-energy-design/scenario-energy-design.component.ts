@@ -115,7 +115,6 @@ export class ScenarioEnergyDesignComponent {
         const tooltipTriggerList = Array.from(
             document.querySelectorAll('[data-bs-toggle="tooltip"]')
         );
-        console.log(tooltipTriggerList);
 
         tooltipTriggerList.forEach((tooltipTriggerEl) => {
             new Tooltip(tooltipTriggerEl);
@@ -186,6 +185,7 @@ export class ScenarioEnergyDesignComponent {
 
         this.formModal_info.formData = this.energyDesignService.getFormData(
             e.id,
+            e.editMode,
             e.data,
             this.defineCallbackFlowForm(e.id)
         );
@@ -198,14 +198,14 @@ export class ScenarioEnergyDesignComponent {
     }
 
     defineCallbackFlowForm(flowType: 'node' | '_flow' | string) {
-        if (flowType == '_flow') {
-            let callbackList: any = [];
-            callbackList['toggleInvestFields'] =
-                this.toggleInvestFields.bind(this);
-            callbackList['toggleInvisibleOEPSection'] =
-                this.toggleInvisibleOEPSection.bind(this);
-            return callbackList;
-        } else return false;
+        // if (flowType == '_flow') {
+        let callbackList: any = [];
+        callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
+        callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
+        callbackList['toggleVisibilitySection'] =
+            this.toggleVisibilitySection.bind(this);
+        return callbackList;
+        // } else return false;
     }
 
     toggleInvestFields(investmentFields: string[]) {
@@ -216,12 +216,26 @@ export class ScenarioEnergyDesignComponent {
         });
     }
 
-    toggleInvisibleOEPSection() {
-        this.formComponent.formData.sections.forEach((section: any) => {
-            if (section.name === 'OEP') {
-                //section.invisible = !section.invisible;
-            } else section.visible = !section.visible;
+    toggleFomFields(fieldList: string[]) {
+        fieldList.forEach((fieldName) => {
+            this.formComponent.toggleControl(fieldName);
         });
+    }
+
+    toggleVisibilitySection(d: any) {
+        if (d) {
+            d.forEach((name: any) => {
+                let formSection = this.formComponent.formData.sections.find(
+                    (x: any) => x.name == name
+                );
+
+                if (formSection) {
+                    formSection.visible !== undefined
+                        ? (formSection.visible = !formSection.visible)
+                        : (formSection.visible = false);
+                }
+            });
+        }
     }
 
     toggleModal(appear: boolean) {}

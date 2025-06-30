@@ -7,18 +7,23 @@
     >
         <div
             [ngClass]="section.class"
-            *ngFor="let section of formData.sections"
+            *ngFor="let section of formData.sections; let i = index"
         >
             <ng-container
-                *ngIf="section.visible || section.visible == undefined"
+                *ngIf="
+                    section.name &&
+                    section.name != 'divider' &&
+                    (section.visible || section.visible == undefined)
+                "
             >
-                <h5>{{ section.name }}</h5>
+                <h5 *ngIf="section.label">{{ section.label }}</h5>
 
                 <div class="row">
                     <div
                         [ngClass]="
                             field.span ? 'col-md-' + field.span : 'col-md'
                         "
+                        [class]="field.class"
                         *ngFor="let field of section.fields"
                     >
                         <!-- text / number -->
@@ -51,7 +56,7 @@
 
                         <!-- dropdown -->
                         <div
-                            class="form-floating"
+                            class="form-floating mb-3"
                             *ngIf="field.type == 'select'"
                         >
                             <select
@@ -66,11 +71,13 @@
                                 }"
                             >
                                 <option selected disabled value="null">
-                                    {{ field.label }}
+                                    {{ field.label }} -- {{ field.value }}
                                 </option>
                                 <option
                                     [value]="option.value"
-                                    *ngFor="let option of field.options"
+                                    *ngFor="
+                                        let option of field.selectOptionList
+                                    "
                                 >
                                     {{ option.name }}
                                 </option>
@@ -100,17 +107,40 @@
                         </div>
 
                         <!-- switcher -->
-                        <div class="" *ngIf="field.type == 'switch'">
+                        <div
+                            *ngIf="field.type == 'switch'"
+                            class="d-flex align-items-center"
+                        >
                             <div class="form-check form-switch">
                                 <input
                                     class="form-check-input"
                                     type="checkbox"
                                     role="switch"
                                     [formControlName]="field.name"
-                                    (change)="field.onClick()"
+                                    (change)="
+                                        field.onClick ? field.onClick() : null
+                                    "
+                                    [id]="'switch-' + field.name"
                                 />
-                                <label for=""> {{ field.label }} </label>
+                                <label for="switch-{{ field.name }}">
+                                    {{ field.label }}
+                                </label>
                             </div>
+                        </div>
+
+                        <div *ngIf="field.type == 'toggle'">
+                            <input
+                                type="checkbox"
+                                class="btn-check"
+                                id="btn-check-outlined"
+                                autocomplete="off"
+                            />
+                            <label
+                                class="btn btn-outline-primary"
+                                for="btn-check-outlined"
+                            >
+                                {{ field.label }} </label
+                            ><br />
                         </div>
 
                         <!-- uploader -->
@@ -156,6 +186,17 @@
                         <!-- uploader -->
                     </div>
                 </div>
+            </ng-container>
+
+            <ng-container
+                *ngIf="
+                    section.name == 'divider' &&
+                    i < formData.sections.length - 1 &&
+                    formData.sections[i + 1].visible
+                "
+            >
+                <!-- divider -->
+                <hr class="mt-2 mb-3" [ngClass]="section.class" />
             </ng-container>
         </div>
     </form>
