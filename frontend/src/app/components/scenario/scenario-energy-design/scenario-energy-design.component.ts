@@ -317,6 +317,7 @@ export class ScenarioEnergyDesignComponent {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
                     this.formModal_info.data.connection,
+                    this.formModal_info.editMode,
                     formData
                 );
 

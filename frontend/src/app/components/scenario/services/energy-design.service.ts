@@ -13,7 +13,7 @@ export class EnergyDesignService {
     ) {
         if (editData.mode) return editData.data[fName.toLocaleLowerCase()];
         else {
-            return dValue ? dValue : null;
+            return dValue !== null || dValue !== undefined ? dValue : null;
         }
     }
 
@@ -62,7 +62,7 @@ export class EnergyDesignService {
             //     type: 'number',
             //     span: '',
             //     value: this.getField('nominal_value'),
-            //     disabled: this.getField('Investment'),
+            //     disabled: this.getField('investment'),
             // },
         ];
     }
@@ -667,7 +667,6 @@ export class EnergyDesignService {
                         {
                             name: 'OEP',
                             class: 'col-12',
-                            label: '',
                             visible: true,
                             fields: [
                                 this.getField(
@@ -685,14 +684,11 @@ export class EnergyDesignService {
                                             'non-OEP',
                                             'non-investment',
                                             'investment',
+                                            'defaults',
                                         ]);
 
                                         callback['toggleFomFields']([
                                             'storage',
-                                        ]);
-
-                                        callback['toggleVisibilitySection']([
-                                            'defaults',
                                         ]);
                                     },
                                     undefined,
@@ -766,7 +762,7 @@ export class EnergyDesignService {
                             visible: false,
                             fields: [
                                 this.getField(
-                                    'Investment',
+                                    'investment',
                                     '',
                                     'Investment',
                                     false,
@@ -806,7 +802,7 @@ export class EnergyDesignService {
                                     undefined,
                                     undefined,
                                     undefined,
-                                    this.getFieldData('Investment', {
+                                    this.getFieldData('investment', {
                                         mode: editMode,
                                         data,
                                     })
@@ -823,8 +819,7 @@ export class EnergyDesignService {
                                 ...this.getInvestmentFields(data).map(
                                     (elm: any) => {
                                         const isInvSelected: boolean =
-                                            // getField('Investment');
-                                            data['Investment'];
+                                            data['investment'];
                                         elm['disabled'] = !isInvSelected;
                                         return elm;
                                     }
@@ -836,11 +831,6 @@ export class EnergyDesignService {
                             class: 'col-12',
                             visible: false,
                             fields: this.getStorageFields(data),
-                        },
-
-                        {
-                            name: 'divider',
-                            class: 'dashed',
                         },
                     ],
                 };
@@ -929,29 +919,30 @@ export class EnergyDesignService {
                     sections: [
                         {
                             name: 'OEP',
-                            label: '',
                             class: 'col-12 d-flex flex-column justify-content-center align-items-end',
-                            // visible: true,
                             fields: [
-                                {
-                                    // name: 'OEP',
-                                    // placeholder: 'Switch On/Off',
-                                    // label: 'OEP',
-                                    // isReq: false,
-                                    // type: 'switch',
-                                    // span: 'auto',
-                                    // class: '',
-                                    // value: getField('OEP'),
-                                    // onClick: () => {
-                                    //     const InvestmentFields =
-                                    //         this.getInvestmentFields(data).map(
-                                    //             (elm: any) => elm.name
-                                    //         );
-                                    //     callback['toggleVisibilitySection'](
-                                    //         InvestmentFields
-                                    //     );
-                                    // },
-                                },
+                                this.getField(
+                                    'oep',
+                                    'Switch On/Off',
+                                    'OEP',
+                                    false,
+                                    'switch',
+                                    'auto',
+                                    editMode,
+                                    data,
+                                    'pt-3',
+                                    () => {
+                                        callback['toggleVisibilitySection']([
+                                            'non-OEP',
+                                            'non-investment',
+                                            'investment',
+                                            'defaults',
+                                        ]);
+                                    },
+                                    undefined,
+                                    undefined,
+                                    true
+                                ),
                             ],
                         },
 
@@ -961,58 +952,71 @@ export class EnergyDesignService {
                         },
 
                         {
-                            name: 'investment-switcher',
-                            label: '',
-                            class: 'col-3',
-                            // visible: getField('OEP'),
-                            fields: [
+                            name: 'non-OEP',
+                            class: 'col-12',
+                            // visible: false,
+                            visible: !this.getFieldData(
+                                'OEP',
                                 {
-                                    // name: 'Investment',
-                                    // placeholder: '',
-                                    // label: 'Investment',
-                                    // isReq: false,
-                                    // type: 'switch',
-                                    // span: 'auto',
-                                    // value: getField('Investment'),
-                                    // onClick: () => {
-                                    //     const InvestmentFields =
-                                    //         this.getInvestmentFields(data).map(
-                                    //             (elm: any) => elm.name
-                                    //         );
-                                    //     callback['toggleInvestFields'](
-                                    //         InvestmentFields
-                                    //     );
-                                    // },
+                                    mode: editMode,
+                                    data,
                                 },
+                                true
+                            ),
+                            fields: [
+                                this.getField(
+                                    'investment',
+                                    '',
+                                    'Investment',
+                                    false,
+                                    'switch',
+                                    'auto',
+                                    editMode,
+                                    data,
+                                    'my-3',
+                                    () => {
+                                        const InvestmentFields =
+                                            this.getInvestmentFields(data).map(
+                                                (elm: any) => elm.name
+                                            );
+                                        callback['toggleInvestFields'](
+                                            InvestmentFields
+                                        );
+                                    }
+                                ),
                             ],
                         },
 
                         {
                             name: 'non-investment',
-                            label: '',
                             class: 'col-9',
-                            // visible: !getField('OEP'),
-                            fields: this.getNonInvestmentFields(data),
-                        },
-
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
-
-                        {
-                            name: 'Investment',
-                            class: 'col-12',
-                            // visible: !getField('OEP'),
-                            fields: this.getInvestmentFields(data).map(
-                                (elm: any) => {
-                                    const isInvSelected: boolean =
-                                        // getField('Investment');
-                                        data['Investment'];
-                                    elm['disabled'] = !isInvSelected;
-                                    return elm;
-                                }
+                            visible: !this.getFieldData(
+                                'OEP',
+                                {
+                                    mode: editMode,
+                                    data,
+                                },
+                                true
                             ),
+                            fields: [
+                                this.getField(
+                                    'nominal_value',
+                                    'Nominal Value',
+                                    'Nominal Value',
+                                    false,
+                                    'number',
+                                    'auto',
+                                    editMode,
+                                    data,
+                                    undefined,
+                                    undefined,
+                                    undefined,
+                                    this.getFieldData('investment', {
+                                        mode: editMode,
+                                        data,
+                                    })
+                                ),
+                            ],
                         },
 
                         {
@@ -1021,9 +1025,46 @@ export class EnergyDesignService {
                         },
 
                         {
-                            name: 'default-fields',
+                            name: 'investment',
                             class: 'col-12',
                             // visible: !getField('OEP'),
+                            visible: !this.getFieldData(
+                                'OEP',
+                                {
+                                    mode: editMode,
+                                    data,
+                                },
+                                true
+                            ),
+                            fields: [
+                                ...this.getInvestmentFields(data).map(
+                                    (elm: any) => {
+                                        const isInvSelected: boolean =
+                                            data['investment'];
+                                        elm['disabled'] = !isInvSelected;
+                                        return elm;
+                                    }
+                                ),
+                            ],
+                        },
+
+                        {
+                            name: 'divider',
+                            class: 'dashed',
+                        },
+
+                        {
+                            name: 'defaults',
+                            class: 'col-12',
+                            // visible: !getField('OEP'),
+                            visible: !this.getFieldData(
+                                'OEP',
+                                {
+                                    mode: editMode,
+                                    data,
+                                },
+                                true
+                            ),
                             fields: this.getDefaultFields(data),
                         },
                     ],

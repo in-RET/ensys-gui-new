@@ -810,19 +810,28 @@ export class EnergyDrawflowComponent {
             }
         } else if (type == 'flow' && connection) {
             if (this.contextmenu != null) {
-                var nodeConnectionIn = this.editor.getNodeFromId(
-                    this.contextmenu.nodeId
+                // const currentNode = this.editor.getNodeFromId(
+                //     this.contextmenu.nodeId
+                // );
+                const source_connectionList =
+                    this.editor.drawflow.drawflow.Home.data[
+                        connection.source.node.id
+                    ].data['connections'];
+                const out_connectionList = source_connectionList['outputs'];
+                const outIndex = out_connectionList.findIndex(
+                    (out: any) =>
+                        out.hasOwnProperty(connection.source.port.id) &&
+                        out[connection.source.port.id].baseInfo.input_id ==
+                            connection.destination.node.id &&
+                        out[connection.source.port.id].baseInfo.input_class ==
+                            connection.destination.port.id
                 );
                 const _connectionData: { baseInfo: any; formInfo: any } =
-                    nodeConnectionIn.data['connections'][
-                        connection.source.port.id
-                    ] ||
-                    nodeConnectionIn.data['connections'][
-                        connection.destination.port.id
-                    ];
+                    out_connectionList[outIndex][connection.source.port.id];
 
                 _connectionData.formInfo['connection'] =
                     _connectionData.baseInfo;
+
                 this.showFormModal.emit({
                     type: 'flow',
                     id: '_flow', //`${nodeOut.id}-${nodeIn.id}`,
@@ -1056,39 +1065,115 @@ export class EnergyDrawflowComponent {
     }
 
     // flow
-    saveConnectionInNodes(connection: any, data: any) {
+    saveConnectionInNodes(connection: any, editMode: boolean, data: any) {
+        // --------------------out------------------------
+        const out_connections =
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+                'connections'
+            ];
+
+        if (!out_connections) {
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
+                {
+                    ...this.editor.drawflow.drawflow.Home.data[
+                        connection.output_id
+                    ].data,
+                    connections: { outputs: [], inputs: [] },
+                };
+        } else if (!out_connections['outputs']) {
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
+                {
+                    connections: {
+                        outputs: [],
+                    },
+                };
+        }
+
+        const CurrentConnections_Out: any[] =
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+                'connections'
+            ]['outputs'];
+
+        if (!editMode) {
+            CurrentConnections_Out.push({
+                [connection.output_class]: {
+                    baseInfo: connection,
+                    formInfo: data,
+                },
+            });
+        } else {
+            const outIndex = CurrentConnections_Out.findIndex(
+                (out: any) =>
+                    out.hasOwnProperty(connection.output_class) &&
+                    out[connection.output_class].baseInfo.input_id ==
+                        connection.input_id
+            );
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+                'connections'
+            ]['outputs'][outIndex][connection.output_class].formInfo = data;
+        }
+
         this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
             'connections'
-        ] = {
-            [connection.output_class]: {
-                baseInfo: connection,
-                formInfo: data,
-            },
-        };
+        ]['outputs'] = CurrentConnections_Out;
+
+        // --------------------In------------------------
+        if (
+            !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+                'connections'
+            ]
+        ) {
+            this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
+                {
+                    ...this.editor.drawflow.drawflow.Home.data[
+                        connection.input_id
+                    ].data,
+                    connections: { outputs: [], inputs: [] },
+                };
+        }
+
+        if (
+            !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+                'connections'
+            ]['inputs']
+        ) {
+            this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
+                {
+                    connections: {
+                        inputs: [],
+                    },
+                };
+        }
+        const CurrentConnections_In: any[] =
+            this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+                'connections'
+            ]['inputs'];
+
+        if (!editMode) {
+            CurrentConnections_In.push({
+                [connection.input_class]: {
+                    baseInfo: connection,
+                    formInfo: data,
+                },
+            });
+        } else {
+            const inIndex = CurrentConnections_In.findIndex(
+                (inp: any) =>
+                    inp.hasOwnProperty(connection.input_class) &&
+                    inp[connection.input_class].baseInfo.output_id ==
+                        connection.output_id
+            );
+            this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+                'connections'
+            ]['inputs'][inIndex][connection.input_class].formInfo = data;
+        }
 
         this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
             'connections'
-        ] = {
-            [connection.input_class]: {
-                baseInfo: connection,
-                formInfo: data,
-            },
-        };
+        ]['inputs'] = CurrentConnections_In;
 
         this.saveCurrentDrawflow();
     }
-
-    // saveConnectionData(connection: any, data: any) {
-    //     this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
-    //         'connections'
-    //     ] = [connection];
-
-    //     this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
-    //         'connections'
-    //     ] = [connection];
-
-    //     this.saveCurrentDrawflow();
-    // }
 
     deleteFlow(
         node_source: {
@@ -1124,8 +1209,8 @@ export class EnergyDrawflowComponent {
                     input_id: node_destination.node.id,
                     input_class: node_destination.port.id,
                 };
-                this.deleteConnectionData(currentConnection);
 
+                this.deleteConnectionData(currentConnection);
                 this.saveCurrentDrawflow();
             }
         });
@@ -1137,11 +1222,39 @@ export class EnergyDrawflowComponent {
         input_id: string;
         input_class: string;
     }) {
-        delete this.editor.drawflow.drawflow.Home.data[connection.output_id]
-            .data['connections'][connection.output_class];
+        ////----------------------- inputs //-----------------------
+        const in_connectionList =
+            this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+                'connections'
+            ];
+        const in_connectionsList: any[] = in_connectionList['inputs'];
+        const inIndex = in_connectionsList.findIndex(
+            (inp: any) =>
+                inp.hasOwnProperty(connection.input_class) &&
+                inp[connection.input_class].baseInfo.output_id ==
+                    connection.output_id
+        );
 
-        delete this.editor.drawflow.drawflow.Home.data[connection.input_id]
-            .data['connections'][connection.input_class];
+        this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
+            'connections'
+        ]['inputs'].splice(inIndex, 1);
+
+        //----------------------- outputs -----------------------
+        const out_connectionList =
+            this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+                'connections'
+            ];
+        const out_connectionsList: any[] = out_connectionList['outputs'];
+        const outIndex = out_connectionsList.findIndex(
+            (out: any) =>
+                out.hasOwnProperty(connection.output_class) &&
+                out[connection.output_class].baseInfo.input_id ==
+                    connection.input_id
+        );
+
+        this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
+            'connections'
+        ]['outputs'].splice(outIndex, 1);
     }
 
     getData() {
