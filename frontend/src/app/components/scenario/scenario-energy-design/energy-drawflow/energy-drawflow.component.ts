@@ -669,11 +669,11 @@ export class EnergyDrawflowComponent {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
-
+        debugger;
         if (followRules) {
             this.showFormModal.emit({
                 type: 'flow',
-                id: '_flow',
+                id: '',
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
                 action: { fn: 'submitFormData', label: 'save' },
                 editMode: false,
@@ -790,14 +790,14 @@ export class EnergyDrawflowComponent {
             destination: { node: any; port: any };
         }
     ) {
-        if (type == 'node') {
-            if (this.contextmenu != null) {
-                const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
+        if (this.contextmenu != null) {
+            const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
 
+            if (type == 'node') {
                 if (node)
                     this.showFormModal.emit({
                         type: 'node',
-                        id: node.class,
+                        id: node.class.toLocaleLowerCase(),
                         node: node,
                         title: `Edit: ${node.name}`,
                         action: { fn: 'submitFormData', label: 'Update' },
@@ -807,12 +807,7 @@ export class EnergyDrawflowComponent {
                     });
 
                 this.unShowConextMenu();
-            }
-        } else if (type == 'flow' && connection) {
-            if (this.contextmenu != null) {
-                // const currentNode = this.editor.getNodeFromId(
-                //     this.contextmenu.nodeId
-                // );
+            } else if (type == 'flow' && connection) {
                 const source_connectionList =
                     this.editor.drawflow.drawflow.Home.data[
                         connection.source.node.id
@@ -832,13 +827,25 @@ export class EnergyDrawflowComponent {
                 _connectionData.formInfo['connection'] =
                     _connectionData.baseInfo;
 
+                const nodeDestination = this.editor.getNodeFromId(
+                    connection.destination.node.id
+                );
+                const nodeSource = this.editor.getNodeFromId(
+                    connection.source.node.id
+                );
+                const node =
+                    nodeDestination.class != 'bus'
+                        ? nodeDestination
+                        : nodeSource;
+
                 this.showFormModal.emit({
                     type: 'flow',
-                    id: '_flow', //`${nodeOut.id}-${nodeIn.id}`,
+                    id: node.class.toLocaleLowerCase(),
                     title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
                     action: { fn: 'submitFormData', label: 'save' },
                     editMode: true,
                     data: _connectionData.formInfo,
+                    node: node,
                 });
 
                 this.unShowConextMenu();

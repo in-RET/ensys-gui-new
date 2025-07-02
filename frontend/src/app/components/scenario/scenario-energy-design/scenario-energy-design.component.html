@@ -23,45 +23,82 @@
     (closeModal)="closeModal($event)"
 >
     <div modal-form>
-        <!-- ports -->
-        <div class="row mb-3" *ngIf="formModal_info.id === 'transformer'">
-            <div class="col-6">
-                <app-order-list
-                    label="Inputs"
-                    [data]="
-                        formModal_info.data.ports
-                            ? formModal_info.data.ports.inputs
-                            : null
-                    "
-                    [acceptDuplicate]="false"
-                    [fields]="['name', 'num']"
-                    #transform_inputs
+        <ng-container
+            *ngIf="
+                formModal_info.type == 'flow' &&
+                    formModal_info.id == 'genericstorage';
+                else noraml_form
+            "
+        >
+            <div
+                *ngIf="
+                    formModal_info.formData !== null;
+                    else msg_flowStorageOEP
+                "
+            >
+                <app-form
+                    [formData]="formModal_info.formData"
+                    (onSubmit)="submitFormData()"
+                    #form
                 />
             </div>
 
-            <div class="col-6">
-                <app-order-list
-                    label="Outputs"
-                    [data]="
-                        formModal_info.data.ports
-                            ? formModal_info.data.ports.outputs
-                            : null
-                    "
-                    [acceptDuplicate]="false"
-                    [fields]="['name', 'num']"
-                    #transform_outputs
-                />
-            </div>
-        </div>
+            <ng-template #msg_flowStorageOEP>
+                <div>
+                    <p class="text-center">
+                        The OEP field has been enabled at the node level.
+                        Therefore, if you wish to enable and review its
+                        parameters, please perform this action directly in the
+                        node.
+                    </p>
+                </div>
+            </ng-template>
+        </ng-container>
 
-        <app-form
-            [formData]="formModal_info.formData"
-            (onSubmit)="submitFormData()"
-            #form
-        />
+        <ng-template #noraml_form>
+            <!-- ports -->
+            <div class="row mb-3" *ngIf="formModal_info.id === 'transformer'">
+                <div class="col-6">
+                    <app-order-list
+                        label="Inputs"
+                        [data]="
+                            formModal_info.data.ports
+                                ? formModal_info.data.ports.inputs
+                                : null
+                        "
+                        [acceptDuplicate]="false"
+                        [fields]="['name', 'num']"
+                        #transform_inputs
+                    />
+                </div>
+
+                <div class="col-6">
+                    <app-order-list
+                        label="Outputs"
+                        [data]="
+                            formModal_info.data.ports
+                                ? formModal_info.data.ports.outputs
+                                : null
+                        "
+                        [acceptDuplicate]="false"
+                        [fields]="['name', 'num']"
+                        #transform_outputs
+                    />
+                </div>
+            </div>
+
+            <app-form
+                [formData]="formModal_info.formData"
+                (onSubmit)="submitFormData()"
+                #form
+            />
+        </ng-template>
     </div>
 
-    <div modal-actions>
+    <div
+        modal-actions
+        *ngIf="formModal_info.formData !== null; else empty_form_actions"
+    >
         <span
             class="text-danger"
             style="position: absolute; left: 0; padding-left: 3rem"
@@ -75,8 +112,17 @@
             class="btn btn--success btn--medium"
             (click)="submitFormData()"
         >
-            <!-- <span *ngIf="!editMode">Save</span> -->
             <span>{{ formModal_info.action.label }}</span>
         </button>
     </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="modalComponent._closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
 </app-modal>

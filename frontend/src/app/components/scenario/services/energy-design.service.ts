@@ -156,7 +156,7 @@ export class EnergyDesignService {
         });
     }
 
-    private getDefaultFields(data: any) {
+    private getDefaultFields_flow(data: any) {
         return [
             {
                 name: 'variable_costs',
@@ -285,7 +285,7 @@ export class EnergyDesignService {
         });
     }
 
-    private getStorageFields(data: any) {
+    private getDefaultFields_storage(data: any) {
         return [
             {
                 name: 'nominal_storage_capacity',
@@ -415,660 +415,877 @@ export class EnergyDesignService {
         });
     }
 
-    getFormData(name: string, editMode: boolean, data?: any, callback?: any) {
-        switch (name.toLocaleLowerCase()) {
-            case 'source':
-                return {
-                    sections: [
-                        {
-                            name: 'info',
-                            class: 'col-12',
-                            fields: [
-                                this.getField(
-                                    'name',
-                                    'Name',
-                                    'Name',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                                this.getField(
-                                    'outputPort_name',
-                                    'Name',
-                                    'Port(Out)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                            ],
-                        },
-                    ],
-                };
-
-            case 'Pre-source':
-            case 'predefinedsource':
-                return {
-                    sections: [
-                        {
-                            name: 'Name',
-                            class: 'col-6',
-                            fields: [
-                                // {
-                                //     name: 'name',
-                                //     placeholder: 'Name',
-                                //     label: 'Name',
-                                //     isReq: true,
-                                //     value: getField('name'),
-                                //     type: 'text',
-                                // },
-                            ],
-                        },
-                        {
-                            name: 'Source',
-                            class: 'col-6',
-                            fields: [
+    getFormData(
+        type: string,
+        name: string,
+        editMode: boolean,
+        data?: any,
+        callback?: any,
+        node?: any
+    ) {
+        switch (type) {
+            case 'node':
+                switch (name.toLocaleLowerCase()) {
+                    case 'source':
+                        return {
+                            sections: [
                                 {
-                                    // name: 'source',
-                                    // placeholder: 'Source',
-                                    // label: 'Choose...',
-                                    // isReq: true,
-                                    // value: getField('source'),
-                                    // type: 'select',
-                                    // options: [
-                                    //     {
-                                    //         name: 'Wind power plant',
-                                    //         value: 'Wind power plant',
-                                    //     },
-                                    //     {
-                                    //         name: 'Ground Mounted Photovoltaic',
-                                    //         value: 'Ground Mounted Photovoltaic',
-                                    //     },
-                                    //     {
-                                    //         name: 'Roof Mounted Photovoltaic',
-                                    //         value: 'Roof Mounted Photovoltaic',
-                                    //     },
-                                    //     {
-                                    //         name: 'Import from the power grid',
-                                    //         value: 'Import from the power grid',
-                                    //     },
-                                    //     {
-                                    //         name: 'Biomass supply',
-                                    //         value: 'Biomass supply',
-                                    //     },
-                                    //     {
-                                    //         name: 'Solar thermal system',
-                                    //         value: 'Solar thermal system',
-                                    //     },
-                                    //     {
-                                    //         name: 'Run-of-river power plant',
-                                    //         value: 'Run-of-river power plant',
-                                    //     },
-                                    //     {
-                                    //         name: 'Other',
-                                    //         value: 'Other',
-                                    //     },
-                                    // ],
+                                    name: 'info',
+                                    class: 'col-12',
+                                    fields: [
+                                        this.getField(
+                                            'name',
+                                            'Name',
+                                            'Name',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                        this.getField(
+                                            'outputPort_name',
+                                            'Name',
+                                            'Port(Out)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                    ],
                                 },
                             ],
-                        },
-                    ],
-                };
+                        };
 
-            case 'transformer':
-                return {
-                    sections: [
-                        {
-                            name: 'Name',
-                            class: 'col-6',
-                            fields: [
-                                this.getField(
-                                    'name',
-                                    'Name',
-                                    'Name',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                            ],
-                        },
-                    ],
-                };
-
-            case 'Pre-transformer':
-            case 'predefinedtransformer':
-                return {
-                    sections: [
-                        {
-                            name: 'Name',
-                            class: 'col-6',
-                            fields: [
+                    case 'Pre-source':
+                    case 'predefinedsource':
+                        return {
+                            sections: [
                                 {
-                                    // name: 'name',
-                                    // placeholder: 'Name',
-                                    // label: 'Name',
-                                    // isReq: true,
-                                    // value: getField('name'),
-                                    // type: 'text',
+                                    name: 'Name',
+                                    class: 'col-6',
+                                    fields: [
+                                        // {
+                                        //     name: 'name',
+                                        //     placeholder: 'Name',
+                                        //     label: 'Name',
+                                        //     isReq: true,
+                                        //     value: getField('name'),
+                                        //     type: 'text',
+                                        // },
+                                    ],
+                                },
+                                {
+                                    name: 'Source',
+                                    class: 'col-6',
+                                    fields: [
+                                        {
+                                            // name: 'source',
+                                            // placeholder: 'Source',
+                                            // label: 'Choose...',
+                                            // isReq: true,
+                                            // value: getField('source'),
+                                            // type: 'select',
+                                            // options: [
+                                            //     {
+                                            //         name: 'Wind power plant',
+                                            //         value: 'Wind power plant',
+                                            //     },
+                                            //     {
+                                            //         name: 'Ground Mounted Photovoltaic',
+                                            //         value: 'Ground Mounted Photovoltaic',
+                                            //     },
+                                            //     {
+                                            //         name: 'Roof Mounted Photovoltaic',
+                                            //         value: 'Roof Mounted Photovoltaic',
+                                            //     },
+                                            //     {
+                                            //         name: 'Import from the power grid',
+                                            //         value: 'Import from the power grid',
+                                            //     },
+                                            //     {
+                                            //         name: 'Biomass supply',
+                                            //         value: 'Biomass supply',
+                                            //     },
+                                            //     {
+                                            //         name: 'Solar thermal system',
+                                            //         value: 'Solar thermal system',
+                                            //     },
+                                            //     {
+                                            //         name: 'Run-of-river power plant',
+                                            //         value: 'Run-of-river power plant',
+                                            //     },
+                                            //     {
+                                            //         name: 'Other',
+                                            //         value: 'Other',
+                                            //     },
+                                            // ],
+                                        },
+                                    ],
                                 },
                             ],
-                        },
-                        {
-                            name: 'Trafo',
-                            class: 'col-6',
-                            fields: [
+                        };
+
+                    case 'transformer':
+                        return {
+                            sections: [
                                 {
-                                    // name: 'trafo',
-                                    // placeholder: 'Trafo',
-                                    // label: 'Choose...',
-                                    // isReq: true,
-                                    // value: getField('trafo'),
-                                    // type: 'select',
-                                    // options: [
-                                    //     {
-                                    //         name: 'Biogas CHP',
-                                    //         value: 'Biogas CHP',
-                                    //     },
-                                    //     {
-                                    //         name: 'Biogas injection (New facility)',
-                                    //         value: 'Biogas injection (New facility)',
-                                    //     },
-                                    //     {
-                                    //         name: 'Gas and steam power plant',
-                                    //         value: 'Gas and steam power plant',
-                                    //     },
-                                    //     {
-                                    //         name: 'Power to Liquid',
-                                    //         value: 'Power to Liquid',
-                                    //     },
-                                    //     {
-                                    //         name: 'Methanisation',
-                                    //         value: 'Methanisation',
-                                    //     },
-                                    //     {
-                                    //         name: 'Electrolysis',
-                                    //         value: 'Electrolysis',
-                                    //     },
-                                    //     {
-                                    //         name: 'Fuel cell',
-                                    //         value: 'Fuel cell',
-                                    //     },
-                                    //     {
-                                    //         name: 'Air source heat pump (large-scale)',
-                                    //         value: 'Air source heat pump (large-scale)',
-                                    //     },
-                                    //     {
-                                    //         name: 'Electrode heating boiler',
-                                    //         value: 'Electrode heating boiler',
-                                    //     },
-                                    //     {
-                                    //         name: 'Other',
-                                    //         value: 'Other',
-                                    //     },
-                                    // ],
+                                    name: 'Name',
+                                    class: 'col-6',
+                                    fields: [
+                                        this.getField(
+                                            'name',
+                                            'Name',
+                                            'Name',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                    ],
                                 },
                             ],
-                        },
-                    ],
-                };
+                        };
 
-            case 'genericstorage':
-                return {
-                    sections: [
-                        {
-                            name: 'info',
-                            class: 'col-12',
-                            fields: [
-                                this.getField(
-                                    'inputPort_name',
-                                    'Name',
-                                    'Port(In)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-
-                                this.getField(
-                                    'name',
-                                    'Name',
-                                    'Name',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-
-                                this.getField(
-                                    'outputPort_name',
-                                    'Name',
-                                    'Port(Out)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
+                    case 'Pre-transformer':
+                    case 'predefinedtransformer':
+                        return {
+                            sections: [
+                                {
+                                    name: 'Name',
+                                    class: 'col-6',
+                                    fields: [
+                                        {
+                                            // name: 'name',
+                                            // placeholder: 'Name',
+                                            // label: 'Name',
+                                            // isReq: true,
+                                            // value: getField('name'),
+                                            // type: 'text',
+                                        },
+                                    ],
+                                },
+                                {
+                                    name: 'Trafo',
+                                    class: 'col-6',
+                                    fields: [
+                                        {
+                                            // name: 'trafo',
+                                            // placeholder: 'Trafo',
+                                            // label: 'Choose...',
+                                            // isReq: true,
+                                            // value: getField('trafo'),
+                                            // type: 'select',
+                                            // options: [
+                                            //     {
+                                            //         name: 'Biogas CHP',
+                                            //         value: 'Biogas CHP',
+                                            //     },
+                                            //     {
+                                            //         name: 'Biogas injection (New facility)',
+                                            //         value: 'Biogas injection (New facility)',
+                                            //     },
+                                            //     {
+                                            //         name: 'Gas and steam power plant',
+                                            //         value: 'Gas and steam power plant',
+                                            //     },
+                                            //     {
+                                            //         name: 'Power to Liquid',
+                                            //         value: 'Power to Liquid',
+                                            //     },
+                                            //     {
+                                            //         name: 'Methanisation',
+                                            //         value: 'Methanisation',
+                                            //     },
+                                            //     {
+                                            //         name: 'Electrolysis',
+                                            //         value: 'Electrolysis',
+                                            //     },
+                                            //     {
+                                            //         name: 'Fuel cell',
+                                            //         value: 'Fuel cell',
+                                            //     },
+                                            //     {
+                                            //         name: 'Air source heat pump (large-scale)',
+                                            //         value: 'Air source heat pump (large-scale)',
+                                            //     },
+                                            //     {
+                                            //         name: 'Electrode heating boiler',
+                                            //         value: 'Electrode heating boiler',
+                                            //     },
+                                            //     {
+                                            //         name: 'Other',
+                                            //         value: 'Other',
+                                            //     },
+                                            // ],
+                                        },
+                                    ],
+                                },
                             ],
-                        },
+                        };
 
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
+                    case 'genericstorage':
+                        return {
+                            sections: [
+                                {
+                                    name: 'info',
+                                    class: 'col-12',
+                                    fields: [
+                                        this.getField(
+                                            'inputPort_name',
+                                            'Name',
+                                            'Port(In)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
 
-                        {
-                            name: 'OEP',
-                            class: 'col-12',
-                            visible: true,
-                            fields: [
-                                this.getField(
-                                    'oep',
-                                    'Switch On/Off',
-                                    'OEP',
-                                    false,
-                                    'switch',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    'pt-3',
-                                    () => {
-                                        callback['toggleVisibilitySection']([
-                                            'non-OEP',
-                                            'non-investment',
-                                            'investment',
-                                            'defaults',
-                                        ]);
+                                        this.getField(
+                                            'name',
+                                            'Name',
+                                            'Name',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
 
-                                        callback['toggleFomFields']([
+                                        this.getField(
+                                            'outputPort_name',
+                                            'Name',
+                                            'Port(Out)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                    ],
+                                },
+
+                                {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
+                                {
+                                    name: 'OEP',
+                                    class: 'col-12',
+                                    fields: [
+                                        this.getField(
+                                            'oep',
+                                            'Switch On/Off',
+                                            'OEP',
+                                            false,
+                                            'switch',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            'pt-3',
+                                            () => {
+                                                callback[
+                                                    'toggleVisibilitySection'
+                                                ]([
+                                                    'non-OEP',
+                                                    'non-investment',
+                                                    'investment',
+                                                    'defaults',
+                                                ]);
+
+                                                callback['toggleFomFields']([
+                                                    'storage',
+                                                ]);
+                                            },
+                                            undefined,
+                                            undefined,
+                                            true
+                                        ),
+
+                                        this.getField(
                                             'storage',
-                                        ]);
-                                    },
-                                    undefined,
-                                    undefined,
-                                    true
-                                ),
+                                            'Storage',
+                                            'Choose...',
+                                            true,
+                                            'select',
+                                            '8',
+                                            editMode,
+                                            data,
+                                            '',
+                                            () => {
+                                                callback[
+                                                    'toggleVisibilitySection'
+                                                ](['non-OEP']);
+                                            },
+                                            [
+                                                {
+                                                    name: 'Sodium storage',
+                                                    value: 'Sodium storage',
+                                                },
+                                                {
+                                                    name: 'Lithium Ion Battery Storage',
+                                                    value: 'Lithium Ion Battery Storage',
+                                                },
+                                                {
+                                                    name: 'Pumped storage power plant',
+                                                    value: 'Pumped storage power plant',
+                                                },
+                                                {
+                                                    name: 'Heat storage (seasonal)',
+                                                    value: 'Heat storage (seasonal)',
+                                                },
+                                                {
+                                                    name: 'Heat storage (short term)',
+                                                    value: 'Heat storage (short term)',
+                                                },
+                                                {
+                                                    name: 'Gas storage',
+                                                    value: 'Gas storage',
+                                                },
+                                                {
+                                                    name: 'Hydrogen storage',
+                                                    value: 'Hydrogen storage',
+                                                },
+                                                {
+                                                    name: 'Other',
+                                                    value: 'Other',
+                                                },
+                                            ],
+                                            !this.getFieldData('OEP', {
+                                                mode: editMode,
+                                                data,
+                                            })
+                                        ),
+                                    ],
+                                },
 
-                                this.getField(
-                                    'storage',
-                                    'Storage',
-                                    'Choose...',
-                                    true,
-                                    'select',
-                                    '8',
-                                    editMode,
-                                    data,
-                                    '',
-                                    () => {
-                                        callback['toggleVisibilitySection']([
-                                            'non-OEP',
-                                        ]);
-                                    },
-                                    [
+                                {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
+                                {
+                                    name: 'non-OEP',
+                                    class: 'col-12',
+                                    label: 'Investments & Defaults',
+                                    visible: !this.getFieldData(
+                                        'OEP',
                                         {
-                                            name: 'Sodium storage',
-                                            value: 'Sodium storage',
+                                            mode: editMode,
+                                            data,
                                         },
-                                        {
-                                            name: 'Lithium Ion Battery Storage',
-                                            value: 'Lithium Ion Battery Storage',
-                                        },
-                                        {
-                                            name: 'Pumped storage power plant',
-                                            value: 'Pumped storage power plant',
-                                        },
-                                        {
-                                            name: 'Heat storage (seasonal)',
-                                            value: 'Heat storage (seasonal)',
-                                        },
-                                        {
-                                            name: 'Heat storage (short term)',
-                                            value: 'Heat storage (short term)',
-                                        },
-                                        {
-                                            name: 'Gas storage',
-                                            value: 'Gas storage',
-                                        },
-                                        {
-                                            name: 'Hydrogen storage',
-                                            value: 'Hydrogen storage',
-                                        },
-                                        {
-                                            name: 'Other',
-                                            value: 'Other',
-                                        },
-                                    ]
-                                ),
-                            ],
-                        },
-
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
-
-                        {
-                            name: 'non-OEP',
-                            class: 'col-12',
-                            label: 'Investments & Defaults',
-                            // visible: this.getField('OEP'),
-                            visible: false,
-                            fields: [
-                                this.getField(
-                                    'investment',
-                                    '',
-                                    'Investment',
-                                    false,
-                                    'switch',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    'my-3',
-                                    () => {
-                                        const InvestmentFields =
-                                            this.getInvestmentFields(data).map(
-                                                (elm: any) => elm.name
-                                            );
-                                        callback['toggleInvestFields'](
-                                            InvestmentFields
-                                        );
-                                    }
-                                ),
-                            ],
-                        },
-
-                        {
-                            name: 'non-investment',
-                            class: 'col-9',
-                            // visible: !getField('OEP'),
-                            visible: false,
-                            fields: [
-                                this.getField(
-                                    'nominal_value',
-                                    'Nominal Value',
-                                    'Nominal Value',
-                                    false,
-                                    'number',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    undefined,
-                                    undefined,
-                                    undefined,
-                                    this.getFieldData('investment', {
-                                        mode: editMode,
-                                        data,
-                                    })
-                                ),
-                            ],
-                        },
-
-                        {
-                            name: 'investment',
-                            class: 'col-12',
-                            // visible: !getField('OEP'),
-                            visible: false,
-                            fields: [
-                                ...this.getInvestmentFields(data).map(
-                                    (elm: any) => {
-                                        const isInvSelected: boolean =
-                                            data['investment'];
-                                        elm['disabled'] = !isInvSelected;
-                                        return elm;
-                                    }
-                                ),
-                            ],
-                        },
-                        {
-                            name: 'defaults',
-                            class: 'col-12',
-                            visible: false,
-                            fields: this.getStorageFields(data),
-                        },
-                    ],
-                };
-
-            case 'sink':
-            case 'excess':
-            case 'export':
-            case 'oep':
-                return {
-                    sections: [
-                        {
-                            name: 'info',
-                            class: 'col-12',
-                            fields: [
-                                this.getField(
-                                    'inputPort_name',
-                                    'Name',
-                                    'Port(In)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                                this.getField(
-                                    'name',
-                                    'Name',
-                                    'Name',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                            ],
-                        },
-                    ],
-                };
-
-            case 'bus':
-                return {
-                    sections: [
-                        {
-                            name: 'info',
-                            class: 'col-12',
-                            fields: [
-                                this.getField(
-                                    'inputPort_name',
-                                    'Name',
-                                    'Port(In)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-
-                                this.getField(
-                                    'name',
-                                    'Name',
-                                    'Name',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-
-                                this.getField(
-                                    'outputPort_name',
-                                    'Name',
-                                    'Port(Out)',
-                                    true,
-                                    'text',
-                                    '',
-                                    editMode,
-                                    data
-                                ),
-                            ],
-                        },
-                    ],
-                };
-
-            case '_flow':
-                return {
-                    sections: [
-                        {
-                            name: 'OEP',
-                            class: 'col-12 d-flex flex-column justify-content-center align-items-end',
-                            fields: [
-                                this.getField(
-                                    'oep',
-                                    'Switch On/Off',
-                                    'OEP',
-                                    false,
-                                    'switch',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    'pt-3',
-                                    () => {
-                                        callback['toggleVisibilitySection']([
-                                            'non-OEP',
-                                            'non-investment',
+                                        true
+                                    ),
+                                    fields: [
+                                        this.getField(
                                             'investment',
-                                            'defaults',
-                                        ]);
+                                            '',
+                                            'Investment',
+                                            false,
+                                            'switch',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            'my-3',
+                                            () => {
+                                                const InvestmentFields =
+                                                    this.getInvestmentFields(
+                                                        data
+                                                    ).map(
+                                                        (elm: any) => elm.name
+                                                    );
+                                                callback['toggleInvestFields'](
+                                                    InvestmentFields
+                                                );
+                                            }
+                                        ),
+                                    ],
+                                },
+
+                                {
+                                    name: 'non-investment',
+                                    class: 'col-9',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: [
+                                        this.getField(
+                                            'nominal_value',
+                                            'Nominal Value',
+                                            'Nominal Value',
+                                            false,
+                                            'number',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            undefined,
+                                            undefined,
+                                            undefined,
+                                            this.getFieldData('investment', {
+                                                mode: editMode,
+                                                data,
+                                            })
+                                        ),
+                                    ],
+                                },
+
+                                {
+                                    name: 'investment',
+                                    class: 'col-12',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: [
+                                        ...this.getInvestmentFields(data).map(
+                                            (elm: any) => {
+                                                const isInvSelected: boolean =
+                                                    data['investment'];
+                                                elm['disabled'] =
+                                                    !isInvSelected;
+                                                return elm;
+                                            }
+                                        ),
+                                    ],
+                                },
+                                {
+                                    name: 'defaults',
+                                    class: 'col-12',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: this.getDefaultFields_storage(data),
+                                },
+                            ],
+                        };
+
+                    case 'sink':
+                    case 'excess':
+                    case 'export':
+                    case 'oep':
+                        return {
+                            sections: [
+                                {
+                                    name: 'info',
+                                    class: 'col-12',
+                                    fields: [
+                                        this.getField(
+                                            'inputPort_name',
+                                            'Name',
+                                            'Port(In)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                        this.getField(
+                                            'name',
+                                            'Name',
+                                            'Name',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                    ],
+                                },
+                            ],
+                        };
+
+                    case 'bus':
+                        return {
+                            sections: [
+                                {
+                                    name: 'info',
+                                    class: 'col-12',
+                                    fields: [
+                                        this.getField(
+                                            'inputPort_name',
+                                            'Name',
+                                            'Port(In)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+
+                                        this.getField(
+                                            'name',
+                                            'Name',
+                                            'Name',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+
+                                        this.getField(
+                                            'outputPort_name',
+                                            'Name',
+                                            'Port(Out)',
+                                            true,
+                                            'text',
+                                            '',
+                                            editMode,
+                                            data
+                                        ),
+                                    ],
+                                },
+                            ],
+                        };
+
+                    default:
+                        return null;
+                }
+
+            case 'flow':
+                switch (name) {
+                    case 'genericstorage':
+                        if (!node.data.oep) {
+                            return {
+                                sections: [
+                                    // {
+                                    //     name: 'OEP',
+                                    //     class: 'col-12 d-flex flex-column justify-content-center align-items-end',
+                                    //     fields: [
+                                    //         this.getField(
+                                    //             'oep',
+                                    //             'Switch On/Off',
+                                    //             'OEP',
+                                    //             false,
+                                    //             'switch',
+                                    //             'auto',
+                                    //             editMode,
+                                    //             data,
+                                    //             'pt-3',
+                                    //             () => {
+                                    //                 callback[
+                                    //                     'toggleVisibilitySection'
+                                    //                 ]([
+                                    //                     'non-OEP',
+                                    //                     'non-investment',
+                                    //                     'investment',
+                                    //                     'defaults',
+                                    //                 ]);
+                                    //             },
+                                    //             undefined,
+                                    //             undefined,
+                                    //             true
+                                    //         ),
+                                    //     ],
+                                    // },
+
+                                    // {
+                                    //     name: 'divider',
+                                    //     class: 'dashed',
+                                    // },
+
+                                    {
+                                        name: 'non-OEP',
+                                        class: 'col-12',
+                                        visible: !this.getFieldData(
+                                            'OEP',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            true
+                                        ),
+                                        fields: [
+                                            this.getField(
+                                                'investment',
+                                                '',
+                                                'Investment',
+                                                false,
+                                                'switch',
+                                                'auto',
+                                                editMode,
+                                                data,
+                                                'my-3',
+                                                () => {
+                                                    const InvestmentFields =
+                                                        this.getInvestmentFields(
+                                                            data
+                                                        ).map(
+                                                            (elm: any) =>
+                                                                elm.name
+                                                        );
+                                                    callback[
+                                                        'toggleInvestFields'
+                                                    ](InvestmentFields);
+                                                }
+                                            ),
+                                        ],
                                     },
-                                    undefined,
-                                    undefined,
-                                    true
-                                ),
-                            ],
-                        },
 
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
+                                    {
+                                        name: 'non-investment',
+                                        class: 'col-9',
+                                        visible: !this.getFieldData(
+                                            'OEP',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            true
+                                        ),
+                                        fields: [
+                                            this.getField(
+                                                'nominal_value',
+                                                'Nominal Value',
+                                                'Nominal Value',
+                                                false,
+                                                'number',
+                                                'auto',
+                                                editMode,
+                                                data,
+                                                undefined,
+                                                undefined,
+                                                undefined,
+                                                this.getFieldData(
+                                                    'investment',
+                                                    {
+                                                        mode: editMode,
+                                                        data,
+                                                    }
+                                                )
+                                            ),
+                                        ],
+                                    },
 
-                        {
-                            name: 'non-OEP',
-                            class: 'col-12',
-                            // visible: false,
-                            visible: !this.getFieldData(
-                                'OEP',
+                                    {
+                                        name: 'divider',
+                                        class: 'dashed',
+                                    },
+
+                                    {
+                                        name: 'investment',
+                                        class: 'col-12',
+                                        visible: !this.getFieldData(
+                                            'OEP',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            true
+                                        ),
+                                        fields: [
+                                            ...this.getInvestmentFields(
+                                                data
+                                            ).map((elm: any) => {
+                                                const isInvSelected: boolean =
+                                                    data['investment'];
+                                                elm['disabled'] =
+                                                    !isInvSelected;
+                                                return elm;
+                                            }),
+                                        ],
+                                    },
+
+                                    {
+                                        name: 'divider',
+                                        class: 'dashed',
+                                    },
+
+                                    {
+                                        name: 'defaults',
+                                        class: 'col-12',
+                                        visible: !this.getFieldData(
+                                            'OEP',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            true
+                                        ),
+                                        fields: this.getDefaultFields_flow(
+                                            data
+                                        ),
+                                    },
+                                ],
+                            };
+                        } else return null;
+
+                    default:
+                        return {
+                            sections: [
                                 {
-                                    mode: editMode,
-                                    data,
+                                    name: 'OEP',
+                                    class: 'col-12 d-flex flex-column justify-content-center align-items-end',
+                                    fields: [
+                                        this.getField(
+                                            'oep',
+                                            'Switch On/Off',
+                                            'OEP',
+                                            false,
+                                            'switch',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            'pt-3',
+                                            () => {
+                                                callback[
+                                                    'toggleVisibilitySection'
+                                                ]([
+                                                    'non-OEP',
+                                                    'non-investment',
+                                                    'investment',
+                                                    'defaults',
+                                                ]);
+                                            },
+                                            undefined,
+                                            undefined,
+                                            true
+                                        ),
+                                    ],
                                 },
-                                true
-                            ),
-                            fields: [
-                                this.getField(
-                                    'investment',
-                                    '',
-                                    'Investment',
-                                    false,
-                                    'switch',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    'my-3',
-                                    () => {
-                                        const InvestmentFields =
-                                            this.getInvestmentFields(data).map(
-                                                (elm: any) => elm.name
-                                            );
-                                        callback['toggleInvestFields'](
-                                            InvestmentFields
-                                        );
-                                    }
-                                ),
-                            ],
-                        },
 
-                        {
-                            name: 'non-investment',
-                            class: 'col-9',
-                            visible: !this.getFieldData(
-                                'OEP',
                                 {
-                                    mode: editMode,
-                                    data,
+                                    name: 'divider',
+                                    class: 'dashed',
                                 },
-                                true
-                            ),
-                            fields: [
-                                this.getField(
-                                    'nominal_value',
-                                    'Nominal Value',
-                                    'Nominal Value',
-                                    false,
-                                    'number',
-                                    'auto',
-                                    editMode,
-                                    data,
-                                    undefined,
-                                    undefined,
-                                    undefined,
-                                    this.getFieldData('investment', {
-                                        mode: editMode,
-                                        data,
-                                    })
-                                ),
-                            ],
-                        },
 
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
-
-                        {
-                            name: 'investment',
-                            class: 'col-12',
-                            // visible: !getField('OEP'),
-                            visible: !this.getFieldData(
-                                'OEP',
                                 {
-                                    mode: editMode,
-                                    data,
+                                    name: 'non-OEP',
+                                    class: 'col-12',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: [
+                                        this.getField(
+                                            'investment',
+                                            '',
+                                            'Investment',
+                                            false,
+                                            'switch',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            'my-3',
+                                            () => {
+                                                const InvestmentFields =
+                                                    this.getInvestmentFields(
+                                                        data
+                                                    ).map(
+                                                        (elm: any) => elm.name
+                                                    );
+                                                callback['toggleInvestFields'](
+                                                    InvestmentFields
+                                                );
+                                            }
+                                        ),
+                                    ],
                                 },
-                                true
-                            ),
-                            fields: [
-                                ...this.getInvestmentFields(data).map(
-                                    (elm: any) => {
-                                        const isInvSelected: boolean =
-                                            data['investment'];
-                                        elm['disabled'] = !isInvSelected;
-                                        return elm;
-                                    }
-                                ),
-                            ],
-                        },
 
-                        {
-                            name: 'divider',
-                            class: 'dashed',
-                        },
-
-                        {
-                            name: 'defaults',
-                            class: 'col-12',
-                            // visible: !getField('OEP'),
-                            visible: !this.getFieldData(
-                                'OEP',
                                 {
-                                    mode: editMode,
-                                    data,
+                                    name: 'non-investment',
+                                    class: 'col-9',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: [
+                                        this.getField(
+                                            'nominal_value',
+                                            'Nominal Value',
+                                            'Nominal Value',
+                                            false,
+                                            'number',
+                                            'auto',
+                                            editMode,
+                                            data,
+                                            undefined,
+                                            undefined,
+                                            undefined,
+                                            this.getFieldData('investment', {
+                                                mode: editMode,
+                                                data,
+                                            })
+                                        ),
+                                    ],
                                 },
-                                true
-                            ),
-                            fields: this.getDefaultFields(data),
-                        },
-                    ],
-                };
+
+                                {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
+                                {
+                                    name: 'investment',
+                                    class: 'col-12',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: [
+                                        ...this.getInvestmentFields(data).map(
+                                            (elm: any) => {
+                                                const isInvSelected: boolean =
+                                                    data['investment'];
+                                                elm['disabled'] =
+                                                    !isInvSelected;
+                                                return elm;
+                                            }
+                                        ),
+                                    ],
+                                },
+
+                                {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
+                                {
+                                    name: 'defaults',
+                                    class: 'col-12',
+                                    visible: !this.getFieldData(
+                                        'OEP',
+                                        {
+                                            mode: editMode,
+                                            data,
+                                        },
+                                        true
+                                    ),
+                                    fields: this.getDefaultFields_flow(data),
+                                },
+                            ],
+                        };
+                }
 
             default:
                 return null;

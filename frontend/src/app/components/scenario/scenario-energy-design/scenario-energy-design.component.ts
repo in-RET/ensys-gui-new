@@ -179,15 +179,17 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
 
-        if (e.editMode && e.node) {
+        if (e.editMode && e.node && this.formModal_info.type == 'node') {
             e.data['name'] = e.node.name;
         }
 
         this.formModal_info.formData = this.energyDesignService.getFormData(
+            e.type,
             e.id,
             e.editMode,
             e.data,
-            this.defineCallbackFlowForm(e.id)
+            this.defineCallbackFlowForm(),
+            e.node
         );
 
         this.formModal_info.data = e.data;
@@ -197,15 +199,13 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.show = true;
     }
 
-    defineCallbackFlowForm(flowType: 'node' | '_flow' | string) {
-        // if (flowType == '_flow') {
+    defineCallbackFlowForm() {
         let callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
         callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
         callbackList['toggleVisibilitySection'] =
             this.toggleVisibilitySection.bind(this);
         return callbackList;
-        // } else return false;
     }
 
     toggleInvestFields(investmentFields: string[]) {
