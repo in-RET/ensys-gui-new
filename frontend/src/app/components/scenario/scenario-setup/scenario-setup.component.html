@@ -1,25 +1,8 @@
 <div class="scenario-main">
     <form [formGroup]="form">
         <div class="row g-2">
-            <div class="col-1">
-                <div class="form-floating mb-3">
-                    <input
-                        type="text"
-                        class="form-control"
-                        formControlName="name"
-                        placeholder="Name"
-                        required
-                        [ngClass]="{
-                            'is-invalid':
-                                name!.invalid && (name!.dirty || name!.touched)
-                        }"
-                        tabindex="1"
-                    />
-                    <label>Name</label>
-                </div>
-            </div>
-
-            <div class="col-2" formGroupName="project">
+            <!-- project -->
+            <div class="col-auto" formGroupName="project">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -46,6 +29,25 @@
                 </div>
             </div>
 
+            <!-- name -->
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        formControlName="name"
+                        placeholder="Name"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                name!.invalid && (name!.dirty || name!.touched)
+                        }"
+                        tabindex="1"
+                    />
+                    <label>Name</label>
+                </div>
+            </div>
+
             <!-- datepiocker -->
             <div class="col-2">
                 <div class="form-floating mb-3">
@@ -66,7 +68,8 @@
                 </div>
             </div>
 
-            <div class="col">
+            <!-- sim-period -->
+            <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
                         type="number"
@@ -82,11 +85,12 @@
                         }"
                         tabindex="4"
                     />
-                    <label>Simulation period of one year</label>
+                    <label>Simulation period</label>
                 </div>
             </div>
 
-            <div class="col-2">
+            <!-- time-step -->
+            <div class="col-auto">
                 <div class="form-floating mb-3">
                     <select
                         class="form-select"
@@ -108,6 +112,7 @@
                 </div>
             </div>
 
+            <!-- sim-year -->
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <select
@@ -132,7 +137,7 @@
             </div>
         </div>
 
-        <div class="row g-2"></div>
+        <div class="row g-auto"></div>
 
         <section style="display: none">
             <!-- <hr />

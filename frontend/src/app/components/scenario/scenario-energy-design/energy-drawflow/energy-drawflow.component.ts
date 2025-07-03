@@ -669,11 +669,13 @@ export class EnergyDrawflowComponent {
         var nodeIn = this.editor.getNodeFromId(connection['input_id']);
         var nodeOut = this.editor.getNodeFromId(connection['output_id']);
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
-        debugger;
+
+        const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
+
         if (followRules) {
             this.showFormModal.emit({
                 type: 'flow',
-                id: '',
+                id: node.class.toLocaleLowerCase(),
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
                 action: { fn: 'submitFormData', label: 'save' },
                 editMode: false,
