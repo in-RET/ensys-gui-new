@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
+from .auxillary import validate_scenario_owner
 from .model import EnScenario, EnScenarioUpdate, EnScenarioDB
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
@@ -17,41 +18,6 @@ scenario_router = APIRouter(
     prefix="/scenario",
     tags=["scenario"],
 )
-
-
-def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
-    """
-    Validates whether the owner of a given scenario matches the user from the provided
-    authentication token. This function ensures that the logged-in user has the
-    authorization to access or modify the scenario.
-
-    :param scenario_id: ID of the scenario to validate ownership for.
-    :type scenario_id: int
-    :param db: Database session for executing queries and retrieving data. Dependency injection.
-    :type db: Session
-    :param token: Authentication token representing the logged-in user.
-    :type token: str
-    :return: A tuple containing three values:
-             - A boolean indicating whether the user is the owner of the scenario.
-             - An HTTP status code indicating the result of the validation.
-             - A string message explaining the result (empty string if validation
-               is successful).
-    :rtype: tuple(bool, int, str)
-    """
-    token_data = decode_token(token)
-
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-    user = db.exec(statement).first()
-    if not user:
-        return False, status.HTTP_404_NOT_FOUND, "User not found."
-
-    scenario = db.get(EnScenarioDB, scenario_id)
-
-    if scenario.user_id == user.id:
-        return True, status.HTTP_200_OK, ""
-    else:
-        return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
-
 
 @scenario_router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
@@ -127,10 +93,7 @@ async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_s
     statement = select(EnScenarioDB).where(EnScenarioDB.project_id == project_id)
     scenarios = db.exec(statement)
 
-    response_data = []
-    for scenario in scenarios:
-        response_data.append(scenario.model_dump())
-
+    response_data = [scenario.model_dump() for scenario in scenarios]
     return DataResponse(
         data=GeneralDataModel(
             items=response_data,
@@ -177,7 +140,7 @@ async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_s
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[scenario.model_dump()],
+            items=[scenario.model_dump(exclude="energysystem")],
             totalCount=1
         ),
         success=True

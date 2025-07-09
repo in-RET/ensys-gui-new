@@ -35134,15 +35134,18 @@
         ],
         "converters": [
             {
-                "label": "Waermepumpe",
+                "label": "GuD",
                 "inputs": {
-                    "Strombus": {}
+                    "Biomasse": {}
                 },
                 "outputs": {
                     "Waerme": {
                         "nominal_value": {
                             "ep_costs": 83377.87598788617
                         }
+                    },
+                    "Strombus": {
+                      "nominal_value": 42.0
                     }
                 },
                 "conversion_factors": {

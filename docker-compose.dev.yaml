@@ -112,14 +112,13 @@ services:
             context: ./docs/config
             dockerfile: dockerfile
         container_name: documentation
-        command: "serve -f config/mkdocs.yaml -a 0.0.0.0:8000"
+        command: "serve -f mkdocs.yaml -a 0.0.0.0:8000"
+        working_dir: /docs/config
         ports:
             - "${MKDOCS_PORT}:8000"
         volumes:
             - ./docs:/docs
             - ./backend:/backend
-        stdin_open: true
-        tty: true
 
 #  proxy:
 #    build: ./proxy
