@@ -107,4 +107,8 @@ export class FormComponent {
 
         this.form.controls[fControlName].setValue(e);
     }
+
+    setFieldData(fControlName: string, val: any) {
+        this.form.controls[fControlName].setValue(val);
+    }
 }

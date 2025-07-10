@@ -32,6 +32,7 @@
                             *ngIf="
                                 field.type == 'text' || field.type == 'number'
                             "
+                            [ngClass]="{ 'd-flex gap-2': field.actions }"
                         >
                             <input
                                 [type]="field.type"
@@ -45,6 +46,7 @@
                                         (form.get(field.name)!.dirty ||
                                             form.get(field.name)!.touched)
                                 }"
+                                [step]="field.step"
                             />
                             <label *ngIf="!field.isReq"
                                 >{{ field.label }}
@@ -52,6 +54,34 @@
                             <label *ngIf="field.isReq"
                                 >{{ field.label }} *</label
                             >
+
+                            <ng-container *ngIf="field.actions">
+                                <a
+                                    class="d-flex align-items-center"
+                                    *ngFor="let action of field.actions"
+                                    (click)="action.onClick()"
+                                    [ngClass]="{
+                                        'd-none':
+                                            form.controls[field.name].disabled
+                                    }"
+                                >
+                                    <span *ngIf="action.label">
+                                        {{ action.label }}
+                                    </span>
+
+                                    <img
+                                        src="/static/assets/icons/calculator.svg"
+                                        [alt]="action.name"
+                                        style="
+                                            height: 3rem;
+                                            filter: invert(48%) sepia(79%)
+                                                saturate(2476%)
+                                                hue-rotate(191deg)
+                                                brightness(118%) contrast(119%);
+                                        "
+                                    />
+                                </a>
+                            </ng-container>
                         </div>
 
                         <!-- dropdown -->

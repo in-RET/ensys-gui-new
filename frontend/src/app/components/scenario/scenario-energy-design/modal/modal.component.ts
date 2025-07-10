@@ -35,7 +35,18 @@ export class ModalComponent {
     }
 
     _closeModal(approve: boolean) {
-        this.modal.hide();
         this.closeModal.emit(approve);
+    }
+
+    hideModal() {
+        this.modal.hide();
+    }
+
+    showModal() {
+        this.modal.show();
+    }
+
+    ngOnDestroy() {
+        this.hideModal();
     }
 }

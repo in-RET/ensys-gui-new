@@ -21,6 +21,7 @@
     "
     [title]="formModal_info.title"
     (closeModal)="closeModal($event)"
+    [hidden]="formModal_info.hide"
 >
     <div modal-form>
         <ng-container
@@ -57,7 +58,13 @@
 
         <ng-template #noraml_form>
             <!-- ports -->
-            <div class="row mb-3" *ngIf="formModal_info.id === 'transformer'">
+            <div
+                class="row mb-3"
+                *ngIf="
+                    formModal_info.type == 'node' &&
+                    formModal_info.id === 'transformer'
+                "
+            >
                 <div class="col-6">
                     <app-order-list
                         label="Inputs"
@@ -113,6 +120,48 @@
             (click)="submitFormData()"
         >
             <span>{{ formModal_info.action.label }}</span>
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="modalComponent._closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>
+
+<!-- form modal calculator -->
+<app-modal
+    *ngIf="formModal_calculator.show"
+    [title]="formModal_calculator.title"
+    (closeModal)="closeModalEpCostsCalculator()"
+>
+    <div modal-form>
+        <p class="text-danger" *ngIf="formCalError.isShow">
+            Error: {{ formCalError.msg }}
+        </p>
+
+        <app-form
+            [formData]="formModal_calculator.formData"
+            (onSubmit)="calculateEpCosts()"
+            #form_cal
+        />
+    </div>
+
+    <div
+        modal-actions
+        *ngIf="formModal_calculator.formData !== null; else empty_form_actions"
+    >
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="calculateEpCosts()"
+        >
+            <span>{{ formModal_calculator.action.label }}</span>
         </button>
     </div>
 

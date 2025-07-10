@@ -681,8 +681,9 @@ export class EnergyDrawflowComponent {
                 editMode: false,
                 data: {
                     connection: connection,
-                    oep: true,
+                    oep: node.data.oep,
                 },
+                node: node,
             });
         } else {
             this.removeSingleConnection(connection);

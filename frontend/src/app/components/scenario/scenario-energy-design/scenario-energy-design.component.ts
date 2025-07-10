@@ -50,6 +50,7 @@ class FormModalInfo {
     data: any | undefined = undefined;
     type: 'node' | 'flow' | undefined = undefined;
     editMode: boolean = false;
+    hide: boolean = false;
 }
 
 @Component({
@@ -74,8 +75,11 @@ export class ScenarioEnergyDesignComponent {
     editMode: boolean = false;
     isFullscreen: boolean = false;
 
-    // formData: any;
     formError: any = {
+        msg: '',
+        isShow: false,
+    };
+    formCalError: any = {
         msg: '',
         isShow: false,
     };
@@ -83,11 +87,18 @@ export class ScenarioEnergyDesignComponent {
     // for all modals
     formModal_info!: FormModalInfo;
 
+    formModal_calculator: any = {
+        show: false,
+        title: 'EP Costs Calculator',
+    };
+
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
 
     @ViewChild('form')
     formComponent!: FormComponent;
+    @ViewChild('form_cal')
+    formCalComponent!: FormComponent;
 
     @ViewChild(ModalComponent)
     modalComponent!: ModalComponent;
@@ -205,6 +216,8 @@ export class ScenarioEnergyDesignComponent {
         callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
         callbackList['toggleVisibilitySection'] =
             this.toggleVisibilitySection.bind(this);
+        callbackList['showEpCostsCalculator'] =
+            this.showEpCostsCalculator.bind(this);
         return callbackList;
     }
 
@@ -238,26 +251,58 @@ export class ScenarioEnergyDesignComponent {
         }
     }
 
-    toggleModal(appear: boolean) {}
-
-    closeModal(approve: boolean) {
+    checkConnectionToDelete() {
         if (
+            this.formModal_info &&
             this.formModal_info.type === 'flow' &&
-            !this.formModal_info.editMode &&
-            !approve
+            !this.formModal_info.editMode
         )
             this.energyDrawflowComponent.removeSingleConnection(
                 this.formModal_info.data.connection
             );
+    }
 
+    cleanFormData() {
         this.formModal_info = new FormModalInfo();
         this.setFormError(false, '');
+    }
+
+    closeModal(approve: boolean) {
+        if (!approve) this.checkConnectionToDelete();
+
+        this.cleanFormData();
+    }
+
+    closeModalEpCostsCalculator() {
+        this.formModal_calculator.show = false;
+        this.formModal_info.hide = false;
+        this.modalComponent.showModal();
+    }
+
+    showEpCostsCalculator() {
+        this.formModal_calculator.action = {
+            label: 'ƒ',
+            fn: 'calculateEpCosts',
+        };
+        this.formModal_calculator.formData =
+            this.energyDesignService.getFormDataEpCosts();
+
+        this.modalComponent.hideModal();
+        this.formModal_info.hide = true;
+        this.formModal_calculator.show = true;
     }
 
     // ============================
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
+            msg: msg,
+            isShow: status,
+        };
+    }
+
+    setFormCalError(status: boolean, msg: string) {
+        this.formCalError = {
             msg: msg,
             isShow: status,
         };
@@ -328,6 +373,27 @@ export class ScenarioEnergyDesignComponent {
         }
 
         return true;
+    }
+
+    calculateEpCosts() {
+        this.setFormCalError(false, '');
+
+        let formData = this.formCalComponent.submit();
+        const epCosts = this.energyDesignService.epCostsCal(
+            formData.capex,
+            formData.opex,
+            formData.lifetime
+        );
+
+        if (!epCosts) {
+            this.setFormCalError(
+                true,
+                'Opex must be between 0 and 1 (exclusive)!'
+            );
+        } else {
+            this.formComponent.setFieldData('ep_costs', epCosts);
+            this.closeModalEpCostsCalculator();
+        }
     }
 
     makeNode(formValue: any, formModalInfo: FormModalInfo) {

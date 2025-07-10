@@ -67,7 +67,7 @@ export class EnergyDesignService {
         ];
     }
 
-    private getInvestmentFields(data: any) {
+    private getInvestmentFields(data: any, callback?: any) {
         return [
             {
                 name: 'maximum',
@@ -89,6 +89,16 @@ export class EnergyDesignService {
                 label: 'ep_costs',
                 type: 'number',
                 span: 'auto',
+                actions: [
+                    {
+                        name: 'ep_costs_calculator',
+                        label: '',
+                        icon: 'calculator',
+                        onClick: () => {
+                            callback['showEpCostsCalculator']();
+                        },
+                    },
+                ],
             },
             {
                 name: 'existing',
@@ -755,10 +765,14 @@ export class EnergyDesignService {
                                                     value: 'Other',
                                                 },
                                             ],
-                                            !this.getFieldData('OEP', {
-                                                mode: editMode,
-                                                data,
-                                            })
+                                            !this.getFieldData(
+                                                'OEP',
+                                                {
+                                                    mode: editMode,
+                                                    data,
+                                                },
+                                                true
+                                            )
                                         ),
                                     ],
                                 },
@@ -839,6 +853,11 @@ export class EnergyDesignService {
                                 },
 
                                 {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
+                                {
                                     name: 'investment',
                                     class: 'col-12',
                                     visible: !this.getFieldData(
@@ -850,17 +869,33 @@ export class EnergyDesignService {
                                         true
                                     ),
                                     fields: [
-                                        ...this.getInvestmentFields(data).map(
-                                            (elm: any) => {
-                                                const isInvSelected: boolean =
-                                                    data['investment'];
-                                                elm['disabled'] =
-                                                    !isInvSelected;
-                                                return elm;
+                                        ...this.getInvestmentFields(
+                                            data,
+                                            callback
+                                        ).map((elm: any) => {
+                                            const isInvSelected: boolean =
+                                                data['investment'];
+                                            elm['disabled'] = !isInvSelected;
+
+                                            if (elm.actions) {
+                                                elm.actions.forEach(
+                                                    (element: any) => {
+                                                        element['disabled'] =
+                                                            !isInvSelected;
+                                                    }
+                                                );
                                             }
-                                        ),
+
+                                            return elm;
+                                        }),
                                     ],
                                 },
+
+                                {
+                                    name: 'divider',
+                                    class: 'dashed',
+                                },
+
                                 {
                                     name: 'defaults',
                                     class: 'col-12',
@@ -963,56 +998,20 @@ export class EnergyDesignService {
             case 'flow':
                 switch (name) {
                     case 'genericstorage':
-                        if (!node.data.oep) {
+                        if (!data.oep) {
                             return {
                                 sections: [
-                                    // {
-                                    //     name: 'OEP',
-                                    //     class: 'col-12 d-flex flex-column justify-content-center align-items-end',
-                                    //     fields: [
-                                    //         this.getField(
-                                    //             'oep',
-                                    //             'Switch On/Off',
-                                    //             'OEP',
-                                    //             false,
-                                    //             'switch',
-                                    //             'auto',
-                                    //             editMode,
-                                    //             data,
-                                    //             'pt-3',
-                                    //             () => {
-                                    //                 callback[
-                                    //                     'toggleVisibilitySection'
-                                    //                 ]([
-                                    //                     'non-OEP',
-                                    //                     'non-investment',
-                                    //                     'investment',
-                                    //                     'defaults',
-                                    //                 ]);
-                                    //             },
-                                    //             undefined,
-                                    //             undefined,
-                                    //             true
-                                    //         ),
-                                    //     ],
-                                    // },
-
-                                    // {
-                                    //     name: 'divider',
-                                    //     class: 'dashed',
-                                    // },
-
                                     {
                                         name: 'non-OEP',
                                         class: 'col-12',
-                                        visible: !this.getFieldData(
-                                            'OEP',
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            true
-                                        ),
+                                        // visible: !this.getFieldData(
+                                        //     'OEP',
+                                        //     {
+                                        //         mode: editMode,
+                                        //         data,
+                                        //     },
+                                        //     true
+                                        // ),
                                         fields: [
                                             this.getField(
                                                 'investment',
@@ -1043,14 +1042,14 @@ export class EnergyDesignService {
                                     {
                                         name: 'non-investment',
                                         class: 'col-9',
-                                        visible: !this.getFieldData(
-                                            'OEP',
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            true
-                                        ),
+                                        // visible: !this.getFieldData(
+                                        //     'OEP',
+                                        //     {
+                                        //         mode: editMode,
+                                        //         data,
+                                        //     },
+                                        //     true
+                                        // ),
                                         fields: [
                                             this.getField(
                                                 'nominal_value',
@@ -1083,22 +1082,26 @@ export class EnergyDesignService {
                                     {
                                         name: 'investment',
                                         class: 'col-12',
-                                        visible: !this.getFieldData(
-                                            'OEP',
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            true
-                                        ),
                                         fields: [
                                             ...this.getInvestmentFields(
                                                 data
                                             ).map((elm: any) => {
                                                 const isInvSelected: boolean =
                                                     data['investment'];
+
                                                 elm['disabled'] =
                                                     !isInvSelected;
+
+                                                if (elm.actions) {
+                                                    elm.actions.forEach(
+                                                        (element: any) => {
+                                                            element[
+                                                                'disabled'
+                                                            ] = !isInvSelected;
+                                                        }
+                                                    );
+                                                }
+
                                                 return elm;
                                             }),
                                         ],
@@ -1112,14 +1115,14 @@ export class EnergyDesignService {
                                     {
                                         name: 'defaults',
                                         class: 'col-12',
-                                        visible: !this.getFieldData(
-                                            'OEP',
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            true
-                                        ),
+                                        // visible: !this.getFieldData(
+                                        //     'OEP',
+                                        //     {
+                                        //         mode: editMode,
+                                        //         data,
+                                        //     },
+                                        //     true
+                                        // ),
                                         fields: this.getDefaultFields_flow(
                                             data
                                         ),
@@ -1253,15 +1256,24 @@ export class EnergyDesignService {
                                         true
                                     ),
                                     fields: [
-                                        ...this.getInvestmentFields(data).map(
-                                            (elm: any) => {
-                                                const isInvSelected: boolean =
-                                                    data['investment'];
-                                                elm['disabled'] =
-                                                    !isInvSelected;
-                                                return elm;
+                                        ...this.getInvestmentFields(
+                                            data,
+                                            callback
+                                        ).map((elm: any) => {
+                                            const isInvSelected: boolean =
+                                                data['investment'];
+                                            elm['disabled'] = !isInvSelected;
+
+                                            if (elm.actions) {
+                                                elm.actions.forEach(
+                                                    (element: any) => {
+                                                        element['disabled'] =
+                                                            !isInvSelected;
+                                                    }
+                                                );
                                             }
-                                        ),
+                                            return elm;
+                                        }),
                                     ],
                                 },
 
@@ -1290,6 +1302,41 @@ export class EnergyDesignService {
             default:
                 return null;
         }
+    }
+
+    getFormDataEpCosts() {
+        return {
+            sections: [
+                {
+                    name: 'calculateField',
+                    class: '',
+                    fields: [
+                        {
+                            name: 'capex',
+                            placeholder: 'Capex',
+                            label: 'Capex',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'opex',
+                            placeholder: 'Opex',
+                            label: 'Opex',
+                            type: 'number',
+                            span: 'auto',
+                            step: '0.01',
+                        },
+                        {
+                            name: 'lifetime',
+                            placeholder: 'Lifetime',
+                            label: 'Lifetime',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                    ],
+                },
+            ],
+        };
     }
 
     getNodePorts(
@@ -1462,5 +1509,15 @@ export class EnergyDesignService {
         formData['ports']['outputs'] = outputList.data;
 
         return formData;
+    }
+
+    epCostsCal(capex: number, opex: number, lifetime: number) {
+        if (opex <= 0 || opex >= 1) {
+            return false;
+        }
+
+        const numerator = opex * Math.pow(1 + opex, lifetime);
+        const denominator = Math.pow(1 + opex, lifetime) - 1;
+        return capex * (numerator / denominator);
     }
 }
