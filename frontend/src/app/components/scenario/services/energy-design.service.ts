@@ -1012,14 +1012,6 @@ export class EnergyDesignService {
                                     {
                                         name: 'non-OEP',
                                         class: 'col-12',
-                                        // visible: !this.getFieldData(
-                                        //     'OEP',
-                                        //     {
-                                        //         mode: editMode,
-                                        //         data,
-                                        //     },
-                                        //     true
-                                        // ),
                                         fields: [
                                             this.getField(
                                                 'investment',
@@ -1051,14 +1043,6 @@ export class EnergyDesignService {
                                     {
                                         name: 'non-investment',
                                         class: 'col-9',
-                                        // visible: !this.getFieldData(
-                                        //     'OEP',
-                                        //     {
-                                        //         mode: editMode,
-                                        //         data,
-                                        //     },
-                                        //     true
-                                        // ),
                                         fields: [
                                             this.getField(
                                                 'nominal_value',
@@ -1093,7 +1077,8 @@ export class EnergyDesignService {
                                         class: 'col-12',
                                         fields: [
                                             ...this.getInvestmentFields(
-                                                data
+                                                data,
+                                                callback
                                             ).map((elm: any) => {
                                                 const isInvSelected: boolean =
                                                     data['investment'];
@@ -1124,14 +1109,6 @@ export class EnergyDesignService {
                                     {
                                         name: 'defaults',
                                         class: 'col-12',
-                                        // visible: !this.getFieldData(
-                                        //     'OEP',
-                                        //     {
-                                        //         mode: editMode,
-                                        //         data,
-                                        //     },
-                                        //     true
-                                        // ),
                                         fields: this.getDefaultFields_flow(
                                             data
                                         ),
@@ -1328,6 +1305,7 @@ export class EnergyDesignService {
                             label: 'Capex',
                             type: 'number',
                             span: 'auto',
+                            isReq: true,
                         },
                         {
                             name: 'zinsatz',
@@ -1336,6 +1314,7 @@ export class EnergyDesignService {
                             type: 'number',
                             span: 'auto',
                             step: '0.01',
+                            isReq: true,
                         },
                         {
                             name: 'lifetime',
@@ -1343,6 +1322,7 @@ export class EnergyDesignService {
                             label: 'Lifetime',
                             type: 'number',
                             span: 'auto',
+                            isReq: true,
                         },
                         {
                             name: 'opexPercentage',
@@ -1350,6 +1330,7 @@ export class EnergyDesignService {
                             label: 'Opex Percentage',
                             type: 'number',
                             span: 'auto',
+                            isReq: true,
                         },
                     ],
                 },
