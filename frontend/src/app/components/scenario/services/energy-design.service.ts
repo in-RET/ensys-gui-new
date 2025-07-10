@@ -1,5 +1,12 @@
 import { Injectable } from '@angular/core';
 
+type EPCostParams = {
+    capex: number;
+    zinsatz: number; // interest rate (0 < zinsatz < 1)
+    lifetime: number; // project lifetime in years
+    opexPercentage: number; // opex as a decimal (e.g., 0.05 for 5%)
+};
+
 @Injectable({
     providedIn: 'root',
 })
@@ -68,8 +75,6 @@ export class EnergyDesignService {
     }
 
     private getInvestmentFields(data: any, callback?: any) {
-        console.log(callback);
-
         return [
             {
                 name: 'maximum',
@@ -1325,9 +1330,9 @@ export class EnergyDesignService {
                             span: 'auto',
                         },
                         {
-                            name: 'opex',
-                            placeholder: 'Opex',
-                            label: 'Opex',
+                            name: 'zinsatz',
+                            placeholder: 'Zinsatz',
+                            label: 'Zinsatz',
                             type: 'number',
                             span: 'auto',
                             step: '0.01',
@@ -1336,6 +1341,13 @@ export class EnergyDesignService {
                             name: 'lifetime',
                             placeholder: 'Lifetime',
                             label: 'Lifetime',
+                            type: 'number',
+                            span: 'auto',
+                        },
+                        {
+                            name: 'opexPercentage',
+                            placeholder: 'Opex Percentage',
+                            label: 'Opex Percentage',
                             type: 'number',
                             span: 'auto',
                         },
@@ -1517,13 +1529,22 @@ export class EnergyDesignService {
         return formData;
     }
 
-    epCostsCal(capex: number, opex: number, lifetime: number) {
-        if (opex <= 0 || opex >= 1) {
+    epCostsCal({
+        capex,
+        zinsatz,
+        lifetime,
+        opexPercentage,
+    }: EPCostParams): number | false {
+        if (zinsatz <= 0 || zinsatz >= 1) {
             return false;
         }
 
-        const numerator = opex * Math.pow(1 + opex, lifetime);
-        const denominator = Math.pow(1 + opex, lifetime) - 1;
-        return capex * (numerator / denominator);
+        const numerator = zinsatz * Math.pow(1 + zinsatz, lifetime);
+        const denominator = Math.pow(1 + zinsatz, lifetime) - 1;
+        const capexCosts = capex * (numerator / denominator);
+        const opexCosts = capex * opexPercentage;
+        const epCosts = capexCosts + opexCosts;
+
+        return Math.trunc(epCosts * 1000) / 1000;
     }
 }

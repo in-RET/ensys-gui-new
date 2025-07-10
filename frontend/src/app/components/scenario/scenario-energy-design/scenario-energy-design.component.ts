@@ -379,16 +379,16 @@ export class ScenarioEnergyDesignComponent {
         this.setFormCalError(false, '');
 
         let formData = this.formCalComponent.submit();
-        const epCosts = this.energyDesignService.epCostsCal(
-            formData.capex,
-            formData.opex,
-            formData.lifetime
-        );
-
+        const epCosts: number | false = this.energyDesignService.epCostsCal({
+            capex: formData.capex,
+            zinsatz: formData.zinsatz,
+            lifetime: formData.lifetime,
+            opexPercentage: formData.opexpercentage,
+        });
         if (!epCosts) {
             this.setFormCalError(
                 true,
-                'Opex must be between 0 and 1 (exclusive)!'
+                'zinsatz (interest rate) must be between 0 and 1!'
             );
         } else {
             this.formComponent.setFieldData('ep_costs', epCosts);
