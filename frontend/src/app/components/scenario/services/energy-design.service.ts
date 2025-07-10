@@ -68,6 +68,8 @@ export class EnergyDesignService {
     }
 
     private getInvestmentFields(data: any, callback?: any) {
+        console.log(callback);
+
         return [
             {
                 name: 'maximum',
@@ -812,6 +814,7 @@ export class EnergyDesignService {
                                                     ).map(
                                                         (elm: any) => elm.name
                                                     );
+
                                                 callback['toggleInvestFields'](
                                                     InvestmentFields
                                                 );
@@ -1031,6 +1034,7 @@ export class EnergyDesignService {
                                                             (elm: any) =>
                                                                 elm.name
                                                         );
+
                                                     callback[
                                                         'toggleInvestFields'
                                                     ](InvestmentFields);
@@ -1195,10 +1199,12 @@ export class EnergyDesignService {
                                             () => {
                                                 const InvestmentFields =
                                                     this.getInvestmentFields(
-                                                        data
+                                                        data,
+                                                        callback
                                                     ).map(
                                                         (elm: any) => elm.name
                                                     );
+
                                                 callback['toggleInvestFields'](
                                                     InvestmentFields
                                                 );
