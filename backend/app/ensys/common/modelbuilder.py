@@ -14,11 +14,11 @@ class ModelBuilder:
     """
     ModelBuilder is a class responsible for constructing and solving an energy system
     model based on a configuration file. It provides functionality to parse the input
-    configuration, log the necessary details, handle file operations, and integrate with
+    configuration, log the necessary details, handle file operations and integrate with
     oemof-solph for energy system modeling and optimization.
 
     The intended use case is to manage energy systems, build components from the
-    provided configuration, apply constraints and run optimizations using a defined
+    provided configuration, apply constraints, and run optimizations using a defined
     solver.
 
     :ivar WORKING_DIRECTORY: Path to the working directory where configurations and
@@ -47,7 +47,7 @@ class ModelBuilder:
                  ) -> None:
         """
         Initializes an instance with specified configuration and directory settings. This constructor also handles the loading
-        of the model configuration from a JSON file, sets up logging, and initiates the energy system building process based on
+        of the model configuration from a JSON file, sets up logging and initiates the energy system building process based on
         the parameters provided. An exception is raised if the configuration file does not follow the expected JSON format.
 
         :param ConfigFile: Path to the JSON configuration file that defines the energy system model.
@@ -107,7 +107,7 @@ class ModelBuilder:
         Builds an energy system from a configuration file and prepares it for optimization.
         The method constructs an oemof energy system based on the provided configuration,
         populates it with components, adds constraints if specified, prepares log and LP
-        files, and optionally solves the optimization problem.
+        files and optionally solves the optimization problem.
 
         :param es: The energy system configuration object containing attributes such as
             start_date, time_steps, frequenz, components, and constraints.

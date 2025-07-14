@@ -38,6 +38,7 @@ class EnSimulation(BaseModel):
     end_date: datetime | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
 
+
 class EnSimulationDB(SQLModel, table=True):
     """
     Representation of a simulation entry in the database.
@@ -73,6 +74,7 @@ class EnSimulationDB(SQLModel, table=True):
     start_date: datetime = Field(nullable=False)
     end_date: datetime | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
+
 
 class EnSimulationUpdate(SQLModel):
     """

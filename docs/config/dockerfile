@@ -6,4 +6,6 @@ RUN pip install --no-cache-dir \
   mkdocstrings \
   mkdocstrings-python
 
+RUN mkdir Testfolder
+
 ENTRYPOINT ["mkdocs"]

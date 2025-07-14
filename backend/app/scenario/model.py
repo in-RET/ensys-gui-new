@@ -72,7 +72,7 @@ class EnScenarioDB(SQLModel, table=True):
     :ivar modeling_data: JSONB column storing the energy system
         model associated with the scenario. Defaults to an empty
         dictionary.
-    :type modeling_data: JSONB
+    :type modeling_data: Str
     """
     class Config:
         arbitrary_types_allowed = True
@@ -86,7 +86,7 @@ class EnScenarioDB(SQLModel, table=True):
     interval: float = Field(default=1)
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
-    modeling_data: JSONB = Field(sa_column=Column(JSONB), default={})
+    modeling_data: str = Field(sa_column=Column(JSONB), default={})
     energysystem: EnEnergysystem = Field(sa_column=Column(JSONB), default={})
 
 class EnScenarioUpdate(EnScenario):

@@ -1,11 +1,13 @@
+import json
 import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Session, select
 from starlette import status
 
-from .auxillary import validate_scenario_owner
+from .auxillary import validate_scenario_owner, convert_gui_json_to_ensys
 from .model import EnScenario, EnScenarioUpdate, EnScenarioDB
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
@@ -18,6 +20,7 @@ scenario_router = APIRouter(
     prefix="/scenario",
     tags=["scenario"],
 )
+
 
 @scenario_router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
@@ -49,8 +52,11 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
+
+
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
+    scenario.energysystem = convert_gui_json_to_ensys(scenario.modeling_data)
 
     with open(os.path.join(os.getenv("LOCAL_DATADIR"), "debug.json"), "wt") as f:
         f.write(scenario.model_dump_json())
@@ -93,7 +99,7 @@ async def read_scenarios(project_id: int, token: Annotated[str, Depends(oauth2_s
     statement = select(EnScenarioDB).where(EnScenarioDB.project_id == project_id)
     scenarios = db.exec(statement)
 
-    response_data = [scenario.model_dump() for scenario in scenarios]
+    response_data = [scenario.model_dump(exclude=['energysystem']) for scenario in scenarios]
     return DataResponse(
         data=GeneralDataModel(
             items=response_data,
@@ -138,9 +144,10 @@ async def read_scenario(scenario_id: int, token: Annotated[str, Depends(oauth2_s
     if not validate_project_owner(scenario.project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
+    response_data = scenario.model_dump(exclude=["energysystem"])
     return DataResponse(
         data=GeneralDataModel(
-            items=[scenario.model_dump(exclude="energysystem")],
+            items=[response_data],
             totalCount=1
         ),
         success=True
@@ -189,6 +196,7 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
+    db_scenario.energysystem = convert_gui_json_to_ensys(scenario_data.modeling_data)
 
     db_scenario.sqlmodel_update(new_scenario_data)
 

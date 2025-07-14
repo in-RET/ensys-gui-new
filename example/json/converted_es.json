@@ -1,0 +1,209 @@
+{
+    "busses": [
+        {
+            "label": "BusA",
+            "balanced": true
+        },
+        {
+            "label": "BusB",
+            "balanced": true
+        },
+        {
+            "label": "BusC",
+            "balanced": true
+        },
+        {
+            "label": "BusD",
+            "balanced": true
+        }
+    ],
+    "sinks": [
+        {
+            "label": "Default Sink",
+            "inputs": {
+                "BusC": {
+                    "nominal_value": null,
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            }
+        },
+        {
+            "label": "Default Sink",
+            "inputs": {
+                "BusD": {
+                    "nominal_value": 2334.0,
+                    "variable_costs": 123.0,
+                    "min": 234.0,
+                    "max": 2394.0,
+                    "fix": 324.0,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": 234,
+                    "full_load_time_min": 234,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": 234234.0,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            }
+        }
+    ],
+    "sources": [
+        {
+            "label": "Default Source",
+            "outputs": {
+                "BusA": {
+                    "nominal_value": null,
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            }
+        },
+        {
+            "label": "Default Source",
+            "outputs": {
+                "BusB": {
+                    "nominal_value": 324.0,
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            }
+        }
+    ],
+    "converters": [
+        {
+            "label": "Default Converter",
+            "inputs": {
+                "BusA": {
+                    "nominal_value": {
+                        "maximum": 1000.0,
+                        "minimum": 0.0,
+                        "ep_costs": 9.23234,
+                        "existing": 0.0,
+                        "nonconvex": false,
+                        "offset": 0.0,
+                        "overall_maximum": null,
+                        "overalL_minimum": null,
+                        "lifetime": null,
+                        "age": null,
+                        "interest_rate": null,
+                        "fixed_costs": null,
+                        "custom_attributes": null
+                    },
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                },
+                "BusB": {
+                    "nominal_value": 324.0,
+                    "variable_costs": 20.0,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            },
+            "outputs": {
+                "BusC": {
+                    "nominal_value": 234.0,
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                },
+                "BusD": {
+                    "nominal_value": 23.0,
+                    "variable_costs": null,
+                    "min": null,
+                    "max": null,
+                    "fix": null,
+                    "positive_gradient_limit": null,
+                    "negative_gradient_limit": null,
+                    "full_load_time_max": null,
+                    "full_load_time_min": null,
+                    "integer": null,
+                    "nonconvex": null,
+                    "fixed_costs": null,
+                    "lifetime": null,
+                    "age": null,
+                    "custom_attributes": null
+                }
+            },
+            "conversion_factors": {
+                "BusB": 2.0,
+                "BusD": 1.0
+            }
+        }
+    ],
+    "generic_storages": [],
+    "constraints": []
+}

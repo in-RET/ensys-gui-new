@@ -85,7 +85,7 @@
           {
             "id": 0,
             "name": "Input_Transformer_A",
-            "number": 1,
+            "number": null,
             "code": "input_1"
           },
           {
@@ -99,7 +99,7 @@
           {
             "id": 0,
             "name": "Output_Transformer_A",
-            "number": 2,
+            "number": null,
             "code": "output_1"
           },
           {
@@ -130,7 +130,7 @@
                 "minimum": null,
                 "ep_costs": null,
                 "existing": null,
-                "nonconvex": null,
+                "nonconvex": "0.1, 0.2, 0.2, 0.3",
                 "offset": null,
                 "overall_maximum": null,
                 "overall_minimum": null,
@@ -191,82 +191,80 @@
             }
           }
         ],
-        "inputs": [
-          {
-            "input_1": {
-              "baseInfo": {
-                "output_id": "3",
-                "input_id": "2",
-                "output_class": "output_1",
-                "input_class": "input_1"
-              },
-              "formInfo": {
-                "oep": false,
-                "investment": true,
-                "nominal_value": null,
-                "maximum": "1000",
-                "minimum": "0",
-                "ep_costs": "9.23234",
-                "existing": null,
-                "nonconvex": null,
-                "offset": null,
-                "overall_maximum": null,
-                "overall_minimum": null,
-                "interest_rate": null,
-                "lifetime": null,
-                "variable_costs": null,
-                "max": null,
-                "min": null,
-                "fix": null,
-                "positive_gradient_limit": null,
-                "negative_gradient_limit": null,
-                "fixed_costs": null,
-                "full_load_time_max": null,
-                "full_load_time_min": null,
-                "integer": null,
-                "_nonconvex": null,
-                "_lifetime": null,
-                "age": null
-              }
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "3",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_1"
             },
-            "input_2": {
-              "baseInfo": {
-                "output_id": "4",
-                "input_id": "2",
-                "output_class": "output_1",
-                "input_class": "input_2"
-              },
-              "formInfo": {
-                "oep": false,
-                "investment": null,
-                "nominal_value": "324",
-                "maximum": null,
-                "minimum": null,
-                "ep_costs": null,
-                "existing": null,
-                "nonconvex": null,
-                "offset": null,
-                "overall_maximum": null,
-                "overall_minimum": null,
-                "interest_rate": null,
-                "lifetime": null,
-                "variable_costs": "20,0",
-                "max": null,
-                "min": null,
-                "fix": null,
-                "positive_gradient_limit": null,
-                "negative_gradient_limit": null,
-                "fixed_costs": null,
-                "full_load_time_max": null,
-                "full_load_time_min": null,
-                "integer": null,
-                "_nonconvex": null,
-                "_lifetime": null,
-                "age": null
-              }
+            "formInfo": {
+              "oep": false,
+              "investment": true,
+              "nominal_value": null,
+              "maximum": 1000,
+              "minimum": 0,
+              "ep_costs": 9.23234,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          },
+          "input_2": {
+            "baseInfo": {
+              "output_id": "4",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_2"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 324,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": 20.0,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
             }
           }
-        ]
+        }
       }
     },
     "class": "transformer",

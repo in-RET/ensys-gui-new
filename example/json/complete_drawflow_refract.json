@@ -1,0 +1,1058 @@
+{
+  "1": {
+    "id": 1,
+    "name": "SourceA",
+    "data": {
+      "name": "SourceA",
+      "outputport_name": "Output_SourceA",
+      "ports": {
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_SourceA",
+            "code": "output_1"
+          }
+        ]
+      },
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "1",
+              "input_id": "3",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": true,
+              "investment": null,
+              "nominal_value": null,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {}
+      }
+    },
+    "class": "source",
+    "html": "\n            <div class=\"box\" asset_type_name=\" SourceA\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                    SourceA\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {},
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "3",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 100,
+    "pos_y": 188
+  },
+  "2": {
+    "id": 2,
+    "name": "Transformer",
+    "data": {
+      "name": "Transformer",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_Transformer_A",
+            "number": null,
+            "code": "input_1"
+          },
+          {
+            "id": 1,
+            "name": "Input_Transformer_B",
+            "number": 2,
+            "code": "input_2"
+          }
+        ],
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_Transformer_A",
+            "number": null,
+            "code": "output_1"
+          },
+          {
+            "id": 1,
+            "name": "Output_Transformer_B",
+            "number": 1,
+            "code": "output_2"
+          }
+        ]
+      },
+      "inp": 2,
+      "out": 2,
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "2",
+              "input_id": "5",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 234,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          },
+          "output_2": {
+            "baseInfo": {
+              "output_id": "2",
+              "input_id": "6",
+              "output_class": "output_2",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 23,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "3",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": true,
+              "nominal_value": null,
+              "maximum": 1000,
+              "minimum": 0,
+              "ep_costs": 9.23234,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          },
+          "input_2": {
+            "baseInfo": {
+              "output_id": "4",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_2"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 324,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": 20.0,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "transformer",
+    "html": "\n            <div class=\"box\" asset_type_name=\"Transformer\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                Transformer\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "3",
+            "input": "output_1"
+          }
+        ]
+      },
+      "input_2": {
+        "connections": [
+          {
+            "node": "4",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "5",
+            "output": "input_1"
+          }
+        ]
+      },
+      "output_2": {
+        "connections": [
+          {
+            "node": "6",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 620,
+    "pos_y": 438
+  },
+  "3": {
+    "id": 3,
+    "name": "BusA",
+    "data": {
+      "inputport_name": "Input_BusA",
+      "name": "BusA",
+      "outputport_name": "Output_BusA",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_BusA",
+            "code": "input_1"
+          }
+        ],
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_BusA",
+            "code": "output_1"
+          }
+        ]
+      },
+      "inp": 1,
+      "out": 1,
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "3",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": true,
+              "nominal_value": null,
+              "maximum": 1000,
+              "minimum": 0,
+              "ep_costs": 9.23234,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "1",
+              "input_id": "3",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": true,
+              "investment": null,
+              "nominal_value": null,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "bus",
+    "html": "\n            <div class=\"box\" asset_type_name=\"BusA\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                BusA\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "1",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "2",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 376,
+    "pos_y": 189
+  },
+  "4": {
+    "id": 4,
+    "name": "BusB",
+    "data": {
+      "inputport_name": "Input_BusB",
+      "name": "BusB",
+      "outputport_name": "Output_BusB",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_BusB",
+            "code": "input_1"
+          }
+        ],
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_BusB",
+            "code": "output_1"
+          }
+        ]
+      },
+      "inp": 1,
+      "out": 1,
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "4",
+              "input_id": "2",
+              "output_class": "output_1",
+              "input_class": "input_2"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 324,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": 20.0,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "10",
+              "input_id": "4",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 324,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "bus",
+    "html": "\n            <div class=\"box\" asset_type_name=\"BusB\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                BusB\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "9",
+            "input": "output_1"
+          },
+          {
+            "node": "10",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "2",
+            "output": "input_2"
+          },
+          {
+            "node": "9",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 337,
+    "pos_y": 636
+  },
+  "5": {
+    "id": 5,
+    "name": "BusC",
+    "data": {
+      "inputport_name": "Input_BusC",
+      "name": "BusC",
+      "outputport_name": "Output_BusC",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_BusC",
+            "code": "input_1"
+          }
+        ],
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_BusC",
+            "code": "output_1"
+          }
+        ]
+      },
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "5",
+              "input_id": "7",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": true,
+              "investment": null,
+              "nominal_value": null,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "2",
+              "input_id": "5",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 234,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "bus",
+    "html": "\n            <div class=\"box\" asset_type_name=\" BusC\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                    BusC\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "2",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "7",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 932,
+    "pos_y": 201
+  },
+  "6": {
+    "id": 6,
+    "name": "BusD",
+    "data": {
+      "inputport_name": "Input_BusD",
+      "name": "BusD",
+      "outputport_name": "Output_BusD",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_BusD",
+            "code": "input_1"
+          }
+        ],
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_BusD",
+            "code": "output_1"
+          }
+        ]
+      },
+      "inp": 1,
+      "out": 1,
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "6",
+              "input_id": "8",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 2334,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": 123,
+              "max": 2394,
+              "min": 234,
+              "fix": 324,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": 234234,
+              "full_load_time_max": 234,
+              "full_load_time_min": 234,
+              "integer": false,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "2",
+              "input_id": "6",
+              "output_class": "output_2",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 23,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "bus",
+    "html": "\n            <div class=\"box\" asset_type_name=\"BusD\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                BusD\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "2",
+            "input": "output_2"
+          }
+        ]
+      }
+    },
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "8",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 933,
+    "pos_y": 547
+  },
+  "7": {
+    "id": 7,
+    "name": "SinkA",
+    "data": {
+      "inputport_name": "Input_SinkA",
+      "name": "SinkA",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_SinkA",
+            "code": "input_1"
+          }
+        ]
+      },
+      "connections": {
+        "outputs": {},
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "5",
+              "input_id": "7",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": true,
+              "investment": null,
+              "nominal_value": null,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "sink",
+    "html": "\n            <div class=\"box\" asset_type_name=\" SinkA\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                    SinkA\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "5",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {},
+    "pos_x": 1220,
+    "pos_y": 170
+  },
+  "8": {
+    "id": 8,
+    "name": "SinkB",
+    "data": {
+      "inputport_name": "Input_SinkB",
+      "name": "SinkB",
+      "ports": {
+        "inputs": [
+          {
+            "id": 0,
+            "name": "Input_SinkB",
+            "code": "input_1"
+          }
+        ]
+      },
+      "inp": 1,
+      "out": 0,
+      "connections": {
+        "outputs": {},
+        "inputs": {
+          "input_1": {
+            "baseInfo": {
+              "output_id": "6",
+              "input_id": "8",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 2334,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": 123,
+              "max": 2394,
+              "min": 234,
+              "fix": 324,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": 234234,
+              "full_load_time_max": 234,
+              "full_load_time_min": 234,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        }
+      }
+    },
+    "class": "sink",
+    "html": "\n            <div class=\"box\" asset_type_name=\"SinkB\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                SinkB\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {
+      "input_1": {
+        "connections": [
+          {
+            "node": "6",
+            "input": "output_1"
+          }
+        ]
+      }
+    },
+    "outputs": {},
+    "pos_x": 1198,
+    "pos_y": 585
+  },
+  "10": {
+    "id": 10,
+    "name": "SourceB",
+    "data": {
+      "name": "SourceB",
+      "outputport_name": "Output_SourceB",
+      "ports": {
+        "outputs": [
+          {
+            "id": 0,
+            "name": "Output_SourceB",
+            "code": "output_1"
+          }
+        ]
+      },
+      "inp": 0,
+      "out": 1,
+      "connections": {
+        "outputs": {
+          "output_1": {
+            "baseInfo": {
+              "output_id": "10",
+              "input_id": "4",
+              "output_class": "output_1",
+              "input_class": "input_1"
+            },
+            "formInfo": {
+              "oep": false,
+              "investment": null,
+              "nominal_value": 324,
+              "maximum": null,
+              "minimum": null,
+              "ep_costs": null,
+              "existing": null,
+              "nonconvex": null,
+              "offset": null,
+              "overall_maximum": null,
+              "overall_minimum": null,
+              "interest_rate": null,
+              "lifetime": null,
+              "variable_costs": null,
+              "max": null,
+              "min": null,
+              "fix": null,
+              "positive_gradient_limit": null,
+              "negative_gradient_limit": null,
+              "fixed_costs": null,
+              "full_load_time_max": null,
+              "full_load_time_min": null,
+              "integer": null,
+              "_nonconvex": null,
+              "_lifetime": null,
+              "age": null
+            }
+          }
+        },
+        "inputs": {}
+      }
+    },
+    "class": "source",
+    "html": "\n            <div class=\"box\" asset_type_name=\"SourceB\"></div>\n\n            <div class=\"drawflow-node__name nodeName\">\n                <span>\n                SourceB\n                </span>\n            </div>\n\n            <div class=\"img\"></div>\n        ",
+    "typenode": false,
+    "inputs": {},
+    "outputs": {
+      "output_1": {
+        "connections": [
+          {
+            "node": "4",
+            "output": "input_1"
+          }
+        ]
+      }
+    },
+    "pos_x": 80,
+    "pos_y": 637
+  }
+}

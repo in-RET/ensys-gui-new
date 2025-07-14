@@ -4,7 +4,7 @@ from pydantic import Field
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter
-from .genericstorage import EnGenericStorage
+from .genericstorage import EnGenericStorage, OepGenericStorage
 from .sink import EnSink
 from .source import EnSource
 from ..common.basemodel import EnBaseModel
@@ -90,7 +90,7 @@ class EnEnergysystem(EnBaseModel):
             self.sources.append(elem)
         elif type(elem) is EnBus:
             self.busses.append(elem)
-        elif type(elem) is EnGenericStorage:
+        elif type(elem) in [EnGenericStorage, OepGenericStorage]:
             self.generic_storages.append(elem)
         elif type(elem) is EnConverter:
             self.converters.append(elem)
@@ -99,7 +99,7 @@ class EnEnergysystem(EnBaseModel):
         else:
             raise Exception("Unknown Type given!")
 
-    def to_oemof_energysystem(self, energysystem: solph.EnergySystem) -> solph.EnergySystem:
+    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.EnergySystem:
         """
         Converts the internal energy system components to an oemof energy system and adds
         them to the provided oemof energy system instance. Each component in the internal

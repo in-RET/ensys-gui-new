@@ -1,21 +1,28 @@
 from oemof import solph
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, ConfigDict
 
 
 ## Container for a configuration
 class EnBaseModel(BaseModel):
     """
-    Specialized Pydantic BaseModel for managing energy system components.
+    Pydantic subclass for special configurations and utility methods.
 
-    This class extends the functionality of Pydantic's BaseModel by adding methods
-    for removing empty attributes and building keyword arguments for oemof.solph
-    components. It is designed for applications in energy systems modeling, particularly
-    when working with the oemof.solph framework. The class provides utility methods
-    to handle energy system components, including proper management of complex
-    data structures and configurations.
+    This class extends the functionality of the BaseModel provided by Pydantic. It incorporates
+    additional configurations and utility methods, such as cleaning up empty attributes and
+    building keyword arguments for an oemof energy system component.
+
+    :ivar model_config: Configuration dictionary that allows arbitrary types and specifies
+        how additional attributes are handled.
+    :type model_config: ConfigDict
     """
 
-    @model_validator(mode='after')
+    ## pydantic subclass to add special configurations.
+    model_config = ConfigDict(
+        extra='ignore', # 'allow'
+        arbitrary_types_allowed=True
+    )
+
+    @model_validator(mode='before')
     def remove_empty(self):
         """
         Removes attributes with `None` values from the object.
@@ -29,79 +36,64 @@ class EnBaseModel(BaseModel):
         :return: The modified object with `None` value attributes removed.
         :rtype: object
         """
+        items_to_remove = []
+        # print(self)
+        # print(f"{type(self)}")
 
-        delList = []
+        if type(self) == dict:
+            for attribute in self:
+                if self[attribute] is None:
+                    items_to_remove.append(attribute)
 
-        for attribute in self.__dict__:
-            if self.__dict__[attribute] is None:
-                delList.append(attribute)
-
-        for item in delList:
-            delattr(self, item)
+            for item in items_to_remove:
+                del self[item]
 
         return self
 
-    ## pydantic subclass to add special configurations.
-    class Config:
-        """
-        Configuration class for customizing behavior of Pydantic objects.
-
-        This class is used to specify custom configuration options for Pydantic models,
-        particularly for enabling support for arbitrary data types like pandas DataFrame
-        and pandas Series, as well as allowing additional keyword arguments (**kwargs)
-        to be passed to Pydantic's BaseModel instances.
-
-        :ivar arbitrary_types_allowed: Enables support for arbitrary data types that
-            are not natively supported by Pydantic by default, such as pandas DataFrames
-            or pandas Series.
-        :type arbitrary_types_allowed: bool
-        :ivar extra: Specifies the extra attributes or fields behavior in Pydantic models.
-            Setting this to 'allow' permits passing extra **kwargs that are not explicitly
-            defined in Pydantic BaseModel.
-        :type extra: str
-        """
-        arbitrary_types_allowed = True
-        extra = 'allow'
-
     def build_kwargs(self, energysystem: solph.EnergySystem) -> dict[str, dict]:
         """
-        Builds keyword arguments for creating oemof.solph components from the provided
-        EnergySystem and the attributes of the instance. Special handling is implemented
-        for specific attributes like "inputs", "outputs", "conversion_factors", "nonconvex",
-        "nominal_value", and "nominal_storage_capacity" to properly handle their conversion
-        or dependency on the provided EnergySystem.
+        Builds a dictionary of keyword arguments for an oemof energy system component
+        based on the attributes of the current object. The function processes the
+        object's attributes, transforming and mapping them into a format compatible
+        with oemof components. Special handling is performed for attributes such as
+        inputs, outputs, and conversion factors to properly map these to the provided
+        energy system. Attributes of certain types are converted with their respective
+        methods if necessary.
 
-        :param energysystem: An instance of the oemof.solph.EnergySystem class used to
-            resolve dependencies and references for creating keyword arguments.
-        :return: A dictionary containing keyword arguments for initializing oemof.solph
-            components, with special attributes processed and mapped accordingly.
+        :param energysystem: The energy system instance to which the object belongs,
+            used to resolve references and convert attributes to oemof-compatible formats.
+        :type energysystem: solph.EnergySystem
+        :return: A dictionary of formatted keyword arguments suitable for creating the
+            corresponding oemof component.
         :rtype: dict[str, dict]
         """
+
+        attributes = vars(self)
         kwargs = {}
         special_keys = ["inputs", "outputs", "conversion_factors"]
 
-        args = vars(self)
+        for attr_key in attributes:
+            # iterates for every attribute
+            attr_value = attributes[attr_key]
 
-        for key in args:
-            value = args[key]
-            if value is not None:
-                if key in special_keys:
+            if attr_value is not None:
+                if attr_key in special_keys:
                     oemof_io = {}
-                    io_keys = list(value.keys())
+                    io_keys = list(attr_value.keys())
 
                     for io_key in io_keys:
                         bus = energysystem.groups[io_key]
-                        if isinstance(value[io_key], float) or isinstance(value[io_key], list):
-                            oemof_io[bus] = value[io_key]
+                        if isinstance(attr_value[io_key], float) or isinstance(attr_value[io_key], list):
+                            oemof_io[bus] = attr_value[io_key]
                         else:
-                            oemof_io[bus] = value[io_key].to_oemof(energysystem)
+                            oemof_io[bus] = attr_value[io_key].to_oemof(energysystem)
 
-                    kwargs[key] = oemof_io
-                elif key == "nonconvex" and not isinstance(value, bool):
-                    kwargs[key] = value.to_oemof(energysystem)
-                elif key in ["nominal_value", "nominal_storage_capacity"] and not isinstance(value, float):
-                    kwargs[key] = value.to_oemof(energysystem)
+                    kwargs[attr_key] = oemof_io
+                elif attr_key == "nonconvex" and not isinstance(attr_value, bool):
+                    kwargs[attr_key] = attr_value.to_oemof(energysystem)
+                elif attr_key in ["nominal_value", "nominal_storage_capacity"] and not isinstance(attr_value, float):
+                    kwargs[attr_key] = attr_value.to_oemof(energysystem)
                 else:
-                    kwargs[key] = value
+                    kwargs[attr_key] = attr_value
 
         return kwargs

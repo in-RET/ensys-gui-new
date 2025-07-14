@@ -21,12 +21,13 @@ class EnBus(EnBaseModel):
     :type balanced: bool
     """
     label: str = Field(
+        ...,
         title='Label',
         description='String holding the label of the Bus object. The label of each object must be unique.'
     )
 
     balanced: bool = Field(
-        True,
+        default=True,
         title='Balanced',
         description=' Indicates if bus is balanced, i.e. if the sum of inflows equals to the sum of outflows for each timestep; defaults to True'
     )

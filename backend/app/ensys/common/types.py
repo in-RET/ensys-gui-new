@@ -1,5 +1,8 @@
 from enum import Enum
 
+from oemof import solph
+from scipy.spatial import cKDTree
+
 
 class Constraints(Enum):
     """
@@ -100,3 +103,9 @@ class Solver(Enum):
     glpk = 'glpk'
     cplex = 'cplex'
     kiwi = 'kiwi'
+
+class OEPTypes(Enum):
+    SINK = solph.components.Sink
+    SOURCE = solph.components.Source
+    GENERIC_STORAGE = solph.components.GenericStorage
+    CONVERTER = solph.components.Converter
