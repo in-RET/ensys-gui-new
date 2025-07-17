@@ -99,7 +99,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         infer_last_interval=False
     )
 
-    oemof_es = simulation_model.energysystem.to_oemof_energysystem(oemof_es)
+    oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
 
     # create the model for optimization
     logger.info("create simulation model")

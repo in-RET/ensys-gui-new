@@ -18,7 +18,7 @@ class EnBaseModel(BaseModel):
 
     ## pydantic subclass to add special configurations.
     model_config = ConfigDict(
-        extra='ignore', # 'allow'
+        extra='ignore',  # 'allow'
         arbitrary_types_allowed=True
     )
 

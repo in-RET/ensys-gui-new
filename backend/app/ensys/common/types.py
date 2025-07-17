@@ -1,8 +1,5 @@
 from enum import Enum
 
-from oemof import solph
-from scipy.spatial import cKDTree
-
 
 class Constraints(Enum):
     """
@@ -104,8 +101,29 @@ class Solver(Enum):
     cplex = 'cplex'
     kiwi = 'kiwi'
 
-class OEPTypes(Enum):
-    SINK = solph.components.Sink
-    SOURCE = solph.components.Source
-    GENERIC_STORAGE = solph.components.GenericStorage
-    CONVERTER = solph.components.Converter
+
+# TODO: Automatisch generieren aus Dateiordner
+class OepTypes(Enum):
+    """
+    Represents types of storage and technologies in an energy
+    planning context.
+
+    This enumeration delineates various storage methods and
+    technologies that are utilized for energy systems, such as
+    electricity, gas, heat, and hydrogen storage.
+
+    Attributes:
+        electricity_storage: Specifies storage for electricity.
+        storage_electricity_pumped_hydro_storage_power_technology:
+            Indicates pumped hydro storage technology for electricity.
+        storage_gas: Designates a storage system for gas.
+        storage_heat_district_heating: Denotes district heating storage.
+        storage_heat_seasonal: Represents seasonal heat storage systems.
+        storage_hydrogen: Refers to hydrogen storage.
+    """
+    electricity_storage = ("storage_electricity", "generic_storage")
+    storage_electricity_pumped_hydro_storage_power_technology = ("storage_electricity_pumped_hydro_storage_power_technology", "generic_storage")
+    storage_gas = ("storage_gas", "generic_storage")
+    storage_heat_district_heating = ("storage_heat_district_heating", "generic_storage")
+    storage_heat_seasonal = ("storage_heat_seasonal", "generic_storage")
+    storage_hydrogen = ("storage_hydrogen", "generic_storage")

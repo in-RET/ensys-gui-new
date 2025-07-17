@@ -1,7 +1,7 @@
 from oemof import solph
 from pydantic import Field
 
-from .flow import EnFlow
+from .flow import EnFlow, OepFlow
 from ..common.basemodel import EnBaseModel
 
 
@@ -33,13 +33,13 @@ class EnConverter(EnBaseModel):
         description='String holding the label of the Converter object. The label of each object must be unique.'
     )
 
-    inputs: dict[str, EnFlow] = Field(
+    inputs: dict[str, EnFlow | OepFlow] = Field(
         ...,
         title='Inputs',
         description='Dictionary with inflows. Keys must be the starting node(s) of the inflow(s)'
     )
 
-    outputs: dict[str, EnFlow] = Field(
+    outputs: dict[str, EnFlow | OepFlow] = Field(
         ...,
         title='Outputs',
         description='Dictionary with outflows. Keys must be the ending node(s) of the outflow(s)'
@@ -50,7 +50,6 @@ class EnConverter(EnBaseModel):
         title='Conversion Factors',
         description='Dictionary containing conversion factors for conversion of each flow. Keys must be the connected nodes (typically Buses). The dictionary values can either be a scalar or an iterable with individual conversion factors for each time step. Default: 1. If no conversion_factor is given for an in- or outflow, the conversion_factor is set to 1'
     )
-
 
     def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.Converter:
         """

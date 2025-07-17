@@ -1,3 +1,5 @@
+from typing import Literal
+
 from oemof import solph
 from pydantic import Field
 
@@ -12,17 +14,15 @@ from ..common.basemodel import EnBaseModel
 
 class EnEnergysystem(EnBaseModel):
     """
-    Represents an energy system model, encapsulating multiple components such as buses,
-    sinks, sources, converters, storages, and constraints. This class provides methods
-    to add components to the energy system and to convert it into a compatible format
-    for integration with the oemof library.
+    Represents an energy system consisting of various components including busses,
+    sinks, sources, converters, generic storages, and constraints.
 
-    Designed to handle different types of energy system elements, each of which is
-    stored in its respective categorized list. The class allows for integration with
-    external energy system processing tools by supporting the transformation of its
-    components.
+    This class serves as a model for energy systems where components can be added
+    and managed. It provides methods to organize these components and convert them
+    into a format suitable for oemof energy systems, enabling seamless integration
+    with oemof's modeling and analysis tools.
 
-    :ivar busses: List of all buses in the energy system.
+    :ivar busses: List of all busses in the energy system.
     :type busses: list[EnBus]
     :ivar sinks: List of all sinks in the energy system.
     :type sinks: list[EnSink]
@@ -32,7 +32,7 @@ class EnEnergysystem(EnBaseModel):
     :type converters: list[EnConverter]
     :ivar generic_storages: List of all generic storages in the energy system.
     :type generic_storages: list[EnGenericStorage]
-    :ivar constraints: List of all constraints in the energy system.
+    :ivar constraints: List of all constraints associated with the energy system.
     :type constraints: list[EnConstraints]
     """
     busses: list[EnBus] = Field(
