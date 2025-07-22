@@ -214,7 +214,7 @@ class OepFlow(EnBaseModel):
 
         capex = oep_table.loc[year, "investment_costs"]
         interest_rate = 0.05
-        opex_percentage = oep_table.loc[year, "operating_costs"]
+        opex_percentage = oep_table.loc[year, "operating_costs"] / 100a
         amort_time = oep_table.loc[year, "lifetime"]
 
         annuity = economics.annuity(capex=capex, n=amort_time, wacc=interest_rate)
