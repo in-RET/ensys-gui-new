@@ -15,7 +15,6 @@ import { routes } from './app.routes';
 import { AuthCoreService } from './core/auth/auth.service';
 import { RequestHeaderInterceptor } from './core/interceptors/request-header-interceptor';
 
-function initializeApp() {}
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),

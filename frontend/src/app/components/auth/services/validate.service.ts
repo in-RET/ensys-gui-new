@@ -8,9 +8,9 @@ export class ValidateService {
     constructor() {}
 
     private hasLowerCaseUpperCaseNumCharacters(val: string): boolean {
-        let uppercaseRegex = /[A-Z]/g;
-        let lowercaseRegex = /[a-z]/g;
-        let numbersRegex = /[0-9]/g;
+        const uppercaseRegex = /[A-Z]/g;
+        const lowercaseRegex = /[a-z]/g;
+        const numbersRegex = /[0-9]/g;
 
         return val.match(lowercaseRegex) &&
             val.match(uppercaseRegex) &&
@@ -20,7 +20,7 @@ export class ValidateService {
     }
 
     passwordMinLowerCaseLettersValidator(): ValidatorFn {
-        return (control: AbstractControl): { [key: string]: any } | null => {
+        return (control: AbstractControl): Record<string, any> | null => {
             if (!control.value) {
                 return null;
             }
@@ -34,7 +34,7 @@ export class ValidateService {
     }
 
     passwordMatch(password: string, confirmPassword: string): ValidatorFn {
-        return (formGroup: AbstractControl): { [key: string]: any } | null => {
+        return (formGroup: AbstractControl): Record<string, any> | null => {
             const passwordControl = formGroup.get(password);
             const confirmPasswordControl = formGroup.get(confirmPassword);
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ProjectService } from '../services/project.service';
@@ -11,7 +11,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
     templateUrl: './project-explore.component.html',
     styleUrl: './project-explore.component.scss',
 })
-export class ProjectExploreComponent {
+export class ProjectExploreComponent implements OnInit {
     project_list!: any[];
 
     constructor(private projectService: ProjectService) {}

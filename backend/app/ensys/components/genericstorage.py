@@ -232,7 +232,7 @@ class OepGenericStorage(EnBaseModel):
     )
 
     type: OepTypes = Field(
-        default=OepTypes.electricity_storage,
+        default=OepTypes.storage_electricity,
         title='Type',
         description='Type of the storage system. This is used to determine the appropriate data source for the storage system.'
     )

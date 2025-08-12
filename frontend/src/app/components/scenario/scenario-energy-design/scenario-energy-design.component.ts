@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Component, inject, Input, ViewChild, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
 import Swal from 'sweetalert2';
@@ -43,14 +43,14 @@ interface EnergySystemModel {
 class FormModalInfo {
     _id: number | undefined = undefined;
     id: string | undefined = undefined;
-    show: boolean = false;
+    show = false;
     title: string | undefined = undefined;
     formData: any | undefined = undefined;
     action: any | undefined = undefined;
     data: any | undefined = undefined;
     type: 'node' | 'flow' | undefined = undefined;
-    editMode: boolean = false;
-    hide: boolean = false;
+    editMode = false;
+    hide = false;
 }
 
 @Component({
@@ -66,14 +66,14 @@ class FormModalInfo {
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent {
+export class ScenarioEnergyDesignComponent implements OnInit, AfterViewInit, OnDestroy {
     components: any;
     editor!: Drawflow;
     // currentNode: any;
     // currentConnection: any;
 
-    editMode: boolean = false;
-    isFullscreen: boolean = false;
+    editMode = false;
+    isFullscreen = false;
 
     formError: any = {
         msg: '',
@@ -211,7 +211,7 @@ export class ScenarioEnergyDesignComponent {
     }
 
     defineCallbackFlowForm() {
-        let callbackList: any = [];
+        const callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
         callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
         callbackList['toggleVisibilitySection'] =
@@ -238,7 +238,7 @@ export class ScenarioEnergyDesignComponent {
     toggleVisibilitySection(d: any) {
         if (d) {
             d.forEach((name: any) => {
-                let formSection = this.formComponent.formData.sections.find(
+                const formSection = this.formComponent.formData.sections.find(
                     (x: any) => x.name == name
                 );
 
@@ -378,7 +378,7 @@ export class ScenarioEnergyDesignComponent {
     calculateEpCosts() {
         this.setFormCalError(false, '');
 
-        let formData = this.formCalComponent.submit();
+        const formData = this.formCalComponent.submit();
 
         if (formData) {
             const epCosts: number | false = this.energyDesignService.epCostsCal(

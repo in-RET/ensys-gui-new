@@ -5,7 +5,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class ScenarioService {
-    private baseUrl: string = 'http://localhost:9006/scenario';
+    private baseUrl = 'http://localhost:9006/scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
 

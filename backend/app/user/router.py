@@ -56,16 +56,6 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
 
         token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
 
-        # return DataResponse(
-        #     data={
-        #         "message": "User login successful.",
-        #         "access_token": token,
-        #         "token_type": "bearer"
-        #     },
-        #     success=True,
-        #     errors=None
-        # )
-
         return JSONResponse(
             content={
                 "message": "User login successful.",
@@ -75,14 +65,6 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         )
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Username/Password incorrect."
-        #     )]
-        # )
 
 
 @users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
@@ -115,14 +97,6 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
     if results is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_409_CONFLICT,
-        #         message="User already exists."
-        #     )]
-        # )
 
     # Test against same mail
     statement = select(EnUserDB).where(EnUserDB.mail == user.mail)
@@ -130,14 +104,6 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
     if results is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mail already in use.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_409_CONFLICT,
-        #         message="Mail already in use."
-        #     )]
-        # )
 
     db_user = EnUserDB(**user.model_dump())
     db_user.username = user.username.lower()
@@ -155,14 +121,6 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         )
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_404_NOT_FOUND,
-        #         message="User registration failed."
-        #     )]
-        # )
 
 
 @users_router.get("/", response_model=DataResponse)
@@ -188,14 +146,6 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)],
     """
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_401_UNAUTHORIZED,
-        #         message="Not authenticated."
-        #     )]
-        # )
     else:
         token_data = decode_token(token)
 
@@ -204,14 +154,6 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)],
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_404_NOT_FOUND,
-        #         message="User not found."
-        #     )]
-        # )
     else:
         return DataResponse(
             data=GeneralDataModel(
@@ -247,14 +189,6 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_404_NOT_FOUND,
-        #         message="User not found."
-        #     )]
-        # )
 
     for field, value in user.model_dict().items():
         print(field, ":", value)
@@ -298,14 +232,6 @@ async def delete_user(token: Annotated[str, Depends(oauth2_scheme)],
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        # return DataResponse(
-        #     data=None,
-        #     success=False,
-        #     errors=[ErrorModel(
-        #         code=status.HTTP_404_NOT_FOUND,
-        #         message="User not found."
-        #     )]
-        # )
 
     db.delete(user)
     db.commit()

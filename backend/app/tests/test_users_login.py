@@ -2,14 +2,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import fastapi_app
-from backend.app.test.test_constants import get_test_user
+from backend.app.tests.test_fixtures import get_test_user
 
 client = TestClient(fastapi_app)
 
 
 @pytest.mark.order(5)
-def test_users_login_success():
-    test_user, test_token = get_test_user()
+def test_users_login_success(get_test_user):
+    test_user, test_token = get_test_user
 
     response = client.post(
         url="/user/auth/login",

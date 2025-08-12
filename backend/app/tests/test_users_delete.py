@@ -2,14 +2,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import fastapi_app
-from backend.app.test.test_constants import get_test_user
+from backend.app.tests.test_fixtures import get_test_user
 
 client = TestClient(fastapi_app)
 
 
 @pytest.mark.order(10)
-def test_users_delete_success():
-    test_user, test_token = get_test_user()
+def test_users_delete_success(get_test_user):
+    test_user, test_token = get_test_user
 
     response = client.delete(
         url="/user",
@@ -22,16 +22,13 @@ def test_users_delete_success():
     assert response.status_code == 200
 
     response_data = response.json()
-    assert response_data["data"] == {"message": "User was successfully deleted.",
-                                     "token": test_token,
-                                     "token_type": "bearer"
-                                     }
+    assert response_data["data"] == f"User was successfully deleted."
     assert response_data["errors"] is None
     assert response_data["success"] == True
 
 @pytest.mark.order(11)
-def test_users_delete_failure_not_found():
-    test_user, test_token = get_test_user()
+def test_users_delete_failure_not_found(get_test_user):
+    test_user, test_token = get_test_user
 
     response = client.delete(
         url="/user",

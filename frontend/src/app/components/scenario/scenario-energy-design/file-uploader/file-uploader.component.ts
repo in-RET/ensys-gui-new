@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 
 @Component({
     selector: 'app-file-uploader',
@@ -7,7 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     templateUrl: './file-uploader.component.html',
     styleUrl: './file-uploader.component.scss',
 })
-export class FileUploaderComponent {
+export class FileUploaderComponent implements OnInit {
     fileInfo!: { name: string; label: string; data: any } | null;
 
     _data: any;
@@ -29,7 +29,7 @@ export class FileUploaderComponent {
         return this._data;
     }
 
-    @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
+    @Output() fileUploaderChange = new EventEmitter<any>();
 
     ngOnInit() {}
     /**
@@ -98,11 +98,11 @@ export class FileUploaderComponent {
     }
 
     shortenList(str: string) {
-        let arr = str.split(',');
+        const arr = str.split(',');
         if (arr.length <= 4) return str; // Nothing to shorten
 
-        let firstTwo = arr.slice(0, 4);
-        let lastTwo = arr.slice(-4);
+        const firstTwo = arr.slice(0, 4);
+        const lastTwo = arr.slice(-4);
         return [...firstTwo, '...', ...lastTwo].join(',');
     }
 

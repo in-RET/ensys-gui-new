@@ -22,7 +22,7 @@ import { FileUploaderComponent } from '../file-uploader/file-uploader.component'
 })
 export class FormComponent {
     form!: FormGroup;
-    formVisible: boolean = false;
+    formVisible = false;
 
     _formData: any;
     @Input() set formData(d: any) {
@@ -43,7 +43,7 @@ export class FormComponent {
         formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports' && section.fields)
                 section.fields.forEach((field: any) => {
-                    let fControl: FormControl = new FormControl(
+                    const fControl: FormControl = new FormControl(
                         {
                             value: field['value'] ? field['value'] : null,
                             disabled: field.hasOwnProperty('disabled')

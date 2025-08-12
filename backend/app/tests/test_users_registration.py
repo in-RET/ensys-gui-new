@@ -5,13 +5,13 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import fastapi_app
-from backend.app.test.test_constants import get_test_user
+from backend.app.tests.test_fixtures import get_test_user
 
 client = TestClient(fastapi_app)
 
 @pytest.mark.order(0)
-def test_users_register_success():
-    test_user, test_token= get_test_user()
+def test_users_register_success(get_test_user):
+    test_user, test_token= get_test_user
 
     response = client.post(
         url="/user/auth/register",
@@ -24,13 +24,13 @@ def test_users_register_success():
 
     assert response.status_code == 201
     response_data = response.json()
-    assert response_data["data"] is None
+    assert response_data["data"] == ''
     assert response_data["errors"] is None
     assert response_data["success"] == True
 
 @pytest.mark.order(1)
-def test_users_register_failure_username_already_exists():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_username_already_exists(get_test_user):
+    test_user, test_token = get_test_user
     test_user.mail = "second.test@localhost.de"
 
     response = client.post(
@@ -48,8 +48,8 @@ def test_users_register_failure_username_already_exists():
     }
 
 @pytest.mark.order(2)
-def test_users_register_failure_mail_already_exists():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_mail_already_exists(get_test_user):
+    test_user, test_token = get_test_user
     test_user.username = "second pytest"
 
     response = client.post(
@@ -93,8 +93,8 @@ def test_users_register_no_data():
     assert response.status_code == 422
 
 @pytest.mark.order(4)
-def test_users_register_failure_mail_not_valid():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_mail_not_valid(get_test_user):
+    test_user, test_token = get_test_user
     test_user.mail = "second.ytest.com"
 
     response = client.post(
@@ -112,8 +112,8 @@ def test_users_register_failure_mail_not_valid():
     }
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_no_uppercase():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_no_uppercase(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "pythontest"
 
     response = client.post(
@@ -128,8 +128,8 @@ def test_users_register_failure_password_incorrect_no_uppercase():
     assert response.status_code == 400
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_no_lowercase():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_no_lowercase(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "PYTHONTEST"
 
     response = client.post(
@@ -144,8 +144,8 @@ def test_users_register_failure_password_incorrect_no_lowercase():
     assert response.status_code == 400
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_no_digit():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_no_digit(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "PYTHONtest"
 
     response = client.post(
@@ -160,8 +160,8 @@ def test_users_register_failure_password_incorrect_no_digit():
     assert response.status_code == 400
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_no_special_char():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_no_special_char(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "PYtest12"
 
     response = client.post(
@@ -177,8 +177,8 @@ def test_users_register_failure_password_incorrect_no_special_char():
 
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_too_short():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_too_short(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "PYt"
 
     response = client.post(
@@ -195,8 +195,8 @@ def test_users_register_failure_password_incorrect_too_short():
 
 
 @pytest.mark.order(4)
-def test_users_register_failure_password_incorrect_too_long():
-    test_user, test_token = get_test_user()
+def test_users_register_failure_password_incorrect_too_long(get_test_user):
+    test_user, test_token = get_test_user
     test_user.password = "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(200))
 
     response = client.post(

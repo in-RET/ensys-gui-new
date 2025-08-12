@@ -4,26 +4,11 @@
             <!-- project -->
             <div class="col-auto" formGroupName="project">
                 <div class="form-floating mb-3">
-                    <select
-                        class="form-select"
-                        formControlName="id"
-                        [ngClass]="{
-                            'is-invalid':
-                                projectId!.invalid &&
-                                (projectId!.dirty || projectId!.touched)
-                        }"
-                        tabindex="1"
-                    >
-                        <option selected disabled value="null">
-                            Choose...
-                        </option>
-
-                        <option
-                            [value]="project.id"
-                            *ngFor="let project of projectList"
-                        >
-                            {{ project.name }}
-                        </option>
+                    <select class="form-select" formControlName="id"
+                            [ngClass]="{'is-invalid': projectId!.invalid && (projectId!.dirty || projectId!.touched)}"
+                            tabindex="1">
+                        <option selected disabled value="null">Choose...</option>
+                        <option [value]="project.id" *ngFor="let project of projectList">{{ project.name }}</option>
                     </select>
                     <label>Project</label>
                 </div>
@@ -33,106 +18,38 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
-                        type="text"
-                        class="form-control"
-                        formControlName="name"
-                        placeholder="Name"
-                        required
-                        [ngClass]="{
+                            type="text"
+                            class="form-control"
+                            formControlName="name"
+                            placeholder="Name"
+                            required
+                            [ngClass]="{
                             'is-invalid':
                                 name!.invalid && (name!.dirty || name!.touched)
                         }"
-                        tabindex="2"
+                            tabindex="2"
                     />
                     <label>Name</label>
                 </div>
             </div>
 
-            <!-- datepiocker -->
+            <!-- datepicker -->
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
-                        type="date"
-                        class="form-control date"
-                        formControlName="sDate"
-                        placeholder="Start Date"
-                        required
-                        [ngClass]="{
+                            type="date"
+                            class="form-control date"
+                            formControlName="sDate"
+                            placeholder="Start Date"
+                            required
+                            [ngClass]="{
                             'is-invalid':
                                 sDate!.invalid &&
                                 (sDate!.dirty || sDate!.touched)
                         }"
-                        tabindex="3"
+                            tabindex="3"
                     />
                     <label>Start Date</label>
-                </div>
-            </div>
-
-            <!-- sim-period -->
-            <div class="col-2">
-                <div class="form-floating mb-3">
-                    <input
-                        type="number"
-                        class="form-control"
-                        formControlName="simulationPeriod"
-                        placeholder="Simulation period of one year"
-                        required
-                        [ngClass]="{
-                            'is-invalid':
-                                simulationPeriod!.invalid &&
-                                (simulationPeriod!.dirty ||
-                                    simulationPeriod!.touched)
-                        }"
-                        tabindex="4"
-                    />
-                    <label>Simulation period</label>
-                </div>
-            </div>
-
-            <!-- time-step -->
-            <div class="col-auto">
-                <div class="form-floating mb-3">
-                    <select
-                        class="form-select"
-                        formControlName="timeStep"
-                        [ngClass]="{
-                            'is-invalid':
-                                timeStep!.invalid &&
-                                (timeStep!.dirty || timeStep!.touched)
-                        }"
-                        tabindex="5"
-                    >
-                        <option selected disabled value="null">
-                            Choose...
-                        </option>
-                        <option value="60">60 min</option>
-                        <option value="15">15 min</option>
-                    </select>
-                    <label>Time Step</label>
-                </div>
-            </div>
-
-            <!-- sim-year -->
-            <div class="col-2">
-                <div class="form-floating mb-3">
-                    <select
-                        class="form-select"
-                        formControlName="simulationYear"
-                        [ngClass]="{
-                            'is-invalid':
-                                simulationYear!.invalid &&
-                                (simulationYear!.dirty ||
-                                    simulationYear!.touched)
-                        }"
-                        tabindex="6"
-                    >
-                        <option selected disabled value="null">
-                            Choose...
-                        </option>
-                        <option value="2025">2025</option>
-                        <option value="2030">2030</option>
-                    </select>
-                    <label>Simulation year</label>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -17,17 +17,14 @@ import { ScenarioService } from '../services/scenario.service';
     templateUrl: './scenario-setup.component.html',
     styleUrl: './scenario-setup.component.scss',
 })
-export class ScenarioSetupComponent {
+export class ScenarioSetupComponent implements OnInit {
     form: FormGroup = new FormGroup({
         project: new FormGroup({
             id: new FormControl(null, [Validators.required]),
             name: new FormControl(null, [Validators.required]),
         }),
         name: new FormControl(null, [Validators.required]),
-        simulationPeriod: new FormControl('', [Validators.required]),
         sDate: new FormControl(null, [Validators.required]),
-        timeStep: new FormControl(null, [Validators.required]),
-        simulationYear: new FormControl(null, [Validators.required]),
 
         // minimal_renewable_factor_active: new FormControl(true),
         // minimal_renewable_factor: new FormControl(
@@ -44,37 +41,29 @@ export class ScenarioSetupComponent {
         return this.form.get('name');
     }
 
-    get simulationPeriod() {
-        return this.form.get('simulationPeriod');
-    }
-
-    get timeStep() {
-        return this.form.get('timeStep');
-    }
-
     get sDate() {
         return this.form.get('sDate');
     }
 
-    get simulationYear() {
-        return this.form.get('simulationYear');
-    }
+    // get simulationYear() {
+    //     return this.form.get('simulationYear');
+    // }
 
-    get minimal_renewable_factor_active() {
-        return this.form.get('minimal_renewable_factor_active');
-    }
+    // get minimal_renewable_factor_active() {
+    //     return this.form.get('minimal_renewable_factor_active');
+    // }
 
-    get minimal_renewable_factor() {
-        return this.form.get('minimal_renewable_factor');
-    }
+    // get minimal_renewable_factor() {
+    //     return this.form.get('minimal_renewable_factor');
+    // }
 
-    get maximum_emissions_active() {
-        return this.form.get('maximum_emissions_active');
-    }
+    // get maximum_emissions_active() {
+    //     return this.form.get('maximum_emissions_active');
+    // }
 
-    get maximum_emissions() {
-        return this.form.get('maximum_emissions');
-    }
+    // get maximum_emissions() {
+    //     return this.form.get('maximum_emissions');
+    // }
 
     get project() {
         return this.form.get('project');
@@ -114,7 +103,7 @@ export class ScenarioSetupComponent {
     }
 
     loadCurrentData() {
-        let scenarioBaseData: { project: any; scenario: any } =
+        const scenarioBaseData: { project: any; scenario: any } =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (scenarioBaseData) {
@@ -128,20 +117,14 @@ export class ScenarioSetupComponent {
             }
 
             if (scenarioBaseData.scenario) {
-                let {
+                const {
                     name,
-                    simulationPeriod,
-                    timeStep,
-                    sDate,
-                    simulationYear,
+                    sDate
                 } = scenarioBaseData.scenario;
 
                 this.form.patchValue({
                     name,
-                    simulationPeriod,
-                    timeStep,
-                    sDate,
-                    simulationYear,
+                    sDate
                 });
             }
         }

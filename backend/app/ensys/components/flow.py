@@ -182,13 +182,22 @@ class EnFlow(EnBaseModel):
 
 
 class OepFlow(EnBaseModel):
+    """
+    Represents a flow configuration for an energy system with integrated capabilities
+    to compute parameters from both local and platform-based data. This class is specialized
+    in constructing and converting flow-related configurations to be used in energy system
+    models, specifically for non-OEP flows.
+
+    :ivar type: The type of the connected block, defined based on the OepTypes enumeration.
+    :type type: OepTypes
+    """
     type: OepTypes = Field(
         ...,
         title='Type',
         description='The type of the connected block.'
     )
 
-    def create_non_oep_kwargs(self, es: solph.EnergySystem) -> dict[str, dict]:
+    def create_non_oep_kwargs(self, es: solph.EnergySystem) -> dict[str, dict[str, Any]]:
         """
         Creates a dictionary of keyword arguments for non-OEP (Open Energy Platform) related energy system
         elements. The data for computation is fetched from a local CSV file containing investment and operational
@@ -214,7 +223,7 @@ class OepFlow(EnBaseModel):
 
         capex = oep_table.loc[year, "investment_costs"]
         interest_rate = 0.05
-        opex_percentage = oep_table.loc[year, "operating_costs"] / 100a
+        opex_percentage = oep_table.loc[year, "operating_costs"] / 100
         amort_time = oep_table.loc[year, "lifetime"]
 
         annuity = economics.annuity(capex=capex, n=amort_time, wacc=interest_rate)

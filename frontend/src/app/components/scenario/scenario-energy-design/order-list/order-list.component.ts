@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -16,8 +16,8 @@ interface OrderItem {
 }
 
 class OrderType {
-    id: number = -1;
-    name: string = '';
+    id = -1;
+    name = '';
 }
 
 @Component({
@@ -26,9 +26,9 @@ class OrderType {
     templateUrl: './order-list.component.html',
     styleUrl: './order-list.component.scss',
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit {
     selectedItem!: number | null;
-    editableMode: boolean = false;
+    editableMode = false;
     message!: { type: 'error'; txt: string } | null;
 
     form!: FormGroup;
@@ -49,7 +49,7 @@ export class OrderListComponent {
 
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;
-    @Input() acceptDuplicate: boolean = true;
+    @Input() acceptDuplicate = true;
 
     ngOnInit() {
         this.initialForm();

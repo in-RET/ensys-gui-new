@@ -1,0 +1,63 @@
+import pytest
+from pydantic import ValidationError
+
+from backend.app.ensys.common.types import OepTypes
+from backend.app.ensys.components.flow import EnFlow
+from backend.app.ensys.components.genericstorage import OepGenericStorage, EnGenericStorage
+
+from .fixtures import mock_oe_energysystem
+
+@pytest.fixture
+def sample_generic_storage():
+    return EnGenericStorage(
+        label="Test Storage",
+        inputs={"Bus1": EnFlow()},
+        outputs={"Bus1": EnFlow()},
+        storage_costs=20,
+        max_storage_level=1,
+        min_storage_level=0,
+        initial_storage_level=0.5,
+        nominal_storage_capacity=130,
+        loss_rate=0.01,
+        inflow_conversion_factor=1,
+        outflow_conversion_factor=0.93,
+    )
+
+
+@pytest.fixture
+def sample_oep_generic_storage():
+    return OepGenericStorage(
+        label="Test Storage",
+        type=OepTypes.storage_electricity,
+        inputs={"Bus1": EnFlow()},
+        outputs={"Bus1": EnFlow()},
+    )
+
+
+def test_oep_generic_storage_initialization(sample_oep_generic_storage, sample_generic_storage):
+    assert sample_generic_storage.label == "Test Storage"
+    assert sample_generic_storage.loss_rate == 0.01
+    assert sample_generic_storage.inflow_conversion_factor == 1
+    assert sample_generic_storage.outflow_conversion_factor == 0.93
+
+    assert sample_oep_generic_storage.label == "Test Storage"
+    assert sample_oep_generic_storage.type == OepTypes.storage_electricity
+
+
+def test_oep_generic_storage_missing_inputs():
+    with pytest.raises(ValidationError):
+        OepGenericStorage(
+            label="Test Storage",
+            type=OepTypes.storage_electricity,
+            outputs={"output1": EnFlow()},
+        )
+
+
+def test_oep_generic_storage_create_non_oep_kwargs(mock_oe_energysystem, sample_oep_generic_storage):
+    with pytest.raises(FileNotFoundError):
+        sample_oep_generic_storage.create_non_oep_kwargs(mock_oe_energysystem)
+
+
+def test_oep_generic_storage_to_oemof(mock_oe_energysystem, sample_oep_generic_storage):
+    with pytest.raises(FileNotFoundError):
+        sample_oep_generic_storage.to_oemof(mock_oe_energysystem)
