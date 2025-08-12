@@ -1,15 +1,9 @@
-import os
-from typing import Any
-
-import pandas as pd
 from oemof import solph
-from oemof.tools import economics
 from pydantic import Field
 
 from .investment import EnInvestment
 from .nonconvex import EnNonConvex
 from ..common.basemodel import EnBaseModel
-from ..common.types import OepTypes
 
 
 class EnFlow(EnBaseModel):
@@ -177,80 +171,5 @@ class EnFlow(EnBaseModel):
             parameters and the energy system context (oemof.solph.Flow).
         """
         kwargs = self.build_kwargs(energysystem)
-
-        return solph.Flow(**kwargs)
-
-
-class OepFlow(EnBaseModel):
-    """
-    Represents a flow configuration for an energy system with integrated capabilities
-    to compute parameters from both local and platform-based data. This class is specialized
-    in constructing and converting flow-related configurations to be used in energy system
-    models, specifically for non-OEP flows.
-
-    :ivar type: The type of the connected block, defined based on the OepTypes enumeration.
-    :type type: OepTypes
-    """
-    type: OepTypes = Field(
-        ...,
-        title='Type',
-        description='The type of the connected block.'
-    )
-
-    def create_non_oep_kwargs(self, es: solph.EnergySystem) -> dict[str, dict[str, Any]]:
-        """
-        Creates a dictionary of keyword arguments for non-OEP (Open Energy Platform) related energy system
-        elements. The data for computation is fetched from a local CSV file containing investment and operational
-        costs, lifetime, and other necessary parameters based on the system's year. Annuity and corresponding
-        economic metrics are then calculated to construct the final non-OEP flow keyword arguments.
-
-        :param es: Energy system instance for which the non-OEP keyword arguments are created.
-        :type es: solph.EnergySystem
-
-        :return: A dictionary of keyword arguments derived from the provided energy system and cost metrics.
-        :rtype: dict[str, dict]
-        """
-        # TODO: Read the data from file (first iteration)
-        # TODO: Read the Data from the open energy platform (production)
-        year = es.timeindex[0].year
-
-        oep_filepath = os.path.abspath(
-            os.path.join(os.getcwd(), "..", "storage", "oep", self.type.value[1], str(self.type.value[0]) + ".csv"))
-        print(f"OEP-File: {oep_filepath}")
-
-        with open(oep_filepath, "r") as f:
-            oep_table = pd.read_csv(f, delimiter=";", decimal=",", index_col=0)
-
-        capex = oep_table.loc[year, "investment_costs"]
-        interest_rate = 0.05
-        opex_percentage = oep_table.loc[year, "operating_costs"] / 100
-        amort_time = oep_table.loc[year, "lifetime"]
-
-        annuity = economics.annuity(capex=capex, n=amort_time, wacc=interest_rate)
-        opex = capex * opex_percentage
-        ep_costs = annuity + opex
-
-        oep_attributes: dict[str, Any] = {
-            "nominal_storage_capacity": EnInvestment(
-                ep_costs=ep_costs
-            ),
-        }
-
-        non_oep_flow = EnFlow(**oep_attributes)
-
-        return non_oep_flow.build_kwargs(es)
-
-    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.Flow:
-        """
-        Convert the instance into an oemof.solph.Flow object. This is used to create
-        a Flow object and apply the corresponding parameters to be included in an
-        existing oemof.solph energy system model.
-
-        :param energysystem: The energy system instance that the flow will be part of.
-        :type energysystem: solph.EnergySystem
-        :return: Corresponding oemof.solph.Flow object with the applied arguments.
-        :rtype: solph.Flow
-        """
-        kwargs = self.create_non_oep_kwargs(energysystem)
 
         return solph.Flow(**kwargs)

@@ -1,12 +1,10 @@
-from typing import Literal
-
 from oemof import solph
 from pydantic import Field
 
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter
-from .genericstorage import EnGenericStorage, OepGenericStorage
+from .genericstorage import EnGenericStorage
 from .sink import EnSink
 from .source import EnSource
 from ..common.basemodel import EnBaseModel
@@ -90,7 +88,7 @@ class EnEnergysystem(EnBaseModel):
             self.sources.append(elem)
         elif type(elem) is EnBus:
             self.busses.append(elem)
-        elif type(elem) in [EnGenericStorage, OepGenericStorage]:
+        elif type(elem) in [EnGenericStorage]:
             self.generic_storages.append(elem)
         elif type(elem) is EnConverter:
             self.converters.append(elem)

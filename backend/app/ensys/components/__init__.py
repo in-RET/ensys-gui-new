@@ -3,7 +3,7 @@ from .constraints import EnConstraints
 from .converter import EnConverter
 from .energysystem import EnEnergysystem
 from .flow import EnFlow
-from .genericstorage import EnGenericStorage, OepGenericStorage
+from .genericstorage import EnGenericStorage
 from .investment import EnInvestment
 from .model import EnModel
 from .nonconvex import EnNonConvex
