@@ -1,15 +1,9 @@
-import os
-from typing import Any
-
-import pandas as pd
 from oemof import solph
-from oemof.tools import economics
 from pydantic import Field
 
-from .flow import EnFlow, OepFlow
+from .flow import EnFlow
 from .investment import EnInvestment
 from ..common.basemodel import EnBaseModel
-from ..common.types import OepTypes
 
 
 class EnGenericStorage(EnBaseModel):
@@ -205,103 +199,5 @@ class EnGenericStorage(EnBaseModel):
         :rtype: solph.components.GenericStorage
         """
         kwargs = self.build_kwargs(energysystem)
-
-        return solph.components.GenericStorage(**kwargs)
-
-
-class OepGenericStorage(EnBaseModel):
-    """
-    Represents a generic storage system in the context of an energy model.
-
-    This class defines a model for a generic storage system including the configurations,
-    inputs, outputs, and options for enabling the use of data from the Open Energy Platform (OEP).
-    It provides functionalities to modify configuration parameters and convert the model into
-    an oemof.solph GenericStorage instance.
-
-    :ivar label: Label to identify the storage system.
-    :type label: str
-    :ivar inputs: Dictionary with inflows, where keys represent the ending nodes of the inflows.
-    :type inputs: dict[str, EnFlow]
-    :ivar outputs: Dictionary with outflows, where keys represent the ending nodes of the outflows.
-    :type outputs: dict[str, EnFlow]
-    """
-    label: str = Field(
-        default="Default OEP GenericStorage",
-        title='Label',
-        description=''
-    )
-
-    type: OepTypes = Field(
-        default=OepTypes.storage_electricity,
-        title='Type',
-        description='Type of the storage system. This is used to determine the appropriate data source for the storage system.'
-    )
-
-    inputs: dict[str, EnFlow | OepFlow] = Field(
-        ...,
-        title='Inputs',
-        description='Dictionary with inflows. Keys must be the ending node(s) of the inflows(s)'
-    )
-
-    outputs: dict[str, EnFlow | OepFlow] = Field(
-        ...,
-        title='Outputs',
-        description='Dictionary with outflows. Keys must be the ending node(s) of the outflow(s)'
-    )
-
-    def create_non_oep_kwargs(self, es: solph.EnergySystem) -> dict[str, dict]:
-        # TODO: Read the data from file (first iteration)
-        # TODO: Read the Data from the open energy platform (production)
-        year = es.timeindex[0].year
-
-        oep_filepath = os.path.abspath(os.path.join(os.getcwd(), "..", "storage", "oep", self.type.value[1], str(self.type.value[0]) + ".csv"))
-        print(f"OEP-File: {oep_filepath}")
-
-        with open(oep_filepath, "r") as f:
-            oep_table = pd.read_csv(f, delimiter=";", decimal=",", index_col=0)
-
-        capex = oep_table.loc[year, "investment_costs"]
-        interest_rate = 0.05
-        opex_percentage = oep_table.loc[year, "operating_costs"] / 100
-        amort_time = oep_table.loc[year, "lifetime"]
-
-        annuity = economics.annuity(capex=capex, n=amort_time, wacc=interest_rate)
-        opex = capex * opex_percentage
-        ep_costs = annuity + opex
-
-        oep_attributes: dict[str, Any] = {
-            "nominal_storage_capacity": EnInvestment(
-                ep_costs=ep_costs
-            ),
-            "balanced": bool(oep_table.loc[year, "balanced"]),
-            "loss_rate": oep_table.loc[year, "loss_rate"],
-            "inflow_conversion_factor": oep_table.loc[year, "efficiency_in"],
-            "outflow_conversion_factor": oep_table.loc[year, "efficiency_out"],
-            "initial_storage_level": oep_table.loc[year, "initial_storage_level"],
-            "min_storage_level": 0,
-            "max_storage_level": 1,
-            "label": self.label,
-            "inputs": self.inputs,
-            "outputs": self.outputs
-        }
-
-        non_oep_generic_storage = EnGenericStorage(**oep_attributes)
-
-        return non_oep_generic_storage.build_kwargs(es)
-
-    def to_oemof(self, energysystem: solph.EnergySystem) -> solph.components.GenericStorage:
-        """
-        Converts the current storage parameters to an oemof.solph GenericStorage object.
-        This method utilizes the create_non_oep_kwargs function to prepare a dictionary
-        of keyword arguments, which are then used to initialize and return an oemof.solph
-        GenericStorage instance.
-
-        :param energysystem: The energy system to which the storage configuration is
-            applied, provided as an instance of solph.EnergySystem.
-        :return: An instance of solph.components.GenericStorage created with the
-            necessary parameters.
-        :rtype: solph.components.GenericStorage
-        """
-        kwargs = self.create_non_oep_kwargs(energysystem)
 
         return solph.components.GenericStorage(**kwargs)

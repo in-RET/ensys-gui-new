@@ -54,6 +54,7 @@ services:
         restart: always
         volumes:
             - ./backend/app:/backend/app
+            - ./backend/data:/backend/data
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
         networks:
             - ensys

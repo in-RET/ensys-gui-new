@@ -1,7 +1,7 @@
 from oemof import solph
 from pydantic import Field
 
-from .flow import EnFlow, OepFlow
+from .flow import EnFlow
 from ..common.basemodel import EnBaseModel
 
 
@@ -33,13 +33,13 @@ class EnConverter(EnBaseModel):
         description='String holding the label of the Converter object. The label of each object must be unique.'
     )
 
-    inputs: dict[str, EnFlow | OepFlow] = Field(
+    inputs: dict[str, EnFlow] = Field(
         ...,
         title='Inputs',
         description='Dictionary with inflows. Keys must be the starting node(s) of the inflow(s)'
     )
 
-    outputs: dict[str, EnFlow | OepFlow] = Field(
+    outputs: dict[str, EnFlow] = Field(
         ...,
         title='Outputs',
         description='Dictionary with outflows. Keys must be the ending node(s) of the outflow(s)'

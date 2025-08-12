@@ -1,6 +1,7 @@
 import os
 from typing import Annotated
 
+import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
 from oep_client.oep_client import OepClient
 from starlette import status
@@ -8,6 +9,7 @@ from starlette import status
 from ..data.model import GeneralDataModel
 from ..responses import DataResponse
 from ..security import oauth2_scheme
+from ..ensys.common.types import OepTypes
 
 oep_router = APIRouter(
     prefix="/oep",
@@ -103,4 +105,97 @@ async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_
         ),
         success=True
     )
+
+@oep_router.get("/local_schemas/{block_type}")
+async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], block_type: str) -> DataResponse:
+    """
+    Retrieve local schemas based on a block type.
+
+    This endpoint retrieves a list of local schemas that match the provided
+    block type. It accepts a user authentication token to ensure the request
+    is authenticated. The schemas are filtered from a predefined list based
+    on the specified block type.
+
+    :param token: An authentication token is required to request authorization.
+    :param block_type: The type of block to filter the schemas by.
+    :return: A DataResponse object containing the list of matching schemas and
+        a success indicator.
+    :raises HTTPException: Raises a 401 HTTP status code exception if the user
+        is unauthorized or the token is invalid.
+    """
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    schema_list = []
+    for entry in OepTypes:
+        # print(f"{entry.name} ==> {entry.value[1]}")
+        if entry.value[1] == block_type.lower():
+            schema_list.append(entry.name)
+
+    return DataResponse(
+        data=GeneralDataModel(
+            items=schema_list,
+            totalCount=len(schema_list)
+        ),
+        success=True
+    )
+
+@oep_router.get("/local_data/{block_schema}/{simulation_year}")
+async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], block_schema: str, simulation_year: int) -> DataResponse:
+    """
+    Fetches local OEP (Open Energy Platform) data based on the provided schema type and simulation year.
+
+    This function authenticates the user, validates the block schema,
+    and reads simulation data for the requested year from local storage.
+
+    :param token: Authentication token required to access the endpoint
+    :param block_schema: Schema type of the data to retrieve
+    :param simulation_year: Year of the simulation data to fetch
+    :return: A DataResponse object containing the data items, total count, and a success flag
+    :raises HTTPException: If token is invalid, if the block schema is not found, or
+                           if there are issues with the requested data
+    """
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year.")
+
+    oep_type = OepTypes[block_schema]
+
+    file_path = os.path.abspath(os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower(), f"{oep_type.value[0]}.csv"))
+    print(f"file_path: {file_path}")
+
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+    else:
+        with open(file_path, "r") as f:
+            data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+            print(data)
+            year_selected_data = [data.loc[simulation_year].to_dict()]
+
+        return DataResponse(
+            data=GeneralDataModel(
+                items=year_selected_data,
+                totalCount=len(year_selected_data)
+            ),
+            success=True
+        )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

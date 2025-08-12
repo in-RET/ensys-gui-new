@@ -5,6 +5,5 @@
 .git
 .angular
 node_modules
-data
 .DS_Store
 dockerfile
