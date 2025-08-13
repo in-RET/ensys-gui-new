@@ -1,9 +1,7 @@
-import json
 import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Session, select
 from starlette import status
 
@@ -51,8 +49,6 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
 
     if not validate_project_owner(project_id, token, db):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-
 
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id

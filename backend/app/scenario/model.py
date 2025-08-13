@@ -32,11 +32,12 @@ class EnScenario(BaseModel):
     :type modeling_data: JSONB
     """
     name: str = Field(min_length=1, max_length=100)
-    start_date: date = Field(default=datetime.now().date()) # start
-    time_steps: int | None = Field(default=8760, nullable=True) # number
+    start_date: date = Field(default=datetime.now().date())  # start
+    time_steps: int | None = Field(default=8760, nullable=True)  # number
     interval: float = Field(default=1.0)  # interval
     project_id: int
     modeling_data: str = Field(default="")
+
 
 class EnScenarioDB(SQLModel, table=True):
     """
@@ -74,6 +75,7 @@ class EnScenarioDB(SQLModel, table=True):
         dictionary.
     :type modeling_data: Str
     """
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -88,6 +90,7 @@ class EnScenarioDB(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
     energysystem: EnEnergysystem = Field(sa_column=Column(JSONB), default={})
+
 
 class EnScenarioUpdate(EnScenario):
     """

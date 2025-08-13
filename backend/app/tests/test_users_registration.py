@@ -1,7 +1,7 @@
-import string
 import random
-import pytest
+import string
 
+import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.main import fastapi_app
@@ -9,9 +9,10 @@ from backend.app.tests.test_fixtures import get_test_user
 
 client = TestClient(fastapi_app)
 
+
 @pytest.mark.order(0)
 def test_users_register_success(get_test_user):
-    test_user, test_token= get_test_user
+    test_user, test_token = get_test_user
 
     response = client.post(
         url="/user/auth/register",
@@ -27,6 +28,7 @@ def test_users_register_success(get_test_user):
     assert response_data["data"] == ''
     assert response_data["errors"] is None
     assert response_data["success"] == True
+
 
 @pytest.mark.order(1)
 def test_users_register_failure_username_already_exists(get_test_user):
@@ -47,6 +49,7 @@ def test_users_register_failure_username_already_exists(get_test_user):
         "detail": "User already exists.",
     }
 
+
 @pytest.mark.order(2)
 def test_users_register_failure_mail_already_exists(get_test_user):
     test_user, test_token = get_test_user
@@ -66,6 +69,7 @@ def test_users_register_failure_mail_already_exists(get_test_user):
         "detail": "Mail already in use.",
     }
 
+
 @pytest.mark.order(3)
 def test_users_register_failure():
     response = client.post(
@@ -80,17 +84,19 @@ def test_users_register_failure():
     )
     assert response.status_code == 422
 
+
 @pytest.mark.order(4)
 def test_users_register_no_data():
     response = client.post(
         url="/user/auth/register",
-        data = {},
-        headers = {
+        data={},
+        headers={
             "accept": "application/json",
             "content-type": "application/json",
         }
     )
     assert response.status_code == 422
+
 
 @pytest.mark.order(4)
 def test_users_register_failure_mail_not_valid(get_test_user):
@@ -111,6 +117,7 @@ def test_users_register_failure_mail_not_valid(get_test_user):
         "detail": "Invalid mail address.",
     }
 
+
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_uppercase(get_test_user):
     test_user, test_token = get_test_user
@@ -126,6 +133,7 @@ def test_users_register_failure_password_incorrect_no_uppercase(get_test_user):
     )
 
     assert response.status_code == 400
+
 
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_lowercase(get_test_user):
@@ -143,6 +151,7 @@ def test_users_register_failure_password_incorrect_no_lowercase(get_test_user):
 
     assert response.status_code == 400
 
+
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_digit(get_test_user):
     test_user, test_token = get_test_user
@@ -158,6 +167,7 @@ def test_users_register_failure_password_incorrect_no_digit(get_test_user):
     )
 
     assert response.status_code == 400
+
 
 @pytest.mark.order(4)
 def test_users_register_failure_password_incorrect_no_special_char(get_test_user):
@@ -190,7 +200,7 @@ def test_users_register_failure_password_incorrect_too_short(get_test_user):
         }
     )
 
-    #% TODO: Why?!
+    # % TODO: Why?!
     assert response.status_code == 422
 
 
@@ -208,5 +218,5 @@ def test_users_register_failure_password_incorrect_too_long(get_test_user):
         }
     )
 
-    #% TODO: Why?!
+    # % TODO: Why?!
     assert response.status_code == 422

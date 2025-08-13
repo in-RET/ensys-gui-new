@@ -8,6 +8,7 @@ from starlette import status
 
 PASSWORD_MAX_LENGTH = 128
 
+
 class EnUser(SQLModel):
     """
     Represents a user entity with various attributes and validation mechanisms for
@@ -81,7 +82,8 @@ class EnUser(SQLModel):
         :raises HTTPException: If the password fails any validation check, such as length,
             lack of uppercase letters, lowercase letters, digits, or special characters.
         """
-        punctionation = ["/", "$", "§", "'", ",", ".", "@", "(", ")", "!", "#", "*", "?", "=", "&", "%", "'", ":", ";", "<", ">", "+", "-", "_"]
+        punctionation = ["/", "$", "§", "'", ",", ".", "@", "(", ")", "!", "#", "*", "?", "=", "&", "%", "'", ":", ";",
+                         "<", ">", "+", "-", "_"]
 
         if len(value) < 3:
             raise HTTPException(
@@ -179,4 +181,3 @@ class EnUserUpdate(EnUser):
     lastname: str | None = None
     password: str | None = None
     mail: str | None = None
-

@@ -8,6 +8,7 @@ from jose import jwt
 ########################################################################
 token_secret = os.getenv("SECRET_TOKEN")
 
+
 def decode_token(token: str):
     """
     Decode a JSON Web Token (JWT).
@@ -23,6 +24,7 @@ def decode_token(token: str):
     """
     token_data = jwt.decode(token, token_secret, algorithms=["HS256"])
     return token_data
+
 
 ########################################################################
 # login settings

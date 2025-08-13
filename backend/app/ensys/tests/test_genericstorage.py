@@ -3,9 +3,9 @@ from pydantic import ValidationError
 
 from backend.app.ensys.common.types import OepTypes
 from backend.app.ensys.components.flow import EnFlow
-from backend.app.ensys.components.genericstorage import OepGenericStorage, EnGenericStorage
-
+from backend.app.ensys.components.genericstorage import EnGenericStorage
 from .fixtures import mock_oe_energysystem
+
 
 @pytest.fixture
 def sample_generic_storage():
@@ -24,16 +24,6 @@ def sample_generic_storage():
     )
 
 
-@pytest.fixture
-def sample_oep_generic_storage():
-    return OepGenericStorage(
-        label="Test Storage",
-        type=OepTypes.storage_electricity,
-        inputs={"Bus1": EnFlow()},
-        outputs={"Bus1": EnFlow()},
-    )
-
-
 def test_oep_generic_storage_initialization(sample_oep_generic_storage, sample_generic_storage):
     assert sample_generic_storage.label == "Test Storage"
     assert sample_generic_storage.loss_rate == 0.01
@@ -46,18 +36,7 @@ def test_oep_generic_storage_initialization(sample_oep_generic_storage, sample_g
 
 def test_oep_generic_storage_missing_inputs():
     with pytest.raises(ValidationError):
-        OepGenericStorage(
+        EnGenericStorage(
             label="Test Storage",
-            type=OepTypes.storage_electricity,
             outputs={"output1": EnFlow()},
         )
-
-
-def test_oep_generic_storage_create_non_oep_kwargs(mock_oe_energysystem, sample_oep_generic_storage):
-    with pytest.raises(FileNotFoundError):
-        sample_oep_generic_storage.create_non_oep_kwargs(mock_oe_energysystem)
-
-
-def test_oep_generic_storage_to_oemof(mock_oe_energysystem, sample_oep_generic_storage):
-    with pytest.raises(FileNotFoundError):
-        sample_oep_generic_storage.to_oemof(mock_oe_energysystem)

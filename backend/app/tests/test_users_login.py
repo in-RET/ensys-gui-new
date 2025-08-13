@@ -30,6 +30,7 @@ def test_users_login_success(get_test_user):
         "token_type": "bearer",
     }
 
+
 @pytest.mark.order(6)
 def test_users_login_failure_not_found():
     response = client.post(
@@ -49,6 +50,7 @@ def test_users_login_failure_not_found():
         "detail": "User not found.",
     }
 
+
 @pytest.mark.order(7)
 def test_users_login_failure_wrong_password():
     response = client.post(
@@ -67,5 +69,3 @@ def test_users_login_failure_wrong_password():
     assert response.json() == {
         "detail": "Password incorrect.",
     }
-
-

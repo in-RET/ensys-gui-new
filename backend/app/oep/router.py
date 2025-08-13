@@ -7,9 +7,9 @@ from oep_client.oep_client import OepClient
 from starlette import status
 
 from ..data.model import GeneralDataModel
+from ..ensys.common.types import OepTypes
 from ..responses import DataResponse
 from ..security import oauth2_scheme
-from ..ensys.common.types import OepTypes
 
 oep_router = APIRouter(
     prefix="/oep",
@@ -106,6 +106,7 @@ async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_
         success=True
     )
 
+
 @oep_router.get("/local_schemas/{block_type}")
 async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], block_type: str) -> DataResponse:
     """
@@ -140,8 +141,10 @@ async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], b
         success=True
     )
 
+
 @oep_router.get("/local_data/{block_schema}/{simulation_year}")
-async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], block_schema: str, simulation_year: int) -> DataResponse:
+async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], block_schema: str,
+                             simulation_year: int) -> DataResponse:
     """
     Fetches local OEP (Open Energy Platform) data based on the provided schema type and simulation year.
 
@@ -163,7 +166,8 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
 
     oep_type = OepTypes[block_schema]
 
-    file_path = os.path.abspath(os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower(), f"{oep_type.value[0]}.csv"))
+    file_path = os.path.abspath(
+        os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower(), f"{oep_type.value[0]}.csv"))
 
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
@@ -179,21 +183,3 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
             ),
             success=True
         )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,16 +1,11 @@
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from alembic import context
 from sqlmodel import SQLModel
 
-from app.user.model import EnUserDB
-#from app.component.model import EnComponentDB
-from app.project.model import EnProjectDB
-from app.scenario.model import EnScenarioDB
-from app.simulation.model import EnSimulationDB
+# from app.component.model import EnComponentDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,6 +21,7 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 target_metadata = SQLModel.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

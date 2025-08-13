@@ -2,7 +2,6 @@ import pytest
 from oemof import solph
 
 from backend.app.ensys.components import EnSink, EnFlow
-
 from .fixtures import sample_oe_energysystem, mock_oe_energysystem
 
 
@@ -12,6 +11,7 @@ def sample_ensys_sink() -> EnSink:
         label='Sink',
         inputs={"Bus2": EnFlow()}
     )
+
 
 def test_sink_initialization(sample_ensys_sink: EnSink):
     assert sample_ensys_sink.label == "Sink"

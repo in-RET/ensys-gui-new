@@ -4,7 +4,7 @@ from datetime import datetime
 from celery import Celery
 from celery.utils.log import get_task_logger
 from oemof import solph
-from prometheus_client import Counter, Gauge, start_http_server
+from prometheus_client import Counter, Gauge
 from sqlalchemy import create_engine
 from sqlmodel import select, Session
 
@@ -20,6 +20,7 @@ celery_app = Celery(
 
 task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
 task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
+
 
 @celery_app.task(name="ensys.optimization")
 def simulation_task(scenario_id: int, simulation_id: int):

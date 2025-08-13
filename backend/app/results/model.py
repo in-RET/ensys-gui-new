@@ -21,6 +21,7 @@ class EnTimeSeries(BaseModel):
     name: str
     data: list[float]
 
+
 class EnDataFrame(BaseModel):
     """
     Represents a data model for a DataFrame-like structure with enhanced time series data.
@@ -38,6 +39,7 @@ class EnDataFrame(BaseModel):
     name: str
     index: list[datetime]
     data: list[EnTimeSeries]
+
 
 class ResultDataModel(GeneralDataModel):
     """

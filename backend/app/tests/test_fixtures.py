@@ -14,12 +14,14 @@ TEST_USER_DATA = {
     "mail": "test@localhost.de"
 }
 
+
 @pytest.fixture
 def get_test_user():
     test_user = EnUser(**TEST_USER_DATA)
     test_token = jwt.encode(test_user.get_token_information(), token_secret, algorithm="HS256")
 
     return test_user, test_token
+
 
 @pytest.fixture
 def get_test_user_db():

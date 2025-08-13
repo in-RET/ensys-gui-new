@@ -2,8 +2,8 @@ from starlette.testclient import TestClient
 
 from backend.app.main import fastapi_app
 
-
 client = TestClient(fastapi_app)
+
 
 def test_admin_root():
     response = client.get("/admin")

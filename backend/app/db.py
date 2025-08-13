@@ -8,6 +8,7 @@ from sqlmodel import Session
 
 db_engine = create_engine(os.getenv("DATABASE_URL"))
 
+
 def get_db_session():
     """
     Creates and provides a database session.

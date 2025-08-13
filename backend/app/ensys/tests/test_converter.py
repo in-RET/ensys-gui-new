@@ -40,7 +40,8 @@ def test_enconverter_to_oemof(mock_oe_energysystem, sample_oe_energysystem, samp
 
     assert oe_converter.label == ie_converter.label
 
-    #TODO: Conversion_factors vergleichen
+    # TODO: Conversion_factors vergleichen
+
 
 def test_enconverter_missing_conversion_factors():
     converter = EnConverter(

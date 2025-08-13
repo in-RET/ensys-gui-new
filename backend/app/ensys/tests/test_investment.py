@@ -27,7 +27,7 @@ def sample_nonconvex_investment(mock_oe_energysystem) -> solph.Investment:
 
 
 def test_investment_to_oemof(sample_regular_investment, sample_nonconvex_investment):
-    assert isinstance(sample_regular_inveyystment, solph.Investment)
+    assert isinstance(sample_regular_investment, solph.Investment)
     assert isinstance(sample_nonconvex_investment, solph.Investment)
 
     # TODO: Weitere Tests

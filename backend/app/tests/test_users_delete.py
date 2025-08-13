@@ -13,7 +13,7 @@ def test_users_delete_success(get_test_user):
 
     response = client.delete(
         url="/user",
-        headers = {
+        headers={
             "accept": "application/json",
             "Authorization": f"Bearer {test_token}",
         }
@@ -26,13 +26,14 @@ def test_users_delete_success(get_test_user):
     assert response_data["errors"] is None
     assert response_data["success"] == True
 
+
 @pytest.mark.order(11)
 def test_users_delete_failure_not_found(get_test_user):
     test_user, test_token = get_test_user
 
     response = client.delete(
         url="/user",
-        headers = {
+        headers={
             "accept": "application/json",
             "Authorization": f"Bearer {test_token}",
         }

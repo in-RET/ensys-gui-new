@@ -9,7 +9,7 @@ from starlette import status
 
 from .model import ResultDataModel, EnTimeSeries, EnDataFrame
 from ..db import get_db_session
-from ..responses import ErrorModel, GeneralResponse, ResultResponse, ErrorResponse
+from ..responses import ErrorModel, ResultResponse, ErrorResponse
 from ..security import oauth2_scheme
 from ..simulation.model import EnSimulationDB, Status
 
@@ -45,7 +45,7 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
 
     simulation_token = simulation.sim_token
     simulations_path = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump"))
-    #print(f"simulations_path: {simulations_path}")
+    # print(f"simulations_path: {simulations_path}")
 
     if not os.path.isfile(os.path.join(simulations_path, "oemof_es.dump")):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dumpfile not found")
@@ -82,7 +82,6 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
                     data=nan_to_num(g.values) * pow(-1, idx_asset)
                 )
 
-            print(len(time_series.data))
             graph_data.append(time_series)
 
         bus_data: EnDataFrame = EnDataFrame(

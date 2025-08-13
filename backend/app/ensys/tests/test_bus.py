@@ -2,6 +2,7 @@ from oemof import solph
 
 from backend.app.ensys.components import EnBus
 
+
 def test_bus():
     es = solph.EnergySystem()
 
@@ -10,4 +11,3 @@ def test_bus():
 
     for attr in oe_bus.__dict__:
         assert getattr(ie_bus, attr) == getattr(ie_bus, attr)
-

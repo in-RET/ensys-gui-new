@@ -7,6 +7,7 @@ admin_router = APIRouter(
     responses={status.HTTP_418_IM_A_TEAPOT: {"description": "I'm a teapot"}},
 )
 
+
 @admin_router.get("/")
 async def root():
     """

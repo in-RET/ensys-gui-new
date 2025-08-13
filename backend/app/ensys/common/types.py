@@ -160,7 +160,8 @@ class OepTypes(Enum):
                                a converter.
     """
     storage_electricity = ("storage_electricity", "generic_storage")
-    storage_electricity_pumped_hydro_storage_power_technology = ("storage_electricity_pumped_hydro_storage_power_technology", "generic_storage")
+    storage_electricity_pumped_hydro_storage_power_technology = (
+        "storage_electricity_pumped_hydro_storage_power_technology", "generic_storage")
     storage_gas = ("storage_gas", "generic_storage")
     storage_heat_district_heating = ("storage_heat_district_heating", "generic_storage")
     storage_heat_seasonal = ("storage_heat_seasonal", "generic_storage")
