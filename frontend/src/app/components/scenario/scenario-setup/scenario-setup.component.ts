@@ -90,7 +90,7 @@ export class ScenarioSetupComponent {
     projectList!: any[];
 
     ngOnInit() {
-        this.getProjects();
+        this.loadProjects();
         this.loadCurrentData();
 
         this.projectId?.valueChanges.subscribe((id: any) => {
@@ -98,17 +98,14 @@ export class ScenarioSetupComponent {
                 name: this.projectList.find((x) => x.id == id).name,
             });
         });
+
+        this.setFormDefaultVal();
     }
 
-    getProjects() {
+    loadProjects() {
         this.route.data
-            .pipe(
-                map((res: any) => {
-                    return res.projectList;
-                })
-            )
+            .pipe(map((res: any) => (res = res.projectList)))
             .subscribe((res: any) => {
-                this.projectList = [];
                 this.projectList = res;
             });
     }
@@ -151,5 +148,13 @@ export class ScenarioSetupComponent {
     getData() {
         this.form.markAllAsTouched();
         return this.form.valid ? this.form.getRawValue() : false;
+    }
+
+    setFormDefaultVal() {
+        this.name?.setValue(`Scenario_${this.projectList.length + 1}`);
+        this.sDate?.setValue(new Date().toISOString().split('T')[0]);
+        this.simulationPeriod?.setValue(1);
+        this.timeStep?.setValue(60);
+        this.simulationYear?.setValue(2025);
     }
 }
