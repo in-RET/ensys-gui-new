@@ -1,5 +1,5 @@
-import {Routes} from '@angular/router';
-import {regionsResolver} from '../shared/resolvers/regions.resolver';
+import { Routes } from '@angular/router';
+import { regionsResolver } from '../shared/resolvers/regions.resolver';
 
 export const routes: Routes = [
     {
@@ -7,14 +7,14 @@ export const routes: Routes = [
         loadComponent: () =>
             import(
                 '../components/project/project-explore/project-explore.component'
-                ).then((c) => c.ProjectExploreComponent),
+            ).then((c) => c.ProjectExploreComponent),
     },
     {
         path: 'create',
         loadComponent: () =>
             import(
                 '../components/project/project-create/project-create.component'
-                ).then((c) => c.ProjectCreateComponent),
+            ).then((c) => c.ProjectCreateComponent),
         resolve: {
             regionList: regionsResolver,
         },
@@ -24,7 +24,7 @@ export const routes: Routes = [
         loadComponent: () =>
             import(
                 '../components/project/project-create/project-create.component'
-                ).then((c) => c.ProjectCreateComponent),
+            ).then((c) => c.ProjectCreateComponent),
         resolve: {
             regionList: regionsResolver,
         },

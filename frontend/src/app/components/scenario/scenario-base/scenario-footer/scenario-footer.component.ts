@@ -8,7 +8,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     styleUrl: './scenario-footer.component.scss',
 })
 export class ScenarioFooterComponent {
-    @Input() step!: number;
+    @Input('step') step!: number;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();

@@ -196,8 +196,8 @@
             [disabled]="!form.valid"
             (click)="submitProject()"
         >
-            <span *ngIf="mode === 'create'">Save </span>
-            <span *ngIf="mode === 'update'">Update </span>
+            <span *ngIf="mode == 'create'">Save </span>
+            <span *ngIf="mode == 'update'">Update </span>
             project
         </button>
     </div>

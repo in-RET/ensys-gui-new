@@ -5,7 +5,7 @@ import { BaseHttpService } from '../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class RegionService {
-    private baseUrl = './static/assets/json_data/regions.json';
+    private baseUrl: string = './static/assets/json_data/regions.json';
 
     constructor(private baseHttp: BaseHttpService) {}
 

@@ -26,8 +26,8 @@
     <div modal-form>
         <ng-container
             *ngIf="
-                formModal_info.type === 'flow' &&
-                    formModal_info.id === 'genericstorage';
+                formModal_info.type == 'flow' &&
+                    formModal_info.id == 'genericstorage';
                 else noraml_form
             "
         >
@@ -61,7 +61,7 @@
             <div
                 class="row mb-3"
                 *ngIf="
-                    formModal_info.type === 'node' &&
+                    formModal_info.type == 'node' &&
                     formModal_info.id === 'transformer'
                 "
             >

@@ -12,5 +12,5 @@ export class ScenarioProgressionComponent {
     steps: any = ['Scenario Setup', 'Energy system design', 'Simulation'];
 
     @Input('step') currentStep!: number;
-    @Input() currentScenario!: any;
+    @Input('currentScenario') currentScenario!: any;
 }

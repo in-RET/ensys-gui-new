@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ContentLayoutService } from '../services/content-layout.service';
@@ -11,7 +11,7 @@ import { ContentLayoutService } from '../services/content-layout.service';
     styleUrl: './content.component.scss',
     standalone: true,
 })
-export class ContentComponent implements OnInit {
+export class ContentComponent {
     isFullscreen: boolean | undefined = true;
 
     contentLayoutService = inject(ContentLayoutService);

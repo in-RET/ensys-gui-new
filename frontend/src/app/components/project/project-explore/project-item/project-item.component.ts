@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import Swal from 'sweetalert2';
@@ -12,7 +12,7 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
 })
-export class ProjectItemComponent implements OnInit {
+export class ProjectItemComponent {
     scenarioList!: any[];
 
     @Input() project: any;

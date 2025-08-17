@@ -5,7 +5,7 @@ import {
     EventEmitter,
     Output,
     Renderer2,
-    ViewChild, OnInit, AfterViewInit,
+    ViewChild,
 } from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import Swal from 'sweetalert2';
@@ -19,9 +19,9 @@ import { ModalComponent } from '../modal/modal.component';
     templateUrl: './energy-drawflow.component.html',
     styleUrl: './energy-drawflow.component.scss',
 })
-export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
+export class EnergyDrawflowComponent {
     editor!: Drawflow;
-    flowZoom = 1;
+    flowZoom: number = 1;
     // currentNode: any;
     // currentPosition: any;
 
@@ -32,7 +32,7 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
         isShow: false,
     };
     seelctedConnection: any = { title: '' };
-    ASSET_TYPE_NAME = 'asset_type_name';
+    ASSET_TYPE_NAME: string = 'asset_type_name';
 
     selected_nodeId: any;
     selected_flowId: any;
@@ -47,10 +47,10 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
 
-    @Output('_drop') drop = new EventEmitter<any>();
-    @Output() showFormModal = new EventEmitter();
-    @Output() toggleFullScreen = new EventEmitter<any>();
-    @Output('touchEnd') _touchEnd = new EventEmitter<any>();
+    @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
+    @Output('showFormModal') showFormModal = new EventEmitter();
+    @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
+    @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild('contextMenu') contextMenuRef!: ElementRef<HTMLDivElement>;
@@ -189,7 +189,7 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
     }
 
     connectionMagneticSnap() {
-        let isConnecting = false;
+        let isConnecting: boolean = false;
         let snapSource: any = null;
         let snapTarget: any = null;
         let ports_all: NodeListOf<Element>;
@@ -393,7 +393,7 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
                 // input_id = 1
                 // output_class ...
                 // output_id ...
-                const newConnection: {
+                let newConnection: {
                     input_class: string;
                     input_id: string;
                     output_class: string;
@@ -490,7 +490,7 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
     }
 
     loadCurrentDrawflow() {
-        const CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
+        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
 
         if (CURRENT_DRAWFLOW) {
             const dataToImport = {
@@ -599,7 +599,7 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
         );
     }
     updateNode(nodeId: number, nodeType: string, data: any) {
-        const currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
+        let currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
 
         currentNode.name = data.name;
         currentNode.html = `
@@ -666,9 +666,9 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
     }
 
     connectionCreated(connection: any) {
-        const nodeIn = this.editor.getNodeFromId(connection['input_id']);
-        const nodeOut = this.editor.getNodeFromId(connection['output_id']);
-        const followRules = this.checkRules(connection, nodeIn, nodeOut);
+        var nodeIn = this.editor.getNodeFromId(connection['input_id']);
+        var nodeOut = this.editor.getNodeFromId(connection['output_id']);
+        let followRules = this.checkRules(connection, nodeIn, nodeOut);
 
         const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
 
@@ -691,10 +691,10 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
     }
 
     checkRules(connection: any, nodeIn: any, nodeOut: any) {
-        const rule_1 = this.isConnectionThroughBus(nodeIn, nodeOut);
+        let rule_1 = this.isConnectionThroughBus(nodeIn, nodeOut);
 
         if (rule_1) {
-            const rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
+            let rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
 
             if (rule_3) {
                 return true;
@@ -885,8 +885,8 @@ export class EnergyDrawflowComponent implements OnInit, AfterViewInit {
 
         if (nodeId) {
             const currentNode = this.editor.getNodeFromId(nodeId);
-            const nodeConnections_in: any[] = [];
-            const nodeConnections_out: any[] = [];
+            let nodeConnections_in: any[] = [];
+            let nodeConnections_out: any[] = [];
 
             if (currentNode.data.ports.inputs)
                 currentNode.data.ports.inputs.forEach(

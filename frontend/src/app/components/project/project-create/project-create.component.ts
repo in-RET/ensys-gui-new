@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -19,7 +19,7 @@ import { ProjectService } from '../services/project.service';
     templateUrl: './project-create.component.html',
     styleUrl: './project-create.component.scss',
 })
-export class ProjectCreateComponent implements OnInit {
+export class ProjectCreateComponent {
     form: FormGroup = new FormGroup({
         id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
@@ -154,7 +154,7 @@ export class ProjectCreateComponent implements OnInit {
 
     submitProject() {
         if (this.mode == 'create') {
-            const newProject = this.form.getRawValue();
+            let newProject = this.form.getRawValue();
 
             this.projectService
                 .createProject(newProject)
@@ -174,7 +174,7 @@ export class ProjectCreateComponent implements OnInit {
                     },
                 });
         } else if (this.mode == 'update') {
-            const currentProject = this.form.getRawValue();
+            let currentProject = this.form.getRawValue();
 
             this.projectService
                 .updateProject(currentProject)

@@ -1,16 +1,18 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject, ViewChild, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {DrawflowNode} from 'drawflow';
-import {map} from 'rxjs';
-import {ScenarioEnergyDesignComponent} from '../scenario-energy-design/scenario-energy-design.component';
-import {ScenarioSetupComponent} from '../scenario-setup/scenario-setup.component';
-import {ScenarioService} from '../services/scenario.service';
-import {ScenarioFooterComponent} from './scenario-footer/scenario-footer.component';
-import {ScenarioProgressionComponent} from './scenario-progression/scenario-progression.component';
+import { CommonModule } from '@angular/common';
+import { Component, inject, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DrawflowNode } from 'drawflow';
+import { map } from 'rxjs';
+import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
+import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
+import { ScenarioService } from '../services/scenario.service';
+import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
+import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
 
 interface ScenarioReqData {
     name: string;
+    timestep: string;
+    period: number;
     simulation_year: number;
     project_id: number;
     energysystem_model: {
@@ -40,13 +42,13 @@ interface ScenarioComponent {
     templateUrl: './scenario-base.component.html',
     styleUrl: './scenario-base.component.scss',
 })
-export class ScenarioBaseComponent implements OnInit {
-    currentStep = 1;
+export class ScenarioBaseComponent {
+    currentStep: number = 1;
     currentScenario: any;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
-    @ViewChild('sed', {static: false})
+    @ViewChild('sed', { static: false })
     scenarioEnergyDesignComponent!: any;
 
     scenarioService = inject(ScenarioService);
@@ -60,7 +62,7 @@ export class ScenarioBaseComponent implements OnInit {
     nextStep() {
         switch (this.currentStep) {
             case 0:
-                const scenarioBaseData = this.scenarioSetupComponent.getData();
+                let scenarioBaseData = this.scenarioSetupComponent.getData();
 
                 if (scenarioBaseData) {
                     this.saveBaseInfo(scenarioBaseData);
@@ -72,7 +74,6 @@ export class ScenarioBaseComponent implements OnInit {
                 break;
         }
     }
-
     prevtStep() {
         --this.currentStep;
     }
@@ -82,16 +83,20 @@ export class ScenarioBaseComponent implements OnInit {
 
         const {
             name,
+            simulationPeriod,
             sDate,
+            timeStep,
             simulationYear,
             project,
         } = data;
 
-        const _data: any = {
+        let _data: any = {
             project,
             scenario: {
                 name,
+                simulationPeriod,
                 sDate,
+                timeStep,
                 simulationYear,
             },
         };
@@ -106,11 +111,15 @@ export class ScenarioBaseComponent implements OnInit {
 
         if (
             scenarioData &&
-            scenarioData.trim() !== ''
+            scenarioData.trim() !== '' &&
+            scenarioData !== null &&
+            scenarioData !== undefined
         ) {
             scenarioData = JSON.parse(scenarioData);
-            const newScenarioData: ScenarioReqData = {
+            let newScenarioData: ScenarioReqData = {
                 name: scenarioData['name'],
+                timestep: scenarioData['timeStep'],
+                period: scenarioData['simulationPeriod'],
                 simulation_year: scenarioData['simulationYear'],
                 project_id: scenarioData['projectId'],
                 energysystem_model: {
@@ -149,7 +158,7 @@ export class ScenarioBaseComponent implements OnInit {
             .pipe(
                 map((res: any) => {
                     if (res) {
-                        const {currentProject, currentScenario} = res;
+                        const { currentProject, currentScenario } = res;
 
                         this.currentScenario = {
                             project: currentProject,

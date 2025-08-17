@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthCoreService } from '../core/auth/auth.service';
 
@@ -8,7 +8,7 @@ import { AuthCoreService } from '../core/auth/auth.service';
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     title = 'RET-EnSys-GUI';
 
     authCoreService = inject(AuthCoreService);

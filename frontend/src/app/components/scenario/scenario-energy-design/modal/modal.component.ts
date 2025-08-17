@@ -5,7 +5,7 @@ import {
     EventEmitter,
     Input,
     Output,
-    ViewChild, OnInit, OnDestroy,
+    ViewChild,
 } from '@angular/core';
 
 @Component({
@@ -14,7 +14,7 @@ import {
     templateUrl: './modal.component.html',
     styleUrl: './modal.component.scss',
 })
-export class ModalComponent implements OnInit, OnDestroy {
+export class ModalComponent {
     modal: any;
 
     @ViewChild('modal') modalRef = {} as ElementRef;

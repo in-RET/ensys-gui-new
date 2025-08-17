@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 
-interface EPCostParams {
+type EPCostParams = {
     capex: number;
     zinsatz: number; // interest rate (0 < zinsatz < 1)
     lifetime: number; // project lifetime in years
     opexPercentage: number; // opex as a decimal (e.g., 0.05 for 5%)
-}
+};
 
 @Injectable({
     providedIn: 'root',
@@ -1345,7 +1345,7 @@ export class EnergyDesignService {
         transform_outputs: any,
         groupName?: string
     ) {
-        const transformDataFn = (data: any) => {
+        let transformDataFn = (data: any) => {
             let _data: any;
 
             if (nodeId === 'transformer') {
@@ -1362,7 +1362,7 @@ export class EnergyDesignService {
                     return _data;
                 } else return false;
             } else if (nodeId !== 'transformer') {
-                const { inputport_name, outputport_name } = data;
+                let { inputport_name, outputport_name } = data;
                 _data = {
                     ...data,
                     ports: {},
