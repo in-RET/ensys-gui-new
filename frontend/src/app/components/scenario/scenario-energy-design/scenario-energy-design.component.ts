@@ -199,8 +199,7 @@ export class ScenarioEnergyDesignComponent {
             e.id,
             e.editMode,
             e.data,
-            this.defineCallbackFlowForm(),
-            e.node
+            this.defineCallbackFlowForm()
         );
 
         this.formModal_info.data = e.data;
@@ -213,11 +212,19 @@ export class ScenarioEnergyDesignComponent {
     defineCallbackFlowForm() {
         let callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
+
         callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
+
         callbackList['toggleVisibilitySection'] =
             this.toggleVisibilitySection.bind(this);
+
         callbackList['showEpCostsCalculator'] =
             this.showEpCostsCalculator.bind(this);
+
+        callbackList['onChangePreDefined'] = this.onChangePreDefined.bind(this);
+
+        callbackList['toggleOEP'] = this.toggleOEP.bind(this);
+
         return callbackList;
     }
 
@@ -290,6 +297,89 @@ export class ScenarioEnergyDesignComponent {
         this.modalComponent.hideModal();
         this.formModal_info.hide = true;
         this.formModal_calculator.show = true;
+    }
+
+    onChangePreDefined(e: { option: string; type: string }) {
+        // get oep form fields
+        if (e.option != 'user_defined') {
+            this.formComponent.enabelControl('oep');
+
+            // set oep switch on
+            this.formComponent.setFieldData('oep', true);
+
+            this.formComponent.setFieldData('investment', false);
+
+            // disable all fields
+            this.formComponent.disableControl('investment');
+            this.formComponent.disableControl('nominal_value');
+
+            const lsFields_ = [
+                ...this.energyDesignService.getInvestmentFields(),
+                ...this.energyDesignService.getDefaultFields_flow(),
+            ];
+            lsFields_.forEach((element: any) => {
+                // empty fields
+                this.formComponent.setFieldData(element.name, null);
+                this.formComponent.disableControl(element.name);
+            });
+
+            //set data from server
+            this.formComponent.setFieldData('nominal_value', 2127716.667);
+            this.formComponent.setFieldData('maximum', 10);
+            this.formComponent.setFieldData('minimum', 5);
+            this.formComponent.setFieldData('ep_costs', 0.41);
+        }
+        // user-defined
+        else {
+            this.formComponent.disableControl('oep');
+
+            // set oep switch off
+            this.formComponent.setFieldData('oep', false);
+
+            // enable all fields
+            this.formComponent.enabelControl('investment');
+            this.formComponent.enabelControl('nominal_value');
+
+            const lsFields_ = [
+                ...this.energyDesignService.getDefaultFields_flow(),
+            ];
+            lsFields_.forEach((element: any) => {
+                this.formComponent.setFieldData(element.name, null);
+                this.formComponent.enabelControl(element.name);
+            });
+
+            // clear data
+            this.formComponent.setFieldData('nominal_value', null);
+            this.formComponent.setFieldData('maximum', null);
+            this.formComponent.setFieldData('minimum', null);
+            this.formComponent.setFieldData('ep_costs', null);
+        }
+    }
+
+    toggleOEP() {
+        if (!this.formComponent.form.controls['oep'].value) {
+            this.formComponent.enabelControl('investment');
+            this.formComponent.enabelControl('nominal_value');
+            this.formComponent.setFieldData('investment', false);
+
+            const lsFields_ = [
+                ...this.energyDesignService.getDefaultFields_flow(),
+            ];
+            lsFields_.forEach((element: any) => {
+                this.formComponent.enabelControl(element.name);
+            });
+        } else {
+            this.formComponent.disableControl('investment');
+            this.formComponent.disableControl('nominal_value');
+
+            const lsFields_ = [
+                ...this.energyDesignService.getInvestmentFields(),
+                ...this.energyDesignService.getDefaultFields_flow(),
+            ];
+            lsFields_.forEach((element: any) => {
+                this.formComponent.disableControl(element.name);
+            });
+        }
     }
 
     // ============================

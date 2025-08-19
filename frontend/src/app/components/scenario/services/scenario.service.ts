@@ -66,4 +66,10 @@ export class ScenarioService {
     removeDrawflow_Storage() {
         localStorage.removeItem(this.scenario_drawflow_localstorage_name);
     }
+
+    getPreDefinedList(type: string) {
+        return this.baseHttp.get(
+            `http://localhost:9006/oep/local_schemas/${type}`
+        );
+    }
 }

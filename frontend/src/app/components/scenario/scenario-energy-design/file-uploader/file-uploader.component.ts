@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
     selector: 'app-file-uploader',
@@ -10,7 +11,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 export class FileUploaderComponent {
     fileInfo!: { name: string; label: string; data: any } | null;
 
-    _data: any;
+    private _data: any;
     @Input() set data(d: any) {
         if (d) {
             if (d) {
@@ -29,9 +30,24 @@ export class FileUploaderComponent {
         return this._data;
     }
 
+    @Input() fieldControl!: AbstractControl<any, any>;
+
+    // private _fieldControl: any;
+    // @Input() set fieldControl(val: any) {
+    //     console.log(val);
+    //     this._fieldControl = val;
+    // }
+    // get fieldControl() {
+    //     return this._fieldControl;
+    // }
+
     @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.fieldControl.valueChanges.subscribe((res: any) => {
+            if (res == null) this.fileInfo = null;
+        });
+    }
     /**
      * Called when the value of the file input changes, i.e. when a file has been
      * selected for upload.

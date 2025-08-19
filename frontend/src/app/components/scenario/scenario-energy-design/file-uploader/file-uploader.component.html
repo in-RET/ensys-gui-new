@@ -1,4 +1,7 @@
-<div class="file-upload border border-success rounded">
+<div
+    class="file-upload border border-success rounded"
+    [ngClass]="{ _disabled: fieldControl.disabled }"
+>
     <ng-container *ngIf="!fileInfo">
         <img
             class="img"
@@ -11,6 +14,7 @@
             (change)="onFileSelect(fileInput)"
             accept=".csv"
             class="border rounded"
+            [disabled]="fieldControl.disabled"
         />
     </ng-container>
 
