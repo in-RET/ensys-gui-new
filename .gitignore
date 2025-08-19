@@ -51,10 +51,8 @@ node_modules/
 *.sqlite
 /frontend/package-lock.json
 /site/
-/ensys/src/InRetEnsys.egg-info/
-/ensys/build/
-/ensys/.ensys-venv/
 */node_modules/
 .frontend
 storage
 /data
+.cache
