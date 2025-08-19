@@ -1,5 +1,6 @@
 from oemof import solph
 from pydantic import BaseModel, model_validator, ConfigDict
+from pyomo.core import sequence
 
 
 ## Container for a configuration
@@ -37,8 +38,6 @@ class EnBaseModel(BaseModel):
         :rtype: object
         """
         items_to_remove = []
-        # print(self)
-        # print(f"{type(self)}")
 
         if type(self) == dict:
             for attribute in self:
@@ -75,7 +74,6 @@ class EnBaseModel(BaseModel):
         for attr_key in attributes:
             # iterates for every attribute
             attr_value = attributes[attr_key]
-
             if attr_value is not None:
                 if attr_key in special_keys:
                     oemof_io = {}
@@ -89,7 +87,7 @@ class EnBaseModel(BaseModel):
                             oemof_io[bus] = attr_value[io_key].to_oemof(energysystem)
 
                     kwargs[attr_key] = oemof_io
-                elif attr_key == "nonconvex" and not isinstance(attr_value, bool):
+                elif attr_key in ["nonconvex"] and not isinstance(attr_value, bool):
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)
                 elif attr_key in ["nominal_value", "nominal_storage_capacity"] and not isinstance(attr_value, float):
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)

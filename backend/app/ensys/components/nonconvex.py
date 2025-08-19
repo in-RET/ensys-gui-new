@@ -36,51 +36,51 @@ class EnNonConvex(EnBaseModel):
     :type negative_gradient_limit: dict | None
     """
     startup_costs: float | list[float] | None = Field(
-        None,
+        default=None,
         title='Startups Costs',
         description='Costs associated with a start of the flow (representing a unit).'
     )
 
     shutdown_costs: float | list[float] | None = Field(
-        None,
+        default=None,
         title='Shutdown Costs',
         description='Costs associated with the shutdown of the flow (representing a unit).'
     )
 
     activity_costs: float | list[float] | None = Field(
-        None,
+        default=None,
         title='Activity Costs',
         description='Costs associated with the active operation of the flow, independently from the actual output.'
     )
 
     inactivity_costs: float | list[float] | None = Field(
-        None,
+        default=None,
         title='Inactivity Costs',
         description='Costs associated with not operating the flow.'
     )
 
     minimum_uptime: int | list[int] | None = Field(
-        None,
+        default=None,
         title='Minimum Uptime',
         description='Minimum number of time steps that a flow must be greater then its minimum flow after startup. Be aware that minimum up and downtimes can contradict each other and may lead to infeasible problems.',
         ge=0
     )
     minimum_downtime: int | list[int] | None = Field(
-        None,
+        default=None,
         title='Minimum Downtime',
         description='Minimum number of time steps a flow is forced to zero after shutting down. Be aware that minimum up and downtimes can contradict each other and may to infeasible problems.',
         ge=0
     )
 
     maximum_startups: int | None = Field(
-        None,
+        default=None,
         title='Maximum Startups',
         description='Maximum number of start-ups in the optimization timeframe.',
         ge=0
     )
 
     maximum_shutdowns: int | None = Field(
-        None,
+        default=None,
         title='Maximum Shutdowns',
         description='Maximum number of shutdowns in the optimization timeframe.',
         ge=0
@@ -88,7 +88,7 @@ class EnNonConvex(EnBaseModel):
 
     # 0/False = off, 1/True = on
     initial_status: int = Field(
-        0,
+        default=0,
         title='initial Status',
         description='Integer value indicating the status of the flow in the first time step (0 = off, 1 = on). For minimum up and downtimes, the initial status is set for the respective values in the beginning e.g. if a minimum uptime of four timesteps is defined and the initial status is set to one, the initial status is fixed for the four first timesteps of the optimization period. Otherwise if the initial status is set to zero and the first timesteps are fixed for the number of minimum downtime steps.',
         ge=0,
@@ -96,13 +96,13 @@ class EnNonConvex(EnBaseModel):
     )
 
     positive_gradient_limit: dict | None = Field(
-        None,
+        default=None,
         title='positive Gradient Limit',
         description='the normed upper bound on the positive difference (flow[t-1] < flow[t]) of two consecutive flow values.'
     )
 
     negative_gradient_limit: dict | None = Field(
-        None,
+        default=None,
         title='negative Gradient limit',
         description='the normed upper bound on the negative difference (flow[t-1] > flow[t]) of two consecutive flow values.'
     )

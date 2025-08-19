@@ -5,6 +5,7 @@ import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
 from oep_client.oep_client import OepClient
 from starlette import status
+from oemof.tools import economics
 
 from ..data.model import GeneralDataModel
 from ..ensys.common.types import OepTypes
@@ -174,12 +175,36 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
     else:
         with open(file_path, "r") as f:
             data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
-            year_selected_data = [data.loc[simulation_year].to_dict()]
+            year_selected_data = data.loc[simulation_year]
+
+        # Calculate EPC costs
+        capex = year_selected_data.loc["investment_costs"]
+        opex = year_selected_data.loc["investment_costs"] * (year_selected_data.loc["operating_costs"] / 100)
+
+        annuity = economics.annuity(
+            capex=capex,
+            wacc=0.05, # TODO: Make this configurable
+            n=year_selected_data.loc["lifetime"]
+        )
+        ep_costs = annuity + opex
+
+        # delete non-relevant columns
+        return_data = year_selected_data.drop(columns=["investment_costs", "operating_costs", "lifetime"], inplace=True)
+        if return_data is not None:
+            return_data = return_data.to_dict()
+            return_data["epc_costs"] = ep_costs
+        else:
+            return_data = {
+                'ep_costs': ep_costs
+            }
+
+        # Form Data to list
+        return_data = [return_data]
 
         return DataResponse(
             data=GeneralDataModel(
-                items=year_selected_data,
-                totalCount=len(year_selected_data)
+                items=return_data,
+                totalCount=len(return_data)
             ),
             success=True
         )
