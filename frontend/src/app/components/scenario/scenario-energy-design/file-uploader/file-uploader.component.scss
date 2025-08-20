@@ -9,7 +9,10 @@
     min-height: 3rem;
     border-style: dashed !important;
     position: relative;
-    // cursor: pointer;
+
+    &._disabled {
+        background-color: #e9ecef;
+    }
 
     .img {
         filter: invert(50%);
@@ -29,6 +32,10 @@
         width: 100%;
         height: 100%;
         cursor: pointer;
+
+        &:disabled {
+            pointer-events: none;
+        }
     }
 
     ::-webkit-file-upload-button {

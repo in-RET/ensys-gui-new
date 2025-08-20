@@ -99,12 +99,20 @@
                                         (form.get(field.name)!.dirty ||
                                             form.get(field.name)!.touched)
                                 }"
+                                (change)="
+                                    field.onClick(form.get(field.name)?.value)
+                                "
                             >
-                                <option selected disabled value="null">
+                                <option
+                                    selected
+                                    disabled
+                                    value="null"
+                                    *ngIf="field.label.trim() != ''"
+                                >
                                     {{ field.label }}
                                 </option>
                                 <option
-                                    [value]="option.value"
+                                    [ngValue]="option.value"
                                     *ngFor="
                                         let option of field.selectOptionList
                                     "
@@ -174,11 +182,6 @@
                         </div>
 
                         <!-- uploader -->
-                        <div *ngIf="field.type == 'file-upload'">
-                            <app-file-uploader />
-                        </div>
-
-                        <!-- uploader -->
                         <div *ngIf="field.type == 'range'" class="card mb-3">
                             <div class="card-body range-component">
                                 <label
@@ -193,6 +196,7 @@
                                 >
                                 <app-file-uploader
                                     [data]="field.value"
+                                    [fieldControl]="form.controls[field.name]"
                                     (fileUploaderChange)="
                                         fileUploaderChange($event, field.name)
                                     "
