@@ -1,0 +1,3 @@
+port_nr;type;name
+1;input;electricity
+2;output;electricity
