@@ -3,9 +3,9 @@ from typing import Annotated
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException
+from oemof.tools import economics
 from oep_client.oep_client import OepClient
 from starlette import status
-from oemof.tools import economics
 
 from ..data.model import GeneralDataModel
 from ..ensys.common.types import OepTypes
@@ -167,39 +167,58 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
 
     oep_type = OepTypes[block_schema]
 
-    file_path = os.path.abspath(
-        os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower(), f"{oep_type.value[0]}.csv"))
+    root_path = os.path.abspath(
+        os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower())
+    )
 
-    if not os.path.isfile(file_path):
+    port_data_path = os.path.join(root_path, "ports", f"{oep_type.value[0].lower()}.csv")
+    parameter_data_path = os.path.join(root_path, "parameter", f"{oep_type.value[0].lower()}.csv")
+    #timeseries_data_path = os.path.join(root_path, "timeseries" f"{oep_type.value[0].lower()}.csv")
+
+    print(f"general_data_path: {port_data_path}")
+    print(f"parameter_data_path: {parameter_data_path}")
+
+
+    if not os.path.isfile(parameter_data_path) or not os.path.isfile(port_data_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
     else:
-        with open(file_path, "r") as f:
-            data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
-            year_selected_data = data.loc[simulation_year]
+        with open(parameter_data_path, "r") as f:
+            parameter = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+            data_selected_year = parameter.loc[simulation_year]
+
+        with open(port_data_path, "r") as f:
+            general = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+
+
+        print(f"general: {general}")
 
         # Calculate EPC costs
-        capex = year_selected_data.loc["investment_costs"]
-        opex = year_selected_data.loc["investment_costs"] * (year_selected_data.loc["operating_costs"] / 100)
+        capex = data_selected_year.loc["investment_costs"]
+        opex = data_selected_year.loc["investment_costs"] * (data_selected_year.loc["operating_costs"] / 100)
 
         annuity = economics.annuity(
             capex=capex,
-            wacc=0.05, # TODO: Make this configurable
-            n=year_selected_data.loc["lifetime"]
+            wacc=0.05,  # TODO: Make this configurable
+            n=data_selected_year.loc["lifetime"]
         )
         ep_costs = annuity + opex
 
         # delete non-relevant columns
-        return_data = year_selected_data.drop(columns=["investment_costs", "operating_costs", "lifetime"], inplace=True)
-        if return_data is not None:
-            return_data = return_data.to_dict()
-            return_data["epc_costs"] = ep_costs
+
+        filtered_data = data_selected_year.drop(columns=["investment_costs", "operating_costs", "lifetime"], inplace=True)
+        parameter_data = filtered_data.to_dict() if filtered_data is not None else {}
+
+        if parameter_data is not None:
+            parameter_data["epc_costs"] = ep_costs
         else:
-            return_data = {
+            parameter_data = {
                 'ep_costs': ep_costs
             }
 
-        # Form Data to list
-        return_data = [return_data]
+        return_data = [{
+            "parameters": parameter_data,
+            "ports": general.to_dict(orient="records")
+        }]
 
         return DataResponse(
             data=GeneralDataModel(
