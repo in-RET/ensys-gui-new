@@ -42,8 +42,9 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     :raises HTTPException: Raised with status code 404 if the user does not exist,
         or with status code 401 if the password is incorrect.
     """
-    statement = select(EnUserDB).where(EnUserDB.username == username)
+    statement = select(EnUserDB).where(EnUserDB.username == username.lower())
     user_db = db.exec(statement).first()
+    print(f"user_db: {user_db}")
 
     if not user_db:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
@@ -92,7 +93,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         - If user registration fails due to an unknown issue (HTTP status 404).
     """
     # Test against same username
-    statement = select(EnUserDB).where(EnUserDB.username == user.username)
+    statement = select(EnUserDB).where(EnUserDB.username == user.username.lower())
     results = db.exec(statement).first()
 
     if results is not None:
@@ -190,7 +191,7 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-    for field, value in user.model_dict().items():
+    for field, value in user.model_dump(exclude_none=True, exclude_unset=True).items():
         print(field, ":", value)
         setattr(user_db, field, value)
 

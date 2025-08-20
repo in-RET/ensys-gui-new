@@ -1,14 +1,12 @@
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.app.main import fastapi_app
 from backend.app.tests.test_fixtures import get_test_user
+from .test_fixtures import client
 
-client = TestClient(fastapi_app)
 
-
-@pytest.mark.order(10)
-def test_users_delete_success(get_test_user):
+@pytest.mark.order(16)
+def test_users_delete_success(get_test_user, client: TestClient):
     test_user, test_token = get_test_user
 
     response = client.delete(
@@ -27,8 +25,8 @@ def test_users_delete_success(get_test_user):
     assert response_data["success"] == True
 
 
-@pytest.mark.order(11)
-def test_users_delete_failure_not_found(get_test_user):
+@pytest.mark.order(17)
+def test_users_delete_failure_not_found(get_test_user, client: TestClient):
     test_user, test_token = get_test_user
 
     response = client.delete(

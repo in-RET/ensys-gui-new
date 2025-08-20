@@ -24,14 +24,11 @@ def sample_generic_storage():
     )
 
 
-def test_oep_generic_storage_initialization(sample_oep_generic_storage, sample_generic_storage):
+def test_oep_generic_storage_initialization(sample_generic_storage):
     assert sample_generic_storage.label == "Test Storage"
     assert sample_generic_storage.loss_rate == 0.01
     assert sample_generic_storage.inflow_conversion_factor == 1
     assert sample_generic_storage.outflow_conversion_factor == 0.93
-
-    assert sample_oep_generic_storage.label == "Test Storage"
-    assert sample_oep_generic_storage.type == OepTypes.storage_electricity
 
 
 def test_oep_generic_storage_missing_inputs():

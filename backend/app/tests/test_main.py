@@ -1,10 +1,10 @@
+import pytest
 from starlette.testclient import TestClient
 
-from backend.app.main import fastapi_app
-
-client = TestClient(fastapi_app)
+from .test_fixtures import client
 
 
-def test_main_root():
+@pytest.mark.order(0)
+def test_main_root(client: TestClient):
     response = client.get("/")
     assert response.status_code == 200

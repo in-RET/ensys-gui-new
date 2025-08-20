@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Project" type="CompoundRunConfigurationType">
+    <toRun name="Migrate Databases" type="CompoundRunConfigurationType" />
     <toRun name="Run Backend (psql)" type="Python.FastAPI" />
     <toRun name="Angular CLI Server" type="js.build_tools.npm" />
     <method v="2" />

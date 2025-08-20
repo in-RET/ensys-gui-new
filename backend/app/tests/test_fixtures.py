@@ -3,6 +3,7 @@ from jose import jwt
 from sqlmodel import Session, select
 
 from backend.app.db import db_engine
+from backend.app.main import fastapi_app
 from backend.app.security import token_secret
 from backend.app.user.model import EnUser, EnUserDB
 
@@ -13,6 +14,13 @@ TEST_USER_DATA = {
     "lastname": "lastname",
     "mail": "test@localhost.de"
 }
+
+
+@pytest.fixture()
+def client():
+    from fastapi.testclient import TestClient
+
+    return TestClient(fastapi_app)
 
 
 @pytest.fixture
