@@ -8,9 +8,9 @@ from oep_client.oep_client import OepClient
 from starlette import status
 
 from ..data.model import GeneralDataModel
-from ..ensys.common.types import OepTypes
 from ..responses import DataResponse
 from ..security import oauth2_scheme
+from ..types import OepTypes
 
 oep_router = APIRouter(
     prefix="/oep",
@@ -172,23 +172,34 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
     )
 
     port_data_path = os.path.join(root_path, "ports", f"{oep_type.value[0].lower()}.csv")
-    parameter_data_path = os.path.join(root_path, "parameter", f"{oep_type.value[0].lower()}.csv")
-    #timeseries_data_path = os.path.join(root_path, "timeseries" f"{oep_type.value[0].lower()}.csv")
+    print(f"port_data_path: {port_data_path}")
 
-    print(f"general_data_path: {port_data_path}")
-    print(f"parameter_data_path: {parameter_data_path}")
-
-
-    if not os.path.isfile(parameter_data_path) or not os.path.isfile(port_data_path):
+    if not os.path.isfile(port_data_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
     else:
-        with open(parameter_data_path, "r") as f:
-            parameter = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
-            data_selected_year = parameter.loc[simulation_year]
-
         with open(port_data_path, "r") as f:
             general = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
 
+    # timeseries_data_path = os.path.join(root_path, "timeseries" f"{oep_type.value[0].lower()}.csv")
+    # print(f"timeseries_data_path: {timeseries_data_path}")
+    # if not os.path.isfile(timeseries_data_path)
+    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+    if not oep_type in [OepTypes.electricity_demand_mfh,
+                        OepTypes.heat_demand_efh,
+                        OepTypes.electricity_demand_efh,
+                        OepTypes.heat_demand_industry,
+                        OepTypes.heat_demand_mfh,
+                        OepTypes.electricity_demand_industry]:
+        parameter_data_path = os.path.join(root_path, "parameter", f"{oep_type.value[0].lower()}.csv")
+        print(f"parameter_data_path: {parameter_data_path}")
+
+        if not os.path.isfile(parameter_data_path):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+        with open(parameter_data_path, "r") as f:
+            parameter = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+            data_selected_year = parameter.loc[simulation_year]
 
         print(f"general: {general}")
 
@@ -204,8 +215,8 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
         ep_costs = annuity + opex
 
         # delete non-relevant columns
-
-        filtered_data = data_selected_year.drop(columns=["investment_costs", "operating_costs", "lifetime"], inplace=True)
+        filtered_data = data_selected_year.drop(columns=["investment_costs", "operating_costs", "lifetime"],
+                                                inplace=True)
         parameter_data = filtered_data.to_dict() if filtered_data is not None else {}
 
         if parameter_data is not None:
@@ -220,10 +231,15 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
             "ports": general.to_dict(orient="records")
         }]
 
-        return DataResponse(
-            data=GeneralDataModel(
-                items=return_data,
-                totalCount=len(return_data)
-            ),
-            success=True
-        )
+    else:
+        return_data = [{
+            "ports": general.to_dict(orient="records")
+        }]
+
+    return DataResponse(
+        data=GeneralDataModel(
+            items=return_data,
+            totalCount=len(return_data)
+        ),
+        success=True
+    )
