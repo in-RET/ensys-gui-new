@@ -1,1 +1,1 @@
-::: app.ensys.components.nonconvex
+::: components.nonconvex

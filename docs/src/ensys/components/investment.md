@@ -1,1 +1,1 @@
-::: app.ensys.components.investment
+::: components.investment

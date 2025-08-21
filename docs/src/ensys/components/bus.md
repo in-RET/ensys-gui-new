@@ -1,1 +1,1 @@
-::: app.ensys.components.bus
+::: components.bus

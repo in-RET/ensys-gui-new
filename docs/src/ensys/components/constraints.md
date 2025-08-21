@@ -1,1 +1,1 @@
-:::app.ensys.components.constraints
+::: components.constraints

@@ -1,1 +1,1 @@
-::: app.ensys.components.model
+::: components.model

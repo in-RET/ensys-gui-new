@@ -1,1 +1,1 @@
-::: app.ensys.components.energysystem
+::: components.energysystem

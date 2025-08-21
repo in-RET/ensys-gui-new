@@ -1,1 +1,1 @@
-::: app.ensys.components.sink
+::: components.sink

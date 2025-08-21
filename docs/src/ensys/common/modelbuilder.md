@@ -1,1 +1,1 @@
-::: app.ensys.common.modelbuilder
+::: common.modelbuilder

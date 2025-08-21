@@ -1,1 +1,1 @@
-::: app.ensys.common.basemodel
+::: common.basemodel

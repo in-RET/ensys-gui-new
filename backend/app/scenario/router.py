@@ -1,3 +1,4 @@
+import json
 import os
 from typing import Annotated
 
@@ -52,7 +53,7 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
 
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
-    scenario.energysystem = convert_gui_json_to_ensys(scenario.modeling_data)
+    scenario.energysystem = convert_gui_json_to_ensys(json.loads(scenario.modeling_data))
 
     with open(os.path.join(os.getenv("LOCAL_DATADIR"), "debug.json"), "wt") as f:
         f.write(scenario.model_dump_json())

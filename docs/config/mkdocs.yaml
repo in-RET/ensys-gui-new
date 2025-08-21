@@ -14,7 +14,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: [../../backend] # search packages in the src folder
+          paths: ["../../backend", "../../ensys"] # search packages in the src folder
           options:
             docstring_style: sphinx # google
   #- git-revision-date-localized
@@ -63,6 +63,7 @@ nav:
           - 'logger': backend/api/logger.md
           - 'responses': backend/api/responses.md
           - 'security': backend/api/security.md
+          - 'types': backend/api/types.md
         - 'Router':
           - 'admin': backend/api/router/admin.md
           - 'user': backend/api/router/user.md

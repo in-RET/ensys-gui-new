@@ -1,1 +1,1 @@
-::: app.ensys.components.flow
+::: components.flow

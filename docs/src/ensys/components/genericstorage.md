@@ -1,1 +1,1 @@
-::: app.ensys.components.genericstorage
+::: components.genericstorage
