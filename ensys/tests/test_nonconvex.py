@@ -2,7 +2,7 @@ import pytest
 from oemof import solph
 from oemof.solph._plumbing import _FakeSequence
 
-from backend.app.ensys.components import EnNonConvex
+from ensys.components import EnNonConvex
 
 
 @pytest.fixture

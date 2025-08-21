@@ -1,8 +1,7 @@
 import pytest
 from oemof import solph
-from oemof.solph import sequence
 
-from backend.app.ensys.components import EnInvestment
+from ensys.components import EnInvestment
 from .fixtures import mock_oe_energysystem
 
 
@@ -35,15 +34,15 @@ def test_investment_to_oemof(sample_regular_investment, sample_nonconvex_investm
 
 
 def test_regular_investement_initialization(sample_regular_investment):
-    #assert sample_regular_investment.ep_costs == sequence(1239.3)
-    #assert sample_regular_investment.maximum == sequence(10000)
-    #assert sample_regular_investment.minimum == sequence(100)
+    # assert sample_regular_investment.ep_costs == sequence(1239.3)
+    # assert sample_regular_investment.maximum == sequence(10000)
+    # assert sample_regular_investment.minimum == sequence(100)
     assert sample_regular_investment.nonconvex == False
 
 
 def test_nonconvex_investement_initialization(sample_nonconvex_investment):
-    #assert sample_nonconvex_investment.ep_costs == sequence(1239.3)
-    #assert sample_nonconvex_investment.maximum == sequence(10000)
-    #assert sample_nonconvex_investment.minimum == sequence(100)
-    #assert sample_nonconvex_investment.offset == sequence(42.0)
+    # assert sample_nonconvex_investment.ep_costs == sequence(1239.3)
+    # assert sample_nonconvex_investment.maximum == sequence(10000)
+    # assert sample_nonconvex_investment.minimum == sequence(100)
+    # assert sample_nonconvex_investment.offset == sequence(42.0)
     assert sample_nonconvex_investment.nonconvex == True

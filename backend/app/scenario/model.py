@@ -5,7 +5,7 @@ from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import SQLModel, Field
 
-from ..ensys.components.energysystem import EnEnergysystem
+from ensys.components.energysystem import EnEnergysystem
 
 
 class EnScenario(BaseModel):

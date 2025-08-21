@@ -1,6 +1,6 @@
 from oemof import solph
 
-from backend.app.ensys.components import EnBus
+from ensys.components import EnBus
 
 
 def test_bus():

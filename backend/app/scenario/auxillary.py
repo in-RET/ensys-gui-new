@@ -4,7 +4,7 @@ from sqlmodel import select
 from starlette import status
 
 from .model import EnScenarioDB
-from ..ensys.components import *
+from ensys.components import *
 from ..security import decode_token
 from ..user.model import EnUserDB
 

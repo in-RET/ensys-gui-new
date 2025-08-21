@@ -3,9 +3,9 @@ from oemof import solph
 from oemof.solph._plumbing import _FakeSequence
 from pyomo.core import sequence
 
-from backend.app.ensys.components import EnNonConvex
-from backend.app.ensys.components.flow import EnFlow
-from backend.app.ensys.components.investment import EnInvestment
+from ensys.components import EnNonConvex
+from ensys.components.flow import EnFlow
+from ensys.components.investment import EnInvestment
 
 
 @pytest.fixture

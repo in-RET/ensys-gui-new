@@ -8,7 +8,7 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy import create_engine
 from sqlmodel import select, Session
 
-from .ensys.components import EnModel
+from ensys.components import EnModel
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 

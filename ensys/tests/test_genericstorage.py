@@ -1,10 +1,8 @@
 import pytest
 from pydantic import ValidationError
 
-from backend.app.ensys.common.types import OepTypes
-from backend.app.ensys.components.flow import EnFlow
-from backend.app.ensys.components.genericstorage import EnGenericStorage
-from .fixtures import mock_oe_energysystem
+from ensys.components.flow import EnFlow
+from ensys.components.genericstorage import EnGenericStorage
 
 
 @pytest.fixture
