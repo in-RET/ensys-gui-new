@@ -55,6 +55,7 @@ services:
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
+            - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
         networks:
             - ensys
@@ -84,9 +85,11 @@ services:
         env_file: .env
         command: celery --app=app.celery.celery_app worker --loglevel=INFO
         volumes:
+            - ./backend/app:/backend/app
+            - ./backend/data:/backend/data
+            - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
             - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
-            - .:/code
         networks:
             - ensys
         depends_on:
@@ -101,6 +104,11 @@ services:
         container_name: flower
         env_file: .env
         command: celery --app=app.celery.celery_app flower --port=5555
+        volumes:
+            - ./backend/app:/backend/app
+            - ./backend/data:/backend/data
+            - ./ensys:/backend/ensys
+            - ${HOST_DATADIR}:${LOCAL_DATADIR}
         ports:
             - "${FLOWER_PORT}:5555"
         networks:
@@ -113,13 +121,14 @@ services:
             context: ./docs/config
             dockerfile: dockerfile
         container_name: documentation
-        command: "serve -f mkdocs.yaml -a 0.0.0.0:8000"
-        working_dir: /docs/config
+        command: "serve --config-file /docs/config/mkdocs.yaml -a 0.0.0.0:8000"
+        #working_dir: /docs/config
         ports:
             - "${MKDOCS_PORT}:8000"
         volumes:
             - ./docs:/docs
             - ./backend:/backend
+            - ./ensys:/ensys
 
 #  proxy:
 #    build: ./proxy
