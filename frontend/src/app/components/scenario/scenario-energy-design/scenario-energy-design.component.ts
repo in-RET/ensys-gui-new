@@ -2,9 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, ViewChild } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
-import Swal from 'sweetalert2';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { EnergyDesignService } from '../services/energy-design.service';
+import { FlowService } from '../services/flow.service';
+import { ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
@@ -113,9 +115,17 @@ export class ScenarioEnergyDesignComponent {
 
     contentLayoutService = inject(ContentLayoutService);
     energyDesignService = inject(EnergyDesignService);
+    scenarioService = inject(ScenarioService);
+    flowService = inject(FlowService);
+    toastService = inject(ToastService);
 
     ngOnInit() {
         this.loadEnergyComponents();
+
+        this.toastService.show('Saved successfully!', {
+            type: 'success',
+            position: 'top-right',
+        });
     }
 
     ngAfterViewInit() {
@@ -143,23 +153,6 @@ export class ScenarioEnergyDesignComponent {
         // } else this.router.navigate(['']);
     }
 
-    clearGridModel() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, clear everything!',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.energyDrawflowComponent.editor.clearModuleSelected();
-                this.energyDrawflowComponent.saveCurrentDrawflow();
-            }
-        });
-        // .then((result) => save_topology());
-    }
-
     touchEnd(e: any) {
         this.energyDrawflowComponent.onTouchEnd(e.id, e.name, e.group, e.pos);
     }
@@ -171,7 +164,7 @@ export class ScenarioEnergyDesignComponent {
      * }
      *
      */
-    showFormModal(e: {
+    async showFormModal(e: {
         _id: number;
         id: string;
         node?: any;
@@ -194,13 +187,14 @@ export class ScenarioEnergyDesignComponent {
             e.data['name'] = e.node.name;
         }
 
-        this.formModal_info.formData = this.energyDesignService.getFormData(
-            e.type,
-            e.id,
-            e.editMode,
-            e.data,
-            this.defineCallbackFlowForm()
-        );
+        this.formModal_info.formData =
+            await this.energyDesignService.getFormData(
+                e.type,
+                e.id,
+                e.editMode,
+                e.data,
+                this.defineCallbackFlowForm()
+            );
 
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
@@ -300,7 +294,9 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onChangePreDefined(e: { option: string; type: string }) {
-        // get oep form fields
+        console.log(e);
+
+        // get oep data form fields
         if (e.option != 'user_defined') {
             this.formComponent.enabelControl('oep');
 
@@ -314,6 +310,7 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.disableControl('nominal_value');
 
             const lsFields_ = [
+                ...[{ name: 'nominal_value' }],
                 ...this.energyDesignService.getInvestmentFields(),
                 ...this.energyDesignService.getDefaultFields_flow(),
             ];
@@ -324,10 +321,27 @@ export class ScenarioEnergyDesignComponent {
             });
 
             //set data from server
-            this.formComponent.setFieldData('nominal_value', 2127716.667);
-            this.formComponent.setFieldData('maximum', 10);
-            this.formComponent.setFieldData('minimum', 5);
-            this.formComponent.setFieldData('ep_costs', 0.41);
+            // this.formComponent.setFieldData('nominal_value', 2127716.667);
+            // this.formComponent.setFieldData('maximum', 10);
+            // this.formComponent.setFieldData('minimum', 5);
+            // this.formComponent.setFieldData('ep_costs', 0.41);
+
+            let scenarioBaseData: { project: any; scenario: any } =
+                this.scenarioService.restoreBaseInfo_Storage();
+            this.flowService
+                .getPreDefinedValue(
+                    e.option,
+                    scenarioBaseData.scenario.simulationYear
+                )
+                .subscribe({
+                    next: (value) => {
+                        console.log(value);
+                    },
+                    error: (err) => {
+                        console.log(err);
+                        // err.error.detail
+                    },
+                });
         }
         // user-defined
         else {

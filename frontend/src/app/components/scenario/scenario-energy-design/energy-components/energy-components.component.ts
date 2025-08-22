@@ -16,13 +16,7 @@ export class EnergyComponentsComponent {
 
     @Input() components: any;
 
-    @Output('clearGridModel') clearGridModel: EventEmitter<any> =
-        new EventEmitter();
     @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
-
-    onClearGridModel() {
-        this.clearGridModel.emit();
-    }
 
     _touchEnd(e: any) {
         this.touchEnd.emit(e);

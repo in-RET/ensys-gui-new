@@ -72,4 +72,10 @@ export class ScenarioService {
             `http://localhost:9006/oep/local_schemas/${type}`
         );
     }
+
+    getPreDefinedData(option: string, simulationYear: number) {
+        return this.baseHttp.get(
+            `http://localhost:9006/oep/local_data/${option}/${simulationYear}`
+        );
+    }
 }

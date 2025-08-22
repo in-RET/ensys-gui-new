@@ -8,7 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
-import Swal from 'sweetalert2';
+import { AlertService } from '../../../../shared/services/alert.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { FormComponent } from '../form/form.component';
 import { ModalComponent } from '../modal/modal.component';
@@ -57,7 +57,8 @@ export class EnergyDrawflowComponent {
 
     constructor(
         private scenarioService: ScenarioService,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private alertService: AlertService
     ) {}
 
     ngOnInit() {
@@ -699,19 +700,17 @@ export class EnergyDrawflowComponent {
             if (rule_3) {
                 return true;
             } else {
-                Swal.fire(
+                this.alertService.error(
                     'Unexpected Connection',
-                    'More than 1 connection per port is not allowed.',
-                    'error'
+                    'More than 1 connection per port is not allowed.'
                 );
 
                 return false;
             }
         } else {
-            Swal.fire(
+            this.alertService.error(
                 'Unexpected Connection',
-                'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.',
-                'error'
+                'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.'
             );
 
             return false;
@@ -856,24 +855,21 @@ export class EnergyDrawflowComponent {
         }
     }
 
-    deleteSelectedNode() {
+    async deleteSelectedNode() {
         if (this.contextmenu != null && this.contextmenu.nodeId) {
             const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
             this.unShowConextMenu();
 
-            Swal.fire({
-                title: `Removing node: ${node.name}`,
-                text: 'Are you sure?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Yes',
-                cancelButtonText: 'Cancel',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    this.editor.removeNodeId(`node-${node.id}`);
-                    this.saveCurrentDrawflow();
-                }
-            });
+            const confirmed = await this.alertService.confirm(
+                `Removing node: ${node.name}`
+            );
+            if (confirmed) {
+                this.editor.removeNodeId(`node-${node.id}`);
+                this.saveCurrentDrawflow();
+                this.alertService.success(
+                    `Node: ${node.name} deleted successfully!`
+                );
+            }
         }
     }
 
@@ -1058,20 +1054,19 @@ export class EnergyDrawflowComponent {
         return false;
     }
 
-    clearGridModel() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, clear everything!',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.editor.clearModuleSelected();
-                this.saveCurrentDrawflow();
-            }
-        });
+    async clearGridModel() {
+        const confirmed = await this.alertService.confirm(
+            'This will clear the whole grid model! This will not actually delete any asset from the scenario. You will need to save after clearing for the changes to actually take effect.',
+            undefined,
+            'Yes, clear everything!',
+            undefined,
+            'warning'
+        );
+        if (confirmed) {
+            this.editor.clearModuleSelected();
+            this.saveCurrentDrawflow();
+            this.alertService.success(`Cleaned the grid model successfully!`);
+        }
     }
 
     // flow
@@ -1185,7 +1180,7 @@ export class EnergyDrawflowComponent {
         this.saveCurrentDrawflow();
     }
 
-    deleteFlow(
+    async deleteFlow(
         node_source: {
             node: { id: string; name: string };
             port: { id: string; name: string };
@@ -1197,33 +1192,33 @@ export class EnergyDrawflowComponent {
     ) {
         this.unShowConextMenu();
 
-        Swal.fire({
-            title: `Removing connection from ${node_source.node.name} to ${node_destination.node.name}`,
-            text: 'Are you sure?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.editor.removeSingleConnection(
-                    node_source.node.id,
-                    node_destination.node.id,
-                    node_source.port.id,
-                    node_destination.port.id
-                );
+        const confirmed = await this.alertService.confirm(
+            `Removing connection from ${node_source.node.name} to ${node_destination.node.name}`,
+            undefined,
+            'Yes!',
+            undefined,
+            'warning'
+        );
+        if (confirmed) {
+            this.editor.removeSingleConnection(
+                node_source.node.id,
+                node_destination.node.id,
+                node_source.port.id,
+                node_destination.port.id
+            );
 
-                const currentConnection = {
-                    output_id: node_source.node.id,
-                    output_class: node_source.port.id,
-                    input_id: node_destination.node.id,
-                    input_class: node_destination.port.id,
-                };
-
-                this.deleteConnectionData(currentConnection);
-                this.saveCurrentDrawflow();
-            }
-        });
+            const currentConnection = {
+                output_id: node_source.node.id,
+                output_class: node_source.port.id,
+                input_id: node_destination.node.id,
+                input_class: node_destination.port.id,
+            };
+            this.deleteConnectionData(currentConnection);
+            this.saveCurrentDrawflow();
+            this.alertService.success(
+                `Removed connection from ${node_source.node.name} to ${node_destination.node.name} successfully!`
+            );
+        }
     }
 
     deleteConnectionData(connection: {
