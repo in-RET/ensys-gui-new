@@ -712,7 +712,12 @@ export class EnergyDesignService {
                                             callback['toggleOEP']('storage');
                                         },
                                         undefined,
-                                        true,
+                                        this.getFieldData('storage', {
+                                            mode: editMode,
+                                            data,
+                                        }) == 'user_defined'
+                                            ? true
+                                            : false,
                                         false
                                     ),
 
@@ -733,14 +738,7 @@ export class EnergyDesignService {
                                             });
                                         },
                                         preDefinedList,
-                                        !this.getFieldData(
-                                            'OEP',
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            true
-                                        ),
+                                        false,
                                         'user_defined'
                                     ),
                                 ],

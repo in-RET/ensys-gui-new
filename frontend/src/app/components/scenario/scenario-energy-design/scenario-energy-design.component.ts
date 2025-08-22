@@ -294,8 +294,6 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onChangePreDefined(e: { option: string; type: string }) {
-        console.log(e);
-
         // get oep data form fields
         if (e.option != 'user_defined') {
             this.formComponent.enabelControl('oep');
@@ -468,6 +466,8 @@ export class ScenarioEnergyDesignComponent {
                         this.formModal_info.data['connections'];
 
                     if (formData) {
+                        console.log(formData);
+
                         if (!this.formModal_info.editMode)
                             this.makeNode(formData, this.formModal_info);
                         else if (
