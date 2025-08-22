@@ -16,34 +16,6 @@ export class FlowService {
                 name: 'Wind power plant',
                 value: 'Wind power plant',
             },
-            {
-                name: 'Ground Mounted Photovoltaic',
-                value: 'Ground Mounted Photovoltaic',
-            },
-            {
-                name: 'Roof Mounted Photovoltaic',
-                value: 'Roof Mounted Photovoltaic',
-            },
-            {
-                name: 'Import from the power grid',
-                value: 'Import from the power grid',
-            },
-            {
-                name: 'Biomass supply',
-                value: 'Biomass supply',
-            },
-            {
-                name: 'Solar thermal system',
-                value: 'Solar thermal system',
-            },
-            {
-                name: 'Run-of-river power plant',
-                value: 'Run-of-river power plant',
-            },
-            {
-                name: 'User Defined',
-                value: 'user_defined',
-            },
         ],
     };
 
@@ -65,10 +37,8 @@ export class FlowService {
     }
 
     private async loadPreDefinedList(name: string): Promise<void> {
-        // const items = await firstValueFrom(this.getPreDefinedList(name));
         return new Promise((resolve, reject) => {
             this.getPreDefinedList(name).subscribe((res) => {
-                // const currentItems = this._preDefinedList$.getValue() ?? {};
                 // add user_defined option, as a default option
                 const userDefined_option = 'user_defined';
                 res.push({
@@ -77,6 +47,12 @@ export class FlowService {
                     ),
                     value: userDefined_option,
                 });
+
+                // temp - if there was not any data
+                if (res.length == 1) {
+                    res = [...this.preList.source, ...res];
+                }
+
                 this.set_preDefined(name, res);
                 resolve();
             });

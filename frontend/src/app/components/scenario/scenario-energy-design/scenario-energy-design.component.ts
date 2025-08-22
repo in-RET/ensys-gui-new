@@ -302,18 +302,29 @@ export class ScenarioEnergyDesignComponent {
 
             // set oep switch on
             this.formComponent.setFieldData('oep', true);
-
             this.formComponent.setFieldData('investment', false);
 
             // disable all fields
             this.formComponent.disableControl('investment');
             this.formComponent.disableControl('nominal_value');
 
-            const lsFields_ = [
+            let lsFields_ = [
                 ...[{ name: 'nominal_value' }],
                 ...this.energyDesignService.getInvestmentFields(),
-                ...this.energyDesignService.getDefaultFields_flow(),
             ];
+
+            if (e.type == 'storage') {
+                lsFields_ = [
+                    ...this.energyDesignService.getDefaultFields_storage(),
+                    ...lsFields_,
+                ];
+            } else {
+                lsFields_ = [
+                    ...this.energyDesignService.getDefaultFields_flow(),
+                    ...lsFields_,
+                ];
+            }
+
             lsFields_.forEach((element: any) => {
                 // empty fields
                 this.formComponent.setFieldData(element.name, null);
@@ -334,9 +345,7 @@ export class ScenarioEnergyDesignComponent {
                     scenarioBaseData.scenario.simulationYear
                 )
                 .subscribe({
-                    next: (value) => {
-                        console.log(value);
-                    },
+                    next: (value) => {},
                     error: (err) => {
                         console.log(err);
                         // err.error.detail
@@ -349,36 +358,49 @@ export class ScenarioEnergyDesignComponent {
 
             // set oep switch off
             this.formComponent.setFieldData('oep', false);
+            this.formComponent.setFieldData('investment', false);
 
             // enable all fields
             this.formComponent.enabelControl('investment');
             this.formComponent.enabelControl('nominal_value');
 
-            const lsFields_ = [
-                ...this.energyDesignService.getDefaultFields_flow(),
-            ];
-            lsFields_.forEach((element: any) => {
+            const lsFields_forEnable =
+                e.type != 'storage'
+                    ? [...this.energyDesignService.getDefaultFields_flow()]
+                    : [...this.energyDesignService.getDefaultFields_storage()];
+            lsFields_forEnable.forEach((element: any) => {
                 this.formComponent.setFieldData(element.name, null);
                 this.formComponent.enabelControl(element.name);
             });
 
+            const lsFields_forDisable = [
+                ...this.energyDesignService.getInvestmentFields(),
+            ];
+            lsFields_forDisable.forEach((element: any) => {
+                this.formComponent.setFieldData(element.name, null);
+                this.formComponent.disableControl(element.name);
+            });
+
             // clear data
-            this.formComponent.setFieldData('nominal_value', null);
-            this.formComponent.setFieldData('maximum', null);
-            this.formComponent.setFieldData('minimum', null);
-            this.formComponent.setFieldData('ep_costs', null);
+            // this.formComponent.setFieldData('nominal_value', null);
+            // this.formComponent.setFieldData('maximum', null);
+            // this.formComponent.setFieldData('minimum', null);
+            // this.formComponent.setFieldData('ep_costs', null);
         }
     }
 
-    toggleOEP() {
+    toggleOEP(type?: string) {
+        // user input data
         if (!this.formComponent.form.controls['oep'].value) {
             this.formComponent.enabelControl('investment');
             this.formComponent.enabelControl('nominal_value');
             this.formComponent.setFieldData('investment', false);
 
-            const lsFields_ = [
-                ...this.energyDesignService.getDefaultFields_flow(),
-            ];
+            const lsFields_ =
+                type == 'storage'
+                    ? [...this.energyDesignService.getDefaultFields_storage()]
+                    : [...this.energyDesignService.getDefaultFields_flow()];
+
             lsFields_.forEach((element: any) => {
                 this.formComponent.enabelControl(element.name);
             });
@@ -386,10 +408,18 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.disableControl('investment');
             this.formComponent.disableControl('nominal_value');
 
-            const lsFields_ = [
-                ...this.energyDesignService.getInvestmentFields(),
-                ...this.energyDesignService.getDefaultFields_flow(),
-            ];
+            let lsFields_ = [...this.energyDesignService.getInvestmentFields()];
+            lsFields_ =
+                type == 'storage'
+                    ? [
+                          ...this.energyDesignService.getDefaultFields_storage(),
+                          ...lsFields_,
+                      ]
+                    : [
+                          ...this.energyDesignService.getDefaultFields_flow(),
+                          ...lsFields_,
+                      ];
+
             lsFields_.forEach((element: any) => {
                 this.formComponent.disableControl(element.name);
             });

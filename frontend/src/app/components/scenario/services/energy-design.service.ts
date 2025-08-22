@@ -302,7 +302,7 @@ export class EnergyDesignService {
         });
     }
 
-    private getDefaultFields_storage(data: any) {
+    getDefaultFields_storage(data?: any) {
         return [
             {
                 name: 'nominal_storage_capacity',
@@ -432,41 +432,6 @@ export class EnergyDesignService {
         });
     }
 
-    private storagePreList: any[] = [
-        {
-            name: 'Sodium storage',
-            value: 'Sodium storage',
-        },
-        {
-            name: 'Lithium Ion Battery Storage',
-            value: 'Lithium Ion Battery Storage',
-        },
-        {
-            name: 'Pumped storage power plant',
-            value: 'Pumped storage power plant',
-        },
-        {
-            name: 'Heat storage (seasonal)',
-            value: 'Heat storage (seasonal)',
-        },
-        {
-            name: 'Heat storage (short term)',
-            value: 'Heat storage (short term)',
-        },
-        {
-            name: 'Gas storage',
-            value: 'Gas storage',
-        },
-        {
-            name: 'Hydrogen storage',
-            value: 'Hydrogen storage',
-        },
-        {
-            name: 'Other',
-            value: 'Other',
-        },
-    ];
-
     getFormData(
         type: string,
         name: string,
@@ -476,7 +441,7 @@ export class EnergyDesignService {
     ) {
         let fields = null;
 
-        const getFields_node = () => {
+        const getFields_node = async () => {
             switch (name.toLocaleLowerCase()) {
                 case 'source':
                     return {
@@ -679,7 +644,10 @@ export class EnergyDesignService {
                     };
 
                 case 'genericstorage':
-                    return {
+                    const preDefinedList =
+                        await this.flowService.getPreDefinedsByName('storage');
+
+                    const fields = {
                         sections: [
                             {
                                 name: 'info',
@@ -728,6 +696,7 @@ export class EnergyDesignService {
                             {
                                 name: 'OEP',
                                 class: 'col-12',
+                                visible: true,
                                 fields: [
                                     this.getField(
                                         'oep',
@@ -740,38 +709,30 @@ export class EnergyDesignService {
                                         data,
                                         'pt-3',
                                         () => {
-                                            callback['']([
-                                                'non-OEP',
-                                                'non-investment',
-                                                'investment',
-                                                'defaults',
-                                            ]);
-
-                                            callback['toggleFomFields']([
-                                                'storage',
-                                            ]);
+                                            callback['toggleOEP']('storage');
                                         },
                                         undefined,
-                                        undefined,
-                                        true
+                                        true,
+                                        false
                                     ),
 
                                     this.getField(
                                         'storage',
                                         'Storage',
-                                        'Choose...',
+                                        '',
                                         true,
                                         'select',
                                         '8',
                                         editMode,
                                         data,
                                         '',
-                                        () => {
-                                            callback['toggleVisibilitySection'](
-                                                ['non-OEP']
-                                            );
+                                        (e: any) => {
+                                            callback['onChangePreDefined']({
+                                                option: e,
+                                                type: 'storage',
+                                            });
                                         },
-                                        this.storagePreList,
+                                        preDefinedList,
                                         !this.getFieldData(
                                             'OEP',
                                             {
@@ -779,7 +740,8 @@ export class EnergyDesignService {
                                                 data,
                                             },
                                             true
-                                        )
+                                        ),
+                                        'user_defined'
                                     ),
                                 ],
                             },
@@ -793,14 +755,7 @@ export class EnergyDesignService {
                                 name: 'non-OEP',
                                 class: 'col-12',
                                 label: 'Investments & Defaults',
-                                visible: !this.getFieldData(
-                                    'OEP',
-                                    {
-                                        mode: editMode,
-                                        data,
-                                    },
-                                    true
-                                ),
+                                visible: true,
                                 fields: [
                                     this.getField(
                                         'investment',
@@ -829,14 +784,7 @@ export class EnergyDesignService {
                             {
                                 name: 'non-investment',
                                 class: 'col-9',
-                                visible: !this.getFieldData(
-                                    'OEP',
-                                    {
-                                        mode: editMode,
-                                        data,
-                                    },
-                                    true
-                                ),
+                                visible: true,
                                 fields: [
                                     this.getField(
                                         'nominal_value',
@@ -866,14 +814,7 @@ export class EnergyDesignService {
                             {
                                 name: 'investment',
                                 class: 'col-12',
-                                visible: !this.getFieldData(
-                                    'OEP',
-                                    {
-                                        mode: editMode,
-                                        data,
-                                    },
-                                    true
-                                ),
+                                visible: true,
                                 fields: [
                                     ...this.getInvestmentFields(
                                         data,
@@ -905,18 +846,13 @@ export class EnergyDesignService {
                             {
                                 name: 'defaults',
                                 class: 'col-12',
-                                visible: !this.getFieldData(
-                                    'OEP',
-                                    {
-                                        mode: editMode,
-                                        data,
-                                    },
-                                    true
-                                ),
+                                visible: true,
                                 fields: this.getDefaultFields_storage(data),
                             },
                         ],
                     };
+
+                    return fields;
 
                 case 'sink':
                 case 'excess':
@@ -1152,7 +1088,6 @@ export class EnergyDesignService {
                                                 type: name,
                                             });
                                         },
-                                        // [],
                                         preDefinedList,
                                         !this.getFieldData(
                                             'OEP',
