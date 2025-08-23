@@ -160,7 +160,13 @@
                                     "
                                     [id]="'switch-' + field.name"
                                 />
-                                <label for="switch-{{ field.name }}">
+                                <label
+                                    for="switch-{{ field.name }}"
+                                    [ngClass]="{
+                                        disabled:
+                                            form.controls[field.name].disabled
+                                    }"
+                                >
                                     {{ field.label }}
                                 </label>
                             </div>

@@ -192,7 +192,7 @@ export class ScenarioEnergyDesignComponent {
                 e.type,
                 e.id,
                 e.editMode,
-                e.data,
+                e.editMode ? e.data : null,
                 this.defineCallbackFlowForm()
             );
 
@@ -312,8 +312,12 @@ export class ScenarioEnergyDesignComponent {
             ];
 
             if (e.type == 'storage') {
+                const formData = this.formComponent.form.getRawValue();
+
                 lsFields_ = [
-                    ...this.energyDesignService.getDefaultFields_storage(),
+                    ...this.energyDesignService.getDefaultFields_storage(
+                        formData
+                    ),
                     ...lsFields_,
                 ];
             } else {
@@ -349,9 +353,7 @@ export class ScenarioEnergyDesignComponent {
                         // err.error.detail
                     },
                 });
-        }
-        // user-defined
-        else {
+        } else {
             this.formComponent.disableControl('oep');
 
             // set oep switch off

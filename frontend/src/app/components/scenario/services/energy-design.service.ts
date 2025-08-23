@@ -23,9 +23,14 @@ export class EnergyDesignService {
         editData: { mode: boolean; data?: any },
         dValue?: any
     ) {
-        if (editData.mode) return editData.data[fName.toLocaleLowerCase()];
-        else {
-            return dValue !== null || dValue !== undefined ? dValue : null;
+        // console.log(fName, editData.data);
+        // console.log(editData.data[fName.toLocaleLowerCase()]);
+
+        if (editData.mode) {
+            // debugger;
+            return editData.data[fName.toLocaleLowerCase()];
+        } else {
+            return dValue ? dValue : null;
         }
     }
 
@@ -428,6 +433,16 @@ export class EnergyDesignService {
                 )
                 .join(' ')
                 .trim();
+
+            item['disabled'] = this.getFieldData(
+                'oep',
+                {
+                    mode: false,
+                    data: data,
+                },
+                false
+            );
+
             return item;
         });
     }
@@ -712,10 +727,14 @@ export class EnergyDesignService {
                                             callback['toggleOEP']('storage');
                                         },
                                         undefined,
-                                        this.getFieldData('storage', {
-                                            mode: editMode,
-                                            data,
-                                        }) == 'user_defined'
+                                        this.getFieldData(
+                                            'storage',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            'user_defined'
+                                        ) == 'user_defined'
                                             ? true
                                             : false,
                                         false
@@ -774,7 +793,12 @@ export class EnergyDesignService {
                                             callback['toggleInvestFields'](
                                                 InvestmentFields
                                             );
-                                        }
+                                        },
+                                        undefined,
+                                        this.getFieldData('oep', {
+                                            mode: editMode,
+                                            data,
+                                        })
                                     ),
                                 ],
                             },
@@ -799,7 +823,11 @@ export class EnergyDesignService {
                                         this.getFieldData('investment', {
                                             mode: editMode,
                                             data,
-                                        })
+                                        }) ||
+                                            this.getFieldData('oep', {
+                                                mode: editMode,
+                                                data,
+                                            })
                                     ),
                                 ],
                             },
@@ -819,7 +847,11 @@ export class EnergyDesignService {
                                         callback
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
-                                            data['investment'];
+                                            this.getFieldData('investment', {
+                                                mode: editMode,
+                                                data,
+                                            });
+
                                         elm['disabled'] = !isInvSelected;
 
                                         if (elm.actions) {
@@ -1010,7 +1042,13 @@ export class EnergyDesignService {
                                             callback
                                         ).map((elm: any) => {
                                             const isInvSelected: boolean =
-                                                data['investment'];
+                                                this.getFieldData(
+                                                    'investment',
+                                                    {
+                                                        mode: editMode,
+                                                        data,
+                                                    }
+                                                );
 
                                             elm['disabled'] = !isInvSelected;
 
@@ -1175,7 +1213,11 @@ export class EnergyDesignService {
                                         callback
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
-                                            data['investment'];
+                                            this.getFieldData('investment', {
+                                                mode: editMode,
+                                                data,
+                                            });
+
                                         elm['disabled'] = !isInvSelected;
 
                                         if (elm.actions) {
