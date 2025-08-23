@@ -195,7 +195,6 @@ export class ScenarioEnergyDesignComponent {
                 e.editMode ? e.data : null,
                 this.defineCallbackFlowForm()
             );
-
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
 
@@ -294,6 +293,8 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onChangePreDefined(e: { option: string; type: string }) {
+        console.log(e);
+
         // get oep data form fields
         if (e.option != 'user_defined') {
             this.formComponent.enabelControl('oep');
@@ -334,13 +335,14 @@ export class ScenarioEnergyDesignComponent {
             });
 
             //set data from server
-            // this.formComponent.setFieldData('nominal_value', 2127716.667);
-            // this.formComponent.setFieldData('maximum', 10);
-            // this.formComponent.setFieldData('minimum', 5);
-            // this.formComponent.setFieldData('ep_costs', 0.41);
+            this.formComponent.setFieldData('nominal_value', 2127716.667);
+            this.formComponent.setFieldData('maximum', 10);
+            this.formComponent.setFieldData('minimum', 5);
+            this.formComponent.setFieldData('ep_costs', 0.41);
 
             let scenarioBaseData: { project: any; scenario: any } =
                 this.scenarioService.restoreBaseInfo_Storage();
+
             this.flowService
                 .getPreDefinedValue(
                     e.option,
@@ -382,10 +384,10 @@ export class ScenarioEnergyDesignComponent {
             });
 
             // clear data
-            // this.formComponent.setFieldData('nominal_value', null);
-            // this.formComponent.setFieldData('maximum', null);
-            // this.formComponent.setFieldData('minimum', null);
-            // this.formComponent.setFieldData('ep_costs', null);
+            this.formComponent.setFieldData('nominal_value', null);
+            this.formComponent.setFieldData('maximum', null);
+            this.formComponent.setFieldData('minimum', null);
+            this.formComponent.setFieldData('ep_costs', null);
         }
     }
 
@@ -468,8 +470,6 @@ export class ScenarioEnergyDesignComponent {
                         this.formModal_info.data['connections'];
 
                     if (formData) {
-                        console.log(formData);
-
                         if (!this.formModal_info.editMode)
                             this.makeNode(formData, this.formModal_info);
                         else if (

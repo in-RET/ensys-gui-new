@@ -969,119 +969,119 @@ export class EnergyDesignService {
         };
 
         const getFields_flow = async () => {
+            let preDefinedList: string[];
+
             switch (name) {
                 case 'genericstorage':
-                    if (!data.oep) {
-                        return {
-                            sections: [
-                                {
-                                    name: 'non-OEP',
-                                    class: 'col-12',
-                                    fields: [
-                                        this.getField(
-                                            'investment',
-                                            '',
-                                            'Investment',
-                                            false,
-                                            'switch',
-                                            'auto',
-                                            editMode,
-                                            data,
-                                            'my-3',
-                                            () => {
-                                                const InvestmentFields =
-                                                    this.getInvestmentFields(
-                                                        data
-                                                    ).map(
-                                                        (elm: any) => elm.name
-                                                    );
+                    preDefinedList =
+                        await this.flowService.getPreDefinedsByName(name);
 
-                                                callback['toggleInvestFields'](
-                                                    InvestmentFields
-                                                );
-                                            }
-                                        ),
-                                    ],
-                                },
+                    return {
+                        sections: [
+                            {
+                                name: 'non-OEP',
+                                class: 'col-12',
+                                fields: [
+                                    this.getField(
+                                        'investment',
+                                        '',
+                                        'Investment',
+                                        false,
+                                        'switch',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        'my-3',
+                                        () => {
+                                            const InvestmentFields =
+                                                this.getInvestmentFields(
+                                                    data
+                                                ).map((elm: any) => elm.name);
 
-                                {
-                                    name: 'non-investment',
-                                    class: 'col-9',
-                                    fields: [
-                                        this.getField(
-                                            'nominal_value',
-                                            'Nominal Value',
-                                            'Nominal Value',
-                                            false,
-                                            'number',
-                                            'auto',
-                                            editMode,
+                                            callback['toggleInvestFields'](
+                                                InvestmentFields
+                                            );
+                                        }
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'non-investment',
+                                class: 'col-9',
+                                fields: [
+                                    this.getField(
+                                        'nominal_value',
+                                        'Nominal Value',
+                                        'Nominal Value',
+                                        false,
+                                        'number',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.getFieldData('investment', {
+                                            mode: editMode,
                                             data,
-                                            undefined,
-                                            undefined,
-                                            undefined,
+                                        })
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'divider',
+                                class: 'dashed',
+                            },
+
+                            {
+                                name: 'investment',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    ...this.getInvestmentFields(
+                                        data,
+                                        callback
+                                    ).map((elm: any) => {
+                                        const isInvSelected: boolean =
                                             this.getFieldData('investment', {
                                                 mode: editMode,
                                                 data,
-                                            })
-                                        ),
-                                    ],
-                                },
+                                            });
 
-                                {
-                                    name: 'divider',
-                                    class: 'dashed',
-                                },
+                                        elm['disabled'] = !isInvSelected;
 
-                                {
-                                    name: 'investment',
-                                    class: 'col-12',
-                                    fields: [
-                                        ...this.getInvestmentFields(
-                                            data,
-                                            callback
-                                        ).map((elm: any) => {
-                                            const isInvSelected: boolean =
-                                                this.getFieldData(
-                                                    'investment',
-                                                    {
-                                                        mode: editMode,
-                                                        data,
-                                                    }
-                                                );
+                                        if (elm.actions) {
+                                            elm.actions.forEach(
+                                                (element: any) => {
+                                                    element['disabled'] =
+                                                        !isInvSelected;
+                                                }
+                                            );
+                                        }
 
-                                            elm['disabled'] = !isInvSelected;
+                                        return elm;
+                                    }),
+                                ],
+                            },
 
-                                            if (elm.actions) {
-                                                elm.actions.forEach(
-                                                    (element: any) => {
-                                                        element['disabled'] =
-                                                            !isInvSelected;
-                                                    }
-                                                );
-                                            }
+                            {
+                                name: 'divider',
+                                class: 'dashed',
+                            },
 
-                                            return elm;
-                                        }),
-                                    ],
-                                },
-
-                                {
-                                    name: 'divider',
-                                    class: 'dashed',
-                                },
-
-                                {
-                                    name: 'defaults',
-                                    class: 'col-12',
-                                    fields: this.getDefaultFields_flow(data),
-                                },
-                            ],
-                        };
-                    } else return null;
+                            {
+                                name: 'defaults',
+                                class: 'col-12',
+                                visible: true,
+                                fields: this.getDefaultFields_flow(data),
+                            },
+                        ],
+                    };
 
                 default:
-                    const preDefinedList =
+                    preDefinedList =
                         await this.flowService.getPreDefinedsByName(name);
 
                     const fields = {
