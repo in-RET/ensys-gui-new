@@ -6,7 +6,7 @@ import { ContentLayoutService } from '../../../core/layout/services/content-layo
 import { ToastService } from '../../../shared/services/toast.service';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
-import { ScenarioService } from '../services/scenario.service';
+import { ScenarioModel, ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
@@ -340,21 +340,23 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.setFieldData('minimum', 5);
             this.formComponent.setFieldData('ep_costs', 0.41);
 
-            let scenarioBaseData: { project: any; scenario: any } =
+            const scenarioBaseData: ScenarioModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
-            this.flowService
-                .getPreDefinedValue(
-                    e.option,
-                    scenarioBaseData.scenario.simulationYear
-                )
-                .subscribe({
-                    next: (value) => {},
-                    error: (err) => {
-                        console.log(err);
-                        // err.error.detail
-                    },
-                });
+            if (scenarioBaseData && scenarioBaseData.scenario) {
+                this.flowService
+                    .getPreDefinedValue(
+                        e.option,
+                        scenarioBaseData.scenario.simulationYear
+                    )
+                    .subscribe({
+                        next: (value) => {},
+                        error: (err) => {
+                            console.log(err);
+                            // err.error.detail
+                        },
+                    });
+            }
         } else {
             this.formComponent.disableControl('oep');
 

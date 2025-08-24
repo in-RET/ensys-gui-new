@@ -6,10 +6,11 @@ export const scenarioResolver: ResolveFn<boolean> = (route, state) => {
     return true;
 };
 
-export const localStorageScenarioResolver: ResolveFn<boolean> = (
+export const localStorageScenarioResolver: ResolveFn<any | null> = (
     route,
     state
 ) => {
-    const scenario = inject(ScenarioService).restoreBaseInfo_Storage().scenario;
+    const scenario =
+        inject(ScenarioService).restoreBaseInfo_Storage()?.scenario;
     return scenario ? scenario : null;
 };

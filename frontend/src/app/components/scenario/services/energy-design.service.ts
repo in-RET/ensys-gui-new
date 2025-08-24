@@ -27,7 +27,6 @@ export class EnergyDesignService {
         // console.log(editData.data[fName.toLocaleLowerCase()]);
 
         if (editData.mode) {
-            // debugger;
             return editData.data[fName.toLocaleLowerCase()];
         } else {
             return dValue ? dValue : null;

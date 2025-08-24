@@ -9,7 +9,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
-import { ScenarioService } from '../services/scenario.service';
+import { ScenarioModel, ScenarioService } from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -111,7 +111,7 @@ export class ScenarioSetupComponent {
     }
 
     loadCurrentData() {
-        let scenarioBaseData: { project: any; scenario: any } =
+        let scenarioBaseData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (scenarioBaseData) {

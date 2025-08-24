@@ -65,7 +65,7 @@ export class ProjectItemComponent {
             });
     }
 
-    newScenario(pId: string, pName: string) {
+    newScenario(pId: number, pName: string) {
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioService.removeDrawflow_Storage();
 

@@ -15,10 +15,10 @@ export const projectsResolver: ResolveFn<boolean> = (route, state) => {
         );
 };
 
-export const localStorageProjectResolver: ResolveFn<boolean> = (
+export const localStorageProjectResolver: ResolveFn<any | null> = (
     route,
     state
 ) => {
-    const project = inject(ScenarioService).restoreBaseInfo_Storage().project;
+    const project = inject(ScenarioService).restoreBaseInfo_Storage()?.project;
     return project ? project : null;
 };

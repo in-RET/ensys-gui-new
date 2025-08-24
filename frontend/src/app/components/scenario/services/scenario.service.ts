@@ -1,6 +1,20 @@
 import { Injectable } from '@angular/core';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
+export interface ScenarioModel {
+    project: {
+        id: number;
+        name: string;
+    };
+    scenario?: {
+        name: string;
+        simulationPeriod: number;
+        sDate: string; // ISO date string
+        timeStep: number; // minutes or seconds
+        simulationYear: number;
+    };
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -24,7 +38,7 @@ export class ScenarioService {
     }
 
     // base info
-    saveBaseInfo_Storage(data: any) {
+    saveBaseInfo_Storage(data: ScenarioModel) {
         localStorage.setItem(
             this.scenario_localstorage_name,
             JSON.stringify(data)
@@ -35,14 +49,14 @@ export class ScenarioService {
         localStorage.removeItem(this.scenario_localstorage_name);
     }
 
-    restoreBaseInfo_Storage(): any {
+    restoreBaseInfo_Storage(): ScenarioModel | null {
         const BaseInfoData: string | null = localStorage.getItem(
             this.scenario_localstorage_name
         );
 
         if (BaseInfoData && BaseInfoData.trim() != '')
             return JSON.parse(BaseInfoData);
-        else return false;
+        else return null;
     }
 
     // drawflow
@@ -53,13 +67,13 @@ export class ScenarioService {
         );
     }
 
-    restoreDrawflow_Storage() {
+    restoreDrawflow_Storage(mustResultString: boolean = false) {
         const DrawflowData: string | null = localStorage.getItem(
             this.scenario_drawflow_localstorage_name
         );
 
         if (DrawflowData && DrawflowData.trim() != '')
-            return JSON.parse(DrawflowData);
+            return mustResultString ? DrawflowData : JSON.parse(DrawflowData);
         else return false;
     }
 
