@@ -1,3 +1,4 @@
-port_nr;type;name
-1;input;electricity
-2;output;heat
+port_nr;type;name;investment
+1;input;electricity;false
+2;input;heat_low;false
+2;output;heat_high;true

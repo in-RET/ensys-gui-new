@@ -1,3 +1,3 @@
-port_nr;type;name
-1;input;biomass
-3;output;electricity
+port_nr;type;name;investment
+1;input;biomass;false
+2;output;electricity;true

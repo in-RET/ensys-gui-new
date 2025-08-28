@@ -53,7 +53,11 @@ async def create_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
 
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
-    scenario.energysystem = convert_gui_json_to_ensys(json.loads(scenario.modeling_data))
+
+    modeling_data = json.loads(scenario_data.modeling_data)
+
+    scenario.modeling_data = modeling_data
+    scenario.energysystem = convert_gui_json_to_ensys(modeling_data)
 
     with open(os.path.join(os.getenv("LOCAL_DATADIR"), "debug.json"), "wt") as f:
         f.write(scenario.model_dump_json())
@@ -193,7 +197,9 @@ async def update_scenario(token: Annotated[str, Depends(oauth2_scheme)], scenari
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
-    db_scenario.energysystem = convert_gui_json_to_ensys(scenario_data.modeling_data)
+    # Note: Now it's a dict, not a EnScenarioUpdate
+
+    new_scenario_data["energysystem"] = convert_gui_json_to_ensys(new_scenario_data["modeling_data"])
 
     db_scenario.sqlmodel_update(new_scenario_data)
 

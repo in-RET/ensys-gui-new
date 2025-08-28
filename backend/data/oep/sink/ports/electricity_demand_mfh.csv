@@ -1,2 +1,2 @@
-port_nr;type;name
-1;input;electricity
+port_nr;type;name;investment
+1;input;electricity;false

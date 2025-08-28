@@ -58,6 +58,7 @@ class OepTypes(Enum):
     :ivar methanation: A system for producing methane from hydrogen and CO2, categorized as
                                a converter.
     """
+    # storages
     storage_electricity = ("storage_electricity", "generic_storage")
     storage_electricity_pumped_hydro_storage_power_technology = (
         "storage_electricity_pumped_hydro_storage_power_technology", "generic_storage")
@@ -65,18 +66,35 @@ class OepTypes(Enum):
     storage_heat_district_heating = ("storage_heat_district_heating", "generic_storage")
     storage_heat_seasonal = ("storage_heat_seasonal", "generic_storage")
     storage_hydrogen = ("storage_hydrogen", "generic_storage")
+    
+    # sinks
+    electricity_export = ("electricity_export", "sink")
+
     electricity_demand_efh = ("electricity_demand_efh", "sink")
     electricity_demand_industry = ("electricity_demand_industry", "sink")
     electricity_demand_mfh = ("electricity_demand_mfh", "sink")
-    electricity_export = ("electricity_export", "sink")
     heat_demand_efh = ("heat_demand_efh", "sink")
     heat_demand_industry = ("heat_demand_industry", "sink")
     heat_demand_mfh = ("heat_demand_mfh", "sink")
+    
+    # sources
     hydrogen_feed_in = ("hydrogen_feed_in", "source")
-    onshore_wind_power_plant = ("onshore_wind_power_plant", "source")
-    rooftop_photovoltaic_power_plant = ("rooftop_photovoltaic_power_plant", "source")
     run_river_power_plant = ("run_river_power_plant", "source")
     solar_thermal_power_plant = ("solar_thermal_power_plant", "source")
+    onshore_wind_power_plant_east_th = ("onshore_wind_power_plant_east_th", "source")
+    onshore_wind_power_plant_middle_th = ("onshore_wind_power_plant_middle_th", "source")
+    onshore_wind_power_plant_north_th = ("onshore_wind_power_plant_north_th", "source")
+    onshore_wind_power_plant_swest_th = ("onshore_wind_power_plant_swest_th", "source")
+    openfield_photovoltaic_power_plant_east_th = ("openfield_photovoltaic_power_plant_east_th", "source")
+    openfield_photovoltaic_power_plant_middle_th = ("openfield_photovoltaic_power_plant_middle_th", "source")
+    openfield_photovoltaic_power_plant_north_th = ("openfield_photovoltaic_power_plant_north_th", "source")
+    openfield_photovoltaic_power_plant_swest_th = ("openfield_photovoltaic_power_plant_swest_th", "source")
+    rooftop_photovoltaic_power_plant_east_th = ("rooftop_photovoltaic_power_plant_east_th", "source")
+    rooftop_photovoltaic_power_plant_middle_th = ("rooftop_photovoltaic_power_plant_middle_th", "source")
+    rooftop_photovoltaic_power_plant_north_th = ("rooftop_photovoltaic_power_plant_north_th", "source")
+    rooftop_photovoltaic_power_plant_swest_th = ("rooftop_photovoltaic_power_plant_swest_th", "source")
+    
+    # converters
     power_to_liquid_system = ("power_to_liquid_system", "converter")
     fuel_cells = ("fuel_cells", "converter")
     biogas_combined_heat_and_power_plant = ("biogas_combined_heat_and_power_plant", "converter")

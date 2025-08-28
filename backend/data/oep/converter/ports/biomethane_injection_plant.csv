@@ -1,4 +1,4 @@
-port_nr;type;name
-1;input;idk
-2;output;idk
-3;output;idk
+port_nr;type;name;investment
+1;input;biomethan;false
+2;output;heat;false
+3;output;electricity;true

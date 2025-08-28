@@ -1,3 +1,3 @@
-port_nr;type;name
-1;input;electricity
-2;output;liquid
+port_nr;type;name;investment
+1;input;electricity;false
+2;output;liquid;true

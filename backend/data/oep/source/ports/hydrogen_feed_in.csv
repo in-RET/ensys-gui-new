@@ -1,2 +1,2 @@
-port_nr;type;name
-1;output;hydrogen
+port_nr;type;name;investment
+1;output;hydrogen;true

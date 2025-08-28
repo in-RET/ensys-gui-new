@@ -1,2 +1,2 @@
-port_nr;type;name
-1;output;heat
+port_nr;type;name;investment
+1;output;heat;true

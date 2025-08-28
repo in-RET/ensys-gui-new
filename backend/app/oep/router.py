@@ -111,8 +111,6 @@ async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_
 @oep_router.get("/local_schemas/{block_type}")
 async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], block_type: str) -> DataResponse:
     """
-    Retrieve local schemas based on a block type.
-
     This endpoint retrieves a list of local schemas that match the provided
     block type. It accepts a user authentication token to ensure the request
     is authenticated. The schemas are filtered from a predefined list based
@@ -171,70 +169,140 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
         os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower())
     )
 
-    port_data_path = os.path.join(root_path, "ports", f"{oep_type.value[0].lower()}.csv")
-    print(f"port_data_path: {port_data_path}")
+    port_data_path = os.path.join(root_path, "ports", f"{block_schema}.csv")
+    parameter_data_path = os.path.join(root_path, "parameter", f"{block_schema}.csv")
+    timeseries_data_path = os.path.join(root_path, "timeseries", f"{block_schema}.csv")
 
+    # Einlesen der Portdaten
     if not os.path.isfile(port_data_path):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+        raise HTTPException(status_code=404, detail="File with port specification not found.")
     else:
         with open(port_data_path, "r") as f:
-            general = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+            ports_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="records")
 
-    # timeseries_data_path = os.path.join(root_path, "timeseries" f"{oep_type.value[0].lower()}.csv")
-    # print(f"timeseries_data_path: {timeseries_data_path}")
-    # if not os.path.isfile(timeseries_data_path)
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
-
-    if not oep_type in [OepTypes.electricity_demand_mfh,
-                        OepTypes.heat_demand_efh,
-                        OepTypes.electricity_demand_efh,
-                        OepTypes.heat_demand_industry,
-                        OepTypes.heat_demand_mfh,
-                        OepTypes.electricity_demand_industry]:
-        parameter_data_path = os.path.join(root_path, "parameter", f"{oep_type.value[0].lower()}.csv")
-        print(f"parameter_data_path: {parameter_data_path}")
-
-        if not os.path.isfile(parameter_data_path):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
-
+    # Einlesen der Parameter
+    if not os.path.isfile(parameter_data_path):
+        raise HTTPException(status_code=404, detail="File with parameter data not found.")
+    else:
         with open(parameter_data_path, "r") as f:
-            parameter = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
-            data_selected_year = parameter.loc[simulation_year]
+            parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
 
-        print(f"general: {general}")
+    # Einlesen der Zeitreihe#
+    if (oep_type.value[1].lower() == "sink" or oep_type.value[1].lower() == "source") and not oep_type.value[0].lower() == "electricity_export":
+        # print(f"timeseries_data_path: {timeseries_data_path}")
+        if not os.path.isfile(timeseries_data_path):
+            raise HTTPException(status_code=404, detail="File with timeseries not found.")
+        else:
+            with open(timeseries_data_path, "r") as f:
+                timeseries_data = list(pd.read_csv(f, index_col=0, decimal=",", delimiter=";").loc[:, "data"])
+    else:
+        timeseries_data = None
 
-        # Calculate EPC costs
-        capex = data_selected_year.loc["investment_costs"]
-        opex = data_selected_year.loc["investment_costs"] * (data_selected_year.loc["operating_costs"] / 100)
+    parameter_year_select: dict = parameter_data[simulation_year]
+
+    # Hier hat man die Parameter für das ausgewählte Jahr eingelesen
+    param_keys = parameter_year_select.keys()
+
+    # ep_costs berechnen für den Flow
+    if "investment_costs" in param_keys and \
+            "interest_rate" in param_keys and \
+            "operating_costs" in param_keys and \
+            "lifetime" in param_keys:
+        # Calculate EPC costs for flow
+        capex = parameter_year_select["investment_costs"]
+        opex = parameter_year_select["investment_costs"] * (parameter_year_select["operating_costs"] / 100)
+        interest_rate = parameter_year_select["interest_rate"] / 100
 
         annuity = economics.annuity(
             capex=capex,
-            wacc=0.05,  # TODO: Make this configurable
-            n=data_selected_year.loc["lifetime"]
+            wacc=interest_rate,
+            n=parameter_year_select["lifetime"]
         )
-        ep_costs = annuity + opex
-
-        # delete non-relevant columns
-        filtered_data = data_selected_year.drop(columns=["investment_costs", "operating_costs", "lifetime"],
-                                                inplace=True)
-        parameter_data = filtered_data.to_dict() if filtered_data is not None else {}
-
-        if parameter_data is not None:
-            parameter_data["epc_costs"] = ep_costs
-        else:
-            parameter_data = {
-                'ep_costs': ep_costs
-            }
-
-        return_data = [{
-            "parameters": parameter_data,
-            "ports": general.to_dict(orient="records")
-        }]
-
+        flow_ep_costs = annuity + opex
     else:
-        return_data = [{
-            "ports": general.to_dict(orient="records")
-        }]
+        flow_ep_costs = None
+
+    # Anlegen der Flow-Daten mit Zeitreihe oder ohne
+    if timeseries_data is not None:
+        flow_data = {
+            "fix": timeseries_data
+        }
+    else:
+        flow_data = {}
+
+    if flow_ep_costs is not None:
+        flow_data["investment"] = {
+            "ep_costs": flow_ep_costs
+        }
+
+    # flow-daten die wichtig sind, zum Filtern bei der storage-daten
+    flow_data_keys = ["nominal_value",
+                      "variable_costs",
+                      "min",
+                      "max",
+                      "fix"
+                      "positive_gradient_limit",
+                      "negative_gradient_limit",
+                      "full_load_time_max",
+                      "full_load_time_min",
+                      "integer",
+                      "nonconvex",
+                      "fixed_costs",
+                      "age",
+                      "lifetime"]
+
+    # Löschen der nicht relevanten Einträge
+    parameter_ys_cleaned = parameter_year_select
+    for key in ["investment_costs", "operating_costs", "lifetime", "interest_rate", "efficiency_el",
+                "efficiency_th"]:
+        if key in parameter_ys_cleaned.keys():
+            del parameter_ys_cleaned[key]
+
+    for key in flow_data_keys:
+        if key in parameter_ys_cleaned.keys() and not key in flow_data.keys():
+            flow_data[key] = parameter_ys_cleaned[key]
+            del parameter_ys_cleaned[key]
+        elif key in parameter_ys_cleaned.keys() and key in flow_data.keys():
+            del parameter_ys_cleaned[key]
+
+    # TODO: how do i write the flow data in the right port? Sink/Source/Rest
+    for port in ports_data:
+        del port["investment"]
+
+        if ((oep_type.value[1].lower() == "sink" and port["type"] == "input") or (
+                oep_type.value[1].lower() == "source" and port["type"] == "output")) and flow_data:
+            # Sink / Source
+            port["flow_data"] = flow_data
+        elif port["type"] == "output" and port["name"] == "electricity":
+            port["flow_data"] = flow_data
+        else:
+            print(f"Port: {port}")
+
+    if "efficiencey_el" in param_keys and port["name"] == "electricity" and port["type"] == "output":
+        port["efficiency"] = parameter_year_select["efficiency_el"]
+
+    if "efficiencey_th" in param_keys and port["name"] == "heat" and port["type"] == "output":
+        port["efficiency"] = parameter_year_select["efficiency_th"]
+
+    # Ab hier starten die Sonderwünsche
+    sorted_port_data = {
+        "inputs": [],
+        "outputs": []
+    }
+
+    for item in ports_data:
+        tmp_type = item["type"]
+        del item["type"]
+
+        if tmp_type == "input":
+            sorted_port_data["inputs"].append(item)
+        elif tmp_type == "output":
+            sorted_port_data["outputs"].append(item)
+
+    return_data = [{
+        "node_data": parameter_ys_cleaned,
+        "ports_data": sorted_port_data
+    }]
 
     return DataResponse(
         data=GeneralDataModel(

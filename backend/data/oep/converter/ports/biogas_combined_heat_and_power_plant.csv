@@ -1,4 +1,4 @@
-port_nr;type;name
-1;input;biogas
-2;output;heat
-3;output;electricity
+port_nr;type;name;investment
+1;input;biogas;false
+2;output;heat;false
+3;output;electricity;true

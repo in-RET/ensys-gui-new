@@ -64,9 +64,8 @@ def simulation_task(scenario_id: int, simulation_id: int):
     logger = get_task_logger(__name__)
 
     # Create Energysystem to be stored
-    energysystem_api = scenario.energysystem_model
     simulation_model = EnModel(
-        energysystem=energysystem_api
+        energysystem=scenario.energysystem
     )
 
     simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token))
