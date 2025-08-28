@@ -85,17 +85,20 @@ export class FormComponent {
     }
 
     toggleControl(fControlName: any) {
-        this.form.controls[fControlName].disabled
-            ? this.enabelControl(fControlName)
-            : this.disableControl(fControlName);
+        if (this.form.controls[fControlName.toLocaleLowerCase()])
+            this.form.controls[fControlName].disabled
+                ? this.enabelControl(fControlName)
+                : this.disableControl(fControlName);
     }
 
     enabelControl(fControlName: any) {
-        this.form.controls[fControlName].enable();
+        if (this.form.controls[fControlName.toLocaleLowerCase()])
+            this.form.controls[fControlName.toLocaleLowerCase()].enable();
     }
 
     disableControl(fControlName: any) {
-        this.form.controls[fControlName].disable();
+        if (this.form.controls[fControlName.toLocaleLowerCase()])
+            this.form.controls[fControlName.toLocaleLowerCase()].disable();
     }
 
     fileUploaderChange(e: any, fControlName: any) {
@@ -106,10 +109,12 @@ export class FormComponent {
         // } else {
         //     this.form.controls[fControlName].enable();
         // }
-        this.form.controls[fControlName].setValue(e);
+        if (this.form.controls[fControlName.toLocaleLowerCase()])
+            this.form.controls[fControlName.toLocaleLowerCase()].setValue(e);
     }
 
     setFieldData(fControlName: string, val: any) {
-        this.form.controls[fControlName].setValue(val);
+        if (this.form.controls[fControlName.toLocaleLowerCase()])
+            this.form.controls[fControlName.toLocaleLowerCase()].setValue(val);
     }
 }
