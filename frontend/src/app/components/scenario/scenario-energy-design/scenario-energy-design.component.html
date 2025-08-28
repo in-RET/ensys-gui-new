@@ -24,33 +24,34 @@
     [hidden]="formModal_info.hide"
 >
     <div modal-form>
-        <ng-container
+        <!-- <ng-container
             *ngIf="
                 formModal_info.type == 'flow' &&
                     formModal_info.id == 'genericstorage';
                 else noraml_form
             "
-        >
-            <div *ngIf="formModal_info.formData !== null">
-                <p
-                    class="text-center p-2 border border-warning rounded-4 shadow"
-                    *ngIf="formModal_info.data.oep"
-                >
-                    The <b>OEP </b>field has been enabled at the node level.
-                    Therefore, if you wish to enable and review its parameters,
-                    please perform this action directly in the node.
-                </p>
+        > -->
+        <div *ngIf="formModal_info.formData !== null">
+            <p
+                class="text-center p-2 border border-warning rounded-4 shadow"
+                *ngIf="formModal_info.type == 'flow' && formModal_info.data.oep"
+            >
+                The <b>OEP </b>field has been enabled at the node level.
+                Therefore, if you wish to enable and review its parameters,
+                please perform this action directly in the node.
+            </p>
 
-                <app-form
-                    [formData]="formModal_info.formData"
-                    (onSubmit)="submitFormData()"
-                    #form
-                />
-            </div>
-        </ng-container>
+            <app-form
+                [formData]="formModal_info.formData"
+                (onSubmit)="submitFormData()"
+                #form
+            />
+        </div>
+        <!-- </ng-container> -->
 
         <ng-template #noraml_form>
             <!-- ports -->
+            <!-- transformer -->
             <div
                 class="row mb-3"
                 *ngIf="

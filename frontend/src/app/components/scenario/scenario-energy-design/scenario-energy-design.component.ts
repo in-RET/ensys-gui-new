@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, ViewChild } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
+import { map } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { OEPResponse, Port } from '../models/node.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
 import { ScenarioModel, ScenarioService } from '../services/scenario.service';
@@ -293,17 +295,85 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onChangePreDefined(e: { option: string; type: string }) {
-        console.log(e);
+        // just in storage node there are aditional sec
+        if (e.type == 'storage') this.setPredefinedFormFields_storage(e.option);
+        else this.setPredefinedFormFields_node(e.option, e.type);
+    }
 
+    private setPredefinedFormFields_node(option: string, type: string) {
+        // [...this.energyDesignService.getDefaultFields_flow()];
         // get oep data form fields
-        if (e.option != 'user_defined') {
+        if (option != 'user_defined') {
             this.formComponent.enabelControl('oep');
+            // set oep switch on
+            this.formComponent.setFieldData('oep', true);
+            this.formComponent.setFieldData('inputPort_name', null);
+            this.formComponent.setFieldData('outputPort_name', null);
+            // disable all fields
+            this.formComponent.disableControl('inputPort_name');
+            this.formComponent.disableControl('outputPort_name');
 
+            //set data from server
+            const scenarioBaseData: ScenarioModel | null =
+                this.scenarioService.restoreBaseInfo_Storage();
+
+            if (scenarioBaseData && scenarioBaseData.scenario) {
+                this.flowService
+                    .getPreDefinedValue(
+                        option,
+                        scenarioBaseData.scenario.simulationYear
+                    )
+                    .pipe(map((d: any) => d.items[0]))
+                    .subscribe({
+                        next: (value: OEPResponse) => {
+                            console.log(value);
+
+                            value.ports_data.inputs.forEach((port: Port) => {
+                                this.formComponent.setFieldData(
+                                    'inputPort_name',
+                                    port.name
+                                );
+                            });
+
+                            value.ports_data.outputs.forEach((port: Port) => {
+                                this.formComponent.setFieldData(
+                                    'outputPort_name',
+                                    port.name
+                                );
+                            });
+                        },
+                        error: (err) => {
+                            console.log(err);
+                            // err.error.detail
+                        },
+                    });
+            }
+        } else {
+            this.formComponent.disableControl('oep');
+            // set oep switch off
+            this.formComponent.setFieldData('oep', false);
+            this.formComponent.setFieldData('inputPort_name', null);
+            this.formComponent.setFieldData('outputPort_name', null);
+            // enable all fields
+            this.formComponent.enabelControl('inputPort_name');
+            this.formComponent.enabelControl('outputPort_name');
+        }
+    }
+
+    private setPredefinedFormFields_storage(option: string) {
+        // get oep data form fields
+        if (option != 'user_defined') {
+            this.formComponent.enabelControl('oep');
             // set oep switch on
             this.formComponent.setFieldData('oep', true);
             this.formComponent.setFieldData('investment', false);
-
+            this.formComponent.setFieldData('inputPort_name', null);
+            this.formComponent.setFieldData('name', null);
+            this.formComponent.setFieldData('outputPort_name', null);
             // disable all fields
+            this.formComponent.disableControl('inputPort_name');
+            this.formComponent.disableControl('name');
+            this.formComponent.disableControl('outputPort_name');
             this.formComponent.disableControl('investment');
             this.formComponent.disableControl('nominal_value');
 
@@ -312,21 +382,12 @@ export class ScenarioEnergyDesignComponent {
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
-            if (e.type == 'storage') {
-                const formData = this.formComponent.form.getRawValue();
+            // const formData = this.formComponent.form.getRawValue();
 
-                lsFields_ = [
-                    ...this.energyDesignService.getDefaultFields_storage(
-                        formData
-                    ),
-                    ...lsFields_,
-                ];
-            } else {
-                lsFields_ = [
-                    ...this.energyDesignService.getDefaultFields_flow(),
-                    ...lsFields_,
-                ];
-            }
+            lsFields_ = [
+                ...this.energyDesignService.getDefaultFields_storage(),
+                ...lsFields_,
+            ];
 
             lsFields_.forEach((element: any) => {
                 // empty fields
@@ -335,18 +396,13 @@ export class ScenarioEnergyDesignComponent {
             });
 
             //set data from server
-            this.formComponent.setFieldData('nominal_value', 2127716.667);
-            this.formComponent.setFieldData('maximum', 10);
-            this.formComponent.setFieldData('minimum', 5);
-            this.formComponent.setFieldData('ep_costs', 0.41);
-
             const scenarioBaseData: ScenarioModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
             if (scenarioBaseData && scenarioBaseData.scenario) {
                 this.flowService
                     .getPreDefinedValue(
-                        e.option,
+                        option,
                         scenarioBaseData.scenario.simulationYear
                     )
                     .subscribe({
@@ -357,26 +413,38 @@ export class ScenarioEnergyDesignComponent {
                         },
                     });
             }
+            // temp
+            this.formComponent.setFieldData('inputPort_name', 'Sample');
+            this.formComponent.setFieldData('name', 'Sample');
+            this.formComponent.setFieldData('outputPort_name', 'Sample');
+            this.formComponent.setFieldData('nominal_value', 2127716.667);
+            this.formComponent.setFieldData('maximum', 10);
+            this.formComponent.setFieldData('minimum', 5);
+            this.formComponent.setFieldData('ep_costs', 0.41);
         } else {
             this.formComponent.disableControl('oep');
-
             // set oep switch off
             this.formComponent.setFieldData('oep', false);
             this.formComponent.setFieldData('investment', false);
-
+            this.formComponent.setFieldData('nominal_value', null);
+            this.formComponent.setFieldData('inputPort_name', null);
+            this.formComponent.setFieldData('name', null);
+            this.formComponent.setFieldData('outputPort_name', null);
             // enable all fields
+            this.formComponent.enabelControl('inputPort_name');
+            this.formComponent.enabelControl('name');
+            this.formComponent.enabelControl('outputPort_name');
             this.formComponent.enabelControl('investment');
             this.formComponent.enabelControl('nominal_value');
 
-            const lsFields_forEnable =
-                e.type != 'storage'
-                    ? [...this.energyDesignService.getDefaultFields_flow()]
-                    : [...this.energyDesignService.getDefaultFields_storage()];
+            // clear data
+            const lsFields_forEnable = [
+                ...this.energyDesignService.getDefaultFields_storage(),
+            ];
             lsFields_forEnable.forEach((element: any) => {
                 this.formComponent.setFieldData(element.name, null);
                 this.formComponent.enabelControl(element.name);
             });
-
             const lsFields_forDisable = [
                 ...this.energyDesignService.getInvestmentFields(),
             ];
@@ -385,48 +453,57 @@ export class ScenarioEnergyDesignComponent {
                 this.formComponent.disableControl(element.name);
             });
 
-            // clear data
-            this.formComponent.setFieldData('nominal_value', null);
-            this.formComponent.setFieldData('maximum', null);
-            this.formComponent.setFieldData('minimum', null);
-            this.formComponent.setFieldData('ep_costs', null);
+            // this.formComponent.setFieldData('nominal_value', null);
+            // this.formComponent.setFieldData('maximum', null);
+            // this.formComponent.setFieldData('minimum', null);
+            // this.formComponent.setFieldData('ep_costs', null);
         }
     }
 
     toggleOEP(type?: string) {
-        // user input data
-        if (!this.formComponent.form.controls['oep'].value) {
-            this.formComponent.enabelControl('investment');
-            this.formComponent.enabelControl('nominal_value');
-            this.formComponent.setFieldData('investment', false);
+        if (type == 'storage') {
+            // user input data
+            if (!this.formComponent.form.controls['oep'].value) {
+                this.formComponent.enabelControl('investment');
+                this.formComponent.enabelControl('nominal_value');
+                this.formComponent.enabelControl('inputPort_name');
+                this.formComponent.enabelControl('outputPort_name');
+                this.formComponent.setFieldData('investment', false);
 
-            const lsFields_ =
-                type == 'storage'
-                    ? [...this.energyDesignService.getDefaultFields_storage()]
-                    : [...this.energyDesignService.getDefaultFields_flow()];
+                const lsFields_ = [
+                    ...this.energyDesignService.getDefaultFields_storage(),
+                ];
 
-            lsFields_.forEach((element: any) => {
-                this.formComponent.enabelControl(element.name);
-            });
+                lsFields_.forEach((element: any) => {
+                    this.formComponent.enabelControl(element.name);
+                });
+            } else {
+                this.formComponent.disableControl('inputPort_name');
+                this.formComponent.disableControl('outputPort_name');
+                this.formComponent.disableControl('investment');
+                this.formComponent.disableControl('nominal_value');
+
+                let lsFields_ = [
+                    ...this.energyDesignService.getInvestmentFields(),
+                ];
+                lsFields_ = [
+                    ...this.energyDesignService.getDefaultFields_storage(),
+                    ...lsFields_,
+                ];
+
+                lsFields_.forEach((element: any) => {
+                    this.formComponent.disableControl(element.name);
+                });
+            }
         } else {
-            this.formComponent.disableControl('investment');
-            this.formComponent.disableControl('nominal_value');
-
-            let lsFields_ = [...this.energyDesignService.getInvestmentFields()];
-            lsFields_ =
-                type == 'storage'
-                    ? [
-                          ...this.energyDesignService.getDefaultFields_storage(),
-                          ...lsFields_,
-                      ]
-                    : [
-                          ...this.energyDesignService.getDefaultFields_flow(),
-                          ...lsFields_,
-                      ];
-
-            lsFields_.forEach((element: any) => {
-                this.formComponent.disableControl(element.name);
-            });
+            // user input data
+            if (!this.formComponent.form.controls['oep'].value) {
+                this.formComponent.enabelControl('inputPort_name');
+                this.formComponent.enabelControl('outputPort_name');
+            } else {
+                this.formComponent.disableControl('inputPort_name');
+                this.formComponent.disableControl('outputPort_name');
+            }
         }
     }
 
