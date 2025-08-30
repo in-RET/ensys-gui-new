@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GeneralService } from '../../../shared/services/general.service';
+import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { FlowService } from './flow.service';
 
 type EPCostParams = {
@@ -8,6 +9,15 @@ type EPCostParams = {
     lifetime: number; // project lifetime in years
     opexPercentage: number; // opex as a decimal (e.g., 0.05 for 5%)
 };
+
+interface Port extends OrderItem {
+    code: string;
+}
+
+interface Ports {
+    inputs: Port[];
+    outputs: Port[];
+}
 
 @Injectable({
     providedIn: 'root',
@@ -1416,16 +1426,19 @@ export class EnergyDesignService {
     getNodePorts(
         data: any,
         nodeId: string,
-        transform_inputs: any,
-        transform_outputs: any,
+        transform_inputs?: OrderItem[],
+        transform_outputs?: OrderItem[],
         groupName?: string
-    ) {
-        let transformDataFn = (): { inputs: any; outputs: any } | boolean => {
-            let ports: { inputs: any; outputs: any };
+    ): any {
+        let transformPorts = (): Ports | false => {
+            let ports: Ports;
 
-            if (nodeId === 'transformer') {
+            if (
+                nodeId === 'transformer' &&
+                transform_inputs &&
+                transform_outputs
+            ) {
                 // add port(in-out) list to the node
-                debugger;
                 if (transform_inputs.length && transform_outputs.length) {
                     ports = this.getTransformPorts(
                         transform_inputs,
@@ -1437,7 +1450,7 @@ export class EnergyDesignService {
                 let { inputport_name, outputport_name } = data;
                 ports = { inputs: [], outputs: [] };
 
-                if (data.inputport_name) {
+                if (inputport_name) {
                     ports.inputs.push({
                         id: 0,
                         name: inputport_name,
@@ -1445,7 +1458,7 @@ export class EnergyDesignService {
                     });
                 }
 
-                if (data.outputport_name) {
+                if (outputport_name) {
                     ports.outputs.push({
                         id: 0,
                         name: outputport_name,
@@ -1457,43 +1470,49 @@ export class EnergyDesignService {
             }
         };
 
-        const _ports = transformDataFn();
-        debugger;
-        if (_ports == false) return data;
+        const _ports: Ports | false = transformPorts();
+
+        // Converter node
+        if (_ports == false) return false;
+
         data['ports'] = _ports;
 
-        switch (groupName) {
-            case 'production':
-                return { ...data, inp: 0, out: 1 };
+        if (groupName) {
+            switch (groupName) {
+                case 'production':
+                    return { ...data, inp: 0, out: 1 };
 
-            case 'bus':
-                return { ...data, inp: 1, out: 1 };
+                case 'bus':
+                    return { ...data, inp: 1, out: 1 };
 
-            case 'storage':
-                return { ...data, inp: 1, out: 1 };
+                case 'storage':
+                    return { ...data, inp: 1, out: 1 };
 
-            case 'demand':
-                return { ...data, inp: 1, out: 0 };
+                case 'demand':
+                    return { ...data, inp: 1, out: 0 };
 
-            case 'conversion':
-                if (nodeId == 'transformer') {
-                    if (
-                        data &&
-                        data['ports'] &&
-                        data['ports']['inputs'] &&
-                        data['ports']['outputs'] &&
-                        data['ports']['inputs'].length &&
-                        data['ports']['outputs'].length
-                    ) {
-                        return {
-                            ...data,
-                            inp: data['ports']['inputs'].length,
-                            out: data['ports']['outputs'].length,
-                        };
+                case 'conversion':
+                    if (nodeId == 'transformer') {
+                        if (
+                            data &&
+                            data['ports'] &&
+                            data['ports']['inputs'] &&
+                            data['ports']['outputs'] &&
+                            data['ports']['inputs'].length &&
+                            data['ports']['outputs'].length
+                        ) {
+                            return {
+                                ...data,
+                                inp: data['ports']['inputs'].length,
+                                out: data['ports']['outputs'].length,
+                            };
+                        }
+                    } else if (nodeId !== 'transformer') {
+                        return { ...data, inp: 0, out: 0 };
                     }
-                } else if (nodeId !== 'transformer') {
-                    return { ...data, inp: 0, out: 0 };
-                }
+            }
+        } else {
+            return data;
         }
     }
 
@@ -1559,24 +1578,22 @@ export class EnergyDesignService {
         ];
     }
 
-    getTransformPorts(
-        inputList: any,
-        outputList: any
-    ): { inputs: any; outputs: any } {
-        const ports: { inputs: any; outputs: any } = {
-            inputs: null,
-            outputs: null,
+    getTransformPorts(inputList: OrderItem[], outputList: OrderItem[]): Ports {
+        const ports: Ports = {
+            inputs: [],
+            outputs: [],
         };
+        // const ports: any = {};
 
-        inputList.forEach((element: any, index: number) => {
-            element['code'] = `input_${index + 1}`;
+        inputList.forEach((element: OrderItem, index: number) => {
+            const newElm: Port = { ...element, code: `input_${index + 1}` };
+            ports.inputs.push(newElm);
         });
-        ports.inputs = inputList;
 
-        outputList.data.forEach((element: any, index: number) => {
-            element['code'] = `output_${index + 1}`;
+        outputList.forEach((element: OrderItem, index: number) => {
+            const newElm: Port = { ...element, code: `output_${index + 1}` };
+            ports.outputs.push(newElm);
         });
-        ports.outputs = outputList.data;
 
         return ports;
     }

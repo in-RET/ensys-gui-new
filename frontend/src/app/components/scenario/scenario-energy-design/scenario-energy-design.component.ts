@@ -82,7 +82,7 @@ export class ScenarioEnergyDesignComponent {
     editMode: boolean = false;
     isFullscreen: boolean = false;
 
-    formError: any = {
+    formError: { msg: string | null; isShow: boolean } = {
         msg: '',
         isShow: false,
     };
@@ -203,15 +203,27 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
 
-        if (e.id == 'transformer' && !e.editMode) {
-            this.formModal_info.data = {
-                ...this.formModal_info.data,
-                ports: {
-                    inputs: [],
-                    outputs: [],
-                    editable: true,
-                },
-            };
+        if (e.id == 'transformer') {
+            if (e.editMode) {
+                this.formModal_info.data.ports = {
+                    ...this.formModal_info.data.ports,
+                    editable: this.formModal_info.data.oep
+                        ? !this.formModal_info.data.oep
+                        : true,
+                };
+            } else {
+                // a new node
+                this.formModal_info.data = {
+                    ...this.formModal_info.data,
+                    ports: {
+                        inputs: [],
+                        outputs: [],
+                        editable: this.formModal_info.data.oep
+                            ? !this.formModal_info.data.oep
+                            : true,
+                    },
+                };
+            }
         }
 
         // appear Modal
@@ -309,6 +321,8 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onChangePreDefined(e: { option: string; type: string }) {
+        this.cleanFormError();
+
         // just in storage node there are aditional sec
         if (e.type == 'storage') this.setPredefinedFormFields_storage(e.option);
         else this.setPredefinedFormFields_node(e.option, e.type);
@@ -597,6 +611,10 @@ export class ScenarioEnergyDesignComponent {
         };
     }
 
+    cleanFormError() {
+        this.formError = { msg: null, isShow: false };
+    }
+
     setFormCalError(status: boolean, msg: string) {
         this.formCalError = {
             msg: msg,
@@ -621,11 +639,19 @@ export class ScenarioEnergyDesignComponent {
                     formData = this.energyDesignService.getNodePorts(
                         formData,
                         this.formModal_info.id,
-                        this.transform_inputs.data,
-                        this.transform_outputs.data,
+                        this.transform_inputs?.data,
+                        this.transform_outputs?.data,
                         this.formModal_info.data.node?.groupName
                     );
-                    debugger;
+
+                    if (!formData && this.formModal_info.id === 'transformer') {
+                        this.setFormError(
+                            true,
+                            ' * Ports have not been added!'
+                        );
+                        return false;
+                    }
+
                     formData['connections'] =
                         this.formModal_info.data['connections'];
 
