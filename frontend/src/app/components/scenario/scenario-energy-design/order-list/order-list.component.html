@@ -1,9 +1,11 @@
 <section class="p-2 border border-primary-subtle rounded">
     <h6>{{ label }}</h6>
+
     <p *ngIf="message" [ngClass]="{ 'text-danger': message.type === 'error' }">
         {{ message.txt }}
     </p>
-    <form class="d-flex flex-row" [formGroup]="form">
+
+    <form class="d-flex flex-row" [formGroup]="form" *ngIf="editable">
         <div class="d-flex gap-1">
             <!-- inp text -->
             <input
@@ -90,26 +92,31 @@
         </div>
     </form>
 
-    <div class="d-flex mt-3" *ngIf="data">
-        <div class="order-list card p-1 gap-1">
-            <div
-                class="order-item p-2 border-bottom d-flex"
-                *ngFor="let item of data"
-                [ngClass]="{ active: selectedItem === item.id }"
-                (click)="selectItem(item.id)"
-            >
-                <span>{{ item.name }}</span>
-                <span *ngIf="fields.includes('num')">
-                    : {{ item.number }}
-                </span>
-                <span *ngIf="fields.includes('typ') && item.type">
-                    : {{ item.type.name }}
-                </span>
+    <div class="order d-flex mt-3">
+        <ng-container *ngIf="data && data.length; else noDataSection">
+            <div class="list card p-1 gap-1">
+                <div
+                    class="order-item p-2 border-bottom d-flex"
+                    *ngFor="let item of data"
+                    [ngClass]="{ active: selectedItem === item.id }"
+                    (click)="selectItem(item.id)"
+                >
+                    <span>{{ item.name }}</span>
+
+                    <span *ngIf="fields.includes('num')">
+                        : {{ item.number }}
+                    </span>
+
+                    <span *ngIf="fields.includes('typ') && item.type">
+                        : {{ item.type.name }}
+                    </span>
+                </div>
             </div>
-        </div>
+        </ng-container>
 
         <div
             class="order-actions d-flex flex-column justify-content-between px-3"
+            *ngIf="editable"
         >
             <button
                 class="btn btn--"
@@ -165,5 +172,18 @@
                 />
             </button>
         </div>
+
+        <ng-template #noDataSection>
+            <div
+                class="list card p-1 gap-1"
+                style="
+                    background-color: #ffcf9f33;
+                    justify-content: center;
+                    align-items: center;
+                "
+            >
+                <b>No Data!</b>
+            </div>
+        </ng-template>
     </div>
 </section>

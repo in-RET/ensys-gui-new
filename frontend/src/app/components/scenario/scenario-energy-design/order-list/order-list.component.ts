@@ -8,7 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 
-interface OrderItem {
+export interface OrderItem {
     id: number;
     name?: string;
     number?: number;
@@ -46,6 +46,7 @@ export class OrderListComponent {
     @Input() fields!: ('name' | 'num' | 'typ')[];
     @Input() data!: OrderItem[];
     @Input() label!: string;
+    @Input() editable: boolean = true;
 
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;

@@ -13,7 +13,10 @@ import { EnergyComponentsComponent } from './energy-components/energy-components
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
 import { ModalComponent } from './modal/modal.component';
-import { OrderListComponent } from './order-list/order-list.component';
+import {
+    OrderItem,
+    OrderListComponent,
+} from './order-list/order-list.component';
 
 interface EnergySystemModel {
     project_id: string;
@@ -190,7 +193,7 @@ export class ScenarioEnergyDesignComponent {
         }
 
         this.formModal_info.formData =
-            await this.energyDesignService.getFormData(
+            await this.energyDesignService.getFormFields(
                 e.type,
                 e.id,
                 e.editMode,
@@ -199,6 +202,17 @@ export class ScenarioEnergyDesignComponent {
             );
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
+
+        if (e.id == 'transformer' && !e.editMode) {
+            this.formModal_info.data = {
+                ...this.formModal_info.data,
+                ports: {
+                    inputs: [],
+                    outputs: [],
+                    editable: true,
+                },
+            };
+        }
 
         // appear Modal
         this.formModal_info.show = true;
@@ -287,7 +301,7 @@ export class ScenarioEnergyDesignComponent {
             fn: 'calculateEpCosts',
         };
         this.formModal_calculator.formData =
-            this.energyDesignService.getFormDataEpCosts();
+            this.energyDesignService.getFormFieldsEpCosts();
 
         this.modalComponent.hideModal();
         this.formModal_info.hide = true;
@@ -326,25 +340,76 @@ export class ScenarioEnergyDesignComponent {
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
-                            console.log(value);
+                            console.log(this.formModal_info.data);
+
+                            if (type == 'transformer') {
+                                this.formModal_info.data = {
+                                    ...this.formModal_info.data,
+                                    ports: {
+                                        inputs: [],
+                                        outputs: [],
+                                        editable: false,
+                                    },
+                                };
+                            }
 
                             value.ports_data.inputs.forEach((port: Port) => {
-                                this.formComponent.setFieldData(
-                                    'inputPort_name',
-                                    port.name
-                                );
+                                if (type != 'transformer') {
+                                    this.formComponent.setFieldData(
+                                        'inputPort_name',
+                                        port.name
+                                    );
+                                } else {
+                                    let inputItem: OrderItem;
+                                    inputItem = {
+                                        id: this.formModal_info.data.ports
+                                            .inputs.length,
+                                        name: port.name,
+                                        number:
+                                            value.node_data['efficiency'] ?? 1,
+                                    };
+
+                                    this.formModal_info.data.ports.inputs.push(
+                                        inputItem
+                                    );
+                                }
                             });
 
                             value.ports_data.outputs.forEach((port: Port) => {
-                                this.formComponent.setFieldData(
-                                    'outputPort_name',
-                                    port.name
-                                );
+                                if (type != 'transformer') {
+                                    this.formComponent.setFieldData(
+                                        'outputPort_name',
+                                        port.name
+                                    );
+                                } else {
+                                    let outputItem: OrderItem;
+                                    outputItem = {
+                                        id: this.formModal_info.data.ports
+                                            .outputs.length,
+                                        name: port.name,
+                                        number:
+                                            value.node_data['efficiency'] ?? 1,
+                                    };
+
+                                    this.formModal_info.data.ports.outputs.push(
+                                        outputItem
+                                    );
+                                }
                             });
                         },
                         error: (err) => {
                             console.log(err);
-                            // err.error.detail
+
+                            if (type == 'transformer') {
+                                this.formModal_info.data = {
+                                    ...this.formModal_info.data,
+                                    ports: {
+                                        inputs: [],
+                                        outputs: [],
+                                        editable: false,
+                                    },
+                                };
+                            }
                         },
                     });
             }
@@ -357,6 +422,17 @@ export class ScenarioEnergyDesignComponent {
             // enable all fields
             this.formComponent.enabelControl('inputPort_name');
             this.formComponent.enabelControl('outputPort_name');
+
+            if (type == 'transformer') {
+                this.formModal_info.data = {
+                    ...this.formModal_info.data,
+                    ports: {
+                        inputs: [],
+                        outputs: [],
+                        editable: true,
+                    },
+                };
+            }
         }
     }
 
@@ -504,6 +580,11 @@ export class ScenarioEnergyDesignComponent {
                 this.formComponent.disableControl('inputPort_name');
                 this.formComponent.disableControl('outputPort_name');
             }
+
+            if (type == 'transformer') {
+                this.formModal_info.data.ports.editable =
+                    !this.formComponent.form.controls['oep'].value;
+            }
         }
     }
 
@@ -540,11 +621,11 @@ export class ScenarioEnergyDesignComponent {
                     formData = this.energyDesignService.getNodePorts(
                         formData,
                         this.formModal_info.id,
-                        this.transform_inputs,
-                        this.transform_outputs,
+                        this.transform_inputs.data,
+                        this.transform_outputs.data,
                         this.formModal_info.data.node?.groupName
                     );
-
+                    debugger;
                     formData['connections'] =
                         this.formModal_info.data['connections'];
 

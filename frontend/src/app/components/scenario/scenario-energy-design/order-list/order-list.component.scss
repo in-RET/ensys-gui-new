@@ -1,4 +1,4 @@
-.order-list {
+.order {
     width: 100% !important;
     height: 200px;
     overflow-y: auto;
@@ -20,6 +20,10 @@
 
     .order-actions {
         height: 200px;
+    }
+
+    div.list {
+        width: 100% !important;
     }
 }
 

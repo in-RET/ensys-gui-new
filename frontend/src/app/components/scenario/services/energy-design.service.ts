@@ -443,7 +443,7 @@ export class EnergyDesignService {
         });
     }
 
-    getFormData(
+    getFormFields(
         type: string,
         name: string,
         editMode: boolean,
@@ -637,8 +637,75 @@ export class EnergyDesignService {
                     };
 
                 case 'transformer':
-                    return {
+                    preDefinedList =
+                        await this.flowService.getPreDefinedsByName(
+                            'converter'
+                        );
+
+                    fields = {
                         sections: [
+                            {
+                                name: 'OEP',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    this.getField(
+                                        'oep',
+                                        'Switch On/Off',
+                                        'OEP',
+                                        false,
+                                        'switch',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        'pt-3',
+                                        () => {
+                                            callback['toggleOEP'](
+                                                name.toLocaleLowerCase()
+                                            );
+                                        },
+                                        undefined,
+                                        this.getFieldData(
+                                            name.toLocaleLowerCase(),
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            'user_defined'
+                                        ) == 'user_defined'
+                                            ? true
+                                            : false,
+                                        false
+                                    ),
+
+                                    this.getField(
+                                        name.toLocaleLowerCase(),
+                                        'Converter',
+                                        '',
+                                        true,
+                                        'select',
+                                        '8',
+                                        editMode,
+                                        data,
+                                        '',
+                                        (e: any) => {
+                                            callback['onChangePreDefined']({
+                                                option: e,
+                                                type: name.toLocaleLowerCase(),
+                                            });
+                                        },
+                                        preDefinedList,
+                                        false,
+                                        'user_defined'
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'divider',
+                                class: 'dashed',
+                            },
+
                             {
                                 name: 'Name',
                                 class: 'col-6',
@@ -657,6 +724,7 @@ export class EnergyDesignService {
                             },
                         ],
                     };
+                    return fields;
 
                 case 'Pre-transformer':
                 case 'predefinedtransformer':
@@ -1299,7 +1367,7 @@ export class EnergyDesignService {
         return fields;
     }
 
-    getFormDataEpCosts() {
+    getFormFieldsEpCosts() {
         return {
             sections: [
                 {
@@ -1352,52 +1420,47 @@ export class EnergyDesignService {
         transform_outputs: any,
         groupName?: string
     ) {
-        let transformDataFn = (data: any) => {
-            let _data: any;
+        let transformDataFn = (): { inputs: any; outputs: any } | boolean => {
+            let ports: { inputs: any; outputs: any };
 
             if (nodeId === 'transformer') {
                 // add port(in-out) list to the node
-                if (
-                    transform_inputs.data.length &&
-                    transform_outputs.data.length
-                ) {
-                    _data = this.getTransformPorts(
-                        data,
+                debugger;
+                if (transform_inputs.length && transform_outputs.length) {
+                    ports = this.getTransformPorts(
                         transform_inputs,
                         transform_outputs
                     );
-                    return _data;
+                    return ports;
                 } else return false;
-            } else if (nodeId !== 'transformer') {
+            } else {
                 let { inputport_name, outputport_name } = data;
-                _data = {
-                    ...data,
-                    ports: {},
-                };
+                ports = { inputs: [], outputs: [] };
 
                 if (data.inputport_name) {
-                    _data.ports['inputs'] = [];
-                    _data.ports.inputs.push({
+                    ports.inputs.push({
                         id: 0,
                         name: inputport_name,
                         code: 'input_1',
                     });
                 }
+
                 if (data.outputport_name) {
-                    _data.ports['outputs'] = [];
-                    _data.ports.outputs.push({
+                    ports.outputs.push({
                         id: 0,
                         name: outputport_name,
                         code: 'output_1',
                     });
                 }
 
-                return _data;
-            } else {
-                return data;
+                return ports;
             }
         };
-        data = transformDataFn(data);
+
+        const _ports = transformDataFn();
+        debugger;
+        if (_ports == false) return data;
+        data['ports'] = _ports;
 
         switch (groupName) {
             case 'production':
@@ -1431,11 +1494,6 @@ export class EnergyDesignService {
                 } else if (nodeId !== 'transformer') {
                     return { ...data, inp: 0, out: 0 };
                 }
-
-                return false;
-
-            default:
-                return data;
         }
     }
 
@@ -1501,20 +1559,26 @@ export class EnergyDesignService {
         ];
     }
 
-    getTransformPorts(formData: any, inputList: any, outputList: any) {
-        formData['ports'] = {};
+    getTransformPorts(
+        inputList: any,
+        outputList: any
+    ): { inputs: any; outputs: any } {
+        const ports: { inputs: any; outputs: any } = {
+            inputs: null,
+            outputs: null,
+        };
 
-        inputList.data.forEach((element: any, index: number) => {
+        inputList.forEach((element: any, index: number) => {
             element['code'] = `input_${index + 1}`;
         });
-        formData['ports']['inputs'] = inputList.data;
+        ports.inputs = inputList;
 
         outputList.data.forEach((element: any, index: number) => {
             element['code'] = `output_${index + 1}`;
         });
-        formData['ports']['outputs'] = outputList.data;
+        ports.outputs = outputList.data;
 
-        return formData;
+        return ports;
     }
 
     epCostsCal({

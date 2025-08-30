@@ -49,51 +49,49 @@
         </div>
         <!-- </ng-container> -->
 
-        <ng-template #noraml_form>
-            <!-- ports -->
-            <!-- transformer -->
-            <div
-                class="row mb-3"
-                *ngIf="
-                    formModal_info.type == 'node' &&
-                    formModal_info.id === 'transformer'
-                "
-            >
-                <div class="col-6">
-                    <app-order-list
-                        label="Inputs"
-                        [data]="
-                            formModal_info.data.ports
-                                ? formModal_info.data.ports.inputs
-                                : null
-                        "
-                        [acceptDuplicate]="false"
-                        [fields]="['name', 'num']"
-                        #transform_inputs
-                    />
-                </div>
+        <!-- <ng-template #noraml_form> -->
+        <!-- ports -->
+        <!-- transformer -->
 
-                <div class="col-6">
-                    <app-order-list
-                        label="Outputs"
-                        [data]="
-                            formModal_info.data.ports
-                                ? formModal_info.data.ports.outputs
-                                : null
-                        "
-                        [acceptDuplicate]="false"
-                        [fields]="['name', 'num']"
-                        #transform_outputs
-                    />
-                </div>
+        <div
+            class="row mb-3"
+            *ngIf="
+                formModal_info.type == 'node' &&
+                formModal_info.id === 'transformer'
+            "
+        >
+            <div class="col-6">
+                <app-order-list
+                    label="Inputs"
+                    [data]="
+                        formModal_info.data.ports
+                            ? formModal_info.data.ports.inputs
+                            : null
+                    "
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num']"
+                    [editable]="formModal_info.data.ports?.editable"
+                    #transform_inputs
+                />
             </div>
 
-            <app-form
-                [formData]="formModal_info.formData"
-                (onSubmit)="submitFormData()"
-                #form
-            />
-        </ng-template>
+            <div class="col-6">
+                <app-order-list
+                    label="Outputs"
+                    [data]="
+                        formModal_info.data.ports
+                            ? formModal_info.data.ports.outputs
+                            : null
+                    "
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num']"
+                    [editable]="formModal_info.data.ports?.editable"
+                    #transform_outputs
+                />
+            </div>
+        </div>
+
+        <!-- </ng-template> -->
     </div>
 
     <div
