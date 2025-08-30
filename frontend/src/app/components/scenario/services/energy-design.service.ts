@@ -469,7 +469,9 @@ export class EnergyDesignService {
             switch (name.toLocaleLowerCase()) {
                 case 'source':
                     preDefinedList =
-                        await this.flowService.getPreDefinedsByName('source');
+                        await this.flowService.getPreDefinedsByName(
+                            name.toLocaleLowerCase()
+                        );
 
                     fields = {
                         sections: [
@@ -577,75 +579,6 @@ export class EnergyDesignService {
 
                     return fields;
 
-                case 'Pre-source':
-                case 'predefinedsource':
-                    return {
-                        sections: [
-                            {
-                                name: 'Name',
-                                class: 'col-6',
-                                fields: [
-                                    // {
-                                    //     name: 'name',
-                                    //     placeholder: 'Name',
-                                    //     label: 'Name',
-                                    //     isReq: true,
-                                    //     value: getField('name'),
-                                    //     type: 'text',
-                                    // },
-                                ],
-                            },
-                            {
-                                name: 'Source',
-                                class: 'col-6',
-                                fields: [
-                                    {
-                                        // name: 'source',
-                                        // placeholder: 'Source',
-                                        // label: 'Choose...',
-                                        // isReq: true,
-                                        // value: getField('source'),
-                                        // type: 'select',
-                                        // options: [
-                                        //     {
-                                        //         name: 'Wind power plant',
-                                        //         value: 'Wind power plant',
-                                        //     },
-                                        //     {
-                                        //         name: 'Ground Mounted Photovoltaic',
-                                        //         value: 'Ground Mounted Photovoltaic',
-                                        //     },
-                                        //     {
-                                        //         name: 'Roof Mounted Photovoltaic',
-                                        //         value: 'Roof Mounted Photovoltaic',
-                                        //     },
-                                        //     {
-                                        //         name: 'Import from the power grid',
-                                        //         value: 'Import from the power grid',
-                                        //     },
-                                        //     {
-                                        //         name: 'Biomass supply',
-                                        //         value: 'Biomass supply',
-                                        //     },
-                                        //     {
-                                        //         name: 'Solar thermal system',
-                                        //         value: 'Solar thermal system',
-                                        //     },
-                                        //     {
-                                        //         name: 'Run-of-river power plant',
-                                        //         value: 'Run-of-river power plant',
-                                        //     },
-                                        //     {
-                                        //         name: 'Other',
-                                        //         value: 'Other',
-                                        //     },
-                                        // ],
-                                    },
-                                ],
-                            },
-                        ],
-                    };
-
                 case 'transformer':
                     preDefinedList =
                         await this.flowService.getPreDefinedsByName(
@@ -735,83 +668,6 @@ export class EnergyDesignService {
                         ],
                     };
                     return fields;
-
-                case 'Pre-transformer':
-                case 'predefinedtransformer':
-                    return {
-                        sections: [
-                            {
-                                name: 'Name',
-                                class: 'col-6',
-                                fields: [
-                                    {
-                                        // name: 'name',
-                                        // placeholder: 'Name',
-                                        // label: 'Name',
-                                        // isReq: true,
-                                        // value: getField('name'),
-                                        // type: 'text',
-                                    },
-                                ],
-                            },
-                            {
-                                name: 'Trafo',
-                                class: 'col-6',
-                                fields: [
-                                    {
-                                        // name: 'trafo',
-                                        // placeholder: 'Trafo',
-                                        // label: 'Choose...',
-                                        // isReq: true,
-                                        // value: getField('trafo'),
-                                        // type: 'select',
-                                        // options: [
-                                        //     {
-                                        //         name: 'Biogas CHP',
-                                        //         value: 'Biogas CHP',
-                                        //     },
-                                        //     {
-                                        //         name: 'Biogas injection (New facility)',
-                                        //         value: 'Biogas injection (New facility)',
-                                        //     },
-                                        //     {
-                                        //         name: 'Gas and steam power plant',
-                                        //         value: 'Gas and steam power plant',
-                                        //     },
-                                        //     {
-                                        //         name: 'Power to Liquid',
-                                        //         value: 'Power to Liquid',
-                                        //     },
-                                        //     {
-                                        //         name: 'Methanisation',
-                                        //         value: 'Methanisation',
-                                        //     },
-                                        //     {
-                                        //         name: 'Electrolysis',
-                                        //         value: 'Electrolysis',
-                                        //     },
-                                        //     {
-                                        //         name: 'Fuel cell',
-                                        //         value: 'Fuel cell',
-                                        //     },
-                                        //     {
-                                        //         name: 'Air source heat pump (large-scale)',
-                                        //         value: 'Air source heat pump (large-scale)',
-                                        //     },
-                                        //     {
-                                        //         name: 'Electrode heating boiler',
-                                        //         value: 'Electrode heating boiler',
-                                        //     },
-                                        //     {
-                                        //         name: 'Other',
-                                        //         value: 'Other',
-                                        //     },
-                                        // ],
-                                    },
-                                ],
-                            },
-                        ],
-                    };
 
                 case 'genericstorage':
                     preDefinedList =
@@ -1049,8 +905,75 @@ export class EnergyDesignService {
                 case 'excess':
                 case 'export':
                 case 'oep':
-                    return {
+                    preDefinedList =
+                        await this.flowService.getPreDefinedsByName(
+                            name.toLocaleLowerCase()
+                        );
+
+                    fields = {
                         sections: [
+                            {
+                                name: 'OEP',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    this.getField(
+                                        'oep',
+                                        'Switch On/Off',
+                                        'OEP',
+                                        false,
+                                        'switch',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        'pt-3',
+                                        () => {
+                                            callback['toggleOEP'](
+                                                name.toLocaleLowerCase()
+                                            );
+                                        },
+                                        undefined,
+                                        this.getFieldData(
+                                            name.toLocaleLowerCase(),
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            'user_defined'
+                                        ) == 'user_defined'
+                                            ? true
+                                            : false,
+                                        false
+                                    ),
+
+                                    this.getField(
+                                        name.toLocaleLowerCase(),
+                                        'Source',
+                                        '',
+                                        true,
+                                        'select',
+                                        '8',
+                                        editMode,
+                                        data,
+                                        '',
+                                        (e: any) => {
+                                            callback['onChangePreDefined']({
+                                                option: e,
+                                                type: name.toLocaleLowerCase(),
+                                            });
+                                        },
+                                        preDefinedList,
+                                        false,
+                                        'user_defined'
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'divider',
+                                class: 'dashed',
+                            },
+
                             {
                                 name: 'info',
                                 class: 'col-12',
@@ -1063,7 +986,18 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.getFieldData(
+                                            'oep',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            undefined
+                                        )
                                     ),
                                     this.getField(
                                         'name',
@@ -1079,6 +1013,8 @@ export class EnergyDesignService {
                             },
                         ],
                     };
+
+                    return fields;
 
                 case 'bus':
                     return {

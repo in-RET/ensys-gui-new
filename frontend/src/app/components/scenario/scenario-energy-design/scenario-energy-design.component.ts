@@ -458,11 +458,9 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.setFieldData('oep', true);
             this.formComponent.setFieldData('investment', false);
             this.formComponent.setFieldData('inputPort_name', null);
-            this.formComponent.setFieldData('name', null);
             this.formComponent.setFieldData('outputPort_name', null);
             // disable all fields
             this.formComponent.disableControl('inputPort_name');
-            this.formComponent.disableControl('name');
             this.formComponent.disableControl('outputPort_name');
             this.formComponent.disableControl('investment');
             this.formComponent.disableControl('nominal_value');
@@ -505,7 +503,6 @@ export class ScenarioEnergyDesignComponent {
             }
             // temp
             this.formComponent.setFieldData('inputPort_name', 'Sample');
-            this.formComponent.setFieldData('name', 'Sample');
             this.formComponent.setFieldData('outputPort_name', 'Sample');
             this.formComponent.setFieldData('nominal_value', 2127716.667);
             this.formComponent.setFieldData('maximum', 10);
@@ -518,11 +515,9 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.setFieldData('investment', false);
             this.formComponent.setFieldData('nominal_value', null);
             this.formComponent.setFieldData('inputPort_name', null);
-            this.formComponent.setFieldData('name', null);
             this.formComponent.setFieldData('outputPort_name', null);
             // enable all fields
             this.formComponent.enabelControl('inputPort_name');
-            this.formComponent.enabelControl('name');
             this.formComponent.enabelControl('outputPort_name');
             this.formComponent.enabelControl('investment');
             this.formComponent.enabelControl('nominal_value');
