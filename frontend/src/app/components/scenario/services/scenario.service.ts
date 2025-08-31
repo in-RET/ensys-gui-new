@@ -67,7 +67,9 @@ export class ScenarioService {
         );
     }
 
-    restoreDrawflow_Storage(mustResultString: boolean = false) {
+    restoreDrawflow_Storage(
+        mustResultString: boolean = false
+    ): string | false | any {
         const DrawflowData: string | null = localStorage.getItem(
             this.scenario_drawflow_localstorage_name
         );

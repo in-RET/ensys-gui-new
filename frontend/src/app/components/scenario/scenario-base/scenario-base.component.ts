@@ -121,29 +121,33 @@ export class ScenarioBaseComponent {
 
             const drawflowData = this.scenarioService.restoreDrawflow_Storage();
 
-            for (const key in drawflowData) {
-                if (Object.prototype.hasOwnProperty.call(drawflowData, key)) {
-                    const element: DrawflowNode = drawflowData[key];
-                    // newScenarioData.modeling_data.components.push({
-                    //     data: element.data,
-                    //     inputs: [],
-                    //     outputs: [],
-                    //     label: element.name,
-                    //     oemof_type: '',
-                    //     additionalProp1: {},
-                    // });
+            if (drawflowData) {
+                for (const key in drawflowData) {
+                    if (
+                        Object.prototype.hasOwnProperty.call(drawflowData, key)
+                    ) {
+                        const element: DrawflowNode = drawflowData[key];
+                        // newScenarioData.modeling_data.components.push({
+                        //     data: element.data,
+                        //     inputs: [],
+                        //     outputs: [],
+                        //     label: element.name,
+                        //     oemof_type: '',
+                        //     additionalProp1: {},
+                        // });
+                    }
                 }
-            }
 
-            this.scenarioService.createScenario(newScenarioData).subscribe({
-                next: (value: any) => {
-                    console.log(value);
-                },
-                error: (err: any) => {
-                    console.error(err);
-                    this.alertService.error(err.message);
-                },
-            });
+                this.scenarioService.createScenario(newScenarioData).subscribe({
+                    next: (value: any) => {
+                        console.log(value);
+                    },
+                    error: (err: any) => {
+                        console.error(err);
+                        this.alertService.error(err.message);
+                    },
+                });
+            }
         } else {
             this.alertService.warning('There is no data to save!');
         }

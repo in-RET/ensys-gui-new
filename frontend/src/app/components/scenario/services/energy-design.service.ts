@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { GeneralService } from '../../../shared/services/general.service';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { FlowService } from './flow.service';
+import { ScenarioService } from './scenario.service';
 
 type EPCostParams = {
     capex: number;
@@ -25,7 +26,8 @@ interface Ports {
 export class EnergyDesignService {
     constructor(
         private flowService: FlowService,
-        private generalService: GeneralService
+        private generalService: GeneralService,
+        private scenarioService: ScenarioService
     ) {}
 
     private getFieldData(
@@ -549,7 +551,14 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.takeNewNodeName(
+                                            name.toLocaleLowerCase()
+                                        )
                                     ),
                                     this.getField(
                                         'outputPort_name',
@@ -661,7 +670,14 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.takeNewNodeName(
+                                            name.toLocaleLowerCase()
+                                        )
                                     ),
                                 ],
                             },
@@ -759,7 +775,14 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.takeNewNodeName(
+                                            name.toLocaleLowerCase()
+                                        )
                                     ),
 
                                     this.getField(
@@ -1007,7 +1030,14 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.takeNewNodeName(
+                                            name.toLocaleLowerCase()
+                                        )
                                     ),
                                 ],
                             },
@@ -1042,7 +1072,14 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.takeNewNodeName(
+                                            name.toLocaleLowerCase()
+                                        )
                                     ),
 
                                     this.getField(
@@ -1551,5 +1588,29 @@ export class EnergyDesignService {
         const epCosts = capexCosts + opexCosts;
 
         return Math.trunc(epCosts * 1000) / 1000;
+    }
+
+    private getDrawflowData(): {} {
+        return this.scenarioService.restoreDrawflow_Storage();
+    }
+
+    private getDrawflowNodes_byType(nodeType: string) {
+        const currentData: any = this.getDrawflowData();
+        const results: any[] = [];
+
+        for (const key in currentData) {
+            const val = currentData[key];
+
+            if (val['class'].toLocaleLowerCase() === nodeType) {
+                results.push(val);
+            }
+        }
+
+        return results;
+    }
+
+    private takeNewNodeName(nodeType: string) {
+        const nodes = this.getDrawflowNodes_byType(nodeType);
+        return `${nodeType}_${nodes.length + 1}`;
     }
 }
