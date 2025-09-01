@@ -1,2 +1,2 @@
-port_nr;type;name;investment
-1;input;electricity;false
+port_nr;type;name;investment;controlled_flow
+1;input;electricity;false;true

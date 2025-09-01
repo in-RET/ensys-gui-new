@@ -1,3 +1,3 @@
-port_nr;type;name;investment
-1;input;gas;false
-2;output;gas;true
+port_nr;type;name;investment;controlled_flow
+1;input;gas;false;false
+2;output;gas;true;true

@@ -1,4 +1,4 @@
-port_nr;type;name;investment
-1;input;biomass;false
-2;output;heat;false
-3;output;electricity;true
+port_nr;type;name;investment;controlled_flow
+1;input;biomass;false;false
+2;output;heat;false;false
+3;output;electricity;true;true
