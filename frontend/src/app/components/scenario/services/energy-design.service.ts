@@ -1542,18 +1542,6 @@ export class EnergyDesignService {
                         id: 'sink',
                         name: 'Sink',
                     },
-                    {
-                        id: 'excess',
-                        name: 'Excess',
-                    },
-                    {
-                        id: 'export',
-                        name: 'Export',
-                    },
-                    {
-                        id: 'OEP',
-                        name: 'OEP',
-                    },
                 ],
             },
             {
