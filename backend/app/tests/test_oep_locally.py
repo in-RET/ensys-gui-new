@@ -2,6 +2,7 @@ import pytest
 
 from .test_fixtures import client
 
+
 @pytest.mark.order(18)
 def test_oep_schemas(client):
     response = client.get("/oep/local_schemas/sinks")

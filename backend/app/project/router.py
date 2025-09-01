@@ -58,8 +58,10 @@ def validate_project_owner(project_id: int, token: str, db):
 
 
 @projects_router.post("/", response_model=MessageResponse)
-async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
-                         db: Session = Depends(get_db_session)) -> MessageResponse:
+async def create_project(
+        token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
+        db: Session = Depends(get_db_session)
+) -> MessageResponse:
     """
     Creates a new project and stores it in the database. The function checks
     the authentication token, decodes it, retrieves the authenticated user's
@@ -102,8 +104,10 @@ async def create_project(token: Annotated[str, Depends(oauth2_scheme)], project_
 
 
 @projects_router.get("s/", response_model=DataResponse)
-async def read_projects(token: Annotated[str, Depends(oauth2_scheme)],
-                        db: Session = Depends(get_db_session)) -> DataResponse:
+async def read_projects(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        db: Session = Depends(get_db_session)
+) -> DataResponse:
     """
     Fetches and returns a list of projects associated with the authenticated user.
     The function validates the provided token, retrieves the associated user
@@ -143,8 +147,10 @@ async def read_projects(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 @projects_router.get("/{project_id}", response_model=DataResponse)
-async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                       db: Session = Depends(get_db_session)) -> DataResponse:
+async def read_project(
+        project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+        db: Session = Depends(get_db_session)
+) -> DataResponse:
     """
     Retrieves project details by the given project ID. This endpoint fetches details about a
     project from the database after validating the provided authentication token and confirming
@@ -177,8 +183,10 @@ async def read_project(project_id: int, token: Annotated[str, Depends(oauth2_sch
 
 
 @projects_router.patch("/{project_id}", response_model=MessageResponse)
-async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate,
-                         db: Session = Depends(get_db_session)) -> MessageResponse:
+async def update_project(
+        token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate,
+        db: Session = Depends(get_db_session)
+) -> MessageResponse:
     """
     Updates the details of an existing project. This endpoint allows authenticated
     and authorized users to modify the properties of a given project. The function
@@ -222,8 +230,10 @@ async def update_project(token: Annotated[str, Depends(oauth2_scheme)], project_
 
 
 @projects_router.delete("/{project_id}", response_model=MessageResponse)
-async def delete_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
-                         db: Session = Depends(get_db_session)) -> MessageResponse:
+async def delete_project(
+        token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
+        db: Session = Depends(get_db_session)
+) -> MessageResponse:
     """
     Deletes a project and all associated scenarios from the database.
 

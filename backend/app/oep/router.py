@@ -2,7 +2,7 @@ import os
 from typing import Annotated
 
 import pandas as pd
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from oemof.tools import economics
 from oep_client.oep_client import OepClient
 from starlette import status
@@ -10,7 +10,7 @@ from starlette import status
 from ..data.model import GeneralDataModel
 from ..responses import DataResponse
 from ..security import oauth2_scheme
-from ..types import OepTypes
+from ..types import oemofBlockTypes, oepTypes, oepTypesData
 
 oep_router = APIRouter(
     prefix="/oep",
@@ -41,8 +41,10 @@ def get_oep_client():
 
 
 @oep_router.get("/{table_name}")
-async def get_oep_data(token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
-                       oep_cli: OepClient = Depends(get_oep_client)) -> DataResponse:
+async def get_oep_data(
+        token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
+        oep_cli: Annotated[OepClient, Depends(get_oep_client)]
+) -> DataResponse:
     """
     Get OEP Data from a specified table.
 
@@ -77,8 +79,11 @@ async def get_oep_data(token: Annotated[str, Depends(oauth2_scheme)], table_name
 
 
 @oep_router.get("/meta/{table_name}")
-async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
-                           oep_cli: OepClient = Depends(get_oep_client)) -> DataResponse:
+async def get_oep_metadata(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        table_name: str,
+        oep_cli: Annotated[OepClient, Depends(get_oep_client)]
+) -> DataResponse:
     """
     Retrieve metadata for a specific table.
 
@@ -109,7 +114,13 @@ async def get_oep_metadata(token: Annotated[str, Depends(oauth2_scheme)], table_
 
 
 @oep_router.get("/local_schemas/{block_type}")
-async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], block_type: str) -> DataResponse:
+async def get_local_oep_schemas(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        block_type: Annotated[str, Path(
+            enum=list(oemofBlockTypes),
+            description="Block type to identify the schema."
+        )]
+) -> DataResponse:
     """
     This endpoint retrieves a list of local schemas that match the provided
     block type. It accepts a user authentication token to ensure the request
@@ -126,11 +137,7 @@ async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], b
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    schema_list = []
-    for entry in OepTypes:
-        # print(f"{entry.name} ==> {entry.value[1]}")
-        if entry.value[1] == block_type.lower():
-            schema_list.append(entry.name)
+    schema_list = oepTypesData[oemofBlockTypes[block_type]]
 
     return DataResponse(
         data=GeneralDataModel(
@@ -141,37 +148,64 @@ async def get_local_oep_schemas(token: Annotated[str, Depends(oauth2_scheme)], b
     )
 
 
-@oep_router.get("/local_data/{block_schema}/{simulation_year}")
-async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], block_schema: str,
-                             simulation_year: int) -> DataResponse:
+@oep_router.get("/local_data/{oep_name}/{simulation_year}")
+async def get_local_oep_data(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        oep_name: Annotated[str, Path(
+            enum=list(oepTypes),
+            description="Selected parameter set for the OEP data."
+        )],
+        simulation_year: Annotated[int, Path(
+            enum=[2025, 2030, 2035, 2040, 2045, 2050],
+            description="Simulation year from the scenario."
+        )]
+) -> DataResponse:
     """
-    Fetches local OEP (Open Energy Platform) data based on the provided schema type and simulation year.
+    Fetch localized Open Energy Platform (OEP) data for a specific simulation year and type.
 
-    This function authenticates the user, validates the block schema,
-    and reads simulation data for the requested year from local storage.
+    This function reads and processes data files related to ports, parameters, and timeseries
+    for a given OEP type and simulation year. The processed data includes calculations for
+    economic parameters like EPC (Equivalent Policy Costs) costs associated with flows.
 
-    :param token: Authentication token required to access the endpoint
-    :param block_schema: Schema type of the data to retrieve
-    :param simulation_year: Year of the simulation data to fetch
-    :return: A DataResponse object containing the data items, total count, and a success flag
-    :raises HTTPException: If token is invalid, if the block schema is not found, or
-                           if there are issues with the requested data
+    It ensures that correct files exist for the specified parameters and type while also
+    validating inputs against permitted values. The data is returned in a structured response
+    object that organizes inputs and outputs for further processing.
+
+    :param token: Authentication token required for access.
+    :type token: str
+    :param oep_type: Type of OEP data being requested.
+    :type oep_type: str
+    :param simulation_year: The specific year for which simulation data is being requested.
+    :type simulation_year: int
+    :return: A structured response containing processed OEP data and file information.
+    :rtype: DataResponse
+    :raises HTTPException: If the token is invalid, the simulation year is unsupported, or any required file is missing.
     """
+
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year.")
 
-    oep_type = OepTypes[block_schema]
+    print(f"simulation_year: {simulation_year}")
+    print(f"oep_type: {oep_name}")
+
+    for type in oepTypesData.keys():
+        item_list = oepTypesData[type]
+
+        for item in item_list:
+            if item["name"] == oep_name:
+                oep_type = type.value
+                break
 
     root_path = os.path.abspath(
-        os.path.join(os.getcwd(), "data", "oep", oep_type.value[1].lower())
+        os.path.join(os.getcwd(), "data", "oep", oep_type.lower())
     )
 
-    port_data_path = os.path.join(root_path, "ports", f"{block_schema}.csv")
-    parameter_data_path = os.path.join(root_path, "parameter", f"{block_schema}.csv")
-    timeseries_data_path = os.path.join(root_path, "timeseries", f"{block_schema}.csv")
+    port_data_path = os.path.join(root_path, "ports", f"{oep_name.lower()}.csv")
+    parameter_data_path = os.path.join(root_path, "parameter", f"{oep_name.lower()}.csv")
+    timeseries_data_path = os.path.join(root_path, "timeseries", f"{oep_name.lower()}.csv")
 
     # Einlesen der Portdaten
     if not os.path.isfile(port_data_path):
@@ -188,7 +222,10 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
             parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
 
     # Einlesen der Zeitreihe#
-    if (oep_type.value[1].lower() == "sink" or oep_type.value[1].lower() == "source") and not oep_type.value[0].lower() == "electricity_export":
+    if ((oep_type.lower() == "sink" or
+         oep_type.lower() == "source") and
+            not oep_name.lower() == "electricity_export"
+    ):
         # print(f"timeseries_data_path: {timeseries_data_path}")
         if not os.path.isfile(timeseries_data_path):
             raise HTTPException(status_code=404, detail="File with timeseries not found.")
@@ -283,7 +320,7 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
 
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {
-        "inputs": [],
+        "inputs" : [],
         "outputs": []
     }
 
@@ -297,7 +334,7 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
             sorted_port_data["outputs"].append(item)
 
     return_data = [{
-        "node_data": parameter_ys_cleaned,
+        "node_data" : parameter_ys_cleaned,
         "ports_data": sorted_port_data
     }]
 

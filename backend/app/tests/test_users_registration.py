@@ -15,7 +15,7 @@ def test_users_register_success(get_test_user, client: TestClient):
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -36,7 +36,7 @@ def test_users_register_failure_username_already_exists(get_test_user, client: T
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -56,7 +56,7 @@ def test_users_register_failure_mail_already_exists(get_test_user, client: TestC
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -75,7 +75,7 @@ def test_users_register_failure(client: TestClient):
             "username": "pytest",
         },
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -88,7 +88,7 @@ def test_users_register_no_data(client: TestClient):
         url="/user/auth/register",
         data={},
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -104,7 +104,7 @@ def test_users_register_failure_mail_not_valid(get_test_user, client: TestClient
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -124,7 +124,7 @@ def test_users_register_failure_password_incorrect_no_uppercase(get_test_user, c
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -141,7 +141,7 @@ def test_users_register_failure_password_incorrect_no_lowercase(get_test_user, c
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -158,7 +158,7 @@ def test_users_register_failure_password_incorrect_no_digit(get_test_user, clien
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -175,7 +175,7 @@ def test_users_register_failure_password_incorrect_no_special_char(get_test_user
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -192,7 +192,7 @@ def test_users_register_failure_password_incorrect_too_short(get_test_user, clie
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )
@@ -210,7 +210,7 @@ def test_users_register_failure_password_incorrect_too_long(get_test_user, clien
         url="/user/auth/register",
         data=test_user.model_dump_json(exclude_none=True),
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "content-type": "application/json",
         }
     )

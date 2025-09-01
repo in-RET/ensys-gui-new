@@ -1,7 +1,7 @@
-year;investment_costs;operating_costs;lifetime;interest_rate;efficiency_el;efficiency_th;nominal_value;variable_costs;min;max;positive_gradient_limit;negative_gradient_limit;full_load_time_max;full_load_time_min;integer;nonconvex;fixed_costs
-2025;2166666,67;9,25;27,5;5;0,4367;0,495;32.0;2394234.0;100;140;null;null;1000;8760;false;null;293042
-2030;2108333,33;8,34;30;5;0,4433;0,49;32.1;2394234.1;100;140;null;null;1000;8760;false;null;293043
-2035;2050000;8,68;30;5;0,45;0,485;32.2;2394234.2;100;140;null;null;1000;8760;false;null;293044
-2040;1991666,67;9,01;30;5;0,4567;0,48;32.3;2394234.3;100;140;null;null;1000;8760;false;null;293045
-2045;1933333,33;9,31;30;5;0,4633;0,475;32.4;2394234.4;100;140;null;null;1000;8760;false;null;293046
-2050;1875000;9,61;30;5;0,47;0,47;32.5;2394234.5;100;140;null;null;1000;8760;false;null;293047
+year;investment_costs;operating_costs;lifetime;interest_rate;efficiency_el;efficiency_th;nominal_value;variable_costs;min;max;positive_gradient_limit;negative_gradient_limit;full_load_time_max;full_load_time_min;integer;nonconvex;fixed_costs;nominal_storage_capacity;invest_relation_input_capacity;invest_relation_output_capacity;invest_relation_input_output;balanced;loss_rate;fixed_losses_relative;fixed_losses_absolute;inflow_conversion_factor;outflow_conversion_factor;min_storage_level;max_storage_level;storage_costs
+2025;2166666,67;9,25;27,5;5;0,4367;0,495;32.0;2394234.0;100;140;null;null;1000;8760;false;null;293042;0,04;0,14;0,64;0,37;true;0,51;0,78;0,14;0,65;0,34;0,38;0,43;0,42
+2030;2108333,33;8,34;30;5;0,4433;0,49;32.1;2394234.1;100;140;null;null;1000;8760;false;null;293043;0,21;0,57;0,4;0,61;false;0,26;0,91;0,75;0,26;0,01;0,47;0,7;0,12
+2035;2050000;8,68;30;5;0,45;0,485;32.2;2394234.2;100;140;null;null;1000;8760;false;null;293044;0,53;0,02;0,42;0,39;true;0,15;0,31;0,86;0,79;0,46;0,81;0,37;0,45
+2040;1991666,67;9,01;30;5;0,4567;0,48;32.3;2394234.3;100;140;null;null;1000;8760;false;null;293045;0,24;0,37;0,11;0,4;false;0,8;0,31;0,51;0,59;0,23;0,13;0,09;0,31
+2045;1933333,33;9,31;30;5;0,4633;0,475;32.4;2394234.4;100;140;null;null;1000;8760;false;null;293046;0,12;0,07;0,27;0,22;true;0,26;0,26;0,21;0,34;0,12;0,43;0,37;0,19
+2050;1875000;9,61;30;5;0,47;0,47;32.5;2394234.5;100;140;null;null;1000;8760;false;null;293047;0,5;0,4;0,86;0,68;false;0,57;0,3;0,46;0,52;0,51;0,4;0,68;0,07

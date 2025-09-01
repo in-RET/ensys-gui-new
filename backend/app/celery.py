@@ -6,7 +6,7 @@ from celery.utils.log import get_task_logger
 from oemof import solph
 from prometheus_client import Counter, Gauge
 from sqlalchemy import create_engine
-from sqlmodel import select, Session
+from sqlmodel import Session, select
 
 from ensys.components import EnModel
 from .scenario.model import EnScenarioDB

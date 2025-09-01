@@ -8,11 +8,11 @@ from backend.app.security import token_secret
 from backend.app.user.model import EnUser, EnUserDB
 
 TEST_USER_DATA = {
-    "username": "pytest",
-    "password": "TestASas12,.",
+    "username" : "pytest",
+    "password" : "TestASas12,.",
     "firstname": "firstname",
-    "lastname": "lastname",
-    "mail": "test@localhost.de"
+    "lastname" : "lastname",
+    "mail"     : "test@localhost.de"
 }
 
 
