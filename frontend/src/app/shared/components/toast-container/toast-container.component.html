@@ -1,0 +1,113 @@
+<!-- src/app/shared/toast-container/toast-container.component.html -->
+
+<!-- top-right -->
+<div
+    class="toast-container position-fixed top-0 end-0 p-3"
+    style="z-index: 1080"
+>
+    <div
+        *ngFor="let t of byPosition('top-right')"
+        class="toast show text-white mb-2"
+        [ngClass]="{
+            'bg-success': t.variant === 'success',
+            'bg-danger': t.variant === 'danger',
+            'bg-warning': t.variant === 'warning',
+            'bg-info': t.variant === 'info'
+        }"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+    >
+        <div class="toast-body">
+            <strong *ngIf="t.title">{{ t.title }}</strong>
+            <span *ngIf="t.title">&nbsp;—&nbsp;</span>{{ t.text }}
+            <button
+                type="button"
+                class="btn-close btn-close-white float-end ms-2"
+                aria-label="Close"
+                (click)="remove(t.id)"
+            ></button>
+        </div>
+    </div>
+</div>
+
+<!-- top-left -->
+<div
+    class="toast-container position-fixed top-0 start-0 p-3"
+    style="z-index: 1080"
+>
+    <div
+        *ngFor="let t of byPosition('top-left')"
+        class="toast show text-white mb-2"
+        [ngClass]="{
+            'bg-success': t.variant === 'success',
+            'bg-danger': t.variant === 'danger',
+            'bg-warning': t.variant === 'warning',
+            'bg-info': t.variant === 'info'
+        }"
+    >
+        <div class="toast-body">
+            <strong *ngIf="t.title">{{ t.title }}</strong>
+            <span *ngIf="t.title">&nbsp;—&nbsp;</span>{{ t.text }}
+            <button
+                type="button"
+                class="btn-close btn-close-white float-end ms-2"
+                (click)="remove(t.id)"
+            ></button>
+        </div>
+    </div>
+</div>
+
+<!-- bottom-right -->
+<div
+    class="toast-container position-fixed bottom-0 end-0 p-3"
+    style="z-index: 1080"
+>
+    <div
+        *ngFor="let t of byPosition('bottom-right')"
+        class="toast show text-white mb-2"
+        [ngClass]="{
+            'bg-success': t.variant === 'success',
+            'bg-danger': t.variant === 'danger',
+            'bg-warning': t.variant === 'warning',
+            'bg-info': t.variant === 'info'
+        }"
+    >
+        <div class="toast-body">
+            <strong *ngIf="t.title">{{ t.title }}</strong>
+            <span *ngIf="t.title">&nbsp;—&nbsp;</span>{{ t.text }}
+            <button
+                type="button"
+                class="btn-close btn-close-white float-end ms-2"
+                (click)="remove(t.id)"
+            ></button>
+        </div>
+    </div>
+</div>
+
+<!-- bottom-left -->
+<div
+    class="toast-container position-fixed bottom-0 start-0 p-3"
+    style="z-index: 1080"
+>
+    <div
+        *ngFor="let t of byPosition('bottom-left')"
+        class="toast show text-white mb-2"
+        [ngClass]="{
+            'bg-success': t.variant === 'success',
+            'bg-danger': t.variant === 'danger',
+            'bg-warning': t.variant === 'warning',
+            'bg-info': t.variant === 'info'
+        }"
+    >
+        <div class="toast-body">
+            <strong *ngIf="t.title">{{ t.title }}</strong>
+            <span *ngIf="t.title">&nbsp;—&nbsp;</span>{{ t.text }}
+            <button
+                type="button"
+                class="btn-close btn-close-white float-end ms-2"
+                (click)="remove(t.id)"
+            ></button>
+        </div>
+    </div>
+</div>

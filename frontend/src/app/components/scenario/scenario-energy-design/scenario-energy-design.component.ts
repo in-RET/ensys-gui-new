@@ -127,11 +127,6 @@ export class ScenarioEnergyDesignComponent {
 
     ngOnInit() {
         this.loadEnergyComponents();
-
-        this.toastService.show('Saved successfully!', {
-            type: 'success',
-            position: 'top-right',
-        });
     }
 
     ngAfterViewInit() {
