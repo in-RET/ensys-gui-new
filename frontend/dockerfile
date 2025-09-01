@@ -6,7 +6,6 @@ WORKDIR  /app
 RUN apk update && apk add bash
 
 COPY . .
-RUN rm -r node_modules
 
 RUN npm install
 

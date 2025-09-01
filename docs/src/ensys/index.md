@@ -9,29 +9,29 @@ To configurate an energymodel uses therefore the following classes. Beginning wi
 
 Model configuration:
 
-- [EnModel](ensys/components/model.md)
-- [EnEnergysystem](ensys/components/energysystem.md)
+- [EnModel](components/model.md)
+- [EnEnergysystem](components/energysystem.md)
 
 System components:
 
-- [EnBus](ensys/components/bus.md)
-- [EnSink](ensys/components/sink.md)
-- [EnSource](ensys/components/source.md)
-- [EnGenericStorage](ensys/components/genericstorage.md)
-- [EnConverter](ensys/components/converter.md)
+- [EnBus](components/bus.md)
+- [EnSink](components/sink.md)
+- [EnSource](components/source.md)
+- [EnGenericStorage](components/genericstorage.md)
+- [EnConverter](components/converter.md)
 
 Special Components:
 
-- [EnInvestment](ensys/components/investment.md)
-- [EnNonConvex](ensys/components/nonconvex.md)
-- [EnFlow](ensys/components/flow.md)
+- [EnInvestment](components/investment.md)
+- [EnNonConvex](components/nonconvex.md)
+- [EnFlow](components/flow.md)
   
   
 ## External Start
 To start the application it is necessary to define the following classes and dump them into a file:
 
-- [EnModel](ensys/components/model.md)
-- [EnEnergysystem](ensys/components/energysystem.md)
+- [EnModel](components/model.md)
+- [EnEnergysystem](components/energysystem.md)
 
 ``` bash
 python main.py [-olp] [-wdir WORKINGDIRECTORY] configfile
