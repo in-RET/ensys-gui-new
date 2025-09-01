@@ -2,12 +2,12 @@
 
 <!-- top-right -->
 <div
-    class="toast-container position-fixed top-0 end-0 p-3"
+    class="toast-container position-fixed top-0 end-0 m-2"
     style="z-index: 1080"
 >
     <div
         *ngFor="let t of byPosition('top-right')"
-        class="toast show text-white mb-2"
+        class="toast show text-white"
         [ngClass]="{
             'bg-success': t.variant === 'success',
             'bg-danger': t.variant === 'danger',
@@ -27,6 +27,8 @@
                 aria-label="Close"
                 (click)="remove(t.id)"
             ></button>
+
+            <div class="toast-progress"></div>
         </div>
     </div>
 </div>
