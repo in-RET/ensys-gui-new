@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DrawflowNode } from 'drawflow';
 import { map } from 'rxjs';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
@@ -122,22 +121,6 @@ export class ScenarioBaseComponent {
             const drawflowData = this.scenarioService.restoreDrawflow_Storage();
 
             if (drawflowData) {
-                for (const key in drawflowData) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(drawflowData, key)
-                    ) {
-                        const element: DrawflowNode = drawflowData[key];
-                        // newScenarioData.modeling_data.components.push({
-                        //     data: element.data,
-                        //     inputs: [],
-                        //     outputs: [],
-                        //     label: element.name,
-                        //     oemof_type: '',
-                        //     additionalProp1: {},
-                        // });
-                    }
-                }
-
                 this.scenarioService.createScenario(newScenarioData).subscribe({
                     next: (value: any) => {
                         console.log(value);

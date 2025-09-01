@@ -673,6 +673,27 @@ export class EnergyDrawflowComponent {
 
         const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
 
+        let startPortName: string;
+        let _preDefData: any;
+
+        if (nodeIn.class == 'bus') {
+            startPortName = connection.output_class;
+
+            node.data.ports.outputs.forEach((element: any) => {
+                if (element.code == startPortName) {
+                    _preDefData = element.preDefData;
+                }
+            });
+        } else {
+            startPortName = connection.input_class;
+
+            node.data.ports.inputs.forEach((element: any) => {
+                if (element.code == startPortName) {
+                    _preDefData = element.preDefData;
+                }
+            });
+        }
+
         if (followRules) {
             this.showFormModal.emit({
                 type: 'flow',
@@ -683,6 +704,7 @@ export class EnergyDrawflowComponent {
                 data: {
                     connection: connection,
                     oep: node.data.oep,
+                    preDefData: _preDefData,
                 },
                 node: node,
             });

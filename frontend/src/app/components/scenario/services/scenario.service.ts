@@ -59,7 +59,6 @@ export class ScenarioService {
         else return null;
     }
 
-    // drawflow
     saveDrawflow_Storage(data: any) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,

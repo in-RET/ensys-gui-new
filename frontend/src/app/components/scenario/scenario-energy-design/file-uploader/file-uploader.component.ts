@@ -14,8 +14,9 @@ export class FileUploaderComponent {
     private _data: any;
     @Input() set data(d: any) {
         if (d) {
-            if (d) {
-                this._data = d;
+            this._data = d;
+
+            if (d && typeof d === 'string') {
                 const isRangeVal = d.split(',').length > 1;
 
                 if (isRangeVal) {
@@ -117,8 +118,9 @@ export class FileUploaderComponent {
         let arr = str.split(',');
         if (arr.length <= 4) return str; // Nothing to shorten
 
-        let firstTwo = arr.slice(0, 4);
-        let lastTwo = arr.slice(-4);
+        let firstTwo = arr.slice(0, 4).map((num: string) => (+num).toFixed(3));
+        let lastTwo = arr.slice(-4).map((num: string) => (+num).toFixed(3));
+
         return [...firstTwo, '...', ...lastTwo].join(',');
     }
 

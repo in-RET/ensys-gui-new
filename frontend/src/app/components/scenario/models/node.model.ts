@@ -1,10 +1,11 @@
 export interface OEPResponse {
     node_data: Record<string, any>; // if you know the shape, replace `any`
+    ports_data: OEPPorts;
+}
 
-    ports_data: {
-        inputs: Port[];
-        outputs: Port[];
-    };
+export interface OEPPorts {
+    inputs: Port[];
+    outputs: Port[];
 }
 
 export interface Port {

@@ -5,7 +5,7 @@ import Drawflow from 'drawflow';
 import { map } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
-import { OEPResponse, Port } from '../models/node.model';
+import { OEPPorts, OEPResponse, Port } from '../models/node.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
 import { ScenarioModel, ScenarioService } from '../services/scenario.service';
@@ -58,6 +58,7 @@ class FormModalInfo {
     type: 'node' | 'flow' | undefined = undefined;
     editMode: boolean = false;
     hide: boolean = false;
+    preDefData!: OEPPorts;
 }
 
 @Component({
@@ -187,6 +188,7 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.id = e.id;
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
+        this.formModal_info.preDefData = e.data.preDefData;
 
         if (e.editMode && e.node && this.formModal_info.type == 'node') {
             e.data['name'] = e.node.name;
@@ -198,7 +200,8 @@ export class ScenarioEnergyDesignComponent {
                 e.id,
                 e.editMode,
                 e.editMode ? e.data : null,
-                this.defineCallbackFlowForm()
+                this.defineCallbackFlowForm(),
+                e.data.preDefData
             );
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
@@ -230,6 +233,19 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.show = true;
     }
 
+    showEpCostsCalModal() {
+        this.formModal_calculator.action = {
+            label: 'ƒ',
+            fn: 'calculateEpCosts',
+        };
+        this.formModal_calculator.formData =
+            this.energyDesignService.getFormFieldsEpCosts();
+
+        this.modalComponent.hideModal();
+        this.formModal_info.hide = true;
+        this.formModal_calculator.show = true;
+    }
+
     defineCallbackFlowForm() {
         let callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
@@ -239,8 +255,8 @@ export class ScenarioEnergyDesignComponent {
         callbackList['toggleVisibilitySection'] =
             this.toggleVisibilitySection.bind(this);
 
-        callbackList['showEpCostsCalculator'] =
-            this.showEpCostsCalculator.bind(this);
+        callbackList['showEpCostsCalModal'] =
+            this.showEpCostsCalModal.bind(this);
 
         callbackList['onChangePreDefined'] = this.onChangePreDefined.bind(this);
 
@@ -307,19 +323,6 @@ export class ScenarioEnergyDesignComponent {
         this.modalComponent.showModal();
     }
 
-    showEpCostsCalculator() {
-        this.formModal_calculator.action = {
-            label: 'ƒ',
-            fn: 'calculateEpCosts',
-        };
-        this.formModal_calculator.formData =
-            this.energyDesignService.getFormFieldsEpCosts();
-
-        this.modalComponent.hideModal();
-        this.formModal_info.hide = true;
-        this.formModal_calculator.show = true;
-    }
-
     onChangePreDefined(e: { option: string; type: string }) {
         this.cleanFormError();
 
@@ -354,7 +357,7 @@ export class ScenarioEnergyDesignComponent {
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
-                            console.log(this.formModal_info.data);
+                            console.log(value);
 
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
@@ -367,6 +370,7 @@ export class ScenarioEnergyDesignComponent {
                                 };
                             }
 
+                            // set node's ports name+...props
                             value.ports_data.inputs.forEach((port: Port) => {
                                 if (type != 'transformer') {
                                     this.formComponent.setFieldData(
@@ -389,27 +393,33 @@ export class ScenarioEnergyDesignComponent {
                                 }
                             });
 
-                            value.ports_data.outputs.forEach((port: Port) => {
-                                if (type != 'transformer') {
-                                    this.formComponent.setFieldData(
-                                        'outputPort_name',
-                                        port.name
-                                    );
-                                } else {
-                                    let outputItem: OrderItem;
-                                    outputItem = {
-                                        id: this.formModal_info.data.ports
-                                            .outputs.length,
-                                        name: port.name,
-                                        number:
-                                            value.node_data['efficiency'] ?? 1,
-                                    };
+                            value.ports_data.outputs.forEach(
+                                (port: Port, i: number) => {
+                                    if (type != 'transformer') {
+                                        this.formComponent.setFieldData(
+                                            'outputPort_name',
+                                            port.name
+                                        );
+                                    } else {
+                                        let outputItem: OrderItem;
+                                        outputItem = {
+                                            id: this.formModal_info.data.ports
+                                                .outputs.length,
+                                            name: port.name,
+                                            number:
+                                                value.node_data['efficiency'] ??
+                                                1,
+                                        };
 
-                                    this.formModal_info.data.ports.outputs.push(
-                                        outputItem
-                                    );
+                                        this.formModal_info.data.ports.outputs.push(
+                                            outputItem
+                                        );
+                                    }
                                 }
-                            });
+                            );
+
+                            // save in/out data port based on predefined item, to use in flow
+                            this.formModal_info.preDefData = value.ports_data;
                         },
                         error: (err) => {
                             console.log(err);
@@ -636,7 +646,8 @@ export class ScenarioEnergyDesignComponent {
                         this.formModal_info.id,
                         this.transform_inputs?.data,
                         this.transform_outputs?.data,
-                        this.formModal_info.data.node?.groupName
+                        this.formModal_info.data.node?.groupName,
+                        this.formModal_info.preDefData
                     );
 
                     if (!formData && this.formModal_info.id === 'transformer') {
@@ -649,6 +660,10 @@ export class ScenarioEnergyDesignComponent {
 
                     formData['connections'] =
                         this.formModal_info.data['connections'];
+
+                    // set preDefData
+                    if (this.formModal_info.preDefData)
+                        formData['preDefData'] = this.formModal_info.preDefData;
 
                     if (formData) {
                         if (!this.formModal_info.editMode)

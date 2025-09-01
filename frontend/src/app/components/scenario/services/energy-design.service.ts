@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GeneralService } from '../../../shared/services/general.service';
+import { FlowData, OEPPorts } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { FlowService } from './flow.service';
 import { ScenarioService } from './scenario.service';
@@ -13,6 +14,7 @@ type EPCostParams = {
 
 interface Port extends OrderItem {
     code: string;
+    preDefData?: FlowData;
 }
 
 interface Ports {
@@ -92,7 +94,7 @@ export class EnergyDesignService {
         ];
     }
 
-    getInvestmentFields(data?: any, callback?: any) {
+    getInvestmentFields(data?: any, callback?: any, preDefData?: any) {
         return [
             {
                 name: 'maximum',
@@ -120,7 +122,7 @@ export class EnergyDesignService {
                         label: '',
                         icon: 'calculator',
                         onClick: () => {
-                            callback['showEpCostsCalculator']();
+                            callback['showEpCostsCalModal']();
                         },
                     },
                 ],
@@ -177,7 +179,17 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             //   item['value'] = this.getField(item.name);
-            item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
+            // item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
+            if (data) {
+                item['value'] = data[item.name.toLocaleLowerCase()];
+            } else if (preDefData) {
+                item['value'] = preDefData['investment']
+                    ? preDefData['investment'][item.name.toLocaleLowerCase()]
+                    : preDefData[item.name.toLocaleLowerCase()];
+            } else {
+                item['value'] = null;
+            }
+
             item['label'] = this.generalService.convertText_uppercaseAt0(
                 item['label']
             );
@@ -186,7 +198,7 @@ export class EnergyDesignService {
         });
     }
 
-    getDefaultFields_flow(data?: any) {
+    getDefaultFields_flow(data?: any, preDefData?: any) {
         return [
             {
                 name: 'variable_costs',
@@ -281,14 +293,19 @@ export class EnergyDesignService {
                 span: 'auto',
             },
         ].map((item: any) => {
-            // item['value'] = this.getField(item.name);
             item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
 
+            if (data) {
+                item['value'] = data[item.name.toLocaleLowerCase()];
+            } else if (preDefData) {
+                item['value'] = preDefData['investment']
+                    ? preDefData['investment'][item.name.toLocaleLowerCase()]
+                    : preDefData[item.name.toLocaleLowerCase()];
+            }
             // check if its a range/number value
-            if (item['value']) {
+            if (item['value'] && typeof item['value'] === 'string') {
                 const isRangeVal = item['value'].split(',').length > 1;
-
-                if (isRangeVal) item['disabled'] = true;
+                // if (isRangeVal) item['disabled'] = true;
             }
 
             item['label'] = item['label']
@@ -460,7 +477,8 @@ export class EnergyDesignService {
         name: string,
         editMode: boolean,
         data?: any,
-        callback?: any
+        callback?: any,
+        preDefData?: any
     ) {
         let fields = null;
 
@@ -1103,13 +1121,8 @@ export class EnergyDesignService {
         };
 
         const getFields_flow = async () => {
-            let preDefinedList: string[];
-
             switch (name) {
                 case 'genericstorage':
-                    preDefinedList =
-                        await this.flowService.getPreDefinedsByName(name);
-
                     return {
                         sections: [
                             {
@@ -1224,9 +1237,6 @@ export class EnergyDesignService {
                     };
 
                 default:
-                    preDefinedList =
-                        await this.flowService.getPreDefinedsByName(name);
-
                     const fields = {
                         sections: [
                             {
@@ -1296,7 +1306,8 @@ export class EnergyDesignService {
                                 fields: [
                                     ...this.getInvestmentFields(
                                         data,
-                                        callback
+                                        callback,
+                                        preDefData
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {
@@ -1328,7 +1339,10 @@ export class EnergyDesignService {
                                 name: 'defaults',
                                 class: 'col-12',
                                 visible: true,
-                                fields: this.getDefaultFields_flow(data),
+                                fields: this.getDefaultFields_flow(
+                                    data,
+                                    preDefData
+                                ),
                             },
                         ],
                     };
@@ -1401,7 +1415,8 @@ export class EnergyDesignService {
         nodeId: string,
         transform_inputs?: OrderItem[],
         transform_outputs?: OrderItem[],
-        groupName?: string
+        groupName?: string,
+        preDefData?: OEPPorts
     ): any {
         let transformPorts = (): Ports | false => {
             let ports: Ports;
@@ -1428,6 +1443,7 @@ export class EnergyDesignService {
                         id: 0,
                         name: inputport_name,
                         code: 'input_1',
+                        preDefData: preDefData?.inputs[0].flow_data,
                     });
                 }
 
@@ -1436,6 +1452,7 @@ export class EnergyDesignService {
                         id: 0,
                         name: outputport_name,
                         code: 'output_1',
+                        preDefData: preDefData?.outputs[0].flow_data,
                     });
                 }
 
@@ -1613,4 +1630,9 @@ export class EnergyDesignService {
         const nodes = this.getDrawflowNodes_byType(nodeType);
         return `${nodeType}_${nodes.length + 1}`;
     }
+
+    // setPortPreData(portId: number, portData: FlowData): any {
+    //     // data.ports.inputs/outputs
+    //     console.log(portData);
+    // }
 }
