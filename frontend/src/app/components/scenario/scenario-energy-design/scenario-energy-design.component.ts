@@ -418,6 +418,11 @@ export class ScenarioEnergyDesignComponent {
                         },
                         error: (err) => {
                             console.log(err);
+                            this.toastService.error(
+                                err.error && err.error.detail
+                                    ? err.error.detail
+                                    : 'error'
+                            );
 
                             if (type == 'transformer') {
                                 this.formModal_info.data = {

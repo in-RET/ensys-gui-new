@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { FormComponent } from '../form/form.component';
 import { ModalComponent } from '../modal/modal.component';
@@ -58,7 +59,8 @@ export class EnergyDrawflowComponent {
     constructor(
         private scenarioService: ScenarioService,
         private renderer: Renderer2,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
@@ -98,6 +100,7 @@ export class EnergyDrawflowComponent {
     private addEditorEvents() {
         this.editor.on('nodeCreated', (data: any) => {
             console.log('Drawflow event: nodeCreated');
+            this.toastService.success('Drawflow event: nodeCreated');
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeDataChanged', (data: any) => {
@@ -106,15 +109,18 @@ export class EnergyDrawflowComponent {
         });
         this.editor.on('nodeRemoved', (data: any) => {
             console.log('Drawflow event: nodeRemoved');
+            this.toastService.info('Drawflow event: nodeRemoved');
             this.saveCurrentDrawflow();
         });
 
         this.editor.on('connectionCreated', (connection: any) => {
             console.log('Drawflow event: connectionCreated');
+            this.toastService.success('Drawflow event: connectionCreated');
             this.connectionCreated(connection);
         });
         this.editor.on('connectionRemoved', (connection: any) => {
             console.log('Drawflow event: connectionRemoved');
+            this.toastService.info('Drawflow event: connectionRemoved');
             this.saveCurrentDrawflow();
         });
         this.editor.on('connectionSelected', (connection: any) => {
@@ -1087,7 +1093,7 @@ export class EnergyDrawflowComponent {
         if (confirmed) {
             this.editor.clearModuleSelected();
             this.saveCurrentDrawflow();
-            this.alertService.success(`Cleaned the grid model successfully!`);
+            this.toastService.info(`Cleaned the grid model successfully!`);
         }
     }
 
@@ -1237,9 +1243,6 @@ export class EnergyDrawflowComponent {
             };
             this.deleteConnectionData(currentConnection);
             this.saveCurrentDrawflow();
-            this.alertService.success(
-                `Removed connection from ${node_source.node.name} to ${node_destination.node.name} successfully!`
-            );
         }
     }
 
