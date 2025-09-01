@@ -31,7 +31,7 @@ export class ScenarioSetupComponent {
             disabled: true,
         }),
         timeStep: new FormControl({ value: 60, disabled: true }),
-        simulationYear: new FormControl(null, [Validators.required]),
+        simulationYear: new FormControl(2025, [Validators.required]),
     });
 
     get name() {
