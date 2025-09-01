@@ -240,7 +240,7 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
                       "variable_costs",
                       "min",
                       "max",
-                      "fix"
+                      "fix",
                       "positive_gradient_limit",
                       "negative_gradient_limit",
                       "full_load_time_max",
@@ -267,16 +267,13 @@ async def get_local_oep_data(token: Annotated[str, Depends(oauth2_scheme)], bloc
 
     # TODO: how do i write the flow data in the right port? Sink/Source/Rest
     for port in ports_data:
-        del port["investment"]
-
-        if ((oep_type.value[1].lower() == "sink" and port["type"] == "input") or (
-                oep_type.value[1].lower() == "source" and port["type"] == "output")) and flow_data:
-            # Sink / Source
-            port["flow_data"] = flow_data
-        elif port["type"] == "output" and port["name"] == "electricity":
+        if port["controlled_flow"]:
             port["flow_data"] = flow_data
         else:
-            print(f"Port: {port}")
+            print(f"Nicht steuernder Port: {port}")
+
+        del port["investment"]
+        del port["controlled_flow"]
 
     if "efficiencey_el" in param_keys and port["name"] == "electricity" and port["type"] == "output":
         port["efficiency"] = parameter_year_select["efficiency_el"]

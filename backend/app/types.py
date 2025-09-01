@@ -59,6 +59,8 @@ class OepTypes(Enum):
                                a converter.
     """
     # storages
+    test_storage = ("test_storage", "generic_storage")
+
     storage_electricity = ("storage_electricity", "generic_storage")
     storage_electricity_pumped_hydro_storage_power_technology = (
         "storage_electricity_pumped_hydro_storage_power_technology", "generic_storage")
@@ -68,6 +70,7 @@ class OepTypes(Enum):
     storage_hydrogen = ("storage_hydrogen", "generic_storage")
     
     # sinks
+    test_sink = ("test_sink", "sink")
     electricity_export = ("electricity_export", "sink")
 
     electricity_demand_efh = ("electricity_demand_efh", "sink")
@@ -78,6 +81,7 @@ class OepTypes(Enum):
     heat_demand_mfh = ("heat_demand_mfh", "sink")
     
     # sources
+    test_source = ("test_source", "source")
     hydrogen_feed_in = ("hydrogen_feed_in", "source")
     run_river_power_plant = ("run_river_power_plant", "source")
     solar_thermal_power_plant = ("solar_thermal_power_plant", "source")
@@ -95,6 +99,7 @@ class OepTypes(Enum):
     rooftop_photovoltaic_power_plant_swest_th = ("rooftop_photovoltaic_power_plant_swest_th", "source")
     
     # converters
+    test_converter = ("test_converter", "converter")
     power_to_liquid_system = ("power_to_liquid_system", "converter")
     fuel_cells = ("fuel_cells", "converter")
     biogas_combined_heat_and_power_plant = ("biogas_combined_heat_and_power_plant", "converter")
