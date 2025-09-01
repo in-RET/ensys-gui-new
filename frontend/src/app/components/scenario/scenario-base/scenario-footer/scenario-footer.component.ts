@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 
 @Component({
     selector: 'app-scenario-footer',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './scenario-footer.component.html',
     styleUrl: './scenario-footer.component.scss',
 })

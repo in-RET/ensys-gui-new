@@ -74,6 +74,13 @@ export const routes: Routes = [
                     currentScenario: localStorageScenarioResolver,
                 },
             },
+
+            {
+                path: 'simulation',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('./simulation.routes').then((r) => r.routes),
+            },
         ],
     },
 ];
