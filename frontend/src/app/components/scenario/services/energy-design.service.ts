@@ -183,6 +183,10 @@ export class EnergyDesignService {
             if (data) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
+                // const currentOEP = this.getFieldData('oep', {
+                //     mode: editMode,
+                //     data,
+                // });
                 item['value'] = preDefData['investment']
                     ? preDefData['investment'][item.name.toLocaleLowerCase()]
                     : preDefData[item.name.toLocaleLowerCase()];
@@ -480,6 +484,8 @@ export class EnergyDesignService {
         callback?: any,
         preDefData?: any
     ) {
+        console.log(preDefData);
+
         let fields = null;
 
         const getFields_node = async () => {
@@ -705,7 +711,9 @@ export class EnergyDesignService {
 
                 case 'genericstorage':
                     preDefinedList =
-                        await this.flowService.getPreDefinedsByName('storage');
+                        await this.flowService.getPreDefinedsByName(
+                            'generic_storage'
+                        );
 
                     fields = {
                         sections: [
@@ -943,9 +951,6 @@ export class EnergyDesignService {
                     return fields;
 
                 case 'sink':
-                case 'excess':
-                case 'export':
-                case 'oep':
                     preDefinedList =
                         await this.flowService.getPreDefinedsByName(
                             name.toLocaleLowerCase()
@@ -1198,7 +1203,8 @@ export class EnergyDesignService {
                                 fields: [
                                     ...this.getInvestmentFields(
                                         data,
-                                        callback
+                                        callback,
+                                        preDefData
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {

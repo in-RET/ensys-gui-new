@@ -388,30 +388,27 @@ export class ScenarioEnergyDesignComponent {
                                 }
                             });
 
-                            value.ports_data.outputs.forEach(
-                                (port: Port, i: number) => {
-                                    if (type != 'transformer') {
-                                        this.formComponent.setFieldData(
-                                            'outputPort_name',
-                                            port.name
-                                        );
-                                    } else {
-                                        let outputItem: OrderItem;
-                                        outputItem = {
-                                            id: this.formModal_info.data.ports
-                                                .outputs.length,
-                                            name: port.name,
-                                            number:
-                                                value.node_data['efficiency'] ??
-                                                1,
-                                        };
+                            value.ports_data.outputs.forEach((port: Port) => {
+                                if (type != 'transformer') {
+                                    this.formComponent.setFieldData(
+                                        'outputPort_name',
+                                        port.name
+                                    );
+                                } else {
+                                    let outputItem: OrderItem;
+                                    outputItem = {
+                                        id: this.formModal_info.data.ports
+                                            .outputs.length,
+                                        name: port.name,
+                                        number:
+                                            value.node_data['efficiency'] ?? 1,
+                                    };
 
-                                        this.formModal_info.data.ports.outputs.push(
-                                            outputItem
-                                        );
-                                    }
+                                    this.formModal_info.data.ports.outputs.push(
+                                        outputItem
+                                    );
                                 }
-                            );
+                            });
 
                             // save in/out data port based on predefined item, to use in flow
                             this.formModal_info.preDefData = value.ports_data;
@@ -503,21 +500,39 @@ export class ScenarioEnergyDesignComponent {
                         option,
                         scenarioBaseData.scenario.simulationYear
                     )
+                    .pipe(map((d: any) => d.items[0]))
                     .subscribe({
-                        next: (value) => {},
+                        next: (value: OEPResponse) => {
+                            console.log(value);
+
+                            // set node's ports name+...props
+                            value.ports_data.inputs.forEach((port: Port) => {
+                                this.formComponent.setFieldData(
+                                    'inputPort_name',
+                                    port.name
+                                );
+                            });
+
+                            value.ports_data.outputs.forEach((port: Port) => {
+                                this.formComponent.setFieldData(
+                                    'outputPort_name',
+                                    port.name
+                                );
+                            });
+
+                            // save in/out data port based on predefined item, to use in flow
+                            this.formModal_info.preDefData = value.ports_data;
+                        },
                         error: (err) => {
                             console.log(err);
-                            // err.error.detail
+                            this.toastService.error(
+                                err.error && err.error.detail
+                                    ? err.error.detail
+                                    : 'error'
+                            );
                         },
                     });
             }
-            // temp
-            this.formComponent.setFieldData('inputPort_name', 'Sample');
-            this.formComponent.setFieldData('outputPort_name', 'Sample');
-            this.formComponent.setFieldData('nominal_value', 2127716.667);
-            this.formComponent.setFieldData('maximum', 10);
-            this.formComponent.setFieldData('minimum', 5);
-            this.formComponent.setFieldData('ep_costs', 0.41);
         } else {
             this.formComponent.disableControl('oep');
             // set oep switch off
