@@ -1,15 +1,15 @@
 import os
 from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from numpy import nan_to_num
 from oemof import solph
 from sqlmodel import Session
 from starlette import status
 
-from .model import ResultDataModel, EnTimeSeries, EnDataFrame
+from .model import EnDataFrame, EnTimeSeries, ResultDataModel
 from ..db import get_db_session
-from ..responses import ErrorModel, ResultResponse, ErrorResponse
+from ..responses import ErrorModel, ErrorResponse, ResultResponse
 from ..security import oauth2_scheme
 from ..simulation.model import EnSimulationDB, Status
 
@@ -101,8 +101,10 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
 
 
 @results_router.get("/{simulation_id}", response_model=ResultResponse | ErrorResponse)
-async def get_results(simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-                      db: Session = Depends(get_db_session)) -> ResultResponse | ErrorResponse:
+async def get_results(
+        simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+        db: Session = Depends(get_db_session)
+) -> ResultResponse | ErrorResponse:
     """
     Retrieve the results of a simulation based on the given simulation id. This endpoint checks
     the current status of the simulation and provides appropriate responses based on that status.

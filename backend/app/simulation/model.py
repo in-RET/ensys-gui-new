@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 
 class Status(Enum):

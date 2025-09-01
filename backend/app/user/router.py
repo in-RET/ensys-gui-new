@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import Depends, APIRouter, Form, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException
 from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
@@ -59,9 +59,10 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
 
         return JSONResponse(
             content={
-                "message": "User login successful.",
+                "message"     : "User login successful.",
                 "access_token": token,
-                "token_type": "bearer"},
+                "token_type"  : "bearer"
+            },
             status_code=status.HTTP_200_OK
         )
     else:
@@ -125,8 +126,10 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
 
 @users_router.get("/", response_model=DataResponse)
-async def user_read(token: Annotated[str, Depends(oauth2_scheme)],
-                    db: Session = Depends(get_db_session)) -> DataResponse:
+async def user_read(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        db: Session = Depends(get_db_session)
+) -> DataResponse:
     """
     Handles a GET API endpoint to read user information from the database.
 
@@ -166,8 +169,10 @@ async def user_read(token: Annotated[str, Depends(oauth2_scheme)],
 
 
 @users_router.patch("/", response_model=DataResponse)
-async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
-                      db: Session = Depends(get_db_session)) -> DataResponse:
+async def update_user(
+        token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
+        db: Session = Depends(get_db_session)
+) -> DataResponse:
     """
     Updates the user information in the database based on the provided token and
     user data. The token is used to authenticate and retrieve the corresponding
@@ -208,8 +213,10 @@ async def update_user(token: Annotated[str, Depends(oauth2_scheme)], user: EnUse
 
 
 @users_router.delete("/", response_model=MessageResponse)
-async def delete_user(token: Annotated[str, Depends(oauth2_scheme)],
-                      db: Session = Depends(get_db_session)) -> MessageResponse:
+async def delete_user(
+        token: Annotated[str, Depends(oauth2_scheme)],
+        db: Session = Depends(get_db_session)
+) -> MessageResponse:
     """
     Deletes a user based on the credentials and token provided. The function
     retrieves the user's data from the database using the information decoded

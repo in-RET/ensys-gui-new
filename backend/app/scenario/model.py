@@ -3,7 +3,7 @@ from datetime import date, datetime
 from pydantic import BaseModel
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
 
 from ensys.components.energysystem import EnEnergysystem
 

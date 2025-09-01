@@ -12,7 +12,7 @@ def test_users_delete_success(get_test_user, client: TestClient):
     response = client.delete(
         url="/user",
         headers={
-            "accept": "application/json",
+            "accept"       : "application/json",
             "Authorization": f"Bearer {test_token}",
         }
     )
@@ -32,7 +32,7 @@ def test_users_delete_failure_not_found(get_test_user, client: TestClient):
     response = client.delete(
         url="/user",
         headers={
-            "accept": "application/json",
+            "accept"       : "application/json",
             "Authorization": f"Bearer {test_token}",
         }
     )

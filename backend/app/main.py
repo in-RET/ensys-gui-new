@@ -35,31 +35,31 @@ async def lifespan(fastapi_app: FastAPI):
 
 tags_metadata = [
     {
-        "name": "user",
+        "name"       : "user",
         "description": "Operations with users. The **login** logic is also here."
     },
     {
-        "name": "project",
+        "name"       : "project",
         "description": "Manage projects.",
     },
     {
-        "name": "admin",
+        "name"       : "admin",
         "description": "Just a Teapot."
     },
     {
-        "name": "scenario",
+        "name"       : "scenario",
         "description": "Manage scenarios."
     },
     {
-        "name": "default",
+        "name"       : "default",
         "description": "The root of all evil."
     },
     {
-        "name": "simulation",
+        "name"       : "simulation",
         "description": "Manage simulations."
     },
     {
-        "name": "results",
+        "name"       : "results",
         "description": "Get results."
     }
 ]
@@ -70,12 +70,12 @@ fastapi_app = FastAPI(
     summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
     contact={
-        "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",
-        "url": "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
+        "name" : "Hochschule Nordhausen - Institut für regenerative Energietechnik",
+        "url"  : "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
         "email": "ensys@hs-nordhausen.de",
     },
     license_info={
-        "name": "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
+        "name"      : "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
         "identifier": "aGPL",
     },
     openapi_tags=tags_metadata,

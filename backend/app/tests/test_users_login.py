@@ -16,7 +16,7 @@ def test_users_login_success(get_test_user, client: TestClient):
     }
 
     headers = {
-        "accept": "application/json",
+        "accept"      : "application/json",
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
@@ -28,9 +28,9 @@ def test_users_login_success(get_test_user, client: TestClient):
 
     assert response.status_code == 200
     assert response.json() == {
-        "message": "User login successful.",
+        "message"     : "User login successful.",
         "access_token": test_token,
-        "token_type": "bearer",
+        "token_type"  : "bearer",
     }
 
 
@@ -43,7 +43,7 @@ def test_users_login_failure_not_found(client: TestClient):
             "password": ""
         },
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "Content-Type": "application/x-www-form-urlencoded"
         }
     )
@@ -63,7 +63,7 @@ def test_users_login_failure_wrong_password(client: TestClient):
             "password": ""
         },
         headers={
-            "accept": "application/json",
+            "accept"      : "application/json",
             "Content-Type": "application/x-www-form-urlencoded"
         }
     )

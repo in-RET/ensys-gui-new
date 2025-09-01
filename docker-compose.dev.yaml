@@ -51,7 +51,7 @@ services:
         command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
         ports:
             - '${API_PORT}:8001'
-        restart: always
+        restart: no
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
@@ -83,7 +83,7 @@ services:
                 os_version: ${OS_VERSION}
         container_name: celery
         env_file: .env
-        command: celery --app=app.celery.celery_app worker --loglevel=INFO
+        command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
