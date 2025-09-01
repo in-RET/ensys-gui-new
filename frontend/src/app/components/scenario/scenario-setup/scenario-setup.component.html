@@ -129,8 +129,9 @@
                         <option selected disabled value="null">
                             Choose...
                         </option>
-                        <option value="2025">2025</option>
-                        <option value="2030">2030</option>
+                        <ng-container *ngFor="let item of simulationYearList">
+                            <option [value]="item">{{ item }}</option>
+                        </ng-container>
                     </select>
                     <label>Simulation year</label>
                 </div>

@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
+import { ToastService } from '../../../shared/services/toast.service';
 import { ScenarioModel, ScenarioService } from '../services/scenario.service';
 
 @Component({
@@ -24,20 +25,13 @@ export class ScenarioSetupComponent {
             name: new FormControl(null, [Validators.required]),
         }),
         name: new FormControl(null, [Validators.required]),
-        simulationPeriod: new FormControl('', [Validators.required]),
-        sDate: new FormControl(null, [Validators.required]),
-        timeStep: new FormControl(null, [Validators.required]),
+        simulationPeriod: new FormControl({ value: 8760, disabled: true }),
+        sDate: new FormControl({
+            value: new Date().toISOString().split('T')[0],
+            disabled: true,
+        }),
+        timeStep: new FormControl({ value: 60, disabled: true }),
         simulationYear: new FormControl(null, [Validators.required]),
-
-        // minimal_renewable_factor_active: new FormControl(true),
-        // minimal_renewable_factor: new FormControl(
-        //     { value: null, disabled: false },
-        //     [Validators.required]
-        // ),
-        // maximum_emissions_active: new FormControl(true),
-        // maximum_emissions: new FormControl({ value: null, disabled: false }, [
-        //     Validators.required,
-        // ]),
     });
 
     get name() {
@@ -84,10 +78,12 @@ export class ScenarioSetupComponent {
         return this.form.get('project.id');
     }
 
+    projectList!: any[];
+    simulationYearList: number[] = [2025, 2030, 2035, 2040, 2045, 2050];
+
     private readonly route = inject(ActivatedRoute);
     scenarioService = inject(ScenarioService);
-
-    projectList!: any[];
+    toastService = inject(ToastService);
 
     ngOnInit() {
         this.loadProjects();
@@ -97,6 +93,11 @@ export class ScenarioSetupComponent {
             this.project?.patchValue({
                 name: this.projectList.find((x) => x.id == id).name,
             });
+        });
+
+        this.simulationYear?.valueChanges.subscribe((year) => {
+            this.sDate?.setValue(new Date(year).toISOString().split('T')[0]);
+            this.toastService.info('Date changed!');
         });
 
         this.setFormDefaultVal();
@@ -152,9 +153,9 @@ export class ScenarioSetupComponent {
 
     setFormDefaultVal() {
         this.name?.setValue(`Scenario_${this.projectList.length + 1}`);
-        this.sDate?.setValue(new Date().toISOString().split('T')[0]);
-        this.simulationPeriod?.setValue(1);
-        this.timeStep?.setValue(60);
-        this.simulationYear?.setValue(2025);
+        // this.sDate?.setValue(new Date().toISOString().split('T')[0]);
+        // this.simulationPeriod?.setValue(1);
+        // this.timeStep?.setValue(60);
+        // this.simulationYear?.setValue(2025);
     }
 }
