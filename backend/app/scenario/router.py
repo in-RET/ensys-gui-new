@@ -1,4 +1,3 @@
-import json
 import os
 from typing import Annotated
 
@@ -6,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
-from .auxillary import convert_gui_json_to_ensys, validate_scenario_owner
+from .auxillary import validate_scenario_owner
 from .model import EnScenario, EnScenarioDB, EnScenarioUpdate
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
@@ -160,8 +159,10 @@ async def read_scenario(
 
 @scenario_router.patch("/{scenario_id}", response_model=MessageResponse)
 async def update_scenario(
-        token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int,
-        scenario_data: EnScenarioUpdate, db: Session = Depends(get_db_session)
+        token: Annotated[str, Depends(oauth2_scheme)],
+        scenario_id: int,
+        scenario_data: EnScenarioUpdate,
+        db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Updates an existing scenario identified by its ID. This endpoint allows updating
@@ -203,9 +204,8 @@ async def update_scenario(
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    new_scenario_data = scenario_data.model_dump(exclude_unset=True)
     # Note: Now it's a dict, not a EnScenarioUpdate
-
+    new_scenario_data = scenario_data.model_dump(exclude_unset=True)
     db_scenario.sqlmodel_update(new_scenario_data)
 
     db.add(db_scenario)
@@ -220,7 +220,8 @@ async def update_scenario(
 
 @scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
 async def delete_scenario(
-        token: Annotated[str, Depends(oauth2_scheme)], scenario_id: int,
+        token: Annotated[str, Depends(oauth2_scheme)],
+        scenario_id: int,
         db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
