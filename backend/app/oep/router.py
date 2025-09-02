@@ -188,9 +188,6 @@ async def get_local_oep_data(
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year.")
 
-    print(f"simulation_year: {simulation_year}")
-    print(f"oep_type: {oep_name}")
-
     for type in oepTypesData.keys():
         item_list = oepTypesData[type]
 
@@ -224,14 +221,18 @@ async def get_local_oep_data(
     # Einlesen der Zeitreihe#
     if ((oep_type.lower() == "sink" or
          oep_type.lower() == "source") and
-            not oep_name.lower() == "electricity_export"
+            oep_name.lower() not in ["electricity_export", "hydrogen_feed_in"]
     ):
         # print(f"timeseries_data_path: {timeseries_data_path}")
         if not os.path.isfile(timeseries_data_path):
             raise HTTPException(status_code=404, detail="File with timeseries not found.")
         else:
             with open(timeseries_data_path, "r") as f:
-                timeseries_data = list(pd.read_csv(f, index_col=0, decimal=",", delimiter=";").loc[:, "data"])
+                timeseries_df = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+                print(f"timeseries_df.columns: {timeseries_df.columns}")
+                print(f"timeseries_df.index: {timeseries_df.index}")
+
+                timeseries_data = list(timeseries_df.loc[:simulation_year])
     else:
         timeseries_data = None
 
@@ -312,11 +313,35 @@ async def get_local_oep_data(
         del port["investment"]
         del port["controlled_flow"]
 
-    if "efficiencey_el" in param_keys and port["name"] == "electricity" and port["type"] == "output":
-        port["efficiency"] = parameter_year_select["efficiency_el"]
+        if "efficiency_el" in param_keys and port["name"] == "electricity" and port["type"] == "output":
+            port["efficiency"] = parameter_year_select["efficiency_el"] / 100
+            del parameter_year_select["efficiency_el"]
 
-    if "efficiencey_th" in param_keys and port["name"] == "heat" and port["type"] == "output":
-        port["efficiency"] = parameter_year_select["efficiency_th"]
+        if "efficiency_th" in param_keys and port["name"] == "heat" and port["type"] == "output":
+            port["efficiency"] = parameter_year_select["efficiency_th"] / 100
+            del parameter_year_select["efficiency_th"]
+
+        if "efficiency" in param_keys and port["type"] == "output":
+            port["efficiency"] = parameter_year_select["efficiency"] / 100
+            del parameter_year_select["efficiency"]
+
+    if "efficiency_in" in param_keys:
+        parameter_year_select["inflow_conversion_factor"] = parameter_year_select["efficiency_in"] / 100
+        del parameter_year_select["efficiency_in"]
+
+    if "efficiency_out" in param_keys:
+        parameter_year_select["outflow_conversion_factor"] = parameter_year_select["efficiency_out"] / 100
+        del parameter_year_select["efficiency_out"]
+
+    if "inverse_c_rate" in param_keys:
+        inverse_c_rate = parameter_year_select["inverse_c_rate"]
+
+        # TODO: check if this is correct
+        parameter_year_select["invest_relation_input_capacity"] = inverse_c_rate
+        parameter_year_select["invest_relation_output_capacity"] = inverse_c_rate
+        parameter_year_select["invest_input_output"] = 1 / inverse_c_rate
+
+        del parameter_year_select["inverse_c_rate"]
 
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {

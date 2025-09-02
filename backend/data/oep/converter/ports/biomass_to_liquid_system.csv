@@ -1,3 +1,0 @@
-port_nr;type;name;investment;controlled_flow
-1;input;biomass;false;false
-2;output;liquid;true;true
