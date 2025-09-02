@@ -1,5 +1,3 @@
-import json
-
 from sqlmodel import select
 from starlette import status
 
@@ -41,10 +39,6 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
         return True, status.HTTP_200_OK, ""
     else:
         return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
-
-
-def transform_flowchart_data_to_energysystem(flowchart_data: json):
-    pass
 
 
 def check_flow_investment(flow_data):
@@ -125,6 +119,9 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
     # build component_data["outputs"]
     output_data = {}
     for output_name in flowchart_component["outputs"]:
+        print(f"flowchart_component['outputs']: {flowchart_component['outputs']}")
+        print(f"output_name: {output_name}")
+
         target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
         target_bus_name = flowchart_data[target_bus_id]["name"]
 
