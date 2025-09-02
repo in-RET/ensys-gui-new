@@ -229,10 +229,8 @@ async def get_local_oep_data(
         else:
             with open(timeseries_data_path, "r") as f:
                 timeseries_df = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
-                print(f"timeseries_df.columns: {timeseries_df.columns}")
-                print(f"timeseries_df.index: {timeseries_df.index}")
 
-                timeseries_data = list(timeseries_df.loc[:simulation_year])
+                timeseries_data = list(timeseries_df[str(simulation_year)])
     else:
         timeseries_data = None
 

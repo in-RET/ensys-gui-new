@@ -24,11 +24,11 @@ class oepTypes(Enum):
     test_sink = "test_sink"
     electricity_export = "electricity_export"
     electricity_demand_efh = "electricity_demand_efh"
-    electricity_demand_industry = "electricity_demand_industry"
-    electricity_demand_mfh = "electricity_demand_mfh"
+    # electricity_demand_industry = "electricity_demand_industry"
+    # electricity_demand_mfh = "electricity_demand_mfh"
     heat_demand_efh = "heat_demand_efh"
-    heat_demand_industry = "heat_demand_industry"
-    heat_demand_mfh = "heat_demand_mfh"
+    # heat_demand_industry = "heat_demand_industry"
+    # heat_demand_mfh = "heat_demand_mfh"
 
     # Sources
     test_source = "test_source"
@@ -77,11 +77,11 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
         {"name": "test_sink", "label": "Generic Test Sink"},
         {"name": "electricity_export", "label": "Electricity Export to Grid"},
         {"name": "electricity_demand_efh", "label": "Electricity Demand - EFH"},
-        {"name": "electricity_demand_industry", "label": "Electricity Demand - Industry"},
-        {"name": "electricity_demand_mfh", "label": "Electricity Demand - MFH"},
+        # {"name": "electricity_demand_industry", "label": "Electricity Demand - Industry"},
+        # {"name": "electricity_demand_mfh", "label": "Electricity Demand - MFH"},
         {"name": "heat_demand_efh", "label": "Heat Demand - EFH"},
-        {"name": "heat_demand_industry", "label": "Heat Demand - Industry"},
-        {"name": "heat_demand_mfh", "label": "Heat Demand - MFH"},
+        # {"name": "heat_demand_industry", "label": "Heat Demand - Industry"},
+        # {"name": "heat_demand_mfh", "label": "Heat Demand - MFH"},
     ],
 
     oemofBlockTypes.source         : [
