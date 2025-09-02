@@ -7,6 +7,7 @@ export interface ScenarioModel {
         name: string;
     };
     scenario?: {
+        id?: number;
         name: string;
         simulationPeriod: number;
         sDate: string; // ISO date string
@@ -35,6 +36,10 @@ export class ScenarioService {
 
     createScenario(data: any) {
         return this.baseHttp.post(`${this.baseUrl}`, data);
+    }
+
+    deleteScenario(id: number) {
+        return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }
 
     // base info

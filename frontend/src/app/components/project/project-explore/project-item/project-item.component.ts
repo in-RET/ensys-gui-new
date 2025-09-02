@@ -13,8 +13,6 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     styleUrl: './project-item.component.scss',
 })
 export class ProjectItemComponent {
-    scenarioList!: any[];
-
     @Input() project: any;
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
@@ -76,5 +74,11 @@ export class ProjectItemComponent {
             },
         });
         this.router.navigate(['../../scenario']);
+    }
+
+    deleteScenario(scenarioId: number) {
+        this.project.scenarioList = this.project.scenarioList.filter(
+            (x: any) => x.id !== scenarioId
+        );
     }
 }

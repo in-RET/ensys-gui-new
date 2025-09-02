@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
     ScenarioModel,
@@ -9,12 +9,14 @@ import {
 
 @Component({
     selector: 'app-project-scenario-item',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './project-scenario-item.component.html',
     styleUrl: './project-scenario-item.component.scss',
 })
 export class ProjectScenarioItemComponent {
     @Input() data: any;
+
+    @Output() deleteScenario: EventEmitter<any> = new EventEmitter<any>();
 
     toastService = inject(ToastService);
 
@@ -24,8 +26,6 @@ export class ProjectScenarioItemComponent {
     ) {}
 
     openScenario(data: any) {
-        console.log(data);
-
         // save project,scenario - storage
         const scenarioData: ScenarioModel = {
             project: {
@@ -33,6 +33,7 @@ export class ProjectScenarioItemComponent {
                 name: data.project_name ?? '_',
             },
             scenario: {
+                id: data.id,
                 name: data.name ?? '_',
                 sDate: data.start_date,
                 timeStep: 60,
@@ -46,5 +47,19 @@ export class ProjectScenarioItemComponent {
 
         this.router.navigate(['/scenario']);
         this.toastService.info('Scenario data restored.');
+    }
+
+    onDeleteScenario(scenarioId: number) {
+        this.scenarioService.deleteScenario(scenarioId).subscribe({
+            next: (value) => {
+                if (value.success) {
+                    this.toastService.success('Scenario deleted.');
+                    this.deleteScenario.emit(scenarioId);
+                } else this.toastService.error('An error occured.');
+            },
+            error: (err) => {
+                this.toastService.error(err);
+            },
+        });
     }
 }

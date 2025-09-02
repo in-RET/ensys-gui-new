@@ -41,32 +41,6 @@
                 >
                     <span class="icon icon-delete" aria-hidden="true"></span>
                 </button>
-
-                <!-- <div class="dropdown">
-                    <button
-                        class="btn dropdown-toggle btn--transparent"
-                        type="button"
-                        id="shareProject-{{ project.id }}"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                    >
-                        <span class="icon icon-more"></span>
-                    </button>
-
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a class="dropdown-item"> Share project </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"> Unshare project </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item"> Export project </a>
-                        </li>
-                    </ul>
-                </div> -->
             </div>
         </div>
 
@@ -76,9 +50,9 @@
                     class="btn btn--action border p-2"
                     type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#scenario_list"
+                    [attr.data-bs-target]="'#scenario_list_' + project.id"
                     aria-expanded="false"
-                    aria-controls="scenario_list"
+                    [attr.aria-controls]="'scenario_list_' + project.id"
                     *ngIf="project.scenarioList && project.scenarioList.length"
                 >
                     <span
@@ -99,14 +73,21 @@
                 </button>
             </div>
 
-            <div class="collapse" id="scenario_list">
-                <div class="card card-body scenario_list">
+            <div
+                class="collapse row"
+                [id]="'scenario_list_' + project.id"
+                *ngIf="project.scenarioList && project.scenarioList.length > 0"
+            >
+                <div class="card card-body scenario_list col-4">
                     <ul class="list-group border">
                         <li
                             class="list-group-item scenario_item"
                             *ngFor="let scenario of project.scenarioList"
                         >
-                            <app-project-scenario-item [data]="scenario" />
+                            <app-project-scenario-item
+                                [data]="scenario"
+                                (deleteScenario)="deleteScenario($event)"
+                            />
                         </li>
                     </ul>
                 </div>

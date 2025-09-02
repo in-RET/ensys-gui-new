@@ -2,4 +2,21 @@
     <a class="form-check-label" (click)="openScenario(data)">
         {{ data.name }}
     </a>
+
+    <div class="actions">
+        <!-- <a class="btn btn--action action" (click)="openScenario(data)">
+            <span class="icon icon-edit" aria-hidden="true"></span>
+        </a> -->
+
+        <button
+            id="delete_{{ data.id }}"
+            style="margin-top: 0.25rem"
+            class="btn btn--action action"
+            type="button"
+            value="Delete"
+            (click)="onDeleteScenario(data.id)"
+        >
+            <span class="icon icon-delete" aria-hidden="true"></span>
+        </button>
+    </div>
 </div>
