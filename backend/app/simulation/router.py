@@ -207,7 +207,7 @@ async def get_simulation_status(
     selected_simulation = db.get(EnSimulationDB, simulation_id)
 
     return MessageResponse(
-        data=selected_simulation.status,
+        data=f"{selected_simulation.status} -- {selected_simulation.status_message}",
         success=True
     )
 
@@ -263,6 +263,12 @@ async def stop_simulations(
     for simulation in simulations:
         revoke(simulation.sim_token, terminate=True)
 
+        simulation.status = Status.CANCELED.value
+        simulation.status_message = "Simulation was canceled by user request."
+        simulation.end_date = datetime.now()
+        db.commit()
+        db.refresh(simulation)
+
     return MessageResponse(
         data=f"Simulation stopped.",
         success=True,
@@ -310,6 +316,12 @@ async def stop_simulation(
     # Task manuell stoppen
     revoke(simulation.sim_token, terminate=True)
 
+    simulation.status = Status.CANCELED.value
+    simulation.status_message = "Simulation was canceled by user request."
+    simulation.end_date = datetime.now()
+    db.commit()
+    db.refresh(simulation)
+
     return MessageResponse(
         data=f"Simulation with id:{simulation.sim_token} stopped.",
         success=True,
@@ -350,8 +362,8 @@ async def get_simulations(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=simulations,
-            totalCount=len(simulations),
+            items=list(simulations),
+            totalCount=len(list(simulations)),
         ),
         success=True,
     )

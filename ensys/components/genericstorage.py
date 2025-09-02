@@ -147,13 +147,13 @@ class EnGenericStorage(EnBaseModel):
     )
 
     min_storage_level: float | list[float] = Field(
-        ...,
+        default=0,
         title='Minimum storage level',
         description='The normed minimum storage content as fraction of the nominal storage capacity or the capacity that has been invested into (between 0 and 1). To set different values in every time step use a sequence.'
     )
 
     max_storage_level: float | list[float] = Field(
-        ...,
+        default=1,
         title='Maximum storage level',
         description='The normed maximum storage content as fraction of the nominal storage capacity or the capacity that has been invested into (between 0 and 1). To set different values in every time step use a sequence.'
     )

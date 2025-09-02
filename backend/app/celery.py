@@ -1,14 +1,17 @@
+import json
 import os
 from datetime import datetime
 
 from celery import Celery
 from celery.utils.log import get_task_logger
+from fastapi import HTTPException
 from oemof import solph
 from prometheus_client import Counter, Gauge
 from sqlalchemy import create_engine
-from sqlmodel import Session, select
+from sqlmodel import Session
 
 from ensys.components import EnModel
+from .scenario.auxillary import convert_gui_json_to_ensys
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 
@@ -48,108 +51,127 @@ def simulation_task(scenario_id: int, simulation_id: int):
     :return: None
     :rtype: NoneType
     """
-    task_counter.inc()
-    task_in_progress.inc()
+    try:
+        task_counter.inc()
+        task_in_progress.inc()
+        logger = get_task_logger(__name__)
 
-    db = Session(create_engine(os.getenv("DATABASE_URL")))
-    scenario = db.get(EnScenarioDB, scenario_id)
-    simulation = db.get(EnSimulationDB, simulation_id)
-    simulation_token = simulation.sim_token
+        db = Session(create_engine(os.getenv("DATABASE_URL")))
+        # get scenario and simulation data
+        logger.info("read scenario and simulation data")
+        scenario = db.get(EnScenarioDB, scenario_id)
+        simulation = db.get(EnSimulationDB, simulation_id)
 
-    dump_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump")
-    log_path = os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "log")
-    os.makedirs(dump_path, exist_ok=True)
-    os.makedirs(log_path, exist_ok=True)
+        # create the necessary directories for dumping and logging
+        sim_token = simulation.sim_token
 
-    logger = get_task_logger(__name__)
+        dump_path = os.path.join(os.getenv("LOCAL_DATADIR"), sim_token, "dump")
+        log_path = os.path.join(os.getenv("LOCAL_DATADIR"), sim_token, "log")
+        os.makedirs(dump_path, exist_ok=True)
+        os.makedirs(log_path, exist_ok=True)
 
-    # Create Energysystem to be stored
-    simulation_model = EnModel(
-        energysystem=scenario.energysystem
-    )
+        simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), sim_token))
+        os.makedirs(
+            name=simulation_folder,
+            exist_ok=True
+        )
 
-    simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token))
-    os.makedirs(
-        name=simulation_folder,
-        exist_ok=True
-    )
+        # convert modeling_data to energy system data
+        logger.info("convert modeling_data to energy system data")
+        modeling_data_json = json.loads(scenario.modeling_data)
 
-    with open(os.path.join(simulation_folder, "es_" + simulation_token + ".json"), "wt") as f:
-        f.write(simulation_model.model_dump_json())
+        converted_energy_system = convert_gui_json_to_ensys(modeling_data_json)
 
-    logger.info("read scenario data from database")
-    scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
+        # Create Energysystem to be stored
+        logger.info("create energysystem to be stored")
+        simulation_model = EnModel(
+            energysystem=converted_energy_system
+        )
 
-    print(f"Scenario Interval:{scenario.interval}")
-    print(f"Scenario Timesteps:{scenario.time_steps}")
-    print(f"Scenario Startdate:{scenario.start_date}")
-    print(f"Scenario Startdate:{type(scenario.start_date)}")
-    print(f"Scenario Startdate:{scenario.start_date.year}")
+        with open(os.path.join(simulation_folder, f"es_{sim_token}.json"), "wt") as f:
+            f.write(simulation_model.model_dump_json(indent=4))
 
-    logger.info("create oemof energy system")
-    timeindex = solph.create_time_index(
-        start=scenario.start_date,
-        number=scenario.time_steps,
-        interval=scenario.interval,
-    )
+        logger.info(f"Scenario Interval:{scenario.interval}")
+        logger.info(f"Scenario Timesteps:{scenario.time_steps}")
+        logger.info(f"Scenario Startdate:{scenario.start_date}")
+        logger.info(f"Scenario Startdate:{type(scenario.start_date)}")
+        logger.info(f"Scenario Startdate:{scenario.start_date.year}")
 
-    print(f"timeindex:{timeindex}")
-    oemof_es: solph.EnergySystem = solph.EnergySystem(
-        timeindex=timeindex,
-        infer_last_interval=False
-    )
+        logger.info("create oemof energy system")
+        timeindex = solph.create_time_index(
+            start=scenario.start_date,
+            number=scenario.time_steps,
+            interval=scenario.interval,
+        )
 
-    oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
+        logger.info(f"timeindex:{timeindex}")
+        oemof_es: solph.EnergySystem = solph.EnergySystem(
+            timeindex=timeindex,
+            infer_last_interval=False
+        )
 
-    # create the model for optimization
-    logger.info("create simulation model")
-    oemof_model = solph.Model(oemof_es)
+        oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
 
-    # solve the optimization model
-    logger.info("solve optimization model")
-    oemof_model.solve(
-        solver=str(simulation_model.solver.value),
-        solve_kwargs=simulation_model.solver_kwargs if hasattr(simulation_model, "solver_kwargs") else {"tee": True},
-        cmdline_opts={"logfile": os.path.join(log_path, "solver.log")}
-    )
+        # create the model for optimization
+        logger.info("create simulation model")
+        oemof_model = solph.Model(oemof_es)
 
-    logger.info("simulation finished")
-    # write the lp file for specific analysis
-    logger.info("write lp file")
-    oemof_model.write(
-        filename=os.path.join(dump_path, "oemof_model.lp"),
-        io_options={"symbolic_solver_labels": True}
-    )
+        # solve the optimization model
+        # TODO: Dynamic solver kwargs
+        # simulation_model.solver_kwargs if hasattr(simulation_model, "solver_kwargs") else {"tee": True}
+        # TODO: Dynamic solver selection
+        logger.info("solve optimization model")
+        oemof_model.solve(
+            solver=str(simulation_model.solver.value),
+            solve_kwargs={"tee": True},
+            cmdline_opts={"logfile": os.path.join(log_path, "solver.log")}
+        )
 
-    logger.info("collect results")
-    oemof_es.results["main"] = solph.processing.results(oemof_model)
-    oemof_es.results["meta"] = solph.processing.meta_results(oemof_model)
+        logger.info("simulation finished")
+        # write the lp file for specific analysis
+        logger.info("write lp file")
+        oemof_model.write(
+            filename=os.path.join(dump_path, "oemof_model.lp"),
+            io_options={"symbolic_solver_labels": True}
+        )
 
-    logger.info("dump results")
-    oemof_es.dump(
-        dpath=dump_path,
-        filename="oemof_es.dump"
-    )
+        logger.info("collect results")
+        oemof_es.results["main"] = solph.processing.results(oemof_model)
+        oemof_es.results["meta"] = solph.processing.meta_results(oemof_model)
 
-    logger.info("update database")
-    simulation.status = Status.FINISHED.value
-    simulation.end_date = datetime.now()
-    db.commit()
-    db.refresh(simulation)
-    logger.info("backgroundtask finished")
+        logger.info("dump results")
+        oemof_es.dump(
+            dpath=dump_path,
+            filename="oemof_es.dump"
+        )
 
-    task_in_progress.dec()
-    # try:
-    #
-    # except Exception as ex:
-    #     logger.critical("error - aborting task")
-    #     logger.critical(ex)
-    #
-    #     simulation.status = Status.FAILED.value
-    #     simulation.end_date = datetime.now()
-    #     db.commit()
-    #     db.refresh(simulation)
-    #
-    #     logger.info("backgroundtask finished")
-    #
-    #     task_in_progress.dec()
+        logger.info("update database")
+        simulation.status = Status.FINISHED.value
+        simulation.end_date = datetime.now()
+        db.commit()
+        db.refresh(simulation)
+        logger.info("backgroundtask finished")
+
+        task_in_progress.dec()
+
+    except RuntimeError as runError:
+        logger.critical("error - runtime error")
+        logger.critical(runError)
+
+        simulation.status = Status.FAILED.value
+        simulation.status_message = str(runError)
+        simulation.end_date = datetime.now()
+        db.commit()
+        db.refresh(simulation)
+
+        task_in_progress.dec()
+
+        raise HTTPException(status_code=500, detail=runError)
+
+    except Exception as ex:
+        logger.critical("error - aborting task")
+        logger.critical(ex)
+
+        task_in_progress.dec()
+
+        raise HTTPException(status_code=500, detail=ex)
