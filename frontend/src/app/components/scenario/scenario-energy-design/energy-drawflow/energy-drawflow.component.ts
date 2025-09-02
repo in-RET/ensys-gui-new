@@ -211,6 +211,7 @@ export class EnergyDrawflowComponent {
                 isConnecting = true;
             }
         });
+
         this.editor.container.addEventListener('mouseup', () => {
             isConnecting = false;
             removeAllportsHighlight();
@@ -234,6 +235,7 @@ export class EnergyDrawflowComponent {
             makeIputPortsHihlight(e);
 
             if (isConnecting) snapConnection(e);
+            // else snapConnection_in(e);
         });
 
         const removeAllportsHighlight = () => {
@@ -297,6 +299,7 @@ export class EnergyDrawflowComponent {
                     ports_in.forEach((p) =>
                         p.classList.remove('magnet-highlight')
                     );
+
                     closest.classList.add('magnet-highlight');
 
                     // Optional: Snap the temporary SVG line to this port visually
@@ -377,9 +380,85 @@ export class EnergyDrawflowComponent {
 
                     endX = this.getNodePosition(snapTarget.x, 'x') || 0;
                     endY = snapTarget.z + 5;
+
                     const newD = `${new_d_svg_d_param}  ${endX} ${endY}`;
                     connectionPath_current.setAttribute('d', newD);
                 }
+            }
+        };
+
+        const snapConnection_in = (e: any) => {
+            const editorEl: any = document.querySelector('#drawflow');
+            let previewPath: any = null;
+            const SNAP_RADIUS = 50; // px
+            const overlay: any = document.querySelector('#magnetic-overlay');
+
+            function createPreviewPath() {
+                previewPath = document.createElementNS(
+                    'http://www.w3.org/2000/svg',
+                    'path'
+                );
+                previewPath.setAttribute('stroke', 'rgba(0,150,255,0.6)');
+                previewPath.setAttribute('stroke-width', '2');
+                previewPath.setAttribute('fill', 'none');
+                overlay.appendChild(previewPath);
+            }
+
+            // Update preview line
+            function updatePreview(mouseX: any, mouseY: any, targetEl: any) {
+                if (!previewPath) createPreviewPath();
+
+                const rect = targetEl.getBoundingClientRect();
+                const inputX = rect.left + rect.width / 2;
+                const inputY = rect.top + rect.height / 2;
+
+                // Get coords relative to SVG
+                // const svgRect = editorEl
+                //     .querySelector('svg')
+                const svgRect = overlay.getBoundingClientRect();
+                const startX = mouseX - svgRect.left;
+                const startY = mouseY - svgRect.top;
+                const endX = inputX - svgRect.left;
+                const endY = inputY - svgRect.top;
+
+                const path = `M ${startX} ${startY} C ${
+                    startX + 50
+                } ${startY}, ${endX - 50} ${endY}, ${endX} ${endY}`;
+
+                previewPath.setAttribute('d', path);
+            }
+
+            // Remove preview
+            function removePreview() {
+                if (previewPath) {
+                    previewPath.remove();
+                    previewPath = null;
+                }
+            }
+
+            const outputs = [...editorEl.querySelectorAll('.output')];
+
+            let nearest = null;
+            let minDist = SNAP_RADIUS;
+
+            outputs.forEach((out) => {
+                const rect = out.getBoundingClientRect();
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+                const dx = e.clientX - cx;
+                const dy = e.clientY - cy;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = out;
+                }
+            });
+
+            if (nearest) {
+                updatePreview(e.clientX, e.clientY, nearest);
+            } else {
+                removePreview();
             }
         };
 
