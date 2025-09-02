@@ -55,16 +55,20 @@ async def create_scenario(
     scenario = EnScenarioDB(**scenario_data.model_dump())
     scenario.user_id = token_user.id
 
-    with open(os.path.join(os.getenv("LOCAL_DATADIR"), "debug.json"), "wt") as f:
-        f.write(scenario.model_dump_json())
+    possible_duplicates = db.exec(
+        select(EnScenarioDB).where(EnScenarioDB.name == scenario.name)
+    ).all()
 
-    db.add(scenario)
-    db.commit()
+    if len(possible_duplicates) > 0:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Scenario name already exists.")
+    else:
+        db.add(scenario)
+        db.commit()
 
-    return MessageResponse(
-        data="Scenario created.",
-        success=True
-    )
+        return MessageResponse(
+            data="Scenario created.",
+            success=True
+        )
 
 
 @scenario_router.get("s/{project_id}", response_model=DataResponse)
@@ -206,16 +210,24 @@ async def update_scenario(
 
     # Note: Now it's a dict, not a EnScenarioUpdate
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
-    db_scenario.sqlmodel_update(new_scenario_data)
 
-    db.add(db_scenario)
-    db.commit()
-    db.refresh(db_scenario)
+    possible_duplicates = db.exec(
+        select(EnScenarioDB).where(EnScenarioDB.name == new_scenario_data.name)
+    ).all()
 
-    return MessageResponse(
-        data="Scenario updated.",
-        success=True
-    )
+    if len(possible_duplicates) > 0:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Scenario name already exists.")
+    else:
+        db_scenario.sqlmodel_update(new_scenario_data)
+
+        db.add(db_scenario)
+        db.commit()
+        db.refresh(db_scenario)
+
+        return MessageResponse(
+            data="Scenario updated.",
+            success=True
+        )
 
 
 @scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
