@@ -162,7 +162,6 @@ export class EnergyDesignService {
                 type: 'number',
                 span: 'auto',
             },
-
             {
                 name: 'interest_rate',
                 placeholder: 'interest_rate',
@@ -188,8 +187,12 @@ export class EnergyDesignService {
                 //     data,
                 // });
                 item['value'] = preDefData['investment']
-                    ? preDefData['investment'][item.name.toLocaleLowerCase()]
-                    : preDefData[item.name.toLocaleLowerCase()];
+                    ? this.normalizeNumber(
+                          preDefData['investment'][
+                              item.name.toLocaleLowerCase()
+                          ]
+                      )
+                    : null;
             } else {
                 item['value'] = null;
             }
@@ -302,9 +305,16 @@ export class EnergyDesignService {
             if (data) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
-                item['value'] = preDefData['investment']
-                    ? preDefData['investment'][item.name.toLocaleLowerCase()]
-                    : preDefData[item.name.toLocaleLowerCase()];
+                let val = preDefData[item.name.toLocaleLowerCase()];
+
+                if (Array.isArray(val)) {
+                    const arr: number[] = [];
+                    val.forEach((element: number) => {
+                        arr.push(this.normalizeNumber(element, 2));
+                    });
+
+                    item['value'] = arr;
+                } else item['value'] = this.normalizeNumber(val);
             }
             // check if its a range/number value
             if (item['value'] && typeof item['value'] === 'string') {
@@ -1625,8 +1635,9 @@ export class EnergyDesignService {
         return `${nodeType}_${nodes.length + 1}`;
     }
 
-    // setPortPreData(portId: number, portData: FlowData): any {
-    //     // data.ports.inputs/outputs
-    //     console.log(portData);
-    // }
+    private normalizeNumber(val: number, roundCount: number = 3) {
+        // check if it's number anyway
+        if (isNaN(Number(val))) return val;
+        return Number(Number(val).toFixed(roundCount));
+    }
 }
