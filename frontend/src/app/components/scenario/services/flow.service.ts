@@ -28,16 +28,16 @@ export class FlowService {
         return this.scenarioService.getPreDefinedList(name).pipe(
             map((res: any) => (res.success ? res.data!.items! : [])),
             map((items) =>
-                items.map((s: any) => ({
-                    name: this.generalService.convertText_uppercaseAt0(s),
-                    value: s,
+                items.map((res: { name: string; label: string | null }) => ({
+                    name: res.label ?? res.name,
+                    value: res.name,
                 }))
             )
         );
     }
 
     private async loadPreDefinedList(name: string): Promise<void> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this.getPreDefinedList(name).subscribe((res) => {
                 // add user_defined option, as a default option
                 const userDefined_option = 'user_defined';
