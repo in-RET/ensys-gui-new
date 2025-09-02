@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { ToastService } from '../../../shared/services/toast.service';
+import { ScenarioService } from '../../scenario/services/scenario.service';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
 
@@ -14,10 +16,16 @@ import { ProjectItemComponent } from './project-item/project-item.component';
 export class ProjectExploreComponent {
     project_list!: any[];
 
-    constructor(private projectService: ProjectService) {}
+    toastService = inject(ToastService);
+
+    constructor(
+        private projectService: ProjectService,
+        private scenarioService: ScenarioService
+    ) {}
 
     ngOnInit() {
         this.getProjects();
+        this.clearScenarioDataStorage();
     }
 
     getProjects() {
@@ -52,5 +60,11 @@ export class ProjectExploreComponent {
             },
             error(err) {},
         });
+    }
+
+    clearScenarioDataStorage() {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioService.removeDrawflow_Storage();
+        this.toastService.info('Storage cleared.');
     }
 }

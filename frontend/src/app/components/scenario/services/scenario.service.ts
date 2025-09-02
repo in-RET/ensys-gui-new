@@ -59,10 +59,10 @@ export class ScenarioService {
         else return null;
     }
 
-    saveDrawflow_Storage(data: any) {
+    saveDrawflow_Storage(data: any, needStringify: boolean = true) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
-            JSON.stringify(data)
+            needStringify ? JSON.stringify(data) : data
         );
     }
 

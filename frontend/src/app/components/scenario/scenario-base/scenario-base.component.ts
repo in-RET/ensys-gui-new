@@ -88,7 +88,7 @@ export class ScenarioBaseComponent {
             project,
         } = data;
 
-        let _data: any = {
+        const _data: ScenarioModel = {
             project,
             scenario: {
                 name,
