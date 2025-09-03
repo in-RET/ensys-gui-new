@@ -19,7 +19,7 @@ services:
         os_version: ${OS_VERSION}
     container_name: backend
     env_file: .env.prod
-    command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --workers 4 --host 0.0.0.0 --port 8001"
+    command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --proxy-headers --host 0.0.0.0 --port 8001"
     ports:
       - '${API_PORT}:8001'
     restart: no
