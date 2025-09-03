@@ -24,7 +24,7 @@ scenario_router = APIRouter(
 async def create_scenario(
         token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
         db: Session = Depends(get_db_session)
-) -> MessageResponse:
+) -> DataResponse:
     """
     Creates a new scenario and stores it in the database. The endpoint is
     protected and requires a valid token. It validates the ownership of the
@@ -65,9 +65,15 @@ async def create_scenario(
         db.add(scenario)
         db.commit()
 
-        return MessageResponse(
-            data="Scenario created.",
-            success=True
+        return DataResponse(
+            data=GeneralDataModel(
+                items=[{
+                    "message": "Scenario created.",
+                    "id": scenario.id
+                }],
+                totalCount=1
+            ),
+         success=True
         )
 
 
