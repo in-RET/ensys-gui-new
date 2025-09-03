@@ -24,14 +24,5 @@ export class AppComponent implements OnInit {
                 ? false
                 : this.router.navigate(['auth/login']);
         });
-
-        this.httpService.get(environment.apiUrl + 'admin/').subscribe({
-            next(value) {
-                alert(value);
-            },
-            error(err) {
-                alert(err.error.detail);
-            },
-        });
     }
 }
