@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://localhost:20001',
+    apiUrl: 'http://surak.hs-nordhausen.de:20001',
     isDevelopMode: false,
 };
