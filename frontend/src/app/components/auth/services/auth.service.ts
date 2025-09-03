@@ -7,7 +7,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl: string = 'http://localhost:9006/user/auth/';
+    private baseUrl = 'http://localhost:20001/user/auth/';
 
     constructor(
         private baseHttp: BaseHttpService,
@@ -15,7 +15,7 @@ export class AuthService {
     ) {}
 
     logIn(username: string, password: string): Observable<any> {
-        let formData: FormData = new FormData();
+        const formData: FormData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
 

@@ -11,9 +11,8 @@ export class BaseHttpService {
     };
 
     defaultHeader: any = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods':
-            'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Origin': 'http://localhost:9004',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
     };
 

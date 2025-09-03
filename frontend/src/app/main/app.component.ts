@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthCoreService } from '../core/auth/auth.service';
 import { ToastContainerComponent } from '../shared/components/toast-container/toast-container.component';
@@ -9,8 +9,8 @@ import { ToastContainerComponent } from '../shared/components/toast-container/to
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
 })
-export class AppComponent {
-    title = 'RET-EnSys-GUI';
+export class AppComponent implements OnInit {
+    title = 'ensys-gui-angular';
 
     authCoreService = inject(AuthCoreService);
     router = inject(Router);

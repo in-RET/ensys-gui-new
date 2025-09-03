@@ -82,9 +82,11 @@ fastapi_app = FastAPI(
 )
 
 origins = [
-    "http://localhost:9003",
+    "http://localhost:20001",
+    "http://localhost:20002",
+    "http://localhost:20003",
     "http://localhost:9004",
-    "http://localhost:4200",  # TODO: Delete in Production, because security reasons.
+    "https://ensys.hs-nordhausen.de",
 ]
 
 fastapi_app.add_middleware(

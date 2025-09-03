@@ -5,7 +5,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class ProjectService {
-    private baseUrl: string = 'http://localhost:9006/project';
+    private baseUrl = 'http://localhost:20001/project';
 
     constructor(private baseHttp: BaseHttpService) {}
 

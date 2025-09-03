@@ -22,7 +22,7 @@ export interface ScenarioModel {
     providedIn: 'root',
 })
 export class ScenarioService {
-    private baseUrl: string = 'http://localhost:9006/scenario';
+    private baseUrl = 'http://localhost:20001/scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
 
@@ -66,7 +66,7 @@ export class ScenarioService {
         else return null;
     }
 
-    saveDrawflow_Storage(data: any, needStringify: boolean = true) {
+    saveDrawflow_Storage(data: any, needStringify = true) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
             needStringify ? JSON.stringify(data) : data
@@ -74,7 +74,7 @@ export class ScenarioService {
     }
 
     restoreDrawflow_Storage(
-        mustResultString: boolean = false
+        mustResultString = false
     ): string | false | any {
         const DrawflowData: string | null = localStorage.getItem(
             this.scenario_drawflow_localstorage_name
@@ -91,13 +91,13 @@ export class ScenarioService {
 
     getPreDefinedList(type: string) {
         return this.baseHttp.get(
-            `http://localhost:9006/oep/local_schemas/${type}`
+            `http://localhost:20001/oep/local_schemas/${type}`
         );
     }
 
     getPreDefinedData(option: string, simulationYear: number) {
         return this.baseHttp.get(
-            `http://localhost:9006/oep/local_data/${option}/${simulationYear}`
+            `http://localhost:20001/oep/local_data/${option}/${simulationYear}`
         );
     }
 }
