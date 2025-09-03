@@ -49,7 +49,8 @@ export class EnergyDrawflowComponent {
     modalComponent: ModalComponent = {} as ModalComponent;
 
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
-    @Output('showFormModal') showFormModal = new EventEmitter();
+    @Output('showFormModal_node') showFormModal_node = new EventEmitter();
+    @Output('showFormModal_flow') showFormModal_flow = new EventEmitter();
     @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
     @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
@@ -531,48 +532,23 @@ export class EnergyDrawflowComponent {
     onDrop(ev: any) {
         ev.preventDefault();
 
-        const nodeId = ev.dataTransfer.getData('id');
+        const nodeType = ev.dataTransfer.getData('id');
         const nodeName = ev.dataTransfer.getData('node');
-        const nodeGroup = ev.dataTransfer.getData('group');
+        // const nodeGroup = ev.dataTransfer.getData('group');
 
-        this.showFormModal.emit({
-            type: 'node',
-            id: `${nodeId}`,
+        this.showFormModal_node.emit({
             title: `${nodeName}`,
             action: { fn: 'submitFormData', label: 'Save' },
             editMode: false,
-            data: {
-                node: {
-                    groupName: nodeGroup,
-                    position: {
-                        x: ev.clientX,
-                        y: ev.clientY,
-                    },
+            node: {
+                type: nodeType,
+                name: nodeName,
+                position: {
+                    x: ev.clientX,
+                    y: ev.clientY,
                 },
             },
         });
-    }
-
-    onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
-        // this.currentPosition = {
-        //     x: this.getNodePosition(pos.x, 'x'),
-        //     y: this.getNodePosition(pos.y, 'y'),
-        // };
-        // this.currentNode = {
-        //     nodeId,
-        //     nodeName,
-        //     nodeGroup,
-        // };
-        // this.showFormModal.emit({
-        //     node: {
-        //         id: nodeId,
-        //         name: nodeName,
-        //         group: nodeGroup,
-        //         x: pos.x,
-        //         y: pos.y,
-        //     },
-        //     editMode: false,
-        // });
     }
 
     loadCurrentDrawflow() {
@@ -780,8 +756,7 @@ export class EnergyDrawflowComponent {
         }
 
         if (followRules) {
-            this.showFormModal.emit({
-                type: 'flow',
+            this.showFormModal_flow.emit({
                 id: node.class.toLocaleLowerCase(),
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
                 action: { fn: 'submitFormData', label: 'save' },
@@ -904,8 +879,7 @@ export class EnergyDrawflowComponent {
 
             if (type == 'node') {
                 if (node)
-                    this.showFormModal.emit({
-                        type: 'node',
+                    this.showFormModal_node.emit({
                         id: node.class.toLocaleLowerCase(),
                         node: node,
                         title: `Edit: ${node.name}`,
@@ -947,8 +921,7 @@ export class EnergyDrawflowComponent {
                         ? nodeDestination
                         : nodeSource;
 
-                this.showFormModal.emit({
-                    type: 'flow',
+                this.showFormModal_flow.emit({
                     id: node.class.toLocaleLowerCase(),
                     title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
                     action: { fn: 'submitFormData', label: 'save' },
@@ -1138,7 +1111,7 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    checkNodeDuplication(nodeName: string, nodeId?: number) {
+    checkNodeDuplication(nodeName: string, nodeId: number) {
         const currentNodeList = this.editor.drawflow.drawflow.Home.data;
 
         if (currentNodeList && JSON.stringify(currentNodeList) !== '{}') {
@@ -1375,3 +1348,25 @@ export class EnergyDrawflowComponent {
 class Drawflowoverride extends Drawflow {
     removeConnection(e: any) {}
 }
+
+//  onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {
+//         // this.currentPosition = {
+//         //     x: this.getNodePosition(pos.x, 'x'),
+//         //     y: this.getNodePosition(pos.y, 'y'),
+//         // };
+//         // this.currentNode = {
+//         //     nodeId,
+//         //     nodeName,
+//         //     nodeGroup,
+//         // };
+//         // this.showFormModal.emit({
+//         //     node: {
+//         //         id: nodeId,
+//         //         name: nodeName,
+//         //         group: nodeGroup,
+//         //         x: pos.x,
+//         //         y: pos.y,
+//         //     },
+//         //     editMode: false,
+//         // });
+//     }

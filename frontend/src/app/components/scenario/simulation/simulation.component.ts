@@ -56,7 +56,6 @@ export class SimulationComponent {
                 });
             },
             error: (err) => {
-                debugger;
                 console.error('Failed to load JSON', err);
             },
         });

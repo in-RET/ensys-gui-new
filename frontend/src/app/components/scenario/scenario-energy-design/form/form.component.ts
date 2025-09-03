@@ -66,9 +66,9 @@ export class FormComponent {
         this.formVisible = true;
     }
 
-    submit() {
-        const formData = this.checkFormValidation();
-        return formData;
+    submit(checkFormValidation: boolean = true) {
+        if (checkFormValidation) return this.checkFormValidation();
+        else return this.form.getRawValue();
     }
 
     onSubmit() {

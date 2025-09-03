@@ -7,38 +7,26 @@
 
     <app-energy-drawflow
         class="w-100 h-100 border"
-        (showFormModal)="showFormModal($event)"
+        (showFormModal_node)="showFormModal_node($event)"
+        (showFormModal_flow)="showFormModal_flow($event)"
         (toggleFullScreen)="toggleFullScreen()"
     />
 </div>
 
 <app-modal
-    *ngIf="
-        formModal_info &&
-        formModal_info.show &&
-        formModal_info.title &&
-        formModal_info.id
-    "
+    *ngIf="formModal_info && formModal_info.show"
     [title]="formModal_info.title"
     (closeModal)="closeModal($event)"
     [hidden]="formModal_info.hide"
 >
     <div modal-form>
-        <!-- <ng-container
-            *ngIf="
-                formModal_info.type == 'flow' &&
-                    formModal_info.id == 'genericstorage';
-                else noraml_form
-            "
-        > -->
         <div *ngIf="formModal_info.formData !== null">
             <p
                 class="text-center p-2 border border-warning rounded-4 shadow"
                 *ngIf="formModal_info.type == 'flow' && formModal_info.data.oep"
             >
-                The <b>OEP </b>field has been enabled at the node level.
-                Therefore, if you wish to enable and review its parameters,
-                please perform this action directly in the node.
+                The <b>OEP </b> field is enabled at the node level, so please
+                review and adjust its parameters directly in the node.
             </p>
 
             <app-form
@@ -47,27 +35,22 @@
                 #form
             />
         </div>
-        <!-- </ng-container> -->
 
-        <!-- <ng-template #noraml_form> -->
         <!-- ports -->
         <!-- transformer -->
-
         <div
             class="row mb-3"
             *ngIf="
                 formModal_info.type == 'node' &&
-                formModal_info.id === 'transformer'
+                formModal_info.node &&
+                (formModal_info.node.type === 'transformer' ||
+                    formModal_info.node.class === 'transformer')
             "
         >
             <div class="col-6">
                 <app-order-list
                     label="Inputs"
-                    [data]="
-                        formModal_info.data.ports
-                            ? formModal_info.data.ports.inputs
-                            : null
-                    "
+                    [data]="formModal_info.data.ports.inputs"
                     [acceptDuplicate]="false"
                     [fields]="['name', 'num']"
                     [editable]="formModal_info.data.ports?.editable"
@@ -79,7 +62,7 @@
                 <app-order-list
                     label="Outputs"
                     [data]="
-                        formModal_info.data.ports
+                        formModal_info.data
                             ? formModal_info.data.ports.outputs
                             : null
                     "
@@ -90,8 +73,6 @@
                 />
             </div>
         </div>
-
-        <!-- </ng-template> -->
     </div>
 
     <div

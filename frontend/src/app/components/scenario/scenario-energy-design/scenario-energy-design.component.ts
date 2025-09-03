@@ -6,7 +6,7 @@ import { map } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { OEPPorts, OEPResponse, Port } from '../models/node.model';
-import { EnergyDesignService } from '../services/energy-design.service';
+import { EnergyDesignService, Ports } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
 import { ScenarioModel, ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
@@ -47,18 +47,26 @@ interface EnergySystemModel {
     };
 }
 
+interface FormNode {
+    type: string;
+    name: string;
+    position: { x: number; y: number };
+    class: string;
+    id?: number;
+}
+
 class FormModalInfo {
-    _id: number | undefined = undefined;
-    id: string | undefined = undefined;
-    show: boolean = false;
-    title: string | undefined = undefined;
-    formData: any | undefined = undefined;
-    action: any | undefined = undefined;
-    data: any | undefined = undefined;
-    type: 'node' | 'flow' | undefined = undefined;
+    id?: number;
+    title: string = '';
+    formData: any | undefined;
+    action: any | undefined;
+    data: any | undefined;
+    type: 'node' | 'flow' | undefined;
     editMode: boolean = false;
     hide: boolean = false;
-    preDefData!: OEPPorts;
+    show: boolean = false;
+    node?: FormNode;
+    preDefData!: OEPPorts | undefined;
 }
 
 @Component({
@@ -155,7 +163,7 @@ export class ScenarioEnergyDesignComponent {
     }
 
     touchEnd(e: any) {
-        this.energyDrawflowComponent.onTouchEnd(e.id, e.name, e.group, e.pos);
+        //   this.energyDrawflowComponent.onTouchEnd(e.id, e.name, e.group, e.pos);
     }
 
     /**
@@ -165,43 +173,89 @@ export class ScenarioEnergyDesignComponent {
      * }
      *
      */
-    async showFormModal(e: {
-        _id: number;
-        id: string;
-        node?: any;
-        type: 'node' | 'flow';
-        title: string;
-        action: any;
-        editMode: boolean;
-        data: any;
-    }) {
+    async showFormModal_node(e: FormModalInfo) {
+        // clean previous formModal
+        this.formModal_info = new FormModalInfo();
+        // this.formModal_info.id = e.id;
+        this.formModal_info.type = 'node';
+        this.formModal_info.title = e.title;
+        this.formModal_info.action = e.action;
+        this.formModal_info.node = e.node;
+        this.formModal_info.data = e.data;
+        this.formModal_info.editMode = e.editMode;
+
+        // on edit
+        if (e.editMode && e.data && e.data.preDefData)
+            this.formModal_info.preDefData = e.data.preDefData;
+
+        // on edit
+        // if (e.editMode && this.formModal_info.node) {
+        //     e.data['name'] = this.formModal_info.node.name;
+        // }
+
+        let nodeType = '';
+        if (!e.editMode) nodeType = e.node?.type ?? '';
+        else nodeType = e.node?.class ?? '';
+
+        this.formModal_info.formData =
+            await this.energyDesignService.getFormFields_node(
+                nodeType,
+                e.editMode,
+                e.data,
+                this.defineCallbackFlowForm()
+            );
+
+        if (e.node?.type == 'transformer') {
+            if (e.editMode) {
+                this.formModal_info.data.ports = {
+                    ...this.formModal_info.data.ports,
+                    editable: this.formModal_info.data.oep,
+                };
+            } else {
+                // a new node
+
+                this.formModal_info.data = {
+                    ports: {
+                        inputs: [],
+                        outputs: [],
+                        editable: true,
+                    },
+                };
+            }
+        }
+
+        // appear Modal
+        this.formModal_info.show = true;
+    }
+
+    async showFormModal_flow(e: FormModalInfo) {
         // clean previous formModal
         this.formModal_info = new FormModalInfo();
 
-        this.formModal_info._id = e._id;
-        this.formModal_info.type = e.type;
-        this.formModal_info.id = e.id;
+        // this.formModal_info.id = e.id;
+        this.formModal_info.type = 'flow';
         this.formModal_info.title = e.title;
         this.formModal_info.action = e.action;
+        this.formModal_info.node = e.node;
+        this.formModal_info.data = e.data;
         this.formModal_info.preDefData = e.data.preDefData;
 
-        if (e.editMode && e.node && this.formModal_info.type == 'node') {
-            e.data['name'] = e.node.name;
-        }
+        let nodeType = e.node?.class ?? '';
+        // if (!e.editMode) {
+        //     nodeType = e.node?.type ?? '';
+        // } else nodeType = e.node?.class ?? '';
 
         this.formModal_info.formData =
-            await this.energyDesignService.getFormFields(
-                e.type,
-                e.id,
+            await this.energyDesignService.getFormFields_flow(
+                nodeType,
                 e.editMode,
-                e.editMode ? e.data : null,
-                this.defineCallbackFlowForm(),
-                e.data.preDefData
+                e.data,
+                this.defineCallbackFlowForm()
             );
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
 
-        if (e.id == 'transformer') {
+        if (e.node?.name == 'transformer' && false) {
             if (e.editMode) {
                 this.formModal_info.data.ports = {
                     ...this.formModal_info.data.ports,
@@ -322,7 +376,8 @@ export class ScenarioEnergyDesignComponent {
         this.cleanFormError();
 
         // just in storage node there are aditional sec
-        if (e.type == 'storage') this.setPredefinedFormFields_storage(e.option);
+        if (e.type == 'genericstorage')
+            this.setPredefinedFormFields_storage(e.option);
         else this.setPredefinedFormFields_node(e.option, e.type);
     }
 
@@ -352,8 +407,6 @@ export class ScenarioEnergyDesignComponent {
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
-                            console.log(value);
-
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
                                     ...this.formModal_info.data,
@@ -454,6 +507,8 @@ export class ScenarioEnergyDesignComponent {
                     },
                 };
             }
+
+            this.formModal_info.preDefData = undefined;
         }
     }
 
@@ -503,7 +558,10 @@ export class ScenarioEnergyDesignComponent {
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
-                            console.log(value);
+                            for (const key in value.node_data) {
+                                const val = value.node_data[key];
+                                this.formComponent.setFieldData(key, val);
+                            }
 
                             // set node's ports name+...props
                             value.ports_data.inputs.forEach((port: Port) => {
@@ -643,62 +701,78 @@ export class ScenarioEnergyDesignComponent {
     }
 
     submitFormData() {
-        let formData = this.formComponent.submit();
+        let formData = this.formComponent.submit(!this.formModal_info.data.oep);
 
         if (formData) {
             // new-node
-            if (this.formModal_info.type === 'node' && this.formModal_info.id) {
+            if (this.formModal_info.type === 'node') {
                 const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
                         formData.name,
-                        this.formModal_info._id
+                        this.formModal_info.node?.id ?? 0
                     );
 
                 if (!isNodeNameDuplicate) {
-                    // add port count(in-out) + transform data
-                    formData = this.energyDesignService.getNodePorts(
-                        formData,
-                        this.formModal_info.id,
-                        this.transform_inputs?.data,
-                        this.transform_outputs?.data,
-                        this.formModal_info.data.node?.groupName,
-                        this.formModal_info.preDefData
-                    );
+                    if (this.formModal_info.node) {
+                        // add port count(in-out) + transform data
+                        const portsInfo:
+                            | { ports: Ports; inp: number; out: number }
+                            | false = this.energyDesignService.getNodePorts(
+                            this.formModal_info.node.type ??
+                                this.formModal_info.node.class,
+                            {
+                                inputport_name: formData.inputport_name,
+                                outputport_name: formData.outputport_name,
+                                transform_inputs: this.transform_inputs?.data,
+                                transform_outputs: this.transform_outputs?.data,
+                            },
 
-                    if (!formData && this.formModal_info.id === 'transformer') {
-                        this.setFormError(
-                            true,
-                            ' * Ports have not been added!'
+                            this.formModal_info.preDefData
                         );
-                        return false;
-                    }
 
-                    formData['connections'] =
-                        this.formModal_info.data['connections'];
-
-                    // set preDefData
-                    if (this.formModal_info.preDefData)
-                        formData['preDefData'] = this.formModal_info.preDefData;
-
-                    if (formData) {
-                        if (!this.formModal_info.editMode)
-                            this.makeNode(formData, this.formModal_info);
-                        else if (
-                            this.formModal_info.editMode &&
-                            this.formModal_info._id
-                        )
-                            this.updateNode(
-                                formData,
-                                this.formModal_info._id,
-                                this.formModal_info.id
+                        if (portsInfo === false) {
+                            this.setFormError(
+                                true,
+                                ' * Ports have not been added!'
                             );
+                            return false;
+                        }
 
-                        this.modalComponent._closeModal(true);
+                        formData = { ...formData, ...portsInfo };
+                        formData['connections'] = this.formModal_info.data
+                            ? this.formModal_info.data['connections']
+                            : null;
+
+                        // set preDefData
+                        if (this.formModal_info.preDefData)
+                            formData['preDefData'] =
+                                this.formModal_info.preDefData;
+
+                        if (formData) {
+                            if (!this.formModal_info.editMode)
+                                this.makeNode(formData, this.formModal_info);
+                            else if (this.formModal_info.editMode) {
+                                this.updateNode(
+                                    formData,
+                                    this.formModal_info.node?.id ?? 0,
+                                    this.formModal_info.node.type ??
+                                        this.formModal_info.node.class
+                                );
+                            }
+
+                            this.modalComponent._closeModal(true);
+                        } else {
+                            this.setFormError(
+                                true,
+                                ' * The form is not completed!'
+                            );
+                        }
                     } else {
                         this.setFormError(
                             true,
-                            ' * The form is not completed!'
+                            ' * Error during getting node data!'
                         );
+                        return false;
                     }
                 } else {
                     this.setFormError(true, ' * The name is duplicated!');
@@ -750,21 +824,21 @@ export class ScenarioEnergyDesignComponent {
 
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
         this.energyDrawflowComponent.addNode({
-            id: formModalInfo.id,
+            id: formModalInfo.node?.type,
             name: formValue.name,
             data: formValue,
             inp: formValue.inp,
             out: formValue.out,
             position: {
-                x: formModalInfo.data.node.position.x,
-                y: formModalInfo.data.node.position.y,
+                x: formModalInfo.node?.position.x,
+                y: formModalInfo.node?.position.y,
             },
         });
     }
 
     updateNode(data: any, nodeId: number, nodeType: string) {
-        if (nodeId && nodeType)
-            this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
+        this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
+        this.toastService.success('Node edited.');
     }
 
     toggleFullScreen() {

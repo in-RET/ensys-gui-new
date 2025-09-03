@@ -5,6 +5,7 @@ export interface ScenarioModel {
     project: {
         id: number;
         name: string;
+        scenarioList?: any;
     };
     scenario?: {
         id?: number;
@@ -13,6 +14,7 @@ export interface ScenarioModel {
         sDate: string; // ISO date string
         timeStep: number; // minutes or seconds
         simulationYear: number;
+        modeling_data?: string;
     };
 }
 

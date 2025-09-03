@@ -71,6 +71,7 @@ export class ProjectItemComponent {
             project: {
                 id: pId,
                 name: pName,
+                scenarioList: this.project.scenarioList,
             },
         });
         this.router.navigate(['../../scenario']);
