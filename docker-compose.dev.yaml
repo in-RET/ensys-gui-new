@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:17-alpine
     container_name: db
-    env_file: .env
+    env_file: .env.dev
     restart: always
     ports:
       - "5432:5432"
@@ -14,7 +14,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin
-    env_file: .env
+    env_file: .env.dev
     restart: always
     networks:
       - ensys
@@ -25,16 +25,15 @@ services:
     depends_on:
       - db
 
-  frontend:
+  frontend-dev:
     build:
-      context: frontend
-      dockerfile: dockerfile
+      context: ./frontend
+      dockerfile: docker/dockerfile
     container_name: frontend
-    env_file: .env
-    command: "npm start"
+    env_file: .env.dev
     restart: no
     ports:
-      - "${WEB_PORT}:4200"
+      - "${WEB_PORT}:8000"
     networks:
       - ensys
     depends_on:
@@ -42,12 +41,12 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: backend
       dockerfile: docker/dockerfile
       args:
         os_version: ${OS_VERSION}
     container_name: backend
-    env_file: .env
+    env_file: .env.dev
     command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
     ports:
       - '${API_PORT}:8001'
@@ -68,7 +67,7 @@ services:
     image: redis:alpine
     container_name: redis
     restart: always
-    env_file: .env
+    env_file: .env.dev
     command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
     networks:
       - ensys
@@ -82,7 +81,7 @@ services:
       args:
         os_version: ${OS_VERSION}
     container_name: celery
-    env_file: .env
+    env_file: .env.dev
     command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
     volumes:
       - ./backend/app:/backend/app
@@ -102,7 +101,7 @@ services:
       args:
         os_version: ${OS_VERSION}
     container_name: flower
-    env_file: .env
+    env_file: .env.dev
     command: celery --app=app.celery.celery_app flower --port=5555
     volumes:
       - ./backend/app:/backend/app

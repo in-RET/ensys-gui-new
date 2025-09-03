@@ -1,0 +1,98 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: docker/dockerfile
+    container_name: frontend
+    env_file: .env.test
+    restart: no
+    ports:
+      - "${WEB_PORT}:8000"
+    networks:
+      - ensys
+
+  backend:
+    build:
+      context: backend
+      dockerfile: docker/dockerfile
+      args:
+        os_version: ${OS_VERSION}
+    container_name: backend
+    env_file: .env.test
+    command: sh -c "alembic upgrade head && gunicorn app.main:fastapi_app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8001"
+    ports:
+      - '${API_PORT}:8001'
+    restart: no
+    volumes:
+      - ./backend/app:/backend/app
+      - ./backend/data:/backend/data
+      - ./ensys:/backend/ensys
+      - ${HOST_DATADIR}:${LOCAL_DATADIR}
+    networks:
+      - ensys
+    depends_on:
+      - flower
+      - celery
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    env_file: .env.test
+    command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
+    networks:
+      - ensys
+    volumes:
+      - cache:/data
+
+  celery:
+    build:
+      context: ./backend
+      dockerfile: docker/dockerfile
+      args:
+        os_version: ${OS_VERSION}
+    container_name: celery
+    env_file: .env.test
+    command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
+    volumes:
+      - ./backend/app:/backend/app
+      - ./backend/data:/backend/data
+      - ./ensys:/backend/ensys
+      - ${HOST_DATADIR}:${LOCAL_DATADIR}
+      - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
+    networks:
+      - ensys
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: ./backend
+      dockerfile: docker/dockerfile
+      args:
+        os_version: ${OS_VERSION}
+    container_name: flower
+    env_file: .env.test
+    command: celery --app=app.celery.celery_app flower --port=5555
+    volumes:
+      - ./backend/app:/backend/app
+      - ./backend/data:/backend/data
+      - ./ensys:/backend/ensys
+      - ${HOST_DATADIR}:${LOCAL_DATADIR}
+    ports:
+      - "${FLOWER_PORT}:5555"
+    networks:
+      - ensys
+    depends_on:
+      - redis
+
+networks:
+  ensys:
+
+volumes:
+  static_volume:
+    driver: local
+  node_modules:
+    driver: local
+  cache:
+    driver: local

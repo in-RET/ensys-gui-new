@@ -45,7 +45,7 @@ testem.log
 .DS_Store
 Thumbs.db
 /.venv/
-.env
+.env.prod
 .angular/
 node_modules/
 *.sqlite
@@ -56,3 +56,6 @@ node_modules/
 storage
 /data
 .cache
+/.env.dev
+/.env.prod
+/.env.test
