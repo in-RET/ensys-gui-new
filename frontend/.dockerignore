@@ -7,4 +7,5 @@
 .angular
 node_modules
 .DS_Store
+dist
 dockerfile
