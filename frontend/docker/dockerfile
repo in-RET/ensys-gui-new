@@ -25,6 +25,7 @@ FROM nginx:latest AS ngi
 # Copying compiled code and nginx config to different folder
 COPY --from=build /app/dist/ensys-gui-angular/browser /usr/share/nginx/html
 COPY --from=build /app/dist/ensys-gui-angular/3rdpartylicenses.txt /usr/share/nginx/html/3rdpartylicenses.txt
+
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Exposing a port, here it means that inside the container
