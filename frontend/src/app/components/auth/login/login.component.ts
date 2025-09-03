@@ -8,7 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { environment } from '../../../../environments/environment.development';
+import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
 import { AuthService } from '../services/auth.service';
 
