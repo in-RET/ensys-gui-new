@@ -86,6 +86,8 @@ origins = [
     "http://localhost:20002",
     "http://localhost:20003",
     "http://localhost:9004",
+    "http://surak.hs-nordhausen.de",
+    "http://surak.hs-nordhausen.de:9004",
     "https://ensys.hs-nordhausen.de",
 ]
 
