@@ -1,0 +1,88 @@
+<div
+    class="modal modal-sheet position-static d-block bg-body-secondary p-4 py-md-5"
+    tabindex="-1"
+    role="dialog"
+    id="modalTour"
+>
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-body p-5">
+                <h2 class="fw-bold mb-0">Total: {{ scenarioCount }}</h2>
+                <ul class="d-grid gap-4 my-5 list-unstyled small simulations">
+                    <li
+                        class="d-flex gap-4"
+                        *ngFor="let item of scenarioList"
+                        style="justify-content: space-evenly"
+                    >
+                        <!-- <svg
+                            class="bi text-body-secondary flex-shrink-0"
+                            aria-hidden="true"
+                        > -->
+                        <div style="width: 70px">
+                            <div
+                                class="spinner-border text-primary"
+                                style="width: 3rem; height: 3rem"
+                                role="status"
+                                *ngIf="item.status === 'Started'"
+                            >
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+
+                            <div *ngIf="item.status === 'Stopped'">
+                                <img
+                                    src="../../../../../static/assets/icons/feather/black/check-circle.svg"
+                                    alt=""
+                                    *ngIf="item.status === 'Stopped'"
+                                    class="green"
+                                />
+                            </div>
+                        </div>
+
+                        <!-- <use xlink:href="#grid-fill"></use> -->
+                        <!-- </svg> -->
+                        <div
+                            (click)="openSimulation(item.id)"
+                            style="cursor: pointer"
+                        >
+                            <h5 class="mb-0">1</h5>
+                            Started:
+                            <b>
+                                {{ item.start_date | date }}
+                            </b>
+                        </div>
+
+                        <div
+                            style="
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            "
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/black/stop-circle.svg"
+                                alt=""
+                                class="stop"
+                                *ngIf="item.status === 'Started'"
+                                title="stop"
+                            />
+                            <img
+                                src="../../../../../static/assets/icons/feather/black/play-circle.svg"
+                                alt=""
+                                class="start"
+                                *ngIf="item.status === 'Stopped'"
+                                title="start"
+                            />
+                        </div>
+                    </li>
+                </ul>
+                <button
+                    type="button"
+                    class="btn btn-lg btn-primary mt-5 w-100"
+                    data-bs-dismiss="modal"
+                >
+                    Terminate All
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
