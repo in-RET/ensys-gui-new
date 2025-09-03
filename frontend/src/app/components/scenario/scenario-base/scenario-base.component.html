@@ -24,6 +24,7 @@
 
 <app-scenario-footer
     [step]="currentStep"
+    [scenarioData]="this.currentScenario.scenario"
     (nextStep)="nextStep()"
     (prevtStep)="prevtStep()"
     (saveScenario)="saveScenario()"

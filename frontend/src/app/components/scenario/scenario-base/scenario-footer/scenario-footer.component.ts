@@ -10,6 +10,7 @@ import { RouterModule } from '@angular/router';
 })
 export class ScenarioFooterComponent {
     @Input('step') step!: number;
+    @Input('scenarioData') scenarioData!: any;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();

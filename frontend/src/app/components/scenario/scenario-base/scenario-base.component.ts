@@ -3,9 +3,11 @@ import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
 import { ScenarioModel, ScenarioService } from '../services/scenario.service';
+import { SimulationService } from '../simulation/services/simulation.service';
 import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
 import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
 
@@ -52,6 +54,8 @@ export class ScenarioBaseComponent {
     route = inject(ActivatedRoute);
     router = inject(Router);
     alertService = inject(AlertService);
+    toastService = inject(ToastService);
+    simulationService = inject(SimulationService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
@@ -147,6 +151,7 @@ export class ScenarioBaseComponent {
                             project: currentProject,
                             scenario: currentScenario,
                         };
+
                         return res;
                     }
                 })

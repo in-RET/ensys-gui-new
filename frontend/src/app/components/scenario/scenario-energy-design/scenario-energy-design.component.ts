@@ -701,7 +701,9 @@ export class ScenarioEnergyDesignComponent {
     }
 
     submitFormData() {
-        let formData = this.formComponent.submit(!this.formModal_info.data.oep);
+        let formData = this.formComponent.submit(
+            !this.formModal_info.data?.oep
+        );
 
         if (formData) {
             // new-node
