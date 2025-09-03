@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run Backend (psql)" type="Python.FastAPI">
-    <option name="additionalOptions" value="--reload --port 9006" />
+    <option name="additionalOptions" value="--reload --port 20001" />
     <option name="file" value="$PROJECT_DIR$/backend/app/main.py" />
     <module name="ensys-gui-new" />
     <option name="ENV_FILES" value="" />

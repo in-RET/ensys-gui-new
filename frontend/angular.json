@@ -18,7 +18,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:application",
                     "options": {
-                        "outputPath": "dist/ret-en-sys-gui-angular",
+                        "outputPath": "dist/ensys-gui-angular",
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "polyfills": ["zone.js"],

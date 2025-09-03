@@ -16,7 +16,7 @@ export class AuthService {
     ) {}
 
     logIn(username: string, password: string): Observable<any> {
-        let formData: FormData = new FormData();
+        const formData: FormData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
 

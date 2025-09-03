@@ -60,7 +60,8 @@ def run_migrations_online() -> None:
 
     """
     config_args = config.get_section(config.config_ini_section, {})
-    config_args["sqlalchemy.url"] = os.getenv("DATABASE_URL")
+    if not "sqlalchemy.url" in config_args:
+        config_args["sqlalchemy.url"] = os.getenv("DATABASE_URL")
 
     connectable = engine_from_config(
         config_args,

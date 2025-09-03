@@ -10,10 +10,16 @@ export class BaseHttpService {
         headers: {},
     };
 
+    defaultLocations: string[] = [
+        "http://surak.hs-nordhausen.de:9004",
+        "http://localhost:9004",
+        "http://127.0.0.1:9004",
+        "https://ensys.hs-nordhausen.de"
+    ];
+
     defaultHeader: any = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods':
-            'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Origin': this.defaultLocations,
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
     };
 

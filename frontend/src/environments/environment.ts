@@ -1,5 +1,5 @@
 export const environment = {
     production: true,
-    apiUrl: 'http://my-prod-url',
+    apiUrl: 'http://surak.hs-nordhausen.de:20001',
     isDevelopMode: false,
 };

@@ -6,7 +6,9 @@ import os
 from sqlalchemy import create_engine
 from sqlmodel import Session
 
-db_engine = create_engine(os.getenv("DATABASE_URL"))
+db_url = os.getenv("DATABASE_URL")
+print(f"Database URL: {db_url}")
+db_engine = create_engine(db_url)
 
 
 def get_db_session():
