@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
 import { AuthCoreService } from '../../../core/auth/auth.service';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
@@ -7,7 +8,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl = 'http://localhost:20001/user/auth/';
+    private baseUrl: string = environment.apiUrl + 'user/auth/';
 
     constructor(
         private baseHttp: BaseHttpService,
