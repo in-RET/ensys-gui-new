@@ -134,8 +134,5 @@ networks:
 
 volumes:
   static_volume:
-    driver: local
   node_modules:
-    driver: local
   cache:
-    driver: local
