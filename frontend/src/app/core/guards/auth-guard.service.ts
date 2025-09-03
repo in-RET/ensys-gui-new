@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { Route, Router } from '@angular/router';
-import { environment } from '../../../environments/environment.development';
+import { environment } from '../../../environments/environment';
 import { AuthCoreService } from '../auth/auth.service';
 
 export const AuthGuard = async (route: Route) => {
