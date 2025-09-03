@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../../environments/environment.development';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
 export interface ScenarioModel {
@@ -22,7 +23,7 @@ export interface ScenarioModel {
     providedIn: 'root',
 })
 export class ScenarioService {
-    private baseUrl: string = 'http://localhost:9006/scenario';
+    private baseUrl: string = environment.apiUrl + 'scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
 
