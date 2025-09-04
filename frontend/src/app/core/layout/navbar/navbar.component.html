@@ -17,7 +17,7 @@
             <ul class="navbar-nav mb-2 mb-lg-0" style="align-items: center">
                 <!-- user profile -->
                 <ng-container *ngIf="user.is_authenticated">
-                    <li class="nav-item dropdown profile">
+                    <li class="nav-item dropdown profile" [hidden]="true">
                         <a
                             class="nav-link dropdown-toggle"
                             href="#"
@@ -148,55 +148,65 @@
 
             <ng-container *ngIf="user.is_authenticated">
                 <div class="dropdown text-end">
-                    <a
-                        href="#"
-                        class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                    >
-                        <img
-                            src="/static/assets/icons/i_profile.svg"
-                            alt="mdo"
-                            width="32"
-                            height="32"
-                            class="rounded-circle"
-                        />
-                    </a>
+                    <div [hidden]="true">
+                        <a
+                            href="#"
+                            class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                        >
+                            <img
+                                src="/static/assets/icons/i_profile.svg"
+                                alt="mdo"
+                                width="32"
+                                height="32"
+                                class="rounded-circle"
+                            />
+                        </a>
 
-                    <ul class="dropdown-menu text-small">
-                        <li style="display: none">
-                            <a class="dropdown-item" href="user_feedback">
-                                Feedback
-                            </a>
-                        </li>
+                        <ul class="dropdown-menu text-small">
+                            <li style="display: none">
+                                <a class="dropdown-item" href="user_feedback">
+                                    Feedback
+                                </a>
+                            </li>
 
-                        <li style="display: none">
-                            <a class="dropdown-item" href="user_info/">
-                                Account
-                            </a>
-                        </li>
-                        <!-- account.html -->
+                            <li style="display: none">
+                                <a class="dropdown-item" href="user_info/">
+                                    Account
+                                </a>
+                            </li>
+                            <!-- account.html -->
 
-                        <li>
-                            <a
-                                class="dropdown-item"
-                                [routerLink]="['projects']"
-                            >
-                                Projects
-                            </a>
-                        </li>
+                            <li>
+                                <a
+                                    class="dropdown-item"
+                                    [routerLink]="['projects']"
+                                >
+                                    Projects
+                                </a>
+                            </li>
 
-                        <li>
-                            <hr class="dropdown-divider" />
-                        </li>
+                            <li>
+                                <hr class="dropdown-divider" />
+                            </li>
 
-                        <li>
-                            <a class="dropdown-item" (click)="logout()">
-                                Log Out
-                            </a>
-                        </li>
-                    </ul>
+                            <li>
+                                <a class="dropdown-item" (click)="logout()">
+                                    Log Out
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+
+                <button
+                    type="button"
+                    class="btn btn-light text-dark me-2"
+                    (click)="logout()"
+                >
+                    Log Out
+                </button>
             </ng-container>
 
             <ng-container *ngIf="!user.is_authenticated">

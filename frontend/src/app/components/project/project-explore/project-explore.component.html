@@ -1,5 +1,5 @@
 <section class="project d-flex p-2 mb-3" style="align-items: center">
-    <div class="dropdown">
+    <div class="dropdown" [hidden]="true">
         <button
             class="btn btn-secondary dropdown-toggle"
             type="button"
@@ -45,6 +45,15 @@
             </li>
         </ul>
     </div>
+
+    <button class="btn btn--medium" [routerLink]="['../create']">
+        <img
+            src="../../../../../static/assets/icons/feather/white/plus.svg"
+            alt=""
+            height="20px"
+        />
+        <span> Project / Scenario </span>
+    </button>
 </section>
 
 <app-project-item
