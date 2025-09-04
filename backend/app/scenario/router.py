@@ -56,7 +56,7 @@ async def create_scenario(
     scenario.user_id = token_user.id
 
     possible_duplicates = db.exec(
-        select(EnScenarioDB).where(EnScenarioDB.name == scenario.name)
+        select(EnScenarioDB).where(EnScenarioDB.name == scenario.name).where(EnScenarioDB.project_id == project_id)
     ).all()
 
     if len(possible_duplicates) > 0:
