@@ -1,15 +1,15 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Production" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
+  <configuration default="false" name="Production Test" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
     <deployment type="docker-compose.yml">
       <settings>
-        <option name="envFilePath" value="$PROJECT_DIR$/.env.prod" />
+        <option name="envFilePath" value="$PROJECT_DIR$/.env.test" />
         <option name="envFilePaths">
           <list>
-            <option value="$PROJECT_DIR$/.env.prod" />
+            <option value="$PROJECT_DIR$/.env.test" />
           </list>
         </option>
         <option name="commandLineOptions" value="--build" />
-        <option name="sourceFilePath" value="docker-compose.prod.yaml" />
+        <option name="sourceFilePath" value="docker-compose.prod.test.yaml" />
         <option name="upRemoveOrphans" value="true" />
       </settings>
     </deployment>

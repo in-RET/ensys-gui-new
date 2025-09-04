@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from os import MFD_ALLOW_SEALING
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,50 +36,56 @@ async def lifespan(fastapi_app: FastAPI):
 
 tags_metadata = [
     {
-        "name"       : "user",
+        "name": "user",
         "description": "Operations with users. The **login** logic is also here."
     },
     {
-        "name"       : "project",
+        "name": "project",
         "description": "Manage projects.",
     },
     {
-        "name"       : "admin",
+        "name": "admin",
         "description": "Just a Teapot."
     },
     {
-        "name"       : "scenario",
+        "name": "scenario",
         "description": "Manage scenarios."
     },
     {
-        "name"       : "default",
+        "name": "default",
         "description": "The root of all evil."
     },
     {
-        "name"       : "simulation",
+        "name": "simulation",
         "description": "Manage simulations."
     },
     {
-        "name"       : "results",
+        "name": "results",
         "description": "Get results."
     }
 ]
 
 fastapi_app = FastAPI(
     lifespan=lifespan,
+    root_path="/api",
     title="EnSys Backend",
     summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
     contact={
-        "name" : "Hochschule Nordhausen - Institut für regenerative Energietechnik",
-        "url"  : "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
+        "name": "Hochschule Nordhausen - Institut für regenerative Energietechnik",
+        "url": "https://www.hs-nordhausen.de/forschung/in-ret-institut-fuer-regenerative-energietechnik/",
         "email": "ensys@hs-nordhausen.de",
     },
     license_info={
-        "name"      : "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
+        "name": "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
         "identifier": "aGPL",
     },
     openapi_tags=tags_metadata,
+    servers=[
+        {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"},
+        {"url": "http://localhost", "description": "Staging environment"},
+    ],
+    root_path_in_servers=False
 )
 
 origins = [
@@ -93,39 +100,17 @@ origins = [
 
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# including api routers
-fastapi_app.include_router(
-    router=users_router,
-)
-fastapi_app.include_router(
-    router=admin_router,
-)
-
-fastapi_app.include_router(
-    router=projects_router
-)
-
-fastapi_app.include_router(
-    router=scenario_router
-)
-
-fastapi_app.include_router(
-    router=simulation_router
-)
-
-fastapi_app.include_router(
-    router=results_router
-)
-
-fastapi_app.include_router(
-    router=oep_router
-)
+routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router]
+for router in routers:
+    fastapi_app.include_router(
+        router=router
+    )
 
 
 @fastapi_app.get("/", response_class=HTMLResponse)
