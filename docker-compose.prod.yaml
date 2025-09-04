@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: docker/dockerfile
+      dockerfile: frontend/docker/dockerfile.prod
     container_name: ensys-new-frontend
     env_file: .env.prod
     restart: no
