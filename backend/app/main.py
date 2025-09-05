@@ -82,20 +82,18 @@ fastapi_app = FastAPI(
     },
     openapi_tags=tags_metadata,
     servers=[
-        {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"},
-        {"url": "http://localhost", "description": "Staging environment"},
+        {"url": "http://localhost:20001", "description": "Development environment"},
+        {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
     ],
     root_path_in_servers=False
 )
 
 origins = [
-    "http://localhost:20001",
-    "http://localhost:20002",
-    "http://localhost:20003",
     "http://localhost:9004",
-    "http://surak.hs-nordhausen.de",
-    "http://surak.hs-nordhausen.de:9004",
+    "http://localhost:20001",
     "https://ensys.hs-nordhausen.de",
+    "http://surak.hs-nordhausen.de:9004",
+    "http://surak.hs-nordhausen.de:20001",
 ]
 
 fastapi_app.add_middleware(
