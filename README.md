@@ -1,4 +1,5 @@
 # EnSys by in.RET
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/0e4d2f70045041c1aa1f383a0bf92647)](https://app.codacy.com/gh/in-RET/ensys-gui-new/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/)
 
 For further information, please refer to the [Documentation](https://in-ret.github.io/ensys-gui-new).
