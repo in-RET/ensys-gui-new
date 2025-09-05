@@ -125,6 +125,7 @@ export class ScenarioSetupComponent {
                 });
             }
 
+            // created scenario
             if (scenarioBaseData.scenario) {
                 let {
                     name,
@@ -141,6 +142,10 @@ export class ScenarioSetupComponent {
                     sDate,
                     simulationYear,
                 });
+            } else {
+                this.name?.setValue(
+                    `Scenario_${scenarioBaseData.project.scenarioList.length}`
+                );
             }
         }
     }
@@ -152,7 +157,6 @@ export class ScenarioSetupComponent {
     }
 
     setFormDefaultVal() {
-        this.name?.setValue(`Scenario_${this.projectList.length + 1}`);
         // this.sDate?.setValue(new Date().toISOString().split('T')[0]);
         // this.simulationPeriod?.setValue(1);
         // this.timeStep?.setValue(60);

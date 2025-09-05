@@ -11,10 +11,13 @@ import { RouterModule } from '@angular/router';
 export class ScenarioFooterComponent {
     @Input('step') step!: number;
     @Input('scenarioData') scenarioData!: any;
+    @Input('isScenarioNew') isScenarioNew!: boolean;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() saveScenario: EventEmitter<any> = new EventEmitter<any>();
+    @Output() updateScenario: EventEmitter<any> = new EventEmitter<any>();
+    @Output() startSimulation: EventEmitter<any> = new EventEmitter<any>();
 
     next() {
         this.nextStep.emit();
@@ -26,5 +29,14 @@ export class ScenarioFooterComponent {
 
     save() {
         this.saveScenario.emit();
+        // after saving should be sened update scenarioData with id for going to simulation pgae
+    }
+
+    update() {
+        this.updateScenario.emit();
+    }
+
+    onStartSimulation() {
+        this.startSimulation.emit();
     }
 }

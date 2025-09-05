@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../src/environments/environment';
+import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
@@ -9,6 +9,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
 })
 export class AuthService {
     private baseUrl: string = environment.apiUrl + 'user/auth/';
+    // private baseUrl: string = '/api/user/auth/';
 
     constructor(
         private baseHttp: BaseHttpService,
@@ -21,6 +22,7 @@ export class AuthService {
         formData.append('password', password);
 
         return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
+        // return this.baseHttp.post(`/login`, formData, {});
     }
 
     logOut() {
