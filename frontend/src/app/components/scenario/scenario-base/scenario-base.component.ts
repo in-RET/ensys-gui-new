@@ -138,20 +138,41 @@ export class ScenarioBaseComponent {
                 this.scenarioService.createScenario(newScenarioData)
             );
             console.log('Saved:', response);
-            return 23;
+            return scenarioData.scenario.id ?? true;
         } catch (err: any) {
             console.error(err);
-            this.alertService.error(err.message || 'Save failed');
+            if (err.status == 409) {
+                const confirmed = await this.alertService.confirm(
+                    'Do you want change the name? Or Update current?',
+                    'Duplicate Scenario!',
+                    '< Step',
+                    'Update',
+                    'error'
+                );
+
+                if (confirmed) {
+                    this.prevtStep();
+                } else {
+                    this.updateScenario();
+                }
+            } else this.alertService.error(err.message || 'Save failed');
             return false;
         }
     }
 
-    async updateScenario(): Promise<number | boolean> {
+    async updateScenario(
+        startSimulatioAfetr: boolean = false
+    ): Promise<number | boolean> {
         const scenarioData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (!scenarioData || !scenarioData.scenario) {
             this.alertService.warning('There is no data to save!');
+            return false;
+        }
+
+        if (!scenarioData.scenario.id) {
+            this.alertService.warning('Error: Id not found!');
             return false;
         }
 
@@ -172,20 +193,15 @@ export class ScenarioBaseComponent {
         }
 
         try {
-            if (scenarioData.scenario.id) {
-                const response = await firstValueFrom(
-                    this.scenarioService.updateScenario(
-                        newScenarioData,
-                        scenarioData.scenario.id
-                    )
-                );
+            const response = await firstValueFrom(
+                this.scenarioService.updateScenario(
+                    newScenarioData,
+                    scenarioData.scenario.id
+                )
+            );
 
-                console.log('Updated:', response);
-                return scenarioData.scenario.id;
-            } else {
-                this.alertService.error('Error: Id not found!');
-                return false;
-            }
+            console.log('Updated:', response);
+            return scenarioData.scenario.id;
         } catch (err: any) {
             console.error(err);
             this.alertService.error(err.message || 'Save failed');
@@ -219,16 +235,29 @@ export class ScenarioBaseComponent {
         this.currentStep = number;
     }
 
-    async startSimulation(scenarioId: number) {
+    async startSimulation(scenarioId?: number) {
         console.log(this.currentScenario);
-        const confirmed = await this.alertService.confirm(
-            'Save Scenario & Start Simulation?',
-            'Save & Play'
-        );
 
-        if (confirmed) {
-            const newScenario = await this.saveScenario();
-            console.log(newScenario);
+        if (scenarioId) {
+            const confirmed = await this.alertService.confirm(
+                'Update Scenario & Start Simulation?',
+                'Update & Play'
+            );
+
+            if (confirmed) {
+                const newScenario = await this.updateScenario(true);
+                this.toastService.success('Simulation has started.');
+            }
+        } else {
+            const confirmed = await this.alertService.confirm(
+                'Save Scenario & Start Simulation?',
+                'Save & Play'
+            );
+
+            if (confirmed) {
+                const newScenario = await this.saveScenario();
+                console.log(newScenario);
+            }
         }
     }
 
