@@ -125,16 +125,13 @@ export class EnergyDrawflowComponent {
             this.saveCurrentDrawflow();
         });
         this.editor.on('connectionSelected', (connection: any) => {
-            console.log('Drawflow event: connectionSelected');
-
+            //console.log('Drawflow event: connectionSelected');
             // this.currentConnection = connection;
-
             // const inputs = this.editor.getNodeFromId(connection.input_id);
             // const outputs = this.editor.getNodeFromId(connection.output_id);
-
-            if (document.activeElement !== this.editor.container) {
-                this.editor.container.focus();
-            }
+            // if (document.activeElement !== this.editor.container) {
+            //     this.editor.container.focus();
+            // }
         });
 
         this.editor.on('zoom', (data: any) => {

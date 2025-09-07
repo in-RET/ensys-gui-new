@@ -41,6 +41,10 @@ export class ScenarioService {
         return this.baseHttp.post(`${this.baseUrl}`, data);
     }
 
+    updateScenario(data: any, id: number) {
+        return this.baseHttp.patch(`${this.baseUrl}/${id}`, data);
+    }
+
     deleteScenario(id: number) {
         return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }

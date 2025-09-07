@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
@@ -12,6 +12,7 @@ import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.compo
 import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
 
 interface ScenarioReqData {
+    id?: number;
     name: string;
     start_date: string;
     time_steps: number;
@@ -43,7 +44,7 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
-    currentScenario: any;
+    currentScenario!: ScenarioModel;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
@@ -56,9 +57,11 @@ export class ScenarioBaseComponent {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
+    isScenarioNew!: boolean;
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
+        this.checkScenarioIsNew();
     }
 
     nextStep() {
@@ -71,11 +74,9 @@ export class ScenarioBaseComponent {
                     ++this.currentStep;
                 }
                 break;
-            case 1:
-                // scenarioBaseData = this.energyDrawflowComponent.getData();
-                break;
         }
     }
+
     prevtStep() {
         --this.currentStep;
     }
@@ -107,36 +108,104 @@ export class ScenarioBaseComponent {
         this.currentScenario = _data;
     }
 
-    saveScenario() {
+    async saveScenario(): Promise<number | boolean> {
         const scenarioData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
-        if (scenarioData && scenarioData.scenario) {
-            let newScenarioData: ScenarioReqData | null = {
-                name: scenarioData.scenario?.name,
-                start_date: scenarioData.scenario?.sDate,
-                time_steps: scenarioData.scenario?.timeStep,
-                project_id: scenarioData.project.id,
-                interval: 0,
-                modeling_data:
-                    this.scenarioService.restoreDrawflow_Storage(true),
-            };
-
-            const drawflowData = this.scenarioService.restoreDrawflow_Storage();
-
-            if (drawflowData) {
-                this.scenarioService.createScenario(newScenarioData).subscribe({
-                    next: (value: any) => {
-                        console.log(value);
-                    },
-                    error: (err: any) => {
-                        console.error(err);
-                        this.alertService.error(err.message);
-                    },
-                });
-            }
-        } else {
+        if (!scenarioData || !scenarioData.scenario) {
             this.alertService.warning('There is no data to save!');
+            return false;
+        }
+
+        const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
+
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return false;
+        }
+
+        let newScenarioData: ScenarioReqData = {
+            name: scenarioData.scenario?.name,
+            start_date: scenarioData.scenario?.sDate,
+            time_steps: scenarioData.scenario?.timeStep,
+            project_id: scenarioData.project.id,
+            interval: 0,
+            modeling_data: drawflowData,
+        };
+
+        try {
+            const response = await firstValueFrom(
+                this.scenarioService.createScenario(newScenarioData)
+            );
+            console.log('Saved:', response);
+            return scenarioData.scenario.id ?? true;
+        } catch (err: any) {
+            console.error(err);
+            if (err.status == 409) {
+                const confirmed = await this.alertService.confirm(
+                    'Do you want change the name? Or Update current?',
+                    'Duplicate Scenario!',
+                    '< Step',
+                    'Update',
+                    'error'
+                );
+
+                if (confirmed) {
+                    this.prevtStep();
+                } else {
+                    this.updateScenario();
+                }
+            } else this.alertService.error(err.message || 'Save failed');
+            return false;
+        }
+    }
+
+    async updateScenario(
+        startSimulatioAfetr: boolean = false
+    ): Promise<number | boolean> {
+        const scenarioData: ScenarioModel | null =
+            this.scenarioService.restoreBaseInfo_Storage();
+
+        if (!scenarioData || !scenarioData.scenario) {
+            this.alertService.warning('There is no data to save!');
+            return false;
+        }
+
+        if (!scenarioData.scenario.id) {
+            this.alertService.warning('Error: Id not found!');
+            return false;
+        }
+
+        let newScenarioData: ScenarioReqData = {
+            name: scenarioData.scenario?.name,
+            start_date: scenarioData.scenario?.sDate,
+            time_steps: scenarioData.scenario?.timeStep,
+            project_id: scenarioData.project.id,
+            interval: 0,
+            modeling_data: this.scenarioService.restoreDrawflow_Storage(true),
+        };
+
+        const drawflowData = this.scenarioService.restoreDrawflow_Storage();
+
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return false;
+        }
+
+        try {
+            const response = await firstValueFrom(
+                this.scenarioService.updateScenario(
+                    newScenarioData,
+                    scenarioData.scenario.id
+                )
+            );
+
+            console.log('Updated:', response);
+            return scenarioData.scenario.id;
+        } catch (err: any) {
+            console.error(err);
+            this.alertService.error(err.message || 'Save failed');
+            return false;
         }
     }
 
@@ -164,5 +233,41 @@ export class ScenarioBaseComponent {
 
     goToStep(number: number) {
         this.currentStep = number;
+    }
+
+    async startSimulation(scenarioId?: number) {
+        console.log(this.currentScenario);
+
+        if (scenarioId) {
+            const confirmed = await this.alertService.confirm(
+                'Update Scenario & Start Simulation?',
+                'Update & Play'
+            );
+
+            if (confirmed) {
+                const newScenario = await this.updateScenario(true);
+                this.toastService.success('Simulation has started.');
+            }
+        } else {
+            const confirmed = await this.alertService.confirm(
+                'Save Scenario & Start Simulation?',
+                'Save & Play'
+            );
+
+            if (confirmed) {
+                const newScenario = await this.saveScenario();
+                console.log(newScenario);
+            }
+        }
+    }
+
+    checkScenarioIsNew() {
+        if (this.currentScenario.scenario?.id) {
+            this.isScenarioNew = false;
+            return false;
+        } else {
+            this.isScenarioNew = true;
+            return true;
+        }
     }
 }
