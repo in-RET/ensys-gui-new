@@ -1,4 +1,3 @@
-import os
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -9,8 +8,9 @@ from .auxillary import validate_scenario_owner
 from .model import EnScenario, EnScenarioDB, EnScenarioUpdate
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
+from ..errors.model import ErrorModel
 from ..project.router import validate_project_owner
-from ..responses import DataResponse, MessageResponse
+from ..responses import DataResponse, MessageResponse, ErrorResponse
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -22,9 +22,9 @@ scenario_router = APIRouter(
 
 @scenario_router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
 async def create_scenario(
-        token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
-        db: Session = Depends(get_db_session)
-) -> DataResponse:
+    token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
+    db: Session = Depends(get_db_session)
+) -> DataResponse | ErrorResponse:
     """
     Creates a new scenario and stores it in the database. The endpoint is
     protected and requires a valid token. It validates the ownership of the
@@ -60,27 +60,35 @@ async def create_scenario(
     ).all()
 
     if len(possible_duplicates) > 0:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Scenario name already exists.")
+        return ErrorResponse(
+            data=GeneralDataModel(
+                items=[scenario.model_dump(exclude=set("energysystem")) for scenario in possible_duplicates],
+
+                totalCount=len(possible_duplicates)
+            ),
+            errors=[ErrorModel(
+                code=status.HTTP_409_CONFLICT,
+                message="Scenario name already exists."
+            )],
+            success=False
+        )
+
     else:
         db.add(scenario)
         db.commit()
 
         return DataResponse(
             data=GeneralDataModel(
-                items=[{
-                    "message": "Scenario created.",
-                    "id": scenario.id
-                }],
+                items=[scenario.model_dump(exclude=set("energysystem"))],
                 totalCount=1
-            ),
-         success=True
+            )
         )
 
 
 @scenario_router.get("s/{project_id}", response_model=DataResponse)
 async def read_scenarios(
-        project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Reads scenarios associated with a specific project based on the provided project ID.
@@ -120,8 +128,8 @@ async def read_scenarios(
 
 @scenario_router.get("/{scenario_id}", response_model=DataResponse)
 async def read_scenario(
-        scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Retrieve scenario details by scenario ID.
@@ -169,10 +177,10 @@ async def read_scenario(
 
 @scenario_router.patch("/{scenario_id}", response_model=MessageResponse)
 async def update_scenario(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        scenario_id: int,
-        scenario_data: EnScenarioUpdate,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)],
+    scenario_id: int,
+    scenario_data: EnScenarioUpdate,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Updates an existing scenario identified by its ID. This endpoint allows updating
@@ -238,9 +246,9 @@ async def update_scenario(
 
 @scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
 async def delete_scenario(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        scenario_id: int,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)],
+    scenario_id: int,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Deletes a scenario by its ID for authorized users only. This endpoint ensures that the caller

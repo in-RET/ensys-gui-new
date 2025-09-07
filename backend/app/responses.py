@@ -79,15 +79,18 @@ class ErrorResponse(GeneralResponse):
     :ivar success: Indicates whether the request was successful or not. Default is False.
     :type success: bool
     """
-    data: None = Field(
+    data: GeneralDataModel | None = Field(
         default=None,
         description="Data returned by the request."
+    )
+    errors: list[ErrorModel] | None = Field(
+        default=None,
+        description="List of errors encountered during the request."
     )
     success: bool = Field(
         default=False,
         description="Indicates whether the request was successful or not."
     )
-
 
 class ResultResponse(GeneralResponse):
     """

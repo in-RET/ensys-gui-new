@@ -120,6 +120,17 @@ services:
     depends_on:
       - redis
 
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - '${MONITORING_PORT}:3000'
+    volumes:
+      - 'grafana_storage:/var/lib/grafana'
+    networks:
+      - ensys
+
 #  mkdocs:
 #    build:
 #      context: ./docs/config
@@ -141,3 +152,4 @@ volumes:
   static_volume:
   node_modules:
   cache:
+  grafana_storage:
