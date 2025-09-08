@@ -20,7 +20,7 @@ scenario_router = APIRouter(
 )
 
 
-@scenario_router.post("/", response_model=MessageResponse, status_code=status.HTTP_201_CREATED)
+@scenario_router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_scenario(
     token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
     db: Session = Depends(get_db_session)
@@ -63,7 +63,6 @@ async def create_scenario(
         return ErrorResponse(
             data=GeneralDataModel(
                 items=[scenario.model_dump(exclude=set("energysystem")) for scenario in possible_duplicates],
-
                 totalCount=len(possible_duplicates)
             ),
             errors=[ErrorModel(
@@ -77,6 +76,8 @@ async def create_scenario(
         db.add(scenario)
         db.commit()
 
+        test = scenario.model_dump(exclude=set("energysystem"))
+        print(type(test))
         return DataResponse(
             data=GeneralDataModel(
                 items=[scenario.model_dump(exclude=set("energysystem"))],
@@ -215,6 +216,9 @@ async def update_scenario(
         scenario_id, db,
         token
     )
+
+    print(scenario_data)
+
     if not validate_scenario_result:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
