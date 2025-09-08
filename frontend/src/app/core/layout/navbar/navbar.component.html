@@ -36,6 +36,7 @@
                         <ul
                             class="dropdown-menu"
                             aria-labelledby="navbarDropdown"
+                            *ngIf="false"
                         >
                             <!-- <li>
                                 <a class="dropdown-item" href="">
@@ -122,7 +123,7 @@
             <ul
                 class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
             >
-                <ng-container *ngIf="!user.is_authenticated">
+                <ng-container *ngIf="!user.is_authenticated && false">
                     <li>
                         <a href="#" class="nav-link px-2 link-body-emphasis"
                             >Overview</a

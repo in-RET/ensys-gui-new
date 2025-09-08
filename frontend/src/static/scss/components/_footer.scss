@@ -6,6 +6,7 @@
     // height: $footer-height;
     @include flex-column-align-justify-center;
     flex-shrink: 0;
+    // position: absolute;
 
     & > div {
         @include flex-row-space-between;
