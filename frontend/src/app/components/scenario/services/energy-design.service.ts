@@ -1357,8 +1357,7 @@ export class EnergyDesignService {
                 // add port(in-out) list to the node
                 if (
                     infoData.transform_inputs.length &&
-                    infoData.transform_outputs.length &&
-                    preDefData
+                    infoData.transform_outputs.length
                 ) {
                     ports = this.getTransformPorts(
                         infoData.transform_inputs,
@@ -1474,7 +1473,7 @@ export class EnergyDesignService {
     getTransformPorts(
         inputList: OrderItem[],
         outputList: OrderItem[],
-        preDefData: OEPPorts
+        preDefData?: OEPPorts
     ): Ports {
         const ports: Ports = {
             inputs: [],
@@ -1486,7 +1485,9 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `input_${i + 1}`,
-                preDefData: preDefData.inputs[i].flow_data,
+                preDefData: preDefData
+                    ? preDefData.inputs[i].flow_data
+                    : undefined,
             };
             ports.inputs.push(newElm);
         });
@@ -1495,7 +1496,9 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `output_${i + 1}`,
-                preDefData: preDefData.outputs[i].flow_data,
+                preDefData: preDefData
+                    ? preDefData.outputs[i].flow_data
+                    : undefined,
             };
             ports.outputs.push(newElm);
         });
