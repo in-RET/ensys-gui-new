@@ -37,7 +37,9 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
     if scenario is None:
         return False, status.HTTP_404_NOT_FOUND, "Scenario not found."
 
-    if scenario.user_id == user.id:
+    if user.is_staff is True:
+        return True, status.HTTP_200_OK, ""
+    elif scenario.user_id == user.id:
         return True, status.HTTP_200_OK, ""
     else:
         return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
