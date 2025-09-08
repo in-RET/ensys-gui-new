@@ -76,8 +76,6 @@ async def create_scenario(
         db.add(scenario)
         db.commit()
 
-        test = scenario.model_dump(exclude=set("energysystem"))
-        print(type(test))
         return DataResponse(
             data=GeneralDataModel(
                 items=[scenario.model_dump(exclude=set("energysystem"))],
@@ -217,8 +215,6 @@ async def update_scenario(
         token
     )
 
-    print(scenario_data)
-
     if not validate_scenario_result:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
@@ -230,7 +226,7 @@ async def update_scenario(
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
 
     possible_duplicates = db.exec(
-        select(EnScenarioDB).where(EnScenarioDB.name == new_scenario_data.name)
+        select(EnScenarioDB).where(EnScenarioDB.name == new_scenario_data["name"]).where(EnScenarioDB.id != scenario_id)
     ).all()
 
     if len(possible_duplicates) > 0:

@@ -34,6 +34,8 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
         return False, status.HTTP_404_NOT_FOUND, "User not found."
 
     scenario = db.get(EnScenarioDB, scenario_id)
+    if scenario is None:
+        return False, status.HTTP_404_NOT_FOUND, "Scenario not found."
 
     if scenario.user_id == user.id:
         return True, status.HTTP_200_OK, ""
