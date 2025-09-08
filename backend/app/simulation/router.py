@@ -53,11 +53,11 @@ def validate_user_rights(token, scenario_id, db) -> bool:
     if not validation_scenario:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    scenario = db.exec(select(EnScenarioDB).where(EnScenarioDB.id == scenario_id)).first()
+    scenario = db.get(EnScenarioDB, scenario_id)
     if not scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    project = db.exec(select(EnProjectDB).where(EnProjectDB.id == scenario.project_id)).first()
+    project = db.get(EnProjectDB, scenario.project_id)
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
 
