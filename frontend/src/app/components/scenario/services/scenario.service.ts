@@ -94,13 +94,13 @@ export class ScenarioService {
 
     getPreDefinedList(type: string) {
         return this.baseHttp.get(
-            `http://localhost:20001/oep/local_schemas/${type}`
+            environment.apiUrl + `oep/local_schemas/${type}`
         );
     }
 
     getPreDefinedData(option: string, simulationYear: number) {
         return this.baseHttp.get(
-            `http://localhost:20001/oep/local_data/${option}/${simulationYear}`
+            environment.apiUrl + `oep/local_data/${option}/${simulationYear}`
         );
     }
 }

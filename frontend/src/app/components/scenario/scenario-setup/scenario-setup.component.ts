@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -18,7 +18,7 @@ import { ScenarioModel, ScenarioService } from '../services/scenario.service';
     templateUrl: './scenario-setup.component.html',
     styleUrl: './scenario-setup.component.scss',
 })
-export class ScenarioSetupComponent {
+export class ScenarioSetupComponent implements OnInit {
     form: FormGroup = new FormGroup({
         project: new FormGroup({
             id: new FormControl(null, [Validators.required]),
@@ -27,7 +27,7 @@ export class ScenarioSetupComponent {
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
-            value: new Date().toISOString().split('T')[0],
+            value: new Date("2025").toISOString().split('T')[0],
             disabled: true,
         }),
         timeStep: new FormControl({ value: 60, disabled: true }),
@@ -112,7 +112,7 @@ export class ScenarioSetupComponent {
     }
 
     loadCurrentData() {
-        let scenarioBaseData: ScenarioModel | null =
+        const scenarioBaseData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (scenarioBaseData) {
@@ -127,7 +127,7 @@ export class ScenarioSetupComponent {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                let {
+                const {
                     name,
                     simulationPeriod,
                     timeStep,
