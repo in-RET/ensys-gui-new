@@ -1,4 +1,17 @@
 <main class="w-100 m-auto signup">
+    <div
+        class="d-flex justify-content-center gap-2"
+        style="position: absolute; top: 0; left: 0; margin: 1rem"
+    >
+        <button
+            class="btn btn--success btn--medium"
+            type="button"
+            [routerLink]="['/']"
+        >
+            Home
+        </button>
+    </div>
+
     <form class="signup-frame" [formGroup]="form">
         <div class="signup-frame__img">
             <img
@@ -72,18 +85,6 @@
         >
             Login
         </button>
-
-        <div
-            *ngIf="isDevelopingMode"
-            class="d-flex justify-content-center gap-2"
-        >
-            <button class="btn" type="button" [routerLink]="['/projects']">
-                Projects
-            </button>
-            <button class="btn" type="button" [routerLink]="['/scenario']">
-                Scenario
-            </button>
-        </div>
 
         <div class="mt-1 text-danger" *ngIf="error && error.messge">
             Error:

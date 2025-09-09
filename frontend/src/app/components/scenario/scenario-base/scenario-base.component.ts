@@ -108,7 +108,7 @@ export class ScenarioBaseComponent {
         this.currentScenario = _data;
     }
 
-    async saveScenario(): Promise<number | boolean> {
+    async saveScenario(): Promise<number | boolean | void> {
         const scenarioData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
@@ -134,11 +134,30 @@ export class ScenarioBaseComponent {
         };
 
         try {
-            const response = await firstValueFrom(
-                this.scenarioService.createScenario(newScenarioData)
-            );
-            console.log('Saved:', response);
-            return scenarioData.scenario.id ?? true;
+            this.scenarioService
+                .createScenario(newScenarioData)
+                .pipe(
+                    map((res: any) => {
+                        if (res.success) return res.data;
+                        else {
+                            throw new Error(
+                                res.errors[0].message || 'Unknown API error'
+                            );
+                        }
+                    })
+                )
+                .subscribe({
+                    next: (value: any) => {
+                        this.toastService.success('Node saved.');
+                        // update view+data by id
+
+                        return value.items[0].id ?? true;
+                    },
+                    error: (err: string) => {
+                        this.toastService.error(err);
+                        return false;
+                    },
+                });
         } catch (err: any) {
             console.error(err);
             if (err.status == 409) {
