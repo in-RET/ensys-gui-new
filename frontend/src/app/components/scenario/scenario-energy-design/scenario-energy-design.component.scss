@@ -173,3 +173,19 @@
 .system-design .gui #js-saveDesign.hidden {
     display: none;
 }
+
+.node-info {
+    margin-left: auto;
+
+    button {
+        background: url("/static/assets/icons/feather/black/info.svg") no-repeat
+            center / contain;
+        width: 2rem;
+        height: 2rem;
+        border: unset;
+        display: flex;
+        filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(171deg)
+            brightness(118%) contrast(119%);
+        padding: 0;
+    }
+}
