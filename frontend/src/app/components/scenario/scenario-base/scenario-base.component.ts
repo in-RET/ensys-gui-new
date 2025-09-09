@@ -129,7 +129,7 @@ export class ScenarioBaseComponent {
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,
             project_id: scenarioData.project.id,
-            interval: 0,
+            interval: 1,
             modeling_data: drawflowData,
         };
 
@@ -200,7 +200,7 @@ export class ScenarioBaseComponent {
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,
             project_id: scenarioData.project.id,
-            interval: 0,
+            interval: 1,
             modeling_data: this.scenarioService.restoreDrawflow_Storage(true),
         };
 

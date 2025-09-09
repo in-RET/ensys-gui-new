@@ -27,10 +27,10 @@ export class ScenarioSetupComponent implements OnInit {
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
-            value: new Date("2025").toISOString().split('T')[0],
+            value: new Date('2025').toISOString().split('T')[0],
             disabled: true,
         }),
-        timeStep: new FormControl({ value: 60, disabled: true }),
+        timeStep: new FormControl({ value: 8760, disabled: true }),
         simulationYear: new FormControl(2025, [Validators.required]),
     });
 
@@ -100,7 +100,7 @@ export class ScenarioSetupComponent implements OnInit {
             this.toastService.info('Date changed!');
         });
 
-        this.setFormDefaultVal();
+        // this.setFormDefaultVal();
     }
 
     loadProjects() {
