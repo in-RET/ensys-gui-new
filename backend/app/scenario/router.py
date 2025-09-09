@@ -20,7 +20,7 @@ scenario_router = APIRouter(
 )
 
 
-@scenario_router.post("/", status_code=status.HTTP_201_CREATED)
+@scenario_router.post("/")
 async def create_scenario(
     token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
     db: Session = Depends(get_db_session)
@@ -62,7 +62,7 @@ async def create_scenario(
     if len(possible_duplicates) > 0:
         return ErrorResponse(
             data=GeneralDataModel(
-                items=[scenario.model_dump(exclude=set("energysystem")) for scenario in possible_duplicates],
+                items=[scenario.model_dump(exclude={"energysystem"}) for scenario in possible_duplicates],
                 totalCount=len(possible_duplicates)
             ),
             errors=[ErrorModel(
@@ -71,14 +71,17 @@ async def create_scenario(
             )],
             success=False
         )
-
     else:
+        print(f"Scenario befor commit: {scenario}")
         db.add(scenario)
         db.commit()
 
+        scenario = db.get(EnScenarioDB, scenario.id)
+        print(f"Scenario: {scenario}")
+
         return DataResponse(
             data=GeneralDataModel(
-                items=[scenario.model_dump(exclude=set("energysystem"))],
+                items=[scenario.model_dump(exclude={"energysystem"})],
                 totalCount=1
             )
         )
