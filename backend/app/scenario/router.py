@@ -12,6 +12,7 @@ from ..errors.model import ErrorModel
 from ..project.router import validate_project_owner
 from ..responses import DataResponse, MessageResponse, ErrorResponse
 from ..security import decode_token, oauth2_scheme
+from ..simulation.model import EnSimulationDB
 from ..user.model import EnUserDB
 
 scenario_router = APIRouter(
@@ -278,6 +279,13 @@ async def delete_scenario(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     scenario = db.get(EnScenarioDB, scenario_id)
+
+    linked_simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id)).all()
+    for simulation in linked_simulations:
+        print(f"Delete linked simulation: {simulation.id} with status: {simulation.status}")
+        db.delete(simulation)
+        db.commit()
+
     db.delete(scenario)
     db.commit()
 
