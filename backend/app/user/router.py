@@ -6,9 +6,10 @@ from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
 from starlette import status
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, HTMLResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
+from ..auxillary import send_mail
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
@@ -44,29 +45,31 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     """
     statement = select(EnUserDB).where(EnUserDB.username == username.lower())
     user_db = db.exec(statement).first()
-    print(f"user_db: {user_db}")
 
-    if not user_db:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    if user_db.is_active:
+        if not user_db:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-    if user_db.verify_password(password):
-        user_db.last_login = datetime.now()
-        db.add(user_db)
-        db.commit()
-        db.refresh(user_db)
+        if user_db.verify_password(password):
+            user_db.last_login = datetime.now()
+            db.add(user_db)
+            db.commit()
+            db.refresh(user_db)
 
-        token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
+            token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
 
-        return JSONResponse(
-            content={
-                "message"     : "User login successful.",
-                "access_token": token,
-                "token_type"  : "bearer"
-            },
-            status_code=status.HTTP_200_OK
-        )
+            return JSONResponse(
+                content={
+                    "message": "User login successful.",
+                    "access_token": token,
+                    "token_type": "bearer"
+                },
+                status_code=status.HTTP_200_OK
+            )
+        else:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not activated. Please check your mails.")
 
 
 @users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
@@ -116,6 +119,14 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     db.commit()
     db.refresh(db_user)
 
+    token = jwt.encode(db_user.get_token_information(), token_secret, algorithm="HS256")
+    print(f"Token: {token}")
+
+    await send_mail(
+        token=token,
+        user=db_user
+    )
+
     if db_user.id is not None:
         return MessageResponse(
             data="",
@@ -125,10 +136,37 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
 
 
+@users_router.post("/auth/activate/{token}")
+async def user_activate(
+    token: str,
+    db: Session = Depends(get_db_session)
+):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    token_data = decode_token(token)
+
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
+    user = db.exec(statement).first()
+
+    if user.is_active:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already activated.")
+
+    user.is_active = True
+
+    db.add(user)
+    db.commit()
+
+    return MessageResponse(
+        data="User successfully activated.",
+        success=True
+    )
+
+
 @users_router.get("/", response_model=DataResponse)
 async def user_read(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Handles a GET API endpoint to read user information from the database.
@@ -153,7 +191,7 @@ async def user_read(
     else:
         token_data = decode_token(token)
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
     user = db.exec(statement).first()
 
     if not user:
@@ -170,8 +208,8 @@ async def user_read(
 
 @users_router.patch("/", response_model=DataResponse)
 async def update_user(
-        token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Updates the user information in the database based on the provided token and
@@ -190,7 +228,7 @@ async def update_user(
     """
     token_data = decode_token(token)
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
     user_db = db.exec(statement).first()
 
     if not user:
@@ -214,8 +252,8 @@ async def update_user(
 
 @users_router.delete("/", response_model=MessageResponse)
 async def delete_user(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Deletes a user based on the credentials and token provided. The function
@@ -232,11 +270,8 @@ async def delete_user(
     """
     token_data = decode_token(token)
 
-    if not "id" in token_data:
-        statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-        user = db.exec(statement).first()
-    else:
-        user = db.get(EnUser, token_data["id"])
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
+    user = db.exec(statement).first()
 
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
