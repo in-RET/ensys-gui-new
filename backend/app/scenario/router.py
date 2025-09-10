@@ -175,13 +175,13 @@ async def read_scenario(
     )
 
 
-@scenario_router.patch("/{scenario_id}", response_model=MessageResponse)
+@scenario_router.patch("/{scenario_id}")
 async def update_scenario(
     token: Annotated[str, Depends(oauth2_scheme)],
     scenario_id: int,
     scenario_data: EnScenarioUpdate,
     db: Session = Depends(get_db_session)
-) -> MessageResponse:
+) -> DataResponse:
     """
     Updates an existing scenario identified by its ID. This endpoint allows updating
     specific fields of a scenario with new data provided in the `scenario_data` object.
@@ -223,7 +223,7 @@ async def update_scenario(
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    # Note: Now it's a dict, not a EnScenarioUpdate
+    # Note: Now it's a dict, not an EnScenarioUpdate
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
 
     possible_duplicates = db.exec(
@@ -239,8 +239,13 @@ async def update_scenario(
         db.commit()
         db.refresh(db_scenario)
 
-        return MessageResponse(
-            data="Scenario updated.",
+        response_data = db_scenario.model_dump(exclude={"energysystem"})
+
+        return DataResponse(
+            data=GeneralDataModel(
+                items=[response_data],
+                totalCount=1
+            ),
             success=True
         )
 

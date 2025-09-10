@@ -6,7 +6,7 @@ from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
 from starlette import status
-from starlette.responses import JSONResponse, HTMLResponse
+from starlette.responses import JSONResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
 from ..auxillary import send_mail
@@ -69,7 +69,8 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
         else:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not activated. Please check your mails.")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="User not activated. Please check your mails.")
 
 
 @users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
@@ -122,7 +123,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     token = jwt.encode(db_user.get_token_information(), token_secret, algorithm="HS256")
     print(f"Token: {token}")
 
-    await send_mail(
+    send_mail(
         token=token,
         user=db_user
     )

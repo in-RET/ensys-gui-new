@@ -92,6 +92,12 @@ class EnScenarioDB(SQLModel, table=True):
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
     energysystem: EnEnergysystem = Field(sa_column=Column(JSONB), default={})
 
+    def model_dump(self, *args, **kwargs):
+        data = super().model_dump(*args, **kwargs)
+        data["simulation_year"] = data["start_date"].year
+
+        return data
+
 
 class EnScenarioUpdate(EnScenario):
     """
