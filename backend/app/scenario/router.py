@@ -73,12 +73,10 @@ async def create_scenario(
             success=False
         )
     else:
-        print(f"Scenario befor commit: {scenario}")
         db.add(scenario)
         db.commit()
 
         scenario = db.get(EnScenarioDB, scenario.id)
-        print(f"Scenario: {scenario}")
 
         return DataResponse(
             data=GeneralDataModel(

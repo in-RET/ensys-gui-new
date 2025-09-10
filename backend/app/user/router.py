@@ -1,3 +1,7 @@
+import os
+
+import exchangelib
+
 from datetime import datetime
 from typing import Annotated
 
@@ -6,7 +10,7 @@ from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
 from starlette import status
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, HTMLResponse
 
 from .model import EnUser, EnUserDB, EnUserUpdate
 from ..data.model import GeneralDataModel
@@ -18,7 +22,41 @@ users_router = APIRouter(
     prefix="/user",
     tags=["user"],
 )
-
+#
+# async def send_mail(receiver: str, token: str, user: EnUser):
+#     mail_subject = "Activate your account."
+#     email = render_to_string(
+#         "registration/acc_active_email.html",
+#         {
+#             "user": user,
+#             "domain": ensys.hs-nordhausen.de/.domain,
+#             "uid": urlsafe_base64_encode(force_bytes(user.pk)),
+#             "token": default_token_generator.make_token(user),
+#         },
+#     )
+#
+#     tz = exchangelib.EWSTimeZone("Europe/Copenhagen")
+#     cred = exchangelib.Credentials(os.getenv("EMAIL_HOST_USER"), os.getenv("EMAIL_HOST_PASSWORD"))
+#     config = exchangelib.Configuration(server=os.getenv("EMAIL_HOST_IP"), credentials=cred)
+#
+#     account = exchangelib.Account(
+#         primary_smtp_address=os.getenv("EMAIL_SENDER"),
+#         credentials=cred,
+#         autodiscover=False,
+#         default_timezone=tz,
+#         config=config,
+#     )
+#
+#     msg = exchangelib.Message(
+#         account=account,
+#         subject=mail_subject,
+#         body=email,
+#         to_recipients=user.mail,
+#     )
+#
+#     msg.send_and_save()
+#
+#     return 1
 
 @users_router.post("/auth/login")
 async def user_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_session)):
@@ -68,7 +106,6 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
 
-
 @users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
 async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> MessageResponse:
     """
@@ -112,6 +149,8 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     db_user.password = pbkdf2_sha256.hash(user.password)
     db_user.date_joined = datetime.now()
 
+    # TODO: send mail to activate user
+
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -124,6 +163,24 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
 
+@users_router.post("auth/activate")
+async def user_activate(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
+):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    token_data = decode_token(token)
+
+    user = db.get(EnUserDB, token_data["id"])
+    user.is_active = True
+    db.commit()
+
+    return HTMLResponse(
+        content=f"<h1>User {user.username} activated successfully.</h1>",
+        status_code=status.HTTP_200_OK
+    )
 
 @users_router.get("/", response_model=DataResponse)
 async def user_read(
