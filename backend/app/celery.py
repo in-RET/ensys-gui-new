@@ -11,7 +11,7 @@ from sqlalchemy import create_engine
 from sqlmodel import Session
 
 from ensys.components import EnModel
-from .scenario.auxillary import convert_gui_json_to_ensys
+from .auxillary import convert_gui_json_to_ensys
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 
