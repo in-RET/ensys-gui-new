@@ -17,7 +17,7 @@ interface ScenarioReqData {
     start_date: string;
     time_steps: number;
     interval: number;
-    project_id: number;
+    project_id?: number;
     modeling_data: string;
 }
 
@@ -108,20 +108,20 @@ export class ScenarioBaseComponent {
         this.currentScenario = _data;
     }
 
-    async saveScenario(): Promise<number | boolean | void> {
+    async saveScenario(): Promise<void> {
         const scenarioData: ScenarioModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (!scenarioData || !scenarioData.scenario) {
             this.alertService.warning('There is no data to save!');
-            return false;
+            return;
         }
 
         const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
 
         if (!drawflowData) {
             this.alertService.warning('Drawflow data missing!');
-            return false;
+            return;
         }
 
         let newScenarioData: ScenarioReqData = {
@@ -150,6 +150,8 @@ export class ScenarioBaseComponent {
                     next: (value: any) => {
                         this.toastService.success('Node saved.');
                         // update view+data by id
+                        // update session
+                        // update local this.data
 
                         return value.items[0].id ?? true;
                     },
@@ -160,6 +162,7 @@ export class ScenarioBaseComponent {
                 });
         } catch (err: any) {
             console.error(err);
+
             if (err.status == 409) {
                 const confirmed = await this.alertService.confirm(
                     'Do you want change the name? Or Update current?',
@@ -175,7 +178,6 @@ export class ScenarioBaseComponent {
                     this.updateScenario();
                 }
             } else this.alertService.error(err.message || 'Save failed');
-            return false;
         }
     }
 
@@ -199,7 +201,6 @@ export class ScenarioBaseComponent {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,
-            project_id: scenarioData.project.id,
             interval: 1,
             modeling_data: this.scenarioService.restoreDrawflow_Storage(true),
         };
