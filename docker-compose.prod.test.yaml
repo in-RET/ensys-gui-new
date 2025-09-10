@@ -57,6 +57,7 @@ services:
     volumes:
       - ./backend/app:/backend/app
       - ./backend/data:/backend/data
+      - ./backend/templates:/backend/templates
       - ./ensys:/backend/ensys
       - ${HOST_DATADIR}:${LOCAL_DATADIR}
       - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic

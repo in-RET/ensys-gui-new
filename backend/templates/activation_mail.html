@@ -1,7 +1,32 @@
 <!DOCTYPE html>
 <head>
-    <title>email_template</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <title>activation_email</title>
 </head>
-<body>
-    <p>{{content}}</p>
+<body style="font-family: 'Roboto', sans-serif; font-size: 12px;">
+<p>Hello {{name}},</p>
+<p>to activate your account please follow this <a href="{{ link }}">Link</a>.</p>
+<p>Kind regards,<br>
+    Your EnSys team</p>
+<hr style="border: 1px solid rgb(21,154,52);">
+<p style="font-weight: bold; color: rgb(0,79,159);">
+    Projectgroup Energy system modelling
+</p>
+<p>
+    <span style="font-weight: bold">Hochschule Nordhausen | University of Applied Sciences Nordhausen</span><br>
+    Institut f&uumlr Regenerative Energietechnik (in.RET) | Institut for Renewable Energy Technology (in.RET)
+</p>
+<p>
+    Weinberghof 4<br>
+    99734 Nordhausen
+</p>
+<p>
+    <a href="mailto:ensys@hs-nordhausen.de">ensys@hs-nordhausen.de</a><br>
+    <a href="https://www.hs-nordhausen.de">www.hs-nordhausen.de</a>
+</p>
+<p>
+    <img src="hsn_logo_180px_signature.png" width="180px" alt="Logo">
+</p>
 </body>
