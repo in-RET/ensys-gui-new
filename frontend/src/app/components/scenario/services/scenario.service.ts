@@ -1,23 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
-
-export interface ScenarioModel {
-    project: {
-        id: number;
-        name: string;
-        scenarioList?: any;
-    };
-    scenario?: {
-        id?: number;
-        name: string;
-        simulationPeriod: number;
-        sDate: string; // ISO date string
-        timeStep: number; // minutes or seconds
-        simulationYear: number;
-        modeling_data?: string;
-    };
-}
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
 
 @Injectable({
     providedIn: 'root',
@@ -50,7 +34,7 @@ export class ScenarioService {
     }
 
     // base info
-    saveBaseInfo_Storage(data: ScenarioModel) {
+    saveBaseInfo_Storage(data: ScenarioBaseInfoModel) {
         localStorage.setItem(
             this.scenario_localstorage_name,
             JSON.stringify(data)
@@ -61,7 +45,7 @@ export class ScenarioService {
         localStorage.removeItem(this.scenario_localstorage_name);
     }
 
-    restoreBaseInfo_Storage(): ScenarioModel | null {
+    restoreBaseInfo_Storage(): ScenarioBaseInfoModel | null {
         const BaseInfoData: string | null = localStorage.getItem(
             this.scenario_localstorage_name
         );
@@ -69,6 +53,13 @@ export class ScenarioService {
         if (BaseInfoData && BaseInfoData.trim() != '')
             return JSON.parse(BaseInfoData);
         else return null;
+    }
+
+    updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
+        localStorage.setItem(
+            `${this.scenario_localstorage_name}.scenario`,
+            JSON.stringify(d)
+        );
     }
 
     saveDrawflow_Storage(data: any, needStringify = true) {

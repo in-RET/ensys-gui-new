@@ -6,9 +6,10 @@ import { map } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { OEPPorts, OEPResponse, Port } from '../models/node.model';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
 import { EnergyDesignService, Ports } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
-import { ScenarioModel, ScenarioService } from '../services/scenario.service';
+import { ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
@@ -400,7 +401,7 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.disableControl('outputPort_name');
 
             //set data from server
-            const scenarioBaseData: ScenarioModel | null =
+            const scenarioBaseData: ScenarioBaseInfoModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
             if (scenarioBaseData && scenarioBaseData.scenario) {
@@ -551,7 +552,7 @@ export class ScenarioEnergyDesignComponent {
             });
 
             //set data from server
-            const scenarioBaseData: ScenarioModel | null =
+            const scenarioBaseData: ScenarioBaseInfoModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
             if (scenarioBaseData && scenarioBaseData.scenario) {

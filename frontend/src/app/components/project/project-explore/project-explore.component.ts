@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ScenarioService } from '../../scenario/services/scenario.service';
+import { ProjectModel, ProjectResModel } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
 
@@ -14,7 +16,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
     styleUrl: './project-explore.component.scss',
 })
 export class ProjectExploreComponent {
-    project_list!: any[];
+    project_list!: ProjectModel[];
 
     toastService = inject(ToastService);
 
@@ -32,14 +34,14 @@ export class ProjectExploreComponent {
         this.projectService
             .getProjects()
             .pipe(
-                map((res: any) => {
-                    if (res && res.data) res = res.data;
-                    return res;
+                map((res: ResModel<ProjectResModel>) => {
+                    if (res.success) return res.data;
+                    throw new Error('Unknown API error');
                 })
             )
             .subscribe({
-                next: (value) => {
-                    this.project_list = value.items;
+                next: (val: ResDataModel<ProjectResModel>) => {
+                    this.project_list = val.items;
                 },
 
                 error: (err) => {

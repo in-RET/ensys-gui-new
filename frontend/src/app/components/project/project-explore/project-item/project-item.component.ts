@@ -2,8 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { ScenarioResModel } from '../../../scenario/models/scenario.model';
 import { ScenarioService } from '../../../scenario/services/scenario.service';
+import { ProjectModel } from '../../models/project.model';
 import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
@@ -13,14 +17,15 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     styleUrl: './project-item.component.scss',
 })
 export class ProjectItemComponent {
-    @Input() project: any;
+    @Input() project!: ProjectModel;
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
 
     constructor(
         private scenarioService: ScenarioService,
         private router: Router,
-        private alertService: AlertService
+        private alertService: AlertService,
+        private toastService: ToastService
     ) {}
 
     ngOnInit() {
@@ -49,16 +54,18 @@ export class ProjectItemComponent {
         this.scenarioService
             .getScenarios(projectId)
             .pipe(
-                map((res) => {
-                    if (res && res.success) return res.data.items;
+                map((res: ResModel<ScenarioResModel>) => {
+                    if (res.success) return res.data;
+                    throw new Error('Unknown API error');
                 })
             )
             .subscribe({
-                next: (value) => {
-                    this.project.scenarioList = value;
+                next: (val: ResDataModel<ScenarioResModel>) => {
+                    this.project.scenarioList = val.items;
                 },
-                error(err) {
+                error: (err) => {
                     console.error(err);
+                    this.toastService.error(err);
                 },
             });
     }
@@ -71,14 +78,15 @@ export class ProjectItemComponent {
             project: {
                 id: pId,
                 name: pName,
-                scenarioList: this.project.scenarioList,
+                scenarioList: this.project.scenarioList ?? [],
             },
         });
         this.router.navigate(['../../scenario']);
     }
 
     deleteScenario(scenarioId: number) {
-        this.project.scenarioList = this.project.scenarioList.filter(
+        debugger;
+        this.project.scenarioList = this.project.scenarioList?.filter(
             (x: any) => x.id !== scenarioId
         );
     }

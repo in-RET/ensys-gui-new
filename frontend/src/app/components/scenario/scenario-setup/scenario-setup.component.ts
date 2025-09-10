@@ -10,7 +10,8 @@ import {
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { ToastService } from '../../../shared/services/toast.service';
-import { ScenarioModel, ScenarioService } from '../services/scenario.service';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import { ScenarioService } from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -112,7 +113,7 @@ export class ScenarioSetupComponent implements OnInit {
     }
 
     loadCurrentData() {
-        const scenarioBaseData: ScenarioModel | null =
+        const scenarioBaseData: ScenarioBaseInfoModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (scenarioBaseData) {
@@ -127,24 +128,20 @@ export class ScenarioSetupComponent implements OnInit {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                const {
-                    name,
-                    simulationPeriod,
-                    timeStep,
-                    sDate,
-                    simulationYear,
-                } = scenarioBaseData.scenario;
+                const { name, timeStep, sDate, simulationYear } =
+                    scenarioBaseData.scenario;
 
                 this.form.patchValue({
                     name,
-                    simulationPeriod,
                     timeStep,
                     sDate,
                     simulationYear,
                 });
             } else {
                 this.name?.setValue(
-                    `Scenario_${scenarioBaseData.project.scenarioList.length}`
+                    `Scenario_${
+                        scenarioBaseData.project.scenarioList.length + 1
+                    }`
                 );
             }
         }

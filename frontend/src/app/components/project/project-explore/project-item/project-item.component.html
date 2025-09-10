@@ -85,7 +85,8 @@
                             *ngFor="let scenario of project.scenarioList"
                         >
                             <app-project-scenario-item
-                                [data]="scenario"
+                                [project]="project"
+                                [scenario]="scenario"
                                 (deleteScenario)="deleteScenario($event)"
                             />
                         </li>

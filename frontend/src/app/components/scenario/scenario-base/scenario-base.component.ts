@@ -2,33 +2,20 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+} from '../models/scenario.model';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
-import { ScenarioModel, ScenarioService } from '../services/scenario.service';
+import { ScenarioService } from '../services/scenario.service';
 import { SimulationService } from '../simulation/services/simulation.service';
 import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
 import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
-
-interface ScenarioReqData {
-    id?: number;
-    name: string;
-    start_date: string;
-    time_steps: number;
-    interval: number;
-    project_id?: number;
-    modeling_data: string;
-}
-
-interface ScenarioComponent {
-    label: string;
-    oemof_type: string;
-    data: {};
-    inputs: [];
-    outputs: [];
-    additionalProp1: {};
-}
 
 @Component({
     selector: 'app-scenario-base',
@@ -44,7 +31,7 @@ interface ScenarioComponent {
 })
 export class ScenarioBaseComponent {
     currentStep: number = 1;
-    currentScenario!: ScenarioModel;
+    currentScenario!: ScenarioBaseInfoModel;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
@@ -84,22 +71,16 @@ export class ScenarioBaseComponent {
     saveBaseInfo(data: any) {
         this.scenarioService.removeBaseInfo_Storage();
 
-        const {
-            name,
-            simulationPeriod,
-            sDate,
-            timeStep,
-            simulationYear,
-            project,
-        } = data;
+        const { name, sDate, timeStep, interval, simulationYear, project } =
+            data;
 
-        const _data: ScenarioModel = {
+        const _data: ScenarioBaseInfoModel = {
             project,
             scenario: {
                 name,
-                simulationPeriod,
                 sDate,
                 timeStep,
+                interval,
                 simulationYear,
             },
         };
@@ -109,7 +90,7 @@ export class ScenarioBaseComponent {
     }
 
     async saveScenario(): Promise<void> {
-        const scenarioData: ScenarioModel | null =
+        const scenarioData: ScenarioBaseInfoModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (!scenarioData || !scenarioData.scenario) {
@@ -124,10 +105,10 @@ export class ScenarioBaseComponent {
             return;
         }
 
-        let newScenarioData: ScenarioReqData = {
+        let newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
-            time_steps: scenarioData.scenario?.timeStep,
+            time_steps: scenarioData.scenario.timeStep,
             project_id: scenarioData.project.id,
             interval: 1,
             modeling_data: drawflowData,
@@ -137,23 +118,29 @@ export class ScenarioBaseComponent {
             this.scenarioService
                 .createScenario(newScenarioData)
                 .pipe(
-                    map((res: any) => {
-                        if (res.success) return res.data;
-                        else {
-                            throw new Error(
-                                res.errors[0].message || 'Unknown API error'
-                            );
-                        }
+                    map((res: ResModel<ScenarioResModel>) => {
+                        if (res.success) return res.data.items[0];
+                        throw new Error('Unknown API error');
                     })
                 )
                 .subscribe({
-                    next: (value: any) => {
-                        this.toastService.success('Node saved.');
-                        // update view+data by id
-                        // update session
-                        // update local this.data
+                    next: (val: ScenarioResModel) => {
+                        this.toastService.success(
+                            `Scenario ${newScenarioData.name} saved.`
+                        );
 
-                        return value.items[0].id ?? true;
+                        // update session
+                        if (scenarioData.scenario) {
+                            scenarioData.scenario.id = val.id;
+                            this.scenarioService.updateBaseInfo_Scenario(
+                                scenarioData
+                            );
+
+                            // update local this.data
+                            this.currentScenario.scenario =
+                                scenarioData.scenario;
+                            // update view+data by id
+                        }
                     },
                     error: (err: string) => {
                         this.toastService.error(err);
@@ -183,8 +170,8 @@ export class ScenarioBaseComponent {
 
     async updateScenario(
         startSimulatioAfetr: boolean = false
-    ): Promise<number | boolean> {
-        const scenarioData: ScenarioModel | null =
+    ): Promise<void | boolean> {
+        const scenarioData: ScenarioBaseInfoModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
         if (!scenarioData || !scenarioData.scenario) {
@@ -197,7 +184,7 @@ export class ScenarioBaseComponent {
             return false;
         }
 
-        let newScenarioData: ScenarioReqData = {
+        let newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,
@@ -213,15 +200,25 @@ export class ScenarioBaseComponent {
         }
 
         try {
-            const response = await firstValueFrom(
-                this.scenarioService.updateScenario(
-                    newScenarioData,
-                    scenarioData.scenario.id
-                )
+            const res = await firstValueFrom(
+                this.scenarioService
+                    .updateScenario(newScenarioData, scenarioData.scenario.id)
+                    .pipe(
+                        map((res: ResModel<ScenarioResModel>) => {
+                            if (!res.success)
+                                throw new Error('Unknown API error');
+                            return res.data;
+                        })
+                    )
             );
 
-            console.log('Updated:', response);
-            return scenarioData.scenario.id;
+            this.toastService.success(
+                `Scenario ${scenarioData.scenario.name} updated`
+            );
+            console.log('Updated:', res);
+
+            // if (startSimulatioAfetr)
+            //     this.startSimulation(scenarioData.scenario.id);
         } catch (err: any) {
             console.error(err);
             this.alertService.error(err.message || 'Save failed');
@@ -255,30 +252,43 @@ export class ScenarioBaseComponent {
         this.currentStep = number;
     }
 
-    async startSimulation(scenarioId?: number) {
-        console.log(this.currentScenario);
+    async startSimulation(scenarioId: number) {
+        const confirmed = await this.alertService.confirm(
+            'Update Scenario & Start Simulation?',
+            'Update & Play'
+        );
 
-        if (scenarioId) {
-            const confirmed = await this.alertService.confirm(
-                'Update Scenario & Start Simulation?',
-                'Update & Play'
-            );
+        if (confirmed) await this.updateScenario(true);
 
-            if (confirmed) {
-                const newScenario = await this.updateScenario(true);
-                this.toastService.success('Simulation has started.');
-            }
-        } else {
-            const confirmed = await this.alertService.confirm(
-                'Save Scenario & Start Simulation?',
-                'Save & Play'
-            );
+        // start simulation
+        this.simulationService
+            .startSimulation(scenarioId)
+            .pipe(
+                map((res: ResModel<ScenarioResModel>) => {
+                    if (res.success) return res.data;
+                    throw new Error('Unknown API error');
+                })
+            )
+            .subscribe({
+                next: (val: ResDataModel<ScenarioResModel>) => {
+                    this.toastService.success('Simulation has started.');
+                },
+                error: (err) => {
+                    this.alertService.error('Failed');
+                },
+            });
 
-            if (confirmed) {
-                const newScenario = await this.saveScenario();
-                console.log(newScenario);
-            }
-        }
+        // } else {
+        //     const confirmed = await this.alertService.confirm(
+        //         'Save Scenario & Start Simulation?',
+        //         'Save & Play'
+        //     );
+
+        //     if (confirmed) {
+        //         const newScenario = await this.saveScenario();
+        //         console.log(newScenario);
+        //     }
+        // }
     }
 
     checkScenarioIsNew() {

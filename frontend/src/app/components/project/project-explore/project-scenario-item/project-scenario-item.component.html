@@ -1,20 +1,16 @@
 <div class="details">
-    <a class="form-check-label" (click)="openScenario(data)">
-        {{ data.name }}
+    <a class="form-check-label" (click)="openScenario(scenario)">
+        {{ scenario.name }}
     </a>
 
     <div class="actions">
-        <!-- <a class="btn btn--action action" (click)="openScenario(data)">
-            <span class="icon icon-edit" aria-hidden="true"></span>
-        </a> -->
-
         <button
-            id="delete_{{ data.id }}"
+            id="delete_{{ scenario.id }}"
             style="margin-top: 0.25rem"
             class="btn btn--action action"
             type="button"
             value="Delete"
-            (click)="onDeleteScenario(data.id)"
+            (click)="onDeleteScenario(scenario.id)"
         >
             <span class="icon icon-delete" aria-hidden="true"></span>
         </button>

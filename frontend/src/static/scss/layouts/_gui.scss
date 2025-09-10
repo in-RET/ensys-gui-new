@@ -34,6 +34,11 @@
 
     .components__content {
         padding: 0.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
 
         .section {
             padding-bottom: 1rem;

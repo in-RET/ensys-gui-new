@@ -14,6 +14,6 @@ export class SimulationService {
     }
 
     startSimulation(scenarioId: number) {
-        console.log(`Start Simulations with scenarioId: ${scenarioId}`);
+        return this.baseHttp.post(`${this.baseUrl}/start/${scenarioId}`);
     }
 }

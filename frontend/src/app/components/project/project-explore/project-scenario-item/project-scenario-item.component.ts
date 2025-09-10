@@ -1,11 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
+    ScenarioBaseInfoModel,
     ScenarioModel,
-    ScenarioService,
-} from '../../../scenario/services/scenario.service';
+} from '../../../scenario/models/scenario.model';
+import { ScenarioService } from '../../../scenario/services/scenario.service';
+import { ProjectModel } from '../../models/project.model';
 
 @Component({
     selector: 'app-project-scenario-item',
@@ -14,31 +17,34 @@ import {
     styleUrl: './project-scenario-item.component.scss',
 })
 export class ProjectScenarioItemComponent {
-    @Input() data: any;
+    @Input() project!: ProjectModel;
+    @Input() scenario!: ScenarioModel;
 
     @Output() deleteScenario: EventEmitter<any> = new EventEmitter<any>();
 
     toastService = inject(ToastService);
+    alertService = inject(AlertService);
 
     constructor(
         private scenarioService: ScenarioService,
         private router: Router
     ) {}
 
-    openScenario(data: any) {
+    openScenario(data: ScenarioModel) {
         // save project,scenario - storage
-        const scenarioData: ScenarioModel = {
+        const scenarioData: ScenarioBaseInfoModel = {
             project: {
-                id: data.project_id,
-                name: data.project_name ?? '_',
+                id: this.project.id,
+                name: this.project.name ?? '_',
+                scenarioList: this.project.scenarioList ?? [],
             },
             scenario: {
                 id: data.id,
-                name: data.name ?? '_',
-                sDate: data.start_date,
+                name: data.name,
+                sDate: data.sDate,
                 timeStep: 60,
-                simulationPeriod: 8760,
-                simulationYear: data.simulation_year ?? 2025,
+                interval: data.interval,
+                simulationYear: 2025,
             },
         };
 
@@ -49,17 +55,26 @@ export class ProjectScenarioItemComponent {
         this.toastService.info('Scenario data restored.');
     }
 
-    onDeleteScenario(scenarioId: number) {
-        this.scenarioService.deleteScenario(scenarioId).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    this.toastService.success('Scenario deleted.');
-                    this.deleteScenario.emit(scenarioId);
-                } else this.toastService.error('An error occured.');
-            },
-            error: (err) => {
-                this.toastService.error(err);
-            },
-        });
+    async onDeleteScenario(scenarioId: number) {
+        const confirmed = await this.alertService.confirm(
+            `Are you sure delete scenario ${this.scenario.name}?`,
+            'Save & Play'
+        );
+
+        if (confirmed) {
+            this.scenarioService.deleteScenario(scenarioId).subscribe({
+                next: (value) => {
+                    if (value.success) {
+                        this.toastService.success(
+                            `Scenario ${this.scenario.name} deleted.`
+                        );
+                        this.deleteScenario.emit(scenarioId);
+                    } else this.toastService.error('An error occured.');
+                },
+                error: (err) => {
+                    this.toastService.error(err);
+                },
+            });
+        }
     }
 }
