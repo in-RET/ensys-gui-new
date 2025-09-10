@@ -67,6 +67,7 @@ class FormModalInfo {
     show: boolean = false;
     node?: FormNode;
     preDefData!: OEPPorts | undefined;
+    url: string = '';
 }
 
 @Component({
@@ -224,6 +225,10 @@ export class ScenarioEnergyDesignComponent {
             }
         }
 
+        if (this.formModal_info.node)
+            this.formModal_info.url = this.getNodeInfoUrl(
+                this.formModal_info.node.type
+            );
         // appear Modal
         this.formModal_info.show = true;
     }
@@ -677,6 +682,28 @@ export class ScenarioEnergyDesignComponent {
                 this.formModal_info.data.ports.editable =
                     !this.formComponent.form.controls['oep'].value;
             }
+        }
+    }
+
+    getNodeInfoUrl(nodeName: string) {
+        switch (nodeName) {
+            case 'source':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._source';
+
+            case 'transformer':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._converter';
+
+            case 'genericStorage':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._generic_storage';
+
+            case 'sink':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#oemof.solph.components._sink.Sink';
+
+            case 'bus':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.busses.html';
+
+            default:
+                return 'https://oemof-solph.readthedocs.io';
         }
     }
 

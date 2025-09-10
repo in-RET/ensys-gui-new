@@ -6,10 +6,12 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnProject, EnProjectDB, EnProjectUpdate
+from ..auxillary import validate_project_owner
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
 from ..scenario.model import EnScenarioDB
+from ..scenario.router import delete_scenario
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -19,48 +21,10 @@ projects_router = APIRouter(
 )
 
 
-def validate_project_owner(project_id: int, token: str, db):
-    """
-    Validates whether the user associated with a given token is the owner of a project
-    identified by the provided project_id. Verifies the token's authenticity, fetches
-    the project from the database, and compares its ownership details to ensure the user
-    has the necessary permissions to access or modify the project.
-
-    :param project_id: ID of the project whose ownership is being validated
-    :type project_id: int
-    :param token: JWT token provided for authentication and identifying the user
-    :type token: str
-    :param db: Database session object used to query project and user information. Dependency injection.
-    :type db: Session
-    :return: Returns True if the token user is the owner of the project, otherwise raises an exception
-    :rtype: bool
-
-    :raises HTTPException: If the project is not found in the database (404)
-    :raises HTTPException: If the user associated with the token does not own the project (403)
-    """
-    # Get Database-Session and token-data
-    token_data = decode_token(token)
-
-    # Get User-data from the Database
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-    token_user = db.exec(statement).first()
-
-    # get the mentioned project-data
-    project = db.get(EnProjectDB, project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    # check if the project_id and the token_id are the same and return the value
-    if project.user_id == token_user.id:
-        return True
-    else:
-        raise HTTPException(status_code=403, detail="Permission denied")
-
-
 @projects_router.post("/", response_model=MessageResponse)
 async def create_project(
-        token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Creates a new project and stores it in the database. The function checks
@@ -105,8 +69,8 @@ async def create_project(
 
 @projects_router.get("s/", response_model=DataResponse)
 async def read_projects(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Fetches and returns a list of projects associated with the authenticated user.
@@ -148,8 +112,8 @@ async def read_projects(
 
 @projects_router.get("/{project_id}", response_model=DataResponse)
 async def read_project(
-        project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    project_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Retrieves project details by the given project ID. This endpoint fetches details about a
@@ -170,7 +134,7 @@ async def read_project(
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if not validate_project_owner(project_id, token, db):
+    if not validate_project_owner(project_id=project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     return DataResponse(
@@ -184,8 +148,8 @@ async def read_project(
 
 @projects_router.patch("/{project_id}", response_model=MessageResponse)
 async def update_project(
-        token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)], project_id: int, project_data: EnProjectUpdate,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Updates the details of an existing project. This endpoint allows authenticated
@@ -207,7 +171,7 @@ async def update_project(
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if not validate_project_owner(project_id, token, db):
+    if not validate_project_owner(project_id=project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     db_project = db.get(EnProjectDB, project_id)
@@ -231,8 +195,8 @@ async def update_project(
 
 @projects_router.delete("/{project_id}", response_model=MessageResponse)
 async def delete_project(
-        token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Deletes a project and all associated scenarios from the database.
@@ -259,14 +223,18 @@ async def delete_project(
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if not validate_project_owner(project_id, token, db):
+    if not validate_project_owner(project_id=project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     project = db.get(EnProjectDB, project_id)
 
     scenarios = db.exec(select(EnScenarioDB).where(EnScenarioDB.project_id == project.id))
     for scenario in scenarios:
-        db.delete(scenario)
+        await delete_scenario(
+            token=token,
+            scenario_id=scenario.id,
+            db=db
+        )
 
     db.delete(project)
     db.commit()
