@@ -1,13 +1,96 @@
-from sqlmodel import select
+import os
+from datetime import datetime
+
+from exchangelib import HTMLBody, Account, Configuration, EWSTimeZone, Credentials, Message
+from fastapi import HTTPException
+from jinja2 import Template
+from sqlmodel import select, Session
 from starlette import status
 
 from ensys.components import *
-from .model import EnScenarioDB
-from ..security import decode_token
-from ..user.model import EnUserDB
+from .db import db_engine
+from .security import decode_token
+from .project.model import EnProjectDB
+from .scenario.model import EnScenarioDB
+from .simulation.model import EnSimulationDB, Status
+from .user.model import EnUserDB
 
 
-def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
+def send_mail(token: str, user: EnUserDB):
+    with open(os.path.abspath(os.path.join(os.getcwd(), "templates", "activation_mail.html"))) as f:
+        mail_template = Template(f.read())
+
+    mail_body = HTMLBody(mail_template.render(
+        name=user.username,
+        link=f"https://ensys.hs-nordhausen.de/api/user/auth/activate/{token}"
+    ))
+
+    tz = EWSTimeZone("Europe/Copenhagen")
+    cred = Credentials(
+        username=os.getenv("EMAIL_HOST_USER"),
+        password=os.getenv("EMAIL_HOST_PASSWORD")
+    )
+    config = Configuration(server=os.getenv("EMAIL_HOST_IP"), credentials=cred)
+
+    account = Account(
+        primary_smtp_address=os.getenv("EMAIL_SENDER"),
+        credentials=cred,
+        autodiscover=False,
+        default_timezone=tz,
+        config=config,
+    )
+
+    msg = Message(
+        account=account,
+        subject="Activate your account.",
+        body=mail_body,
+        to_recipients=[str(user.mail)],
+    )
+
+    msg.send_and_save()
+
+
+def validate_project_owner(project_id: int, token: str, db: Session = Session(db_engine)):
+    """
+    Validates whether the user associated with a given token is the owner of a project
+    identified by the provided project_id. Verifies the token's authenticity, fetches
+    the project from the database, and compares its ownership details to ensure the user
+    has the necessary permissions to access or modify the project.
+
+    :param project_id: ID of the project whose ownership is being validated
+    :type project_id: int
+    :param token: JWT token provided for authentication and identifying the user
+    :type token: str
+    :param db: Database session object used to query project and user information. Dependency injection.
+    :type db: Session
+    :return: Returns True if the token user is the owner of the project, otherwise raises an exception
+    :rtype: bool
+
+    :raises HTTPException: If the project is not found in the database (404)
+    :raises HTTPException: If the user associated with the token does not own the project (403)
+    """
+    # Get Database-Session and token-data
+    token_data = decode_token(token)
+
+    # Get User-data from the Database
+    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
+    token_user = db.exec(statement).first()
+
+    # get the mentioned project-data
+    project = db.get(EnProjectDB, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # check if the project_id and the token_id are the same and return the value
+    if token_user.is_staff:
+        return True
+    elif project.user_id == token_user.id:
+        return True
+    else:
+        raise HTTPException(status_code=403, detail="Permission denied")
+
+
+def validate_scenario_owner(scenario_id, token, db: Session = Session(db_engine)) -> (bool, int, str):
     """
     Validates whether the owner of a given scenario matches the user from the provided
     authentication token. This function ensures that the logged-in user has the
@@ -37,12 +120,57 @@ def validate_scenario_owner(scenario_id, db, token) -> (bool, int, str):
     if scenario is None:
         return False, status.HTTP_404_NOT_FOUND, "Scenario not found."
 
-    if user.is_staff is True:
+    if user.is_staff:
         return True, status.HTTP_200_OK, ""
     elif scenario.user_id == user.id:
         return True, status.HTTP_200_OK, ""
     else:
         return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
+
+
+def validate_user_rights(token, scenario_id, db: Session = Session(db_engine)) -> bool:
+    """
+    Validates a user's rights to access a specific scenario within a project. The function first
+    validates whether the user is the owner of the given scenario and subsequently verifies ownership of the
+    associated project. Raises appropriate HTTP exceptions if the user is unauthorized or if the specified
+    scenario or project does not exist.
+
+    :param token: Authentication token of the user.
+    :type token: Str
+    :param scenario_id: ID of the scenario to validate access for.
+    :type scenario_id: Int
+    :param db: Database session/connection object used for querying related data. Dependency injection.
+    :type db: Session
+
+    :return: A boolean indicating whether the user is authorized to access the scenario.
+    :rtype: Bool
+
+    :raises HTTPException: If the user is unauthorized or the specified scenario or project is not found.
+    """
+
+    validation_scenario = validate_scenario_owner(
+        token=token,
+        scenario_id=scenario_id
+    )
+    if not validation_scenario:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    scenario = db.get(EnScenarioDB, scenario_id)
+    if not scenario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
+
+    project = db.get(EnProjectDB, scenario.project_id)
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
+
+    validation_project = validate_project_owner(
+        token=token,
+        project_id=project.id
+    )
+    if not validation_project:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    return True
 
 
 def check_flow_investment(flow_data):
@@ -115,9 +243,9 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
             target_bus_name = flowchart_data[target_bus_id]["name"]
 
             # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
-            for input in component_data["connections"]["inputs"]:
-                if input_name in input:
-                    flow_data = input[input_name]["formInfo"]
+            for node_input in component_data["connections"]["inputs"]:
+                if input_name in node_input:
+                    flow_data = node_input[input_name]["formInfo"]
 
                     if flow_data["investment"] is True:
                         flow_data["nominal_value"] = EnInvestment(
@@ -221,6 +349,7 @@ def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
 
     return conversion_factors
 
+
 def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
     """
     Converts a given GUI JSON representation of a flowchart into an energy system object
@@ -276,3 +405,35 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
         ensys_es.add(ensys_component)
 
     return ensys_es
+
+
+def check_container_status(docker_container, simulation_id, db: Session = Session(db_engine)):
+    """
+    Check the status of a Docker container and update the status of an associated simulation
+    in the database accordingly.
+
+    This function waits for the completion of a Docker container and retrieves its exit code.
+    If the exit code indicates an error, an HTTPException is raised with the container logs.
+    Otherwise, it updates the simulation's status to finished, sets the end date, and commits
+    the changes to the database.
+
+    :param docker_container: Docker container object representing the container to be monitored
+    :type docker_container: DockerContainer
+    :param simulation_id: The unique identifier of the simulation associated with the Docker container
+    :type simulation_id: int
+    :param db: Database session object used for querying and persisting updates. Dependency injection.
+    :type db: Session
+    :return: None
+    :rtype: None
+    """
+    result_dict = docker_container.wait()
+
+    simulation = db.get(EnSimulationDB, simulation_id)
+
+    if result_dict["StatusCode"] > 0:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=docker_container.logs())
+    else:
+        simulation.status = Status.FINISHED.value
+        simulation.end_date = datetime.now()
+        db.commit()
+        db.refresh(simulation)

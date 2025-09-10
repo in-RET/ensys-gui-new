@@ -4,12 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 from starlette import status
 
-from .auxillary import validate_scenario_owner
 from .model import EnScenario, EnScenarioDB, EnScenarioUpdate
+from ..auxillary import validate_scenario_owner, validate_project_owner
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..errors.model import ErrorModel
-from ..project.router import validate_project_owner
 from ..responses import DataResponse, MessageResponse, ErrorResponse
 from ..security import decode_token, oauth2_scheme
 from ..simulation.model import EnSimulationDB
@@ -50,7 +49,7 @@ async def create_scenario(
     statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
     token_user = db.exec(statement).first()
 
-    if not validate_project_owner(project_id, token, db):
+    if not validate_project_owner(project_id=project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     scenario = EnScenarioDB(**scenario_data.model_dump())
@@ -73,12 +72,10 @@ async def create_scenario(
             success=False
         )
     else:
-        print(f"Scenario befor commit: {scenario}")
         db.add(scenario)
         db.commit()
 
         scenario = db.get(EnScenarioDB, scenario.id)
-        print(f"Scenario: {scenario}")
 
         return DataResponse(
             data=GeneralDataModel(
@@ -113,13 +110,13 @@ async def read_scenarios(
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
-    if not validate_project_owner(project_id, token, db):
+    if not validate_project_owner(project_id=project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     statement = select(EnScenarioDB).where(EnScenarioDB.project_id == project_id)
     scenarios = db.exec(statement)
 
-    response_data = [scenario.model_dump(exclude=['energysystem']) for scenario in scenarios]
+    response_data = [scenario.model_dump(exclude={'energysystem'}) for scenario in scenarios]
     return DataResponse(
         data=GeneralDataModel(
             items=response_data,
@@ -155,8 +152,8 @@ async def read_scenario(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     validate_scenario_result, validate_scenario_code, validate_scenario_msg = validate_scenario_owner(
-        scenario_id, db,
-        token
+        scenario_id=scenario_id,
+        token=token
     )
     if not validate_scenario_result:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
@@ -165,10 +162,10 @@ async def read_scenario(
     if not scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    if not validate_project_owner(scenario.project_id, token, db):
+    if not validate_project_owner(project_id=scenario.project_id, token=token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
-    response_data = scenario.model_dump(exclude=["energysystem"])
+    response_data = scenario.model_dump(exclude={"energysystem"})
     return DataResponse(
         data=GeneralDataModel(
             items=[response_data],
@@ -178,13 +175,13 @@ async def read_scenario(
     )
 
 
-@scenario_router.patch("/{scenario_id}", response_model=MessageResponse)
+@scenario_router.patch("/{scenario_id}")
 async def update_scenario(
     token: Annotated[str, Depends(oauth2_scheme)],
     scenario_id: int,
     scenario_data: EnScenarioUpdate,
     db: Session = Depends(get_db_session)
-) -> MessageResponse:
+) -> DataResponse:
     """
     Updates an existing scenario identified by its ID. This endpoint allows updating
     specific fields of a scenario with new data provided in the `scenario_data` object.
@@ -215,8 +212,8 @@ async def update_scenario(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     validate_scenario_result, validate_scenario_code, validate_scenario_msg = validate_scenario_owner(
-        scenario_id, db,
-        token
+        scenario_id=scenario_id,
+        token=token
     )
 
     if not validate_scenario_result:
@@ -226,7 +223,7 @@ async def update_scenario(
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-    # Note: Now it's a dict, not a EnScenarioUpdate
+    # Note: Now it's a dict, not an EnScenarioUpdate
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
 
     possible_duplicates = db.exec(
@@ -242,8 +239,13 @@ async def update_scenario(
         db.commit()
         db.refresh(db_scenario)
 
-        return MessageResponse(
-            data="Scenario updated.",
+        response_data = db_scenario.model_dump(exclude={"energysystem"})
+
+        return DataResponse(
+            data=GeneralDataModel(
+                items=[response_data],
+                totalCount=1
+            ),
             success=True
         )
 
@@ -272,8 +274,8 @@ async def delete_scenario(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
     validate_scenario_result, validate_scenario_code, validate_scenario_msg = validate_scenario_owner(
-        scenario_id, db,
-        token
+        scenario_id=scenario_id,
+        token=token
     )
     if not validate_scenario_result:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")

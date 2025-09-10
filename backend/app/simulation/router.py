@@ -9,14 +9,11 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnSimulationDB, Status
+from ..auxillary import validate_user_rights
 from ..celery import simulation_task
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
-from ..project.model import EnProjectDB
-from ..project.router import validate_project_owner
 from ..responses import DataResponse, ErrorModel, MessageResponse
-from ..scenario.model import EnScenarioDB
-from ..scenario.router import validate_scenario_owner
 from ..security import oauth2_scheme
 
 simulation_router = APIRouter(
@@ -25,90 +22,11 @@ simulation_router = APIRouter(
 )
 
 
-def validate_user_rights(token, scenario_id, db) -> bool:
-    """
-    Validates a user's rights to access a specific scenario within a project. The function first
-    validates whether the user is the owner of the given scenario and subsequently verifies ownership of the
-    associated project. Raises appropriate HTTP exceptions if the user is unauthorized or if the specified
-    scenario or project does not exist.
-
-    :param token: Authentication token of the user.
-    :type token: Str
-    :param scenario_id: ID of the scenario to validate access for.
-    :type scenario_id: Int
-    :param db: Database session/connection object used for querying related data. Dependency injection.
-    :type db: Session
-
-    :return: A boolean indicating whether the user is authorized to access the scenario.
-    :rtype: Bool
-
-    :raises HTTPException: If the user is unauthorized or the specified scenario or project is not found.
-    """
-
-    validation_scenario = validate_scenario_owner(
-        token=token,
-        scenario_id=scenario_id,
-        db=db
-    )
-    if not validation_scenario:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    scenario = db.get(EnScenarioDB, scenario_id)
-    if not scenario:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
-
-    project = db.get(EnProjectDB, scenario.project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
-
-    validation_project = validate_project_owner(
-        token=token,
-        project_id=project.id,
-        db=db,
-    )
-    if not validation_project:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    return True
-
-
-def check_container_status(docker_container, simulation_id, db):
-    """
-    Check the status of a Docker container and update the status of an associated simulation
-    in the database accordingly.
-
-    This function waits for the completion of a Docker container and retrieves its exit code.
-    If the exit code indicates an error, an HTTPException is raised with the container logs.
-    Otherwise, it updates the simulation's status to finished, sets the end date, and commits
-    the changes to the database.
-
-    :param docker_container: Docker container object representing the container to be monitored
-    :type docker_container: DockerContainer
-    :param simulation_id: The unique identifier of the simulation associated with the Docker container
-    :type simulation_id: int
-    :param db: Database session object used for querying and persisting updates. Dependency injection.
-    :type db: Session
-    :return: None
-    :rtype: None
-    """
-    result_dict = docker_container.wait()
-
-    simulation = db.get(EnSimulationDB, simulation_id)
-
-    if result_dict["StatusCode"] > 0:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=docker_container.logs())
-    else:
-        simulation.status = Status.FINISHED.value
-        simulation.end_date = datetime.now()
-        db.commit()
-        db.refresh(simulation)
-
-
 @simulation_router.post("/start/{scenario_id}", response_model=MessageResponse)
 async def start_simulation(
-        scenario_id: int, background_tasks: BackgroundTasks,
-        token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    scenario_id: int, background_tasks: BackgroundTasks,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Starts a new simulation for a given scenario and ensures any currently running simulations
@@ -172,8 +90,8 @@ async def start_simulation(
 
 @simulation_router.get("/status/{simulation_id}", response_model=MessageResponse)
 async def get_simulation_status(
-        simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     This function retrieves the status of a specific simulation based on the provided simulation ID.
@@ -214,8 +132,8 @@ async def get_simulation_status(
 
 @simulation_router.post("s/stop/{scenario_id}", response_model=MessageResponse)
 async def stop_simulations(
-        scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Stop active simulations for a specified scenario.
@@ -278,8 +196,8 @@ async def stop_simulations(
 
 @simulation_router.post("/stop/{simulation_id}", response_model=MessageResponse)
 async def stop_simulation(
-        simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Stops a simulation with the specified simulation ID. This operation first
@@ -330,8 +248,8 @@ async def stop_simulation(
 
 @simulation_router.get("s/{scenario_id}", response_model=DataResponse)
 async def get_simulations(
-        scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    scenario_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Retrieve a list of simulations associated with a specific scenario.
@@ -371,8 +289,8 @@ async def get_simulations(
 
 @simulation_router.get("/{simulation_id}", response_model=DataResponse)
 async def get_simulation(
-        simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Fetches and returns simulation data based on the specified simulation ID. The request
@@ -412,8 +330,8 @@ async def get_simulation(
 
 @simulation_router.delete("/{simulation_id}")
 async def delete_simulation(
-        token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int,
-        db: Session = Depends(get_db_session)
+    token: Annotated[str, Depends(oauth2_scheme)], simulation_id: int,
+    db: Session = Depends(get_db_session)
 ) -> MessageResponse:
     """
     Deletes a simulation from the database based on the given simulation ID. The user must be authenticated

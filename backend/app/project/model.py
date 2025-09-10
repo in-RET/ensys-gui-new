@@ -68,7 +68,7 @@ class EnProjectDB(EnProject, table=True):
     date_updated: datetime | None = Field(default=None)
 
     def get_return_data(self):
-        return self.dict(exclude={"user_id"})
+        return self.model_dump(exclude={"user_id"})
 
 
 class EnProjectUpdate(EnProject):
