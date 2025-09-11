@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { firstValueFrom, map } from 'rxjs';
+import { firstValueFrom, map, Observable } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -89,7 +89,7 @@ export class ScenarioBaseComponent {
         this.currentScenario = _data;
     }
 
-    async saveScenario(): Promise<void> {
+    async saveScenario(): Promise<Observable<any> | undefined> {
         const scenarioData: ScenarioBaseInfoModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
 
@@ -114,60 +114,64 @@ export class ScenarioBaseComponent {
             modeling_data: drawflowData,
         };
 
-        try {
-            this.scenarioService
-                .createScenario(newScenarioData)
-                .pipe(
-                    map((res: ResModel<ScenarioResModel>) => {
-                        if (res.success) return res.data.items[0];
-                        throw new Error('Unknown API error');
-                    })
-                )
-                .subscribe({
-                    next: (val: ScenarioResModel) => {
-                        this.toastService.success(
-                            `Scenario ${newScenarioData.name} saved.`
-                        );
+        // try {
+        // this.scenarioService
+        //     .createScenario(newScenarioData)
+        //     .pipe(
+        //         map((res: ResModel<ScenarioResModel>) => {
+        //             if (res.success) return res.data.items[0];
+        //             throw new Error('Unknown API error');
+        //         })
+        //     )
+        //     .subscribe({
+        //         next: (val: ScenarioResModel) => {
+        //             debugger;
+        //             this.toastService.success(
+        //                 `Scenario ${newScenarioData.name} saved.`
+        //             );
 
-                        // update session
-                        if (scenarioData.scenario) {
-                            scenarioData.scenario.id = val.id;
+        //             // update session
+        //             if (scenarioData.scenario) {
+        //                 scenarioData.scenario.id = val.id;
 
-                            this.scenarioService.updateBaseInfo_Scenario(
-                                scenarioData
-                            );
+        //                 this.scenarioService.updateBaseInfo_Scenario(
+        //                     scenarioData
+        //                 );
 
-                            // update local this.data
-                            this.currentScenario.scenario =
-                                scenarioData.scenario;
-                            // update view+data by id
-                            this.checkScenarioIsNew();
-                        }
-                    },
-                    error: (err: string) => {
-                        this.toastService.error(err);
-                        return false;
-                    },
-                });
-        } catch (err: any) {
-            console.error(err);
+        //                 // update local this.data
+        //                 this.currentScenario.scenario =
+        //                     scenarioData.scenario;
+        //                 // update view+data by id
+        //                 this.checkScenarioIsNew();
+        //                 debugger;
+        //             }
+        //         },
+        //         error: (err: string) => {
+        //             this.toastService.error(err);
+        //             return false;
+        //         },
+        //     });
 
-            if (err.status == 409) {
-                const confirmed = await this.alertService.confirm(
-                    'Do you want change the name? Or Update current?',
-                    'Duplicate Scenario!',
-                    '< Step',
-                    'Update',
-                    'error'
-                );
+        return this.scenarioService.createScenario(newScenarioData);
+        // } catch (err: any) {
+        //     console.error(err);
 
-                if (confirmed) {
-                    this.prevtStep();
-                } else {
-                    this.updateScenario();
-                }
-            } else this.alertService.error(err.message || 'Save failed');
-        }
+        //     if (err.status == 409) {
+        //         const confirmed = await this.alertService.confirm(
+        //             'Do you want change the name? Or Update current?',
+        //             'Duplicate Scenario!',
+        //             '< Step',
+        //             'Update',
+        //             'error'
+        //         );
+
+        //         if (confirmed) {
+        //             this.prevtStep();
+        //         } else {
+        //             this.updateScenario();
+        //         }
+        //     } else this.alertService.error(err.message || 'Save failed');
+        // }
     }
 
     async updateScenario(
@@ -250,31 +254,126 @@ export class ScenarioBaseComponent {
         this.currentStep = number;
     }
 
-    async startSimulation(scenarioId: number) {
-        const confirmed = await this.alertService.confirm(
-            'Update Scenario & Start Simulation?',
-            'Update & Play'
-        );
+    async startSimulation(scenarioId: number | undefined): Promise<any> {
+        console.log(scenarioId);
 
-        if (confirmed) await this.updateScenario(true);
+        const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return false;
+        }
 
-        // start simulation
-        this.simulationService
-            .startSimulation(scenarioId)
-            .pipe(
-                map((res: ResModel<ScenarioResModel>) => {
-                    if (res.success) return res.data;
-                    throw new Error('Unknown API error');
-                })
-            )
-            .subscribe({
-                next: (val: ResDataModel<ScenarioResModel>) => {
-                    this.toastService.success('Simulation has started.');
-                },
-                error: (err) => {
-                    this.alertService.error('Failed');
-                },
-            });
+        // scenario has stored
+        if (scenarioId) {
+            const confirmed = await this.alertService.confirm(
+                'Update Scenario & Start Simulation?',
+                'Update & Play'
+            );
+
+            if (confirmed) await this.updateScenario(true);
+
+            // start simulation
+            this.simulationService
+                .startSimulation(scenarioId)
+                .pipe(
+                    map((res: ResModel<ScenarioResModel>) => {
+                        if (res.success) return res.data;
+                        throw new Error('Unknown API error');
+                    })
+                )
+                .subscribe({
+                    next: (val: ResDataModel<ScenarioResModel>) => {
+                        this.toastService.success('Simulation has started.');
+                    },
+                    error: (err) => {
+                        this.alertService.error('Failed');
+                    },
+                });
+        }
+        // has not stored yet
+        else {
+            const confirmed = await this.alertService.confirm(
+                'The Scenrio has not been stored, you need to save at first.',
+                'Save & Play',
+                `Save + Start`,
+                `No`
+            );
+
+            if (confirmed) {
+                let res: Observable<any> | undefined =
+                    await this.saveScenario();
+
+                if (res) {
+                    res.pipe(
+                        map((res: ResModel<ScenarioResModel>) => {
+                            if (res.success) return res.data.items[0];
+                            throw new Error('Unknown API error');
+                        })
+                    ).subscribe({
+                        next: (val: ScenarioResModel) => {
+                            const scenarioData: ScenarioBaseInfoModel | null =
+                                this.scenarioService.restoreBaseInfo_Storage();
+
+                            this.toastService.success(`Scenario  saved.`);
+
+                            // update session
+                            if (scenarioData?.scenario) {
+                                scenarioData.scenario.id = val.id;
+
+                                this.scenarioService.updateBaseInfo_Scenario(
+                                    scenarioData
+                                );
+
+                                // update local this.data
+                                this.currentScenario.scenario =
+                                    scenarioData.scenario;
+                                // update view+data by id
+                                this.checkScenarioIsNew();
+
+                                if (this.currentScenario.scenario?.id) {
+                                    // start simulation
+                                    this.simulationService
+                                        .startSimulation(
+                                            this.currentScenario.scenario.id
+                                        )
+                                        .pipe(
+                                            map(
+                                                (
+                                                    res: ResModel<ScenarioResModel>
+                                                ) => {
+                                                    if (res.success)
+                                                        return res.data;
+                                                    throw new Error(
+                                                        'Unknown API error'
+                                                    );
+                                                }
+                                            )
+                                        )
+                                        .subscribe({
+                                            next: (
+                                                val: ResDataModel<ScenarioResModel>
+                                            ) => {
+                                                this.toastService.success(
+                                                    'Simulation has started.'
+                                                );
+                                            },
+                                            error: (err) => {
+                                                this.alertService.error(
+                                                    'Failed'
+                                                );
+                                            },
+                                        });
+                                }
+                            }
+                        },
+                        error: (err: string) => {
+                            this.toastService.error(err);
+                            return false;
+                        },
+                    });
+                }
+            }
+        }
     }
 
     checkScenarioIsNew() {

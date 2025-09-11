@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ScenarioBaseInfoModel } from '../../models/scenario.model';
 import { ScenarioService } from '../../services/scenario.service';
 
 @Component({
@@ -11,9 +12,8 @@ import { ScenarioService } from '../../services/scenario.service';
 })
 export class ScenarioFooterComponent {
     @Input('step') step!: number;
-    @Input('scenarioData') scenarioData!: any;
+    @Input('scenarioData') scenarioData!: ScenarioBaseInfoModel;
     @Input('isScenarioNew') isScenarioNew!: boolean;
-    // @Input('hasDrawflowData') hasDrawflowData!: boolean;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();
@@ -41,6 +41,6 @@ export class ScenarioFooterComponent {
     }
 
     onStartSimulation() {
-        this.startSimulation.emit();
+        this.startSimulation.emit(this.scenarioData.scenario?.id);
     }
 }

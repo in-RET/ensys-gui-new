@@ -50,8 +50,8 @@
         <div class="step-footer__right">
             <a
                 class="btn btn--medium btn--transparent"
-                *ngIf="step == 1"
-                [routerLink]="['/simulation/list', scenarioData.id]"
+                *ngIf="step == 1 && scenarioData.scenario"
+                [routerLink]="['/simulation/list', scenarioData.scenario.id]"
             >
                 Simulation(s)
             </a>
