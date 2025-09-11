@@ -33,6 +33,24 @@
                                     >
                                 </div>
 
+                                <div *ngIf="item.status === 'Canceled'">
+                                    <img
+                                        src="../../../../../static/assets/icons/feather/black/x.svg"
+                                        alt=""
+                                        *ngIf="item.status === 'Canceled'"
+                                        class="warn"
+                                    />
+                                </div>
+
+                                <div *ngIf="item.status === 'Failed'">
+                                    <img
+                                        src="../../../../../static/assets/icons/feather/black/alert-triangle.svg"
+                                        alt=""
+                                        *ngIf="item.status === 'Failed'"
+                                        class="error"
+                                    />
+                                </div>
+
                                 <div *ngIf="item.status === 'Finished'">
                                     <img
                                         src="../../../../../static/assets/icons/feather/black/check-circle.svg"
@@ -97,7 +115,7 @@
                     class="btn btn-lg btn-primary mt-5 w-100"
                     data-bs-dismiss="modal"
                 >
-                    Terminate All
+                    Back
                 </button>
             </div>
         </div>

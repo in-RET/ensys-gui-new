@@ -1,4 +1,4 @@
-.simulations {
+green.simulations {
     li {
         img {
             width: 2rem;
@@ -15,8 +15,18 @@
 }
 
 ::ng-deep img {
+    width: 100%;
+
     &.green {
         filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(87deg)
+            brightness(119%) contrast(119%);
+    }
+    &.warn {
+        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(221deg)
+            brightness(119%) contrast(119%);
+    }
+    &.error {
+        filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(8deg)
             brightness(119%) contrast(119%);
     }
 }

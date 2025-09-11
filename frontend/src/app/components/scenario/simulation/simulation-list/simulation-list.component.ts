@@ -51,7 +51,7 @@ export class SimulationListComponent {
                     this.scenarioCount = value.totalCount;
                     this.scenarioList = value.items;
 
-                    // this.loadMockData();
+                    this.loadMockData();
                 },
                 error: (err) => {
                     console.error(err);
@@ -68,11 +68,10 @@ export class SimulationListComponent {
     }
 
     loadMockData() {
-        const arr = [];
-        this.scenarioList.forEach((element: SimulationStatus) => {
-            let elm = { ...element };
-            elm.status = 'Stopped';
-            this.scenarioList.push(elm);
-        });
+        let elm = this.scenarioList[0];
+        elm.status = 'Canceled';
+        this.scenarioList.push({ ...elm });
+        elm.status = 'Failed';
+        this.scenarioList.push({ ...elm });
     }
 }
