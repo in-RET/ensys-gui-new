@@ -57,7 +57,7 @@ export class ScenarioBaseComponent {
                 let scenarioBaseData = this.scenarioSetupComponent.getData();
 
                 if (scenarioBaseData) {
-                    this.saveBaseInfo(scenarioBaseData);
+                    if (this.isScenarioNew) this.saveBaseInfo(scenarioBaseData);
                     ++this.currentStep;
                 }
                 break;
@@ -89,6 +89,87 @@ export class ScenarioBaseComponent {
         this.currentScenario = _data;
     }
 
+    async onSaveScenario(): Promise<any> {
+        const scenarioData: ScenarioBaseInfoModel | null =
+            this.scenarioService.restoreBaseInfo_Storage();
+
+        if (!scenarioData || !scenarioData.scenario) {
+            this.alertService.warning('There is no data to save!');
+            return;
+        }
+
+        const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
+
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return;
+        }
+
+        let newScenarioData: ScenarioReqModel = {
+            name: scenarioData.scenario?.name,
+            start_date: scenarioData.scenario?.sDate,
+            time_steps: scenarioData.scenario.timeStep,
+            project_id: scenarioData.project.id,
+            interval: 1,
+            modeling_data: drawflowData,
+        };
+
+        try {
+            this.scenarioService
+                .createScenario(newScenarioData)
+                .pipe(
+                    map((res: ResModel<ScenarioResModel>) => {
+                        if (res.success) return res.data.items[0];
+                        throw new Error('Unknown API error');
+                    })
+                )
+                .subscribe({
+                    next: (val: ScenarioResModel) => {
+                        this.toastService.success(
+                            `Scenario ${newScenarioData.name} saved.`
+                        );
+
+                        // update session
+                        if (scenarioData.scenario) {
+                            scenarioData.scenario.id = val.id;
+
+                            this.scenarioService.updateBaseInfo_Scenario(
+                                scenarioData
+                            );
+
+                            // update local this.data
+                            this.currentScenario.scenario =
+                                scenarioData.scenario;
+                            // update view+data by id
+                            this.checkScenarioIsNew();
+                        }
+                    },
+                    error: (err: string) => {
+                        this.toastService.error(err);
+                        return false;
+                    },
+                });
+        } catch (err: any) {
+            console.error(err);
+
+            if (err.status == 409) {
+                const confirmed = await this.alertService.confirm(
+                    'Do you want change the name? Or Update current?',
+                    'Duplicate Scenario!',
+                    '< Step',
+                    'Update',
+                    'error'
+                );
+
+                if (confirmed) {
+                    this.prevtStep();
+                } else {
+                    this.updateScenario();
+                }
+            } else this.alertService.error(err.message || 'Save failed');
+        }
+    }
+
     async saveScenario(): Promise<Observable<any> | undefined> {
         const scenarioData: ScenarioBaseInfoModel | null =
             this.scenarioService.restoreBaseInfo_Storage();
@@ -114,64 +195,7 @@ export class ScenarioBaseComponent {
             modeling_data: drawflowData,
         };
 
-        // try {
-        // this.scenarioService
-        //     .createScenario(newScenarioData)
-        //     .pipe(
-        //         map((res: ResModel<ScenarioResModel>) => {
-        //             if (res.success) return res.data.items[0];
-        //             throw new Error('Unknown API error');
-        //         })
-        //     )
-        //     .subscribe({
-        //         next: (val: ScenarioResModel) => {
-        //             debugger;
-        //             this.toastService.success(
-        //                 `Scenario ${newScenarioData.name} saved.`
-        //             );
-
-        //             // update session
-        //             if (scenarioData.scenario) {
-        //                 scenarioData.scenario.id = val.id;
-
-        //                 this.scenarioService.updateBaseInfo_Scenario(
-        //                     scenarioData
-        //                 );
-
-        //                 // update local this.data
-        //                 this.currentScenario.scenario =
-        //                     scenarioData.scenario;
-        //                 // update view+data by id
-        //                 this.checkScenarioIsNew();
-        //                 debugger;
-        //             }
-        //         },
-        //         error: (err: string) => {
-        //             this.toastService.error(err);
-        //             return false;
-        //         },
-        //     });
-
         return this.scenarioService.createScenario(newScenarioData);
-        // } catch (err: any) {
-        //     console.error(err);
-
-        //     if (err.status == 409) {
-        //         const confirmed = await this.alertService.confirm(
-        //             'Do you want change the name? Or Update current?',
-        //             'Duplicate Scenario!',
-        //             '< Step',
-        //             'Update',
-        //             'error'
-        //         );
-
-        //         if (confirmed) {
-        //             this.prevtStep();
-        //         } else {
-        //             this.updateScenario();
-        //         }
-        //     } else this.alertService.error(err.message || 'Save failed');
-        // }
     }
 
     async updateScenario(
