@@ -51,7 +51,7 @@ export class SimulationListComponent {
                     this.scenarioCount = value.totalCount;
                     this.scenarioList = value.items;
 
-                    this.loadMockData();
+                    // this.loadMockData();
                 },
                 error: (err) => {
                     console.error(err);

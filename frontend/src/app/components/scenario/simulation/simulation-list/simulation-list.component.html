@@ -33,11 +33,11 @@
                                     >
                                 </div>
 
-                                <div *ngIf="item.status === 'Stopped'">
+                                <div *ngIf="item.status === 'Finished'">
                                     <img
                                         src="../../../../../static/assets/icons/feather/black/check-circle.svg"
                                         alt=""
-                                        *ngIf="item.status === 'Stopped'"
+                                        *ngIf="item.status === 'Finished'"
                                         class="green"
                                     />
                                 </div>
@@ -49,11 +49,17 @@
                                 (click)="openSimulation(item.id)"
                                 style="cursor: pointer"
                             >
-                                <h5 class="mb-0">1</h5>
-                                Started:
-                                <b>
-                                    {{ item.start_date | date }}
-                                </b>
+                                <h5 class="mb-0">
+                                    {{ item.id }}
+
+                                    {{ item.status }}
+                                    <b>
+                                        {{ item.start_date | date : "short" }}
+                                    </b>
+                                </h5>
+
+                                <pre></pre>
+                                For Support: <b>{{ item.sim_token }}</b>
                             </div>
 
                             <div

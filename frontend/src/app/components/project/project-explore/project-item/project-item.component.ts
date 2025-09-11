@@ -85,7 +85,6 @@ export class ProjectItemComponent {
     }
 
     deleteScenario(scenarioId: number) {
-        debugger;
         this.project.scenarioList = this.project.scenarioList?.filter(
             (x: any) => x.id !== scenarioId
         );

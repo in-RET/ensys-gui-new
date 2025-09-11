@@ -9,7 +9,10 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ProjectResModel } from '../../project/models/project.model';
+import { ProjectService } from '../../project/services/project.service';
 import { ScenarioBaseInfoModel } from '../models/scenario.model';
 import { ScenarioService } from '../services/scenario.service';
 
@@ -85,6 +88,7 @@ export class ScenarioSetupComponent implements OnInit {
     private readonly route = inject(ActivatedRoute);
     scenarioService = inject(ScenarioService);
     toastService = inject(ToastService);
+    projectService = inject(ProjectService);
 
     ngOnInit() {
         this.loadProjects();
@@ -100,16 +104,10 @@ export class ScenarioSetupComponent implements OnInit {
             this.sDate?.setValue(new Date(year).toISOString().split('T')[0]);
             this.toastService.info('Date changed!');
         });
-
-        // this.setFormDefaultVal();
     }
 
     loadProjects() {
-        this.route.data
-            .pipe(map((res: any) => (res = res.projectList)))
-            .subscribe((res: any) => {
-                this.projectList = res;
-            });
+        this.getProjects();
     }
 
     loadCurrentData() {
@@ -153,10 +151,23 @@ export class ScenarioSetupComponent implements OnInit {
         return this.form.valid ? this.form.getRawValue() : false;
     }
 
-    setFormDefaultVal() {
-        // this.sDate?.setValue(new Date().toISOString().split('T')[0]);
-        // this.simulationPeriod?.setValue(1);
-        // this.timeStep?.setValue(60);
-        // this.simulationYear?.setValue(2025);
+    getProjects() {
+        this.projectService
+            .getProjects()
+            .pipe(
+                map((res: ResModel<ProjectResModel>) => {
+                    if (res.success) return res.data;
+                    throw new Error('Unknown API error');
+                })
+            )
+            .subscribe({
+                next: (val: ResDataModel<ProjectResModel>) => {
+                    this.projectList = val.items;
+                },
+
+                error: (err) => {
+                    console.error(err);
+                },
+            });
     }
 }

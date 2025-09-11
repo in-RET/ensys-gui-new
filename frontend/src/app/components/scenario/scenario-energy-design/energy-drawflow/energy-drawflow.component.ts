@@ -657,6 +657,7 @@ export class EnergyDrawflowComponent {
             node.data
         );
     }
+
     updateNode(nodeId: number, nodeType: string, data: any) {
         let currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
 
@@ -1141,7 +1142,7 @@ export class EnergyDrawflowComponent {
         );
         if (confirmed) {
             this.editor.clearModuleSelected();
-            this.saveCurrentDrawflow();
+            this.scenarioService.removeDrawflow_Storage();
             this.toastService.info(`Cleaned the grid model successfully!`);
         }
     }

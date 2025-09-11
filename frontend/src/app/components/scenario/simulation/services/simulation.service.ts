@@ -10,7 +10,7 @@ export class SimulationService {
     constructor(private baseHttp: BaseHttpService) {}
 
     getSimulations(scenarioId: number) {
-        return this.baseHttp.get(`${this.baseUrl}/${scenarioId}`);
+        return this.baseHttp.get(`${this.baseUrl}s/${scenarioId}`);
     }
 
     startSimulation(scenarioId: number) {
