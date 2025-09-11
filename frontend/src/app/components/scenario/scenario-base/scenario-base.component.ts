@@ -267,7 +267,9 @@ export class ScenarioBaseComponent {
         if (scenarioId) {
             const confirmed = await this.alertService.confirm(
                 'Update Scenario & Start Simulation?',
-                'Update & Play'
+                'Update & Play',
+                `Update & Simulation`,
+                `Just Simulation`
             );
 
             if (confirmed) await this.updateScenario(true);
