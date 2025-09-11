@@ -43,4 +43,4 @@ COPY app/ app/
 
 COPY versions/ versions/
 COPY env.py env.py
-COPY docker/alembic.ini alembic.ini
+COPY alembic.ini alembic.ini

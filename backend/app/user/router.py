@@ -45,11 +45,9 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     """
     statement = select(EnUserDB).where(EnUserDB.username == username.lower())
     user_db = db.exec(statement).first()
-
-    if user_db.is_active:
-        if not user_db:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
+    if user_db is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    elif user_db.is_active:
         if user_db.verify_password(password):
             user_db.last_login = datetime.now()
             db.add(user_db)

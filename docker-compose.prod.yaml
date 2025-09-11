@@ -2,7 +2,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: frontend/docker/dockerfile.prod
+      dockerfile: docker/dockerfile.prod
     container_name: ensys-new-frontend
     env_file: .env.prod
     restart: no
@@ -58,6 +58,7 @@ services:
     volumes:
       - ./backend/app:/backend/app
       - ./backend/data:/backend/data
+      - ./backend/templates:/backend/templates
       - ./ensys:/backend/ensys
       - ${HOST_DATADIR}:${LOCAL_DATADIR}
       - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic

@@ -60,7 +60,7 @@ async def start_simulation(
 
     if running_simulations:
         for running_simulation in running_simulations:
-            running_simulation.status = Status.CANCELED.value
+            running_simulation.status = Status.STOPPED.value
             running_simulation.end_date = datetime.now()
             db.commit()
 
@@ -181,7 +181,7 @@ async def stop_simulations(
     for simulation in simulations:
         revoke(simulation.sim_token, terminate=True)
 
-        simulation.status = Status.CANCELED.value
+        simulation.status = Status.STOPPED.value
         simulation.status_message = "Simulation was canceled by user request."
         simulation.end_date = datetime.now()
         db.commit()
@@ -234,7 +234,7 @@ async def stop_simulation(
     # Task manuell stoppen
     revoke(simulation.sim_token, terminate=True)
 
-    simulation.status = Status.CANCELED.value
+    simulation.status = Status.STOPPED.value
     simulation.status_message = "Simulation was canceled by user request."
     simulation.end_date = datetime.now()
     db.commit()

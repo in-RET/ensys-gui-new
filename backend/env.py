@@ -5,7 +5,10 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-# from app.component.model import EnComponentDB
+from app.project.model import EnProjectDB
+from app.scenario.model import EnScenarioDB
+from app.user.model import EnUserDB
+from app.simulation.model import EnSimulationDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

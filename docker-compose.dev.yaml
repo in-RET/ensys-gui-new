@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: db
+    container_name: ensys-new-db
     env_file: .env.dev
     restart: always
     ports:
@@ -13,7 +13,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: pgadmin
+    container_name: ensys-new-pgadmin
     env_file: .env.dev
     restart: always
     networks:
@@ -29,7 +29,7 @@ services:
     build:
       context: ./frontend
       dockerfile: docker/dockerfile.dev
-    container_name: frontend-dev
+    container_name: ensys-new-frontend
     env_file: .env.dev
     command: sh -c "npm start"
     working_dir: /app
@@ -38,7 +38,7 @@ services:
       - ./frontend:/app
       - node_modules:/app/node_modules/
     ports:
-      - "${WEB_PORT}:4200"
+      - "${PROXY_PORT}:4200"
     networks:
       - ensys
     depends_on:
@@ -50,11 +50,11 @@ services:
       dockerfile: docker/dockerfile
       args:
         os_version: ${OS_VERSION}
-    container_name: backend-dev
+    container_name: ensys-new-backend
     env_file: .env.dev
-    command: sh -c "alembic upgrade head && python -m uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
+    command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
     ports:
-      - '${API_PORT}:8001'
+      - '${FASTAPI_PORT}:8001'
     restart: no
     volumes:
       - ./backend/app:/backend/app
@@ -71,7 +71,7 @@ services:
 
   redis:
     image: redis:alpine
-    container_name: redis
+    container_name: ensys-new-redis
     restart: always
     env_file: .env.dev
     command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
@@ -86,7 +86,7 @@ services:
       dockerfile: docker/dockerfile
       args:
         os_version: ${OS_VERSION}
-    container_name: celery-dev
+    container_name: ensys-new-celery
     env_file: .env.dev
     command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
     volumes:
@@ -106,7 +106,7 @@ services:
       dockerfile: docker/dockerfile
       args:
         os_version: ${OS_VERSION}
-    container_name: flower-dev
+    container_name: ensys-new-flower
     env_file: .env.dev
     command: celery --app=app.celery.celery_app flower --port=5555
     volumes:
@@ -123,7 +123,7 @@ services:
 
   grafana:
     image: grafana/grafana-oss:latest
-    container_name: grafana
+    container_name: ensys-new-grafana
     restart: unless-stopped
     ports:
       - '${MONITORING_PORT}:3000'

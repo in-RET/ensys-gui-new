@@ -2,9 +2,9 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: frontend/docker/dockerfile.prod
+      dockerfile: docker/dockerfile.prod
     container_name: ensys-new-frontend
-    env_file: .env.prod
+    env_file: .env.test
     restart: no
     ports:
       - "${ANGULAR_PORT}:8000"
@@ -18,7 +18,7 @@ services:
       args:
         os_version: ${OS_VERSION}
     container_name: ensys-new-backend
-    env_file: .env.prod
+    env_file: .env.test
     command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
     restart: no
     ports:
@@ -26,6 +26,7 @@ services:
     volumes:
       - ./backend/app:/backend/app
       - ./backend/data:/backend/data
+      - ./backend/templates:/backend/templates
       - ./ensys:/backend/ensys
       - ${HOST_DATADIR}:${LOCAL_DATADIR}
     networks:
@@ -38,7 +39,7 @@ services:
     image: redis:alpine
     container_name: ensys-new-redis
     restart: always
-    env_file: .env.prod
+    env_file: .env.test
     command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
     networks:
       - backend
@@ -52,7 +53,7 @@ services:
       args:
         os_version: ${OS_VERSION}
     container_name: ensys-new-celery
-    env_file: .env.prod
+    env_file: .env.test
     command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
     volumes:
       - ./backend/app:/backend/app
@@ -73,7 +74,7 @@ services:
       args:
         os_version: ${OS_VERSION}
     container_name: ensys-new-flower
-    env_file: .env.prod
+    env_file: .env.test
     command: celery --app=app.celery.celery_app flower --port=5555
     volumes:
       - ./backend/app:/backend/app

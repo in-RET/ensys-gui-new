@@ -6,10 +6,10 @@ from sqlmodel import Field, SQLModel
 
 
 class Status(Enum):
-    STARTED = "Started"
-    FINISHED = "Finished"
-    FAILED = "Failed"
-    CANCELED = "Canceled"
+    STARTED = 1
+    FINISHED = 2
+    FAILED = 3
+    STOPPED = 4
 
 
 class EnSimulation(BaseModel):
@@ -33,7 +33,7 @@ class EnSimulation(BaseModel):
     :type scenario_id: int
     """
     sim_token: str = Field(nullable=False)
-    status: str = Field(default=Status.STARTED.value, nullable=False)
+    status: int = Field(default=Status.STARTED.value, nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
     start_date: datetime = Field(nullable=False)
     end_date: datetime | None = Field(default=None, nullable=True)
@@ -71,7 +71,7 @@ class EnSimulationDB(SQLModel, table=True):
 
     id: int = Field(default=None, primary_key=True)
     sim_token: str = Field(nullable=False)
-    status: str = Field(default=Status.STARTED.value, nullable=False)
+    status: int = Field(default=Status.STARTED.value, nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
     start_date: datetime = Field(nullable=False)
     end_date: datetime | None = Field(default=None, nullable=True)
@@ -93,6 +93,6 @@ class EnSimulationUpdate(SQLModel):
     :ivar end_date: Represents the simulation's end date if available.
     :type end_date: datetime | None
     """
-    status: str = Field(nullable=False)
+    status: int = Field(nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
     end_date: datetime | None = Field(default=None, nullable=True)

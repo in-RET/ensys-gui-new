@@ -148,11 +148,10 @@ class EnUserDB(EnUser, table=True):
     """
     __tablename__ = "users"
 
-    id: int = Field(default=None, primary_key=True, index=True)
+    id: int = Field(default=None, primary_key=True)
     date_joined: datetime | None = Field(default=None)
     last_login: datetime | None = Field(default=None)
     is_active: bool = Field(default=False)
-    is_superuser: bool = Field(default=False)
     is_staff: bool = Field(default=False)
 
 
