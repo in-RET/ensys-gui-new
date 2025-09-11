@@ -227,7 +227,10 @@ async def update_scenario(
     new_scenario_data = scenario_data.model_dump(exclude_unset=True)
 
     possible_duplicates = db.exec(
-        select(EnScenarioDB).where(EnScenarioDB.name == new_scenario_data["name"]).where(EnScenarioDB.id != scenario_id)
+        select(EnScenarioDB)
+        .where(EnScenarioDB.name == new_scenario_data["name"]) # selects all with the same name
+        .where(EnScenarioDB.project_id == db_scenario.project_id) # just in this project
+        .where(EnScenarioDB.id != db_scenario.id) # ignore the one which we will update
     ).all()
 
     if len(possible_duplicates) > 0:
@@ -235,19 +238,19 @@ async def update_scenario(
     else:
         db_scenario.sqlmodel_update(new_scenario_data)
 
-        db.add(db_scenario)
-        db.commit()
-        db.refresh(db_scenario)
+    db.add(db_scenario)
+    db.commit()
+    db.refresh(db_scenario)
 
-        response_data = db_scenario.model_dump(exclude={"energysystem"})
+    response_data = db_scenario.model_dump(exclude={"energysystem"})
 
-        return DataResponse(
-            data=GeneralDataModel(
-                items=[response_data],
-                totalCount=1
-            ),
-            success=True
-        )
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[response_data],
+            totalCount=1
+        ),
+        success=True
+    )
 
 
 @scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
