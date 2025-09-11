@@ -48,7 +48,7 @@ export class ProjectScenarioItemComponent {
                 id: data.id,
                 name: data.name,
                 sDate: data.sDate,
-                timeStep: 60,
+                timeStep: 8760,
                 interval: data.interval,
                 simulationYear: 2025,
             },
