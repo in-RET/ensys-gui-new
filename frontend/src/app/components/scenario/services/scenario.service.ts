@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 import { ScenarioBaseInfoModel } from '../models/scenario.model';
@@ -10,6 +11,9 @@ export class ScenarioService {
     private baseUrl: string = environment.apiUrl + 'scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
+
+    private readonly _isDrawflowEmpty$ = new BehaviorSubject<boolean>(true);
+    readonly isDrawflowEmpty$ = this._isDrawflowEmpty$.asObservable();
 
     constructor(private baseHttp: BaseHttpService) {}
 
@@ -57,16 +61,19 @@ export class ScenarioService {
 
     updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
         localStorage.setItem(
-            `${this.scenario_localstorage_name}.scenario`,
+            `${this.scenario_localstorage_name}`,
             JSON.stringify(d)
         );
     }
 
+    //====================  draw flow   ====================
     saveDrawflow_Storage(data: any, needStringify = true) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
             needStringify ? JSON.stringify(data) : data
         );
+
+        this._isDrawflowEmpty$.next(false);
     }
 
     restoreDrawflow_Storage(mustResultString = false): string | false | any {
@@ -74,14 +81,18 @@ export class ScenarioService {
             this.scenario_drawflow_localstorage_name
         );
 
-        if (DrawflowData && DrawflowData.trim() != '')
+        if (DrawflowData && DrawflowData.trim() != '') {
+            this._isDrawflowEmpty$.next(false);
             return mustResultString ? DrawflowData : JSON.parse(DrawflowData);
-        else return false;
+        } else return false;
     }
 
     removeDrawflow_Storage() {
         localStorage.removeItem(this.scenario_drawflow_localstorage_name);
+        this._isDrawflowEmpty$.next(true);
     }
+
+    //====================  draw flow   ====================
 
     getPreDefinedList(type: string) {
         return this.baseHttp.get(

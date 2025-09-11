@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { ScenarioService } from '../../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-footer',
@@ -12,12 +13,15 @@ export class ScenarioFooterComponent {
     @Input('step') step!: number;
     @Input('scenarioData') scenarioData!: any;
     @Input('isScenarioNew') isScenarioNew!: boolean;
+    // @Input('hasDrawflowData') hasDrawflowData!: boolean;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() saveScenario: EventEmitter<any> = new EventEmitter<any>();
     @Output() updateScenario: EventEmitter<any> = new EventEmitter<any>();
     @Output() startSimulation: EventEmitter<any> = new EventEmitter<any>();
+
+    scenarioService = inject(ScenarioService);
 
     next() {
         this.nextStep.emit();

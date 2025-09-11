@@ -15,33 +15,35 @@
                 Next
             </button>
 
-            <button
-                class="btn btn--medium btn--success"
-                *ngIf="step == 1"
-                (click)="onStartSimulation()"
-            >
-                <img
-                    src="/static/assets/icons/feather/black/play.svg"
-                    alt="start"
-                    title="start simulation"
-                />
-            </button>
+            <ng-container *ngIf="step == 1">
+                <button
+                    class="btn btn--medium btn--success"
+                    (click)="onStartSimulation()"
+                >
+                    <img
+                        src="/static/assets/icons/feather/black/play.svg"
+                        alt="start"
+                        title="start simulation"
+                    />
+                </button>
 
-            <button
-                class="btn btn--medium btn--transparent"
-                *ngIf="step == 1 && isScenarioNew"
-                (click)="save()"
-            >
-                Save
-            </button>
+                <button
+                    class="btn btn--medium btn--transparent"
+                    *ngIf="isScenarioNew"
+                    [disabled]="scenarioService.isDrawflowEmpty$ | async"
+                    (click)="save()"
+                >
+                    Save
+                </button>
 
-            <button
-                class="btn btn--medium btn--transparent"
-                *ngIf="step == 1 && !isScenarioNew"
-                (click)="update()"
-            >
-                Update
-            </button>
+                <button
+                    class="btn btn--medium btn--transparent"
+                    *ngIf="!isScenarioNew"
+                    (click)="update()"
+                >
+                    Update
+                </button>
+            </ng-container>
         </div>
 
         <div class="step-footer__right">

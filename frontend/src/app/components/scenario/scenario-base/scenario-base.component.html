@@ -24,11 +24,11 @@
 
 <app-scenario-footer
     [step]="currentStep"
-    [scenarioData]="this.currentScenario.scenario"
+    [scenarioData]="currentScenario.scenario"
     [isScenarioNew]="isScenarioNew"
     (nextStep)="nextStep()"
     (prevtStep)="prevtStep()"
     (saveScenario)="saveScenario()"
     (updateScenario)="updateScenario()"
-    (startSimulation)="startSimulation(1)"
+    (startSimulation)="startSimulation($event)"
 />

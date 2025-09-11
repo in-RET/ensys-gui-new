@@ -49,7 +49,7 @@ export class ProjectScenarioItemComponent {
         };
 
         this.scenarioService.saveBaseInfo_Storage(scenarioData);
-        this.scenarioService.saveDrawflow_Storage(data.modeling_data, false);
+        // this.scenarioService.cleanDrawflow_Storage();
 
         this.router.navigate(['/scenario']);
         this.toastService.info('Scenario data restored.');
@@ -58,7 +58,7 @@ export class ProjectScenarioItemComponent {
     async onDeleteScenario(scenarioId: number) {
         const confirmed = await this.alertService.confirm(
             `Are you sure delete scenario ${this.scenario.name}?`,
-            'Save & Play'
+            'Delete'
         );
 
         if (confirmed) {

@@ -132,6 +132,10 @@ export class ScenarioBaseComponent {
                         // update session
                         if (scenarioData.scenario) {
                             scenarioData.scenario.id = val.id;
+
+                            // const currentScenarioData =
+                            //     this.scenarioService.restoreBaseInfo_Storage();
+                            debugger;
                             this.scenarioService.updateBaseInfo_Scenario(
                                 scenarioData
                             );
@@ -140,6 +144,7 @@ export class ScenarioBaseComponent {
                             this.currentScenario.scenario =
                                 scenarioData.scenario;
                             // update view+data by id
+                            this.checkScenarioIsNew();
                         }
                     },
                     error: (err: string) => {
@@ -215,10 +220,6 @@ export class ScenarioBaseComponent {
             this.toastService.success(
                 `Scenario ${scenarioData.scenario.name} updated`
             );
-            console.log('Updated:', res);
-
-            // if (startSimulatioAfetr)
-            //     this.startSimulation(scenarioData.scenario.id);
         } catch (err: any) {
             console.error(err);
             this.alertService.error(err.message || 'Save failed');
@@ -277,18 +278,6 @@ export class ScenarioBaseComponent {
                     this.alertService.error('Failed');
                 },
             });
-
-        // } else {
-        //     const confirmed = await this.alertService.confirm(
-        //         'Save Scenario & Start Simulation?',
-        //         'Save & Play'
-        //     );
-
-        //     if (confirmed) {
-        //         const newScenario = await this.saveScenario();
-        //         console.log(newScenario);
-        //     }
-        // }
     }
 
     checkScenarioIsNew() {
