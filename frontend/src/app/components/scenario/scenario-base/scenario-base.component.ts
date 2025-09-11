@@ -133,9 +133,6 @@ export class ScenarioBaseComponent {
                         if (scenarioData.scenario) {
                             scenarioData.scenario.id = val.id;
 
-                            // const currentScenarioData =
-                            //     this.scenarioService.restoreBaseInfo_Storage();
-                            debugger;
                             this.scenarioService.updateBaseInfo_Scenario(
                                 scenarioData
                             );

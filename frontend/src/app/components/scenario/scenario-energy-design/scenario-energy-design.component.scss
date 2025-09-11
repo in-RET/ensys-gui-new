@@ -175,17 +175,18 @@
 }
 
 .node-info {
-    margin-left: auto;
+    display: flex;
+    align-items: center;
 
     button {
         background: url("/static/assets/icons/feather/black/info.svg") no-repeat
             center / contain;
-        width: 2rem;
-        height: 2rem;
+        width: 1.5rem;
+        height: 1.5rem;
         border: unset;
         display: flex;
-        filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(171deg)
-            brightness(118%) contrast(119%);
+        filter: invert(84%) sepia(47%) saturate(195%) hue-rotate(142deg)
+            brightness(95%) contrast(96%);
         padding: 0;
     }
 }

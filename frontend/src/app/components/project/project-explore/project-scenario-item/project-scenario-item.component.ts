@@ -31,6 +31,12 @@ export class ProjectScenarioItemComponent {
     ) {}
 
     openScenario(data: ScenarioModel) {
+        if (data.modeling_data)
+            this.scenarioService.saveDrawflow_Storage(
+                data.modeling_data,
+                false
+            );
+
         // save project,scenario - storage
         const scenarioData: ScenarioBaseInfoModel = {
             project: {
@@ -49,8 +55,6 @@ export class ProjectScenarioItemComponent {
         };
 
         this.scenarioService.saveBaseInfo_Storage(scenarioData);
-        // this.scenarioService.cleanDrawflow_Storage();
-
         this.router.navigate(['/scenario']);
         this.toastService.info('Scenario data restored.');
     }

@@ -39,6 +39,7 @@
                 <button
                     class="btn btn--medium btn--transparent"
                     *ngIf="!isScenarioNew"
+                    [disabled]="scenarioService.isDrawflowEmpty$ | async"
                     (click)="update()"
                 >
                     Update

@@ -64,9 +64,7 @@ export class EnergyDrawflowComponent {
         private toastService: ToastService
     ) {}
 
-    ngOnInit() {
-        //this.showModalConnection();
-    }
+    ngOnInit() {}
 
     ngAfterViewInit() {
         setTimeout(() => {
@@ -101,7 +99,7 @@ export class EnergyDrawflowComponent {
     private addEditorEvents() {
         this.editor.on('nodeCreated', (data: any) => {
             console.log('Drawflow event: nodeCreated');
-            this.toastService.success('Drawflow event: nodeCreated');
+            this.toastService.info('Drawflow event: nodeCreated');
             this.saveCurrentDrawflow();
         });
         this.editor.on('nodeDataChanged', (data: any) => {
@@ -116,7 +114,7 @@ export class EnergyDrawflowComponent {
 
         this.editor.on('connectionCreated', (connection: any) => {
             console.log('Drawflow event: connectionCreated');
-            this.toastService.success('Drawflow event: connectionCreated');
+            this.toastService.info('Drawflow event: connectionCreated');
             this.connectionCreated(connection);
         });
         this.editor.on('connectionRemoved', (connection: any) => {
@@ -1140,6 +1138,7 @@ export class EnergyDrawflowComponent {
             undefined,
             'warning'
         );
+
         if (confirmed) {
             this.editor.clearModuleSelected();
             this.scenarioService.removeDrawflow_Storage();

@@ -10,11 +10,13 @@
     <div class="modal-dialog modal-dialog-scrollable modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title fs-5" id="staticBackdropLabel">
-                    {{ title }}
-                </span>
+                <div class="d-flex gap-1">
+                    <span class="modal-title fs-5" id="staticBackdropLabel">
+                        {{ title }}
+                    </span>
 
-                <ng-content select="[modal-header-center-icon]" />
+                    <ng-content select="[modal-header-center-icon]" />
+                </div>
 
                 <button
                     type="button"
