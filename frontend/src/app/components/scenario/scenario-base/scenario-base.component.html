@@ -22,15 +22,13 @@
     #sed
 />
 
-<ng-container *ngIf="currentScenario.scenario && currentScenario.scenario.id">
-    <app-scenario-footer
-        [step]="currentStep"
-        [scenarioData]="this.currentScenario.scenario"
-        [isScenarioNew]="isScenarioNew"
-        (nextStep)="nextStep()"
-        (prevtStep)="prevtStep()"
-        (saveScenario)="saveScenario()"
-        (updateScenario)="updateScenario()"
-        (startSimulation)="startSimulation(currentScenario.scenario.id)"
-    />
-</ng-container>
+<app-scenario-footer
+    [step]="currentStep"
+    [scenarioData]="this.currentScenario.scenario"
+    [isScenarioNew]="isScenarioNew"
+    (nextStep)="nextStep()"
+    (prevtStep)="prevtStep()"
+    (saveScenario)="saveScenario()"
+    (updateScenario)="updateScenario()"
+    (startSimulation)="startSimulation(1)"
+/>
