@@ -8,8 +8,7 @@ from .model import EnScenario, EnScenarioDB, EnScenarioUpdate
 from ..auxillary import validate_scenario_owner, validate_project_owner
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
-from ..errors.model import ErrorModel
-from ..responses import DataResponse, MessageResponse, ErrorResponse
+from ..responses import DataResponse, MessageResponse
 from ..security import decode_token, oauth2_scheme
 from ..simulation.model import EnSimulationDB
 from ..user.model import EnUserDB
@@ -24,7 +23,7 @@ scenario_router = APIRouter(
 async def create_scenario(
     token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
     db: Session = Depends(get_db_session)
-) -> DataResponse | ErrorResponse:
+) -> DataResponse:
     """
     Creates a new scenario and stores it in the database. The endpoint is
     protected and requires a valid token. It validates the ownership of the
@@ -60,17 +59,7 @@ async def create_scenario(
     ).all()
 
     if len(possible_duplicates) > 0:
-        return ErrorResponse(
-            data=GeneralDataModel(
-                items=[scenario.model_dump(exclude={"energysystem"}) for scenario in possible_duplicates],
-                totalCount=len(possible_duplicates)
-            ),
-            errors=[ErrorModel(
-                code=status.HTTP_409_CONFLICT,
-                message="Scenario name already exists."
-            )],
-            success=False
-        )
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Scenario name already exists.")
     else:
         db.add(scenario)
         db.commit()
