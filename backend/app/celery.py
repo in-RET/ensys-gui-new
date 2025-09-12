@@ -80,6 +80,9 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info("convert modeling_data to energy system data")
         modeling_data_json = json.loads(scenario.modeling_data)
 
+        with open(os.path.join(simulation_folder, "modeling_data.json"), "w") as f:
+            f.write(json.dumps(modeling_data_json, indent=4))
+
         converted_energy_system = convert_gui_json_to_ensys(modeling_data_json)
 
         # Create Energysystem to be stored
@@ -88,7 +91,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
             energysystem=converted_energy_system
         )
 
-        with open(os.path.join(simulation_folder, f"es_{sim_token}.json"), "wt") as f:
+        with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:
             f.write(simulation_model.model_dump_json(indent=4))
 
         logger.info(f"Scenario Interval:{scenario.interval}")

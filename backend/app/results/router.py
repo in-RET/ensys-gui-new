@@ -148,11 +148,11 @@ async def get_results(
                 message=f"Simulation {simulation_id} has failed."
             )]
         )
-    elif simulation.status == Status.CANCELED.value:
+    elif simulation.status == Status.STOPPED.value:
         return ErrorResponse(
             errors=[ErrorModel(
                 code=status.HTTP_409_CONFLICT,
-                message=f"Simulation {simulation_id} has cancelled."
+                message=f"Simulation {simulation_id} has stopped."
             )]
         )
     elif simulation.status == Status.FINISHED.value:

@@ -52,7 +52,7 @@ services:
         os_version: ${OS_VERSION}
     container_name: ensys-new-backend
     env_file: .env.dev
-    command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
+    command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
     ports:
       - '${FASTAPI_PORT}:8001'
     restart: no

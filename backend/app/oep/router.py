@@ -303,7 +303,10 @@ async def get_local_oep_data(
 
     # TODO: how do i write the flow data in the right port? Sink/Source/Rest
     for port in ports_data:
+        flow_data["investement"] = port["investment"]
+
         if port["controlled_flow"]:
+            print(flow_data)
             port["flow_data"] = flow_data
         else:
             print(f"Nicht steuernder Port: {port}")
@@ -340,6 +343,8 @@ async def get_local_oep_data(
         parameter_year_select["invest_input_output"] = 1 / inverse_c_rate
 
         del parameter_year_select["inverse_c_rate"]
+
+    # TODO: investment flag als boolean übergeben
 
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {
