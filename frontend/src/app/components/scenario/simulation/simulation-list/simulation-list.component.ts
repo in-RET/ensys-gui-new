@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map } from 'rxjs';
 import { SimulationService } from '../services/simulation.service';
 
@@ -15,7 +15,7 @@ export interface SimulationStatus {
 
 @Component({
     selector: 'app-simulation-list',
-    imports: [CommonModule],
+    imports: [CommonModule, RouterModule],
     templateUrl: './simulation-list.component.html',
     styleUrl: './simulation-list.component.scss',
 })

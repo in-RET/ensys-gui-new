@@ -1,8 +1,15 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
-import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import { ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+} from '../models/scenario.model';
 
 @Injectable({
     providedIn: 'root',
@@ -14,6 +21,9 @@ export class ScenarioService {
 
     private readonly _isDrawflowEmpty$ = new BehaviorSubject<boolean>(true);
     readonly isDrawflowEmpty$ = this._isDrawflowEmpty$.asObservable();
+
+    alertService = inject(AlertService);
+    toastService = inject(ToastService);
 
     constructor(private baseHttp: BaseHttpService) {}
 
@@ -56,7 +66,8 @@ export class ScenarioService {
 
         if (BaseInfoData && BaseInfoData.trim() != '')
             return JSON.parse(BaseInfoData);
-        else return null;
+
+        return null;
     }
 
     updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
@@ -103,6 +114,100 @@ export class ScenarioService {
     getPreDefinedData(option: string, simulationYear: number) {
         return this.baseHttp.get(
             environment.apiUrl + `oep/local_data/${option}/${simulationYear}`
+        );
+    }
+
+    //====================  local  ====================
+    onSaveScenario(): Observable<ScenarioResModel> | undefined {
+        const scenarioData: ScenarioBaseInfoModel | null =
+            this.restoreBaseInfo_Storage();
+
+        if (!scenarioData || !scenarioData.scenario) {
+            this.alertService.warning('There is no data to save!');
+            return;
+        }
+
+        const drawflowData = this.restoreDrawflow_Storage(true);
+
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return;
+        }
+
+        let newScenarioData: ScenarioReqModel = {
+            name: scenarioData.scenario?.name,
+            start_date: scenarioData.scenario?.sDate,
+            time_steps: scenarioData.scenario.timeStep,
+            project_id: scenarioData.project.id,
+            interval: 1,
+            modeling_data: drawflowData,
+        };
+
+        return this.createScenario(newScenarioData).pipe(
+            map((res: ResModel<ScenarioResModel>) => {
+                if (res.success) return res.data.items[0];
+
+                //  if (res.error.status == 409) {
+                //                 const confirmed = await this.alertService.confirm(
+                //                     'Do you want change the name? Or Update current?',
+                //                     'Duplicate Scenario!',
+                //                     '< Step',
+                //                     'Update',
+                //                     'error'
+                //                 );
+
+                //                 if (confirmed) {
+                //                     this.prevtStep();
+                //                 } else {
+                //                     this.updateScenario();
+                //                 }
+                //             } else
+                // this.alertService.error(err.message || 'Save failed');
+                throw new Error('Unknown API error');
+            })
+        );
+    }
+
+    onUpdateScenario(): Observable<ScenarioResModel> | undefined {
+        const scenarioData: ScenarioBaseInfoModel | null =
+            this.restoreBaseInfo_Storage();
+
+        if (!scenarioData || !scenarioData.scenario) {
+            this.alertService.warning('There is no data to save!');
+            return;
+        }
+
+        if (!scenarioData.scenario.id) {
+            this.alertService.warning('Error: Id not found!');
+            return;
+        }
+
+        let newScenarioData: ScenarioReqModel = {
+            name: scenarioData.scenario?.name,
+            start_date: scenarioData.scenario?.sDate,
+            time_steps: scenarioData.scenario?.timeStep,
+            interval: 1,
+            modeling_data: this.restoreDrawflow_Storage(true),
+        };
+
+        const drawflowData = this.restoreDrawflow_Storage();
+
+        if (!drawflowData) {
+            this.alertService.warning('Drawflow data missing!');
+            return;
+        }
+
+        return this.updateScenario(
+            newScenarioData,
+            scenarioData.scenario.id
+        ).pipe(
+            map((res: ResModel<ScenarioResModel>) => {
+                if (res.success) return res.data.items[0];
+                throw new Error('Unknown API error');
+
+                //  this.alertService.error(err.message || 'Save failed');
+                //  return false;
+            })
         );
     }
 }

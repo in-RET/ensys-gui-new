@@ -43,3 +43,34 @@
         }
     }
 }
+
+/*   from style.scss   */
+
+.components h1 {
+    text-align: center;
+}
+
+.components h2 {
+    padding-top: 3rem;
+    padding-left: 1rem;
+}
+
+.components__description {
+    max-width: 60rem;
+}
+
+.components__description li {
+    padding-left: 1rem;
+}
+
+.components .component {
+    padding-bottom: 2rem;
+}
+
+.components .component__title {
+    padding: 1rem;
+}
+
+.components nav.navbar {
+    position: relative;
+}

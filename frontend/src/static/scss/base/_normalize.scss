@@ -26,9 +26,10 @@ html {
 body {
     margin: 0;
     overflow-x: hidden;
-    // height: 100%;
-    // display: flex;
-    // flex-direction: column;
+
+    font-family: lato, Arial, Helvetica, sans-serif !important;
+    color: #343434;
+    letter-spacing: 0.01rem;
 }
 
 .main {
@@ -360,4 +361,15 @@ template {
 
 [hidden] {
     display: none;
+}
+
+/*   from style.scss   */
+p {
+    line-height: 1.75rem;
+}
+
+h1,
+h2,
+h3 {
+    letter-spacing: 0.03rem;
 }
