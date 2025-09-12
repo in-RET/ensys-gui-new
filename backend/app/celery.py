@@ -1,8 +1,11 @@
 import json
+import logging
 import os
+import pathlib
 from datetime import datetime
 
 from celery import Celery
+from celery.signals import after_setup_logger
 from celery.utils.log import get_task_logger
 from fastapi import HTTPException
 from oemof import solph
@@ -23,6 +26,18 @@ celery_app = Celery(
 
 task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
 task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
+
+logger = logging.getLogger(__name__)
+
+@after_setup_logger.connect
+def setup_loggers(logger, *args, **kwargs):
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # add filehandler
+    fh = logging.FileHandler(os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), "celery.log")))
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
 
 
 @celery_app.task(name="ensys.optimization")
@@ -54,11 +69,9 @@ def simulation_task(scenario_id: int, simulation_id: int):
     try:
         task_counter.inc()
         task_in_progress.inc()
-        logger = get_task_logger(__name__)
 
         db = Session(create_engine(os.getenv("DATABASE_URL")))
-        # get scenario and simulation data
-        logger.info("read scenario and simulation data")
+
         scenario = db.get(EnScenarioDB, scenario_id)
         simulation = db.get(EnSimulationDB, simulation_id)
 
@@ -75,6 +88,19 @@ def simulation_task(scenario_id: int, simulation_id: int):
             name=simulation_folder,
             exist_ok=True
         )
+
+        # Logger initialisieren
+        logger = get_task_logger(__name__)
+
+        # Log-Datei konfigurieren
+        log_file = os.path.join(log_path, f"simulation_{simulation_id}.log")
+
+        # Datei-Handler zu Logger hinzufügen
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
 
         # convert modeling_data to energy system data
         logger.info("convert modeling_data to energy system data")
@@ -97,8 +123,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info(f"Scenario Interval:{scenario.interval}")
         logger.info(f"Scenario Timesteps:{scenario.time_steps}")
         logger.info(f"Scenario Startdate:{scenario.start_date}")
-        logger.info(f"Scenario Startdate:{type(scenario.start_date)}")
-        logger.info(f"Scenario Startdate:{scenario.start_date.year}")
+        logger.info(f"Scenario Simulation_Year:{scenario.start_date.year}")
 
         logger.info("create oemof energy system")
         timeindex = solph.create_time_index(
@@ -107,7 +132,6 @@ def simulation_task(scenario_id: int, simulation_id: int):
             interval=scenario.interval,
         )
 
-        logger.info(f"timeindex:{timeindex}")
         oemof_es: solph.EnergySystem = solph.EnergySystem(
             timeindex=timeindex,
             infer_last_interval=False
@@ -121,13 +145,21 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         # solve the optimization model
         # TODO: Dynamic solver kwargs
-        # simulation_model.solver_kwargs if hasattr(simulation_model, "solver_kwargs") else {"tee": True}
         # TODO: Dynamic solver selection
+
+        gurobi_logfile = os.path.abspath(os.path.join(log_path, "solver.log"))
+        pathlib.Path(gurobi_logfile).touch()
+        print(gurobi_logfile)
+
         logger.info("solve optimization model")
         oemof_model.solve(
             solver=str(simulation_model.solver.value),
-            solve_kwargs={"tee": True},
-            cmdline_opts={"logfile": os.path.join(log_path, "solver.log")}
+            #solve_kwargs={"tee": True},
+            cmdline_opts={
+                "LogFile": gurobi_logfile,
+                "LogToConsole": 0,
+                "OutputFlag": 1
+            }
         )
 
         logger.info("simulation finished")
