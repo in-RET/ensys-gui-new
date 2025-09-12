@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from typing import Annotated
 
@@ -121,10 +122,8 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
     token = jwt.encode(db_user.get_token_information(), token_secret, algorithm="HS256")
     print(f"Token: {token}")
 
-    send_mail(
-        token=token,
-        user=db_user
-    )
+    # TODO: Rework after releasen of 0.1.0
+    asyncio.create_task(send_mail(token=token, user=db_user))
 
     if db_user.id is not None:
         return MessageResponse(

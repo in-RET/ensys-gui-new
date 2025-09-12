@@ -16,7 +16,7 @@ from .simulation.model import EnSimulationDB, Status
 from .user.model import EnUserDB
 
 
-def send_mail(token: str, user: EnUserDB):
+async def send_mail(token: str, user: EnUserDB):
     with open(os.path.abspath(os.path.join(os.getcwd(), "templates", "activation_mail.html"))) as f:
         mail_template = Template(f.read())
 
@@ -238,7 +238,6 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
     input_data = {}
     if len(flowchart_component["inputs"]) > 0:
         for input_name in flowchart_component["inputs"]:
-            print(f"input_name: {input_name}")
             target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
             target_bus_name = flowchart_data[target_bus_id]["name"]
 
