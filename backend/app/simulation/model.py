@@ -72,7 +72,7 @@ class EnSimulationDB(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
     sim_token: str = Field(nullable=False)
     status: int = Field(default=Status.STARTED.value, nullable=False)
-    status_message: str | None = Field(default=None, nullable=True)
+    status_message: str | None = Field(default=None, nullable=True, max_length=255)
     start_date: datetime = Field(nullable=False)
     end_date: datetime | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
