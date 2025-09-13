@@ -322,7 +322,13 @@ export class ScenarioEnergyDesignComponent {
         this.formComponent.toggleControl('nominal_value');
 
         investmentFields.forEach((fieldName: string) => {
-            this.formComponent.toggleControl(fieldName);
+            if (
+                fieldName !== 'overall_maximum' &&
+                fieldName !== 'overall_minimum' &&
+                fieldName !== 'interest_rate' &&
+                fieldName !== 'lifetime'
+            )
+                this.formComponent.toggleControl(fieldName);
         });
     }
 

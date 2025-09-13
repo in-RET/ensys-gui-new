@@ -1258,6 +1258,16 @@ export class EnergyDesignService {
                                                 }
                                             );
                                         }
+
+                                        if (
+                                            elm.name == 'overall_maximum' ||
+                                            elm.name == 'overall_minimum' ||
+                                            elm.name == 'interest_rate' ||
+                                            elm.name == 'lifetime'
+                                        ) {
+                                            elm['disabled'] = true;
+                                        }
+
                                         return elm;
                                     }),
                                 ],
