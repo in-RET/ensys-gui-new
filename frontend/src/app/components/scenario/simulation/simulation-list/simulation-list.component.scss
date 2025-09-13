@@ -4,17 +4,11 @@ green.simulations {
             width: 2rem;
             height: 2rem;
             cursor: pointer;
-
-            &.start {
-            }
-
-            &.stop {
-            }
         }
     }
 }
 
-::ng-deep img {
+img {
     width: 100%;
 
     &.green {
@@ -23,10 +17,27 @@ green.simulations {
     }
     &.warn {
         filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(221deg)
-            brightness(119%) contrast(119%);
+            brightness(119%) contrast(1%);
     }
     &.error {
         filter: invert(42%) sepia(93%) saturate(1352%) hue-rotate(8deg)
             brightness(119%) contrast(119%);
+    }
+}
+
+.action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 70px;
+    cursor: pointer;
+
+    .stop {
+        filter: brightness(0) saturate(100%) invert(13%) sepia(83%)
+            saturate(6231%) hue-rotate(360deg) brightness(77%) contrast(111%);
+    }
+    .start {
+        filter: brightness(0) saturate(100%) invert(12%) sepia(76%)
+            saturate(7155%) hue-rotate(209deg) brightness(93%) contrast(104%);
     }
 }

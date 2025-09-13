@@ -87,8 +87,6 @@ class FormModalInfo {
 export class ScenarioEnergyDesignComponent {
     components: any;
     editor!: Drawflow;
-    // currentNode: any;
-    // currentConnection: any;
 
     editMode: boolean = false;
     isFullscreen: boolean = false;

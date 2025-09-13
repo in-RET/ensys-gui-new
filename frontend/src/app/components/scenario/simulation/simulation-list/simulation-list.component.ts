@@ -2,16 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map } from 'rxjs';
+import { ResDataModel } from '../../../../shared/models/http.model';
+import { ScenarioBaseInfoModel } from '../../models/scenario.model';
+import {
+    SimulationResModel,
+    SimulationStatus,
+} from '../models/simulation.model';
 import { SimulationService } from '../services/simulation.service';
-
-export interface SimulationStatus {
-    status: string;
-    end_date: string | null;
-    id: number;
-    sim_token: string;
-    start_date: string;
-    scenario_id: number;
-}
 
 @Component({
     selector: 'app-simulation-list',
@@ -21,42 +18,34 @@ export interface SimulationStatus {
 })
 export class SimulationListComponent {
     scenarioId!: number;
-    scenarioList!: SimulationStatus[];
+    scenarioList!: SimulationResModel[];
     scenarioCount!: number;
+    currentScenario!: ScenarioBaseInfoModel;
 
     route = inject(ActivatedRoute);
     simulationService = inject(SimulationService);
     router = inject(Router);
 
+    SimulationStatus = SimulationStatus;
+
     ngOnInit() {
         if (this.route.snapshot.params) {
-            this.scenarioId = this.route.snapshot.params['id'];
-            this.loadScenarios(this.scenarioId);
+            this.scenarioId = +this.route.snapshot.params['id'];
+            this.loadSimulations(this.scenarioId);
+            this.checkScenarioBaseDataAvailablity();
         }
     }
 
-    loadScenarios(scenarioId: number) {
-        this.scenarioList = [];
-        this.scenarioCount = 0;
-
-        this.simulationService
-            .getSimulations(scenarioId)
-            .pipe(
-                map((res: any) => {
-                    if (res.success) return res.data;
-                })
-            )
-            .subscribe({
-                next: (value: any) => {
-                    this.scenarioCount = value.totalCount;
-                    this.scenarioList = value.items;
-
-                    this.loadMockData();
-                },
-                error: (err) => {
-                    console.error(err);
-                },
-            });
+    loadSimulations(scenarioId: number) {
+        this.simulationService.loadSimulations(scenarioId).subscribe({
+            next: (value: ResDataModel<SimulationResModel>) => {
+                this.scenarioCount = value.totalCount;
+                this.scenarioList = value.items;
+            },
+            error: (err) => {
+                console.error(err);
+            },
+        });
     }
 
     openSimulation(simId: number) {
@@ -67,11 +56,33 @@ export class SimulationListComponent {
         window.open(url, '_blank');
     }
 
-    loadMockData() {
-        let elm = this.scenarioList[0];
-        elm.status = 'Canceled';
-        this.scenarioList.push({ ...elm });
-        elm.status = 'Failed';
-        this.scenarioList.push({ ...elm });
+    checkScenarioBaseDataAvailablity() {
+        this.route.data
+            .pipe(
+                map((res: any) => {
+                    if (res) {
+                        const { currentProject, currentScenario } = res;
+
+                        this.currentScenario = {
+                            project: currentProject,
+                            scenario: currentScenario,
+                        };
+
+                        return res;
+                    }
+                })
+            )
+            .subscribe();
+    }
+
+    onStopSimulation(scenarioId: number) {
+        this.simulationService.onStopSimulation(scenarioId).subscribe({
+            next: (value: ResDataModel<SimulationResModel>) => {
+                debugger;
+            },
+            error: (err) => {
+                console.error(err);
+            },
+        });
     }
 }

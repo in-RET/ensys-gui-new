@@ -32,6 +32,7 @@ import { ScenarioProgressionComponent } from './scenario-progression/scenario-pr
 export class ScenarioBaseComponent {
     currentStep: number = 1;
     currentScenario!: ScenarioBaseInfoModel;
+    isScenarioNew!: boolean;
 
     @ViewChild('setup')
     scenarioSetupComponent!: ScenarioSetupComponent;
@@ -44,7 +45,6 @@ export class ScenarioBaseComponent {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
-    isScenarioNew!: boolean;
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
