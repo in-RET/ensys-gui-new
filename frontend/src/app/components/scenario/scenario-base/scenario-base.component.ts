@@ -57,7 +57,6 @@ export class ScenarioBaseComponent {
                 let scenarioBaseData = this.scenarioSetupComponent.getData();
 
                 if (scenarioBaseData) {
-                    // if (this.isScenarioNew)
                     this.saveBaseInfo(scenarioBaseData);
                     ++this.currentStep;
                 }

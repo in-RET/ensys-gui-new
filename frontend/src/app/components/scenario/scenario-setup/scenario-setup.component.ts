@@ -28,7 +28,7 @@ export class ScenarioSetupComponent implements OnInit {
             id: new FormControl(null, [Validators.required]),
             name: new FormControl(null, [Validators.required]),
         }),
-        id: new FormControl(null, [Validators.required]),
+        id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
