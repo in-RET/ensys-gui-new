@@ -28,6 +28,7 @@ export class ScenarioSetupComponent implements OnInit {
             id: new FormControl(null, [Validators.required]),
             name: new FormControl(null, [Validators.required]),
         }),
+        id: new FormControl(null, [Validators.required]),
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
@@ -37,6 +38,10 @@ export class ScenarioSetupComponent implements OnInit {
         timeStep: new FormControl({ value: 8760, disabled: true }),
         simulationYear: new FormControl(2025, [Validators.required]),
     });
+
+    get id() {
+        return this.form.get('id');
+    }
 
     get name() {
         return this.form.get('name');
@@ -126,10 +131,11 @@ export class ScenarioSetupComponent implements OnInit {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                const { name, timeStep, sDate, simulationYear } =
+                const { id, name, timeStep, sDate, simulationYear } =
                     scenarioBaseData.scenario;
 
                 this.form.patchValue({
+                    id,
                     name,
                     timeStep,
                     sDate,

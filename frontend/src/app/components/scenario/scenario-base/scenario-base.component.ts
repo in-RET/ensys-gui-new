@@ -57,7 +57,8 @@ export class ScenarioBaseComponent {
                 let scenarioBaseData = this.scenarioSetupComponent.getData();
 
                 if (scenarioBaseData) {
-                    if (this.isScenarioNew) this.saveBaseInfo(scenarioBaseData);
+                    // if (this.isScenarioNew)
+                    this.saveBaseInfo(scenarioBaseData);
                     ++this.currentStep;
                 }
                 break;
@@ -71,12 +72,13 @@ export class ScenarioBaseComponent {
     saveBaseInfo(data: any) {
         this.scenarioService.removeBaseInfo_Storage();
 
-        const { name, sDate, timeStep, interval, simulationYear, project } =
+        const { id, name, sDate, timeStep, interval, simulationYear, project } =
             data;
 
         const _data: ScenarioBaseInfoModel = {
             project,
             scenario: {
+                id,
                 name,
                 sDate,
                 timeStep,
