@@ -30,7 +30,10 @@
         <div *ngIf="formModal_info.formData !== null">
             <p
                 class="text-center p-2 border border-warning rounded-4 shadow"
-                *ngIf="formModal_info.type == 'flow' && formModal_info.data.oep"
+                *ngIf="
+                    formModal_info.type == 'flow' &&
+                    (formModal_info.data.oep || formModal_info.node?.data?.oep)
+                "
             >
                 The <b>OEP </b> field is enabled at the node level, so please
                 review and adjust its parameters directly in the node.

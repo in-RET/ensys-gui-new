@@ -19,41 +19,14 @@ import {
     OrderListComponent,
 } from './order-list/order-list.component';
 
-interface EnergySystemModel {
-    project_id: string;
-    scenario: {
-        scenario_id: string;
-        components: [
-            {
-                name: string;
-                oemof_type: string;
-                data: {};
-                position: { x: string; y: string };
-                links: [
-                    {
-                        input: {
-                            source: string;
-                            target: string;
-                            name: string;
-                        };
-                        output: {
-                            source: string;
-                            target: string;
-                            name: string;
-                        };
-                    }
-                ];
-            }
-        ];
-    };
-}
-
 interface FormNode {
     type: string;
     name: string;
     position: { x: number; y: number };
     class: string;
     id?: number;
+    data?: any;
+    oep: boolean;
 }
 
 class FormModalInfo {
@@ -253,6 +226,7 @@ export class ScenarioEnergyDesignComponent {
             await this.energyDesignService.getFormFields_flow(
                 nodeType,
                 e.editMode,
+                e.node?.data?.oep,
                 e.data,
                 this.defineCallbackFlowForm()
             );
@@ -392,18 +366,8 @@ export class ScenarioEnergyDesignComponent {
     }
 
     private setPredefinedFormFields_node(option: string, type: string) {
-        // [...this.energyDesignService.getDefaultFields_flow()];
         // get oep data form fields
         if (option != 'user_defined') {
-            this.formComponent.enabelControl('oep');
-            // set oep switch on
-            this.formComponent.setFieldData('oep', true);
-            this.formComponent.setFieldData('inputPort_name', null);
-            this.formComponent.setFieldData('outputPort_name', null);
-            // disable all fields
-            this.formComponent.disableControl('inputPort_name');
-            this.formComponent.disableControl('outputPort_name');
-
             //set data from server
             const scenarioBaseData: ScenarioBaseInfoModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
@@ -475,6 +439,31 @@ export class ScenarioEnergyDesignComponent {
 
                             // save in/out data port based on predefined item, to use in flow
                             this.formModal_info.preDefData = value.ports_data;
+
+                            // set form fields
+                            this.formComponent.enabelControl('oep');
+                            this.formComponent.setFieldData('oep', true);
+                            this.formModal_info.data
+                                ? (this.formModal_info.data.oep = true)
+                                : null;
+                            this.formModal_info.node
+                                ? (this.formModal_info.node.oep = true)
+                                : null;
+
+                            // set oep switch on
+                            this.formComponent.setFieldData(
+                                'inputPort_name',
+                                null
+                            );
+                            this.formComponent.setFieldData(
+                                'outputPort_name',
+                                null
+                            );
+                            // disable all fields
+                            this.formComponent.disableControl('inputPort_name');
+                            this.formComponent.disableControl(
+                                'outputPort_name'
+                            );
                         },
                         error: (err) => {
                             console.log(err);
@@ -501,6 +490,14 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.disableControl('oep');
             // set oep switch off
             this.formComponent.setFieldData('oep', false);
+            this.formModal_info.data.oep = false;
+            this.formModal_info.data
+                ? (this.formModal_info.data.oep = false)
+                : null;
+            this.formModal_info.node
+                ? (this.formModal_info.node.oep = false)
+                : null;
+
             this.formComponent.setFieldData('inputPort_name', null);
             this.formComponent.setFieldData('outputPort_name', null);
             // enable all fields
@@ -639,6 +636,10 @@ export class ScenarioEnergyDesignComponent {
     }
 
     toggleOEP(type?: string) {
+        if (this.formModal_info.node)
+            this.formModal_info.node.oep =
+                this.formComponent.form.controls['oep'].value;
+
         if (type == 'storage') {
             // user input data
             if (!this.formComponent.form.controls['oep'].value) {
@@ -733,9 +734,24 @@ export class ScenarioEnergyDesignComponent {
     }
 
     submitFormData() {
-        let formData = this.formComponent.submit(
-            !this.formModal_info.data?.oep
-        );
+        const findOEPFieldData = (
+            field: any | undefined
+        ): boolean | undefined => {
+            if (!field) return undefined;
+            return Object.keys(field).some((k) => k === 'oep')
+                ? field['oep']
+                : undefined;
+        };
+
+        let isOepSelected: boolean;
+        isOepSelected = findOEPFieldData(this.formModal_info.data) ?? false;
+        if (isOepSelected === undefined)
+            isOepSelected =
+                findOEPFieldData(this.formModal_info.node?.oep) ?? false;
+
+        //    if (this.formModal_info.type !== 'flow')
+
+        let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData) {
             // new-node

@@ -32,6 +32,13 @@ export class EnergyDesignService {
         private scenarioService: ScenarioService
     ) {}
 
+    dividerSec() {
+        return {
+            name: 'divider',
+            class: 'dashed',
+        };
+    }
+
     private getFieldData(
         fName: string,
         editData: { mode: boolean; data?: any },
@@ -213,7 +220,7 @@ export class EnergyDesignService {
         });
     }
 
-    getDefaultFields_flow(data?: any, preDefData?: any) {
+    getDefaultFields_flow(oep: boolean, data?: any, preDefData?: any) {
         return [
             {
                 name: 'variable_costs',
@@ -310,7 +317,7 @@ export class EnergyDesignService {
         ].map((item: any) => {
             item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
 
-            if (data && !data.oep && !preDefData) {
+            if (data && !oep && !preDefData) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
                 item['value'] = preDefData[item.name.toLocaleLowerCase()];
@@ -321,7 +328,7 @@ export class EnergyDesignService {
                 // if (isRangeVal) item['disabled'] = true;
             }
 
-            item['disabled'] = data.oep;
+            item['disabled'] = oep;
             item['label'] = item['label']
                 .split(/[-_]/g)
                 .map(
@@ -551,13 +558,6 @@ export class EnergyDesignService {
             ];
         };
 
-        const dividerSec = () => {
-            return {
-                name: 'divider',
-                class: 'dashed',
-            };
-        };
-
         const getFields = async () => {
             switch (name) {
                 case 'source':
@@ -578,7 +578,7 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            dividerSec(),
+                            this.dividerSec(),
 
                             {
                                 name: 'info',
@@ -647,7 +647,7 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            dividerSec(),
+                            this.dividerSec(),
 
                             {
                                 name: 'Name',
@@ -694,7 +694,7 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            dividerSec(),
+                            this.dividerSec(),
 
                             {
                                 name: 'info',
@@ -741,7 +741,7 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            dividerSec(),
+                            this.dividerSec(),
 
                             {
                                 name: 'non-OEP',
@@ -807,7 +807,7 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            dividerSec(),
+                            this.dividerSec(),
 
                             {
                                 name: 'investment',
@@ -840,10 +840,7 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'defaults',
@@ -917,10 +914,7 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'info',
@@ -1029,9 +1023,12 @@ export class EnergyDesignService {
     getFormFields_flow(
         name: string,
         editMode: boolean,
+        oep: boolean,
         data?: any,
         callback?: any
     ) {
+        console.log(oep);
+
         const getFields = async () => {
             switch (name) {
                 case 'genericstorage':
@@ -1062,7 +1059,7 @@ export class EnergyDesignService {
                                             );
                                         },
                                         undefined,
-                                        data.oep
+                                        oep
                                     ),
                                 ],
                             },
@@ -1083,18 +1080,17 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.getFieldData('investment', {
-                                            mode: editMode,
-                                            data,
-                                        })
+                                        oep != true
+                                            ? this.getFieldData('investment', {
+                                                  mode: editMode,
+                                                  data,
+                                              })
+                                            : oep
                                     ),
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'investment',
@@ -1112,7 +1108,9 @@ export class EnergyDesignService {
                                                 data,
                                             });
 
-                                        elm['disabled'] = !isInvSelected;
+                                        if (!oep)
+                                            elm['disabled'] = !isInvSelected;
+                                        else elm['disabled'] = true;
 
                                         if (elm.actions) {
                                             elm.actions.forEach(
@@ -1123,15 +1121,21 @@ export class EnergyDesignService {
                                             );
                                         }
 
+                                        if (
+                                            elm.name == 'overall_maximum' ||
+                                            elm.name == 'overall_minimum' ||
+                                            elm.name == 'interest_rate' ||
+                                            elm.name == 'lifetime'
+                                        ) {
+                                            elm['disabled'] = true;
+                                        }
+
                                         return elm;
                                     }),
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'defaults',
@@ -1172,7 +1176,7 @@ export class EnergyDesignService {
                                             );
                                         },
                                         undefined,
-                                        data.oep
+                                        oep
                                     ),
                                 ],
                             },
@@ -1182,23 +1186,6 @@ export class EnergyDesignService {
                                 class: 'col-9',
                                 visible: true,
                                 fields: [
-                                    // this.getField(
-                                    //     'nominal_value',
-                                    //     'Nominal Value',
-                                    //     'Nominal Value',
-                                    //     false,
-                                    //     'number',
-                                    //     'auto',
-                                    //     editMode,
-                                    //     data,
-                                    //     undefined,
-                                    //     undefined,
-                                    //     undefined,
-                                    //     this.getFieldData('investment', {
-                                    //         mode: editMode,
-                                    //         data,
-                                    //     })
-                                    // ),
                                     ...this.getNonInvestmentFields(
                                         data,
                                         callback,
@@ -1210,8 +1197,9 @@ export class EnergyDesignService {
                                                 data,
                                             });
 
-                                        if (!data.oep)
+                                        if (!oep)
                                             elm['disabled'] = isInvSelected;
+                                        else elm['disabled'] = true;
 
                                         if (elm.actions) {
                                             elm.actions.forEach(
@@ -1226,10 +1214,7 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'investment',
@@ -1247,8 +1232,9 @@ export class EnergyDesignService {
                                                 data,
                                             });
 
-                                        if (!data.oep)
+                                        if (!oep)
                                             elm['disabled'] = !isInvSelected;
+                                        else elm['disabled'] = true;
 
                                         if (elm.actions) {
                                             elm.actions.forEach(
@@ -1273,16 +1259,14 @@ export class EnergyDesignService {
                                 ],
                             },
 
-                            {
-                                name: 'divider',
-                                class: 'dashed',
-                            },
+                            this.dividerSec(),
 
                             {
                                 name: 'defaults',
                                 class: 'col-12',
                                 visible: true,
                                 fields: this.getDefaultFields_flow(
+                                    oep,
                                     data,
                                     data.preDefData
                                 ),
