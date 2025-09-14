@@ -116,8 +116,8 @@ class EnGenericStorage(EnBaseModel):
         description=' Couple storage level of first and last time step. (Total inflow and total outflow are balanced.)'
     )
 
-    loss_rate: float | list[float] = Field(
-        ...,
+    loss_rate: float | list[float] | None = Field(
+        default=None,
         title='loss rate',
         description='The relative loss of the storage content per hour.'
     )
