@@ -275,8 +275,6 @@ async def get_simulations(
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     simulations = db.exec(select(EnSimulationDB).where(EnSimulationDB.scenario_id == scenario_id)).all()
-    if not simulations:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Simulations found.")
 
     return DataResponse(
         data=GeneralDataModel(
