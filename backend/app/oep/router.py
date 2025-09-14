@@ -42,8 +42,8 @@ def get_oep_client():
 
 @oep_router.get("/{table_name}")
 async def get_oep_data(
-        token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
-        oep_cli: Annotated[OepClient, Depends(get_oep_client)]
+    token: Annotated[str, Depends(oauth2_scheme)], table_name: str,
+    oep_cli: Annotated[OepClient, Depends(get_oep_client)]
 ) -> DataResponse:
     """
     Get OEP Data from a specified table.
@@ -80,9 +80,9 @@ async def get_oep_data(
 
 @oep_router.get("/meta/{table_name}")
 async def get_oep_metadata(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        table_name: str,
-        oep_cli: Annotated[OepClient, Depends(get_oep_client)]
+    token: Annotated[str, Depends(oauth2_scheme)],
+    table_name: str,
+    oep_cli: Annotated[OepClient, Depends(get_oep_client)]
 ) -> DataResponse:
     """
     Retrieve metadata for a specific table.
@@ -115,11 +115,11 @@ async def get_oep_metadata(
 
 @oep_router.get("/local_schemas/{block_type}")
 async def get_local_oep_schemas(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        block_type: Annotated[str, Path(
-            enum=list(oemofBlockTypes),
-            description="Block type to identify the schema."
-        )]
+    token: Annotated[str, Depends(oauth2_scheme)],
+    block_type: Annotated[str, Path(
+        enum=list(oemofBlockTypes),
+        description="Block type to identify the schema."
+    )]
 ) -> DataResponse:
     """
     This endpoint retrieves a list of local schemas that match the provided
@@ -150,15 +150,15 @@ async def get_local_oep_schemas(
 
 @oep_router.get("/local_data/{oep_name}/{simulation_year}")
 async def get_local_oep_data(
-        token: Annotated[str, Depends(oauth2_scheme)],
-        oep_name: Annotated[str, Path(
-            enum=list(oepTypes),
-            description="Selected parameter set for the OEP data."
-        )],
-        simulation_year: Annotated[int, Path(
-            enum=[2025, 2030, 2035, 2040, 2045, 2050],
-            description="Simulation year from the scenario."
-        )]
+    token: Annotated[str, Depends(oauth2_scheme)],
+    oep_name: Annotated[str, Path(
+        enum=list(oepTypes),
+        description="Selected parameter set for the OEP data."
+    )],
+    simulation_year: Annotated[int, Path(
+        enum=[2025, 2030, 2035, 2040, 2045, 2050],
+        description="Simulation year from the scenario."
+    )]
 ) -> DataResponse:
     """
     Fetch localized Open Energy Platform (OEP) data for a specific simulation year and type.
@@ -221,7 +221,7 @@ async def get_local_oep_data(
     # Einlesen der Zeitreihe#
     if ((oep_type.lower() == "sink" or
          oep_type.lower() == "source") and
-            oep_name.lower() not in ["electricity_export", "hydrogen_feed_in"]
+        oep_name.lower() not in ["electricity_export", "hydrogen_feed_in"]
     ):
         # print(f"timeseries_data_path: {timeseries_data_path}")
         if not os.path.isfile(timeseries_data_path):
@@ -241,9 +241,9 @@ async def get_local_oep_data(
 
     # ep_costs berechnen für den Flow
     if "investment_costs" in param_keys and \
-            "interest_rate" in param_keys and \
-            "operating_costs" in param_keys and \
-            "lifetime" in param_keys:
+        "interest_rate" in param_keys and \
+        "operating_costs" in param_keys and \
+        "lifetime" in param_keys:
         # Calculate EPC costs for flow
         capex = parameter_year_select["investment_costs"]
         opex = parameter_year_select["investment_costs"] * (parameter_year_select["operating_costs"] / 100)
@@ -268,7 +268,18 @@ async def get_local_oep_data(
 
     if flow_ep_costs is not None:
         flow_data["investment"] = {
-            "ep_costs": flow_ep_costs
+            "toggle": True,
+            "ep_costs": flow_ep_costs,
+            "calculation": {
+                "capex": parameter_year_select["investment_costs"],
+                "opex": parameter_year_select["operating_costs"] / 100,
+                "lifetime": parameter_year_select["lifetime"],
+                "interest_rate": parameter_year_select["interest_rate"] / 100
+            }
+        }
+    else:
+        flow_data["investment"] = {
+            "toggle": False
         }
 
     # flow-daten die wichtig sind, zum Filtern bei der storage-daten
@@ -301,13 +312,13 @@ async def get_local_oep_data(
         elif key in parameter_ys_cleaned.keys() and key in flow_data.keys():
             del parameter_ys_cleaned[key]
 
-    # TODO: how do i write the flow data in the right port? Sink/Source/Rest
     for port in ports_data:
-        flow_data["investement"] = port["investment"]
 
         if port["controlled_flow"]:
-            print(flow_data)
-            port["flow_data"] = flow_data
+            if oep_name in ["storage_electricity_pumped_hydro_storage_power_technology"]:
+                parameter_ys_cleaned = parameter_ys_cleaned | flow_data
+            else:
+                port["flow_data"] = flow_data
         else:
             print(f"Nicht steuernder Port: {port}")
 
@@ -344,11 +355,9 @@ async def get_local_oep_data(
 
         del parameter_year_select["inverse_c_rate"]
 
-    # TODO: investment flag als boolean übergeben
-
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {
-        "inputs" : [],
+        "inputs": [],
         "outputs": []
     }
 
@@ -362,7 +371,7 @@ async def get_local_oep_data(
             sorted_port_data["outputs"].append(item)
 
     return_data = [{
-        "node_data" : parameter_ys_cleaned,
+        "node_data": parameter_ys_cleaned,
         "ports_data": sorted_port_data
     }]
 

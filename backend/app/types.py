@@ -14,7 +14,7 @@ class oepTypes(Enum):
     storage_electricity_generic = "storage_electricity_generic"
     storage_electricity_li_ion = "storage_electricity_li_ion"
     storage_electricity_natrium = "storage_electricity_natrium"
-    storage_electricity_pumped_hydro_storage_power_technology = "storage_electricity_pumped_hydro_storage_power_technology"
+    #storage_electricity_pumped_hydro_storage_power_technology = "storage_electricity_pumped_hydro_storage_power_technology"
     storage_gas = "storage_gas"
     storage_heat_district_heating = "storage_heat_district_heating"
     storage_heat_seasonal = "storage_heat_seasonal"
@@ -29,6 +29,10 @@ class oepTypes(Enum):
     heat_demand_efh = "heat_demand_efh"
     # heat_demand_industry = "heat_demand_industry"
     # heat_demand_mfh = "heat_demand_mfh"
+    demand_g0 = "demand_g0"
+    demand_g3 = "demand_g3"
+    demand_ha4 = "demand_ha4"
+    demand_t24 = "demand_t24"
 
     # Sources
     test_source = "test_source"
@@ -64,9 +68,9 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
         {"name": "storage_electricity_generic", "label": "Electricity Storage - Generic"},
         {"name": "storage_electricity_li_ion", "label": "Electricity Storage - Li-ion"},
         {"name": "storage_electricity_natrium", "label": "Electricity Storage - Natrium"},
-        {"name" : "storage_electricity_pumped_hydro_storage_power_technology",
-         "label": "Electricity Storage - Pumped Hydro Storage Power Technology"
-        },
+        #{"name" : "storage_electricity_pumped_hydro_storage_power_technology",
+        # "label": "Electricity Storage - Pumped Hydro Storage Power Technology"
+        #},
         {"name": "storage_gas", "label": "Gas Storage"},
         {"name": "storage_heat_district_heating", "label": "Heat Storage - District Heating"},
         {"name": "storage_heat_seasonal", "label": "Heat Storage - Seasonal"},
@@ -78,10 +82,14 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
         {"name": "electricity_export", "label": "Electricity Export to Grid"},
         {"name": "electricity_demand_efh", "label": "Electricity Demand - EFH"},
         # {"name": "electricity_demand_industry", "label": "Electricity Demand - Industry"},
-        # {"name": "electricity_demand_mfh", "label": "Electricity Demand - MFH"},
+        {"name": "electricity_demand_mfh", "label": "Electricity Demand - MFH"},
         {"name": "heat_demand_efh", "label": "Heat Demand - EFH"},
         # {"name": "heat_demand_industry", "label": "Heat Demand - Industry"},
         # {"name": "heat_demand_mfh", "label": "Heat Demand - MFH"},
+        {"name": "demand_g0", "label": "Generic Demand - G0"},
+        {"name": "demand_g3", "label": "Generic Demand - G3"},
+        {"name": "demand_ha4", "label": "Generic Demand - HA4"},
+        {"name": "demand_t24", "label": "Generic Demand - T24"},
     ],
 
     oemofBlockTypes.source         : [
