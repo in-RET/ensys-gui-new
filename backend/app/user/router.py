@@ -134,7 +134,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
 
 
-@users_router.post("/auth/activate/{token}")
+@users_router.get("/auth/activate/{token}")
 async def user_activate(
     token: str,
     db: Session = Depends(get_db_session)
