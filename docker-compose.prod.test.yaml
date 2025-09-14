@@ -6,8 +6,6 @@ services:
     container_name: ensys-new-frontend
     env_file: .env.test
     restart: no
-    ports:
-      - "${ANGULAR_PORT}:8000"
     networks:
       - frontend
 
@@ -21,8 +19,6 @@ services:
     env_file: .env.test
     command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
     restart: no
-    ports:
-      - "${FASTAPI_PORT}:8001"
     volumes:
       - ./backend/app:/backend/app
       - ./backend/data:/backend/data
@@ -75,14 +71,14 @@ services:
         os_version: ${OS_VERSION}
     container_name: ensys-new-flower
     env_file: .env.test
-    command: celery --app=app.celery.celery_app flower --port=5555
+    command: celery --app=app.celery.celery_app flower --port=8002
     volumes:
       - ./backend/app:/backend/app
       - ./backend/data:/backend/data
       - ./ensys:/backend/ensys
       - ${HOST_DATADIR}:${LOCAL_DATADIR}
     ports:
-      - "${FLOWER_PORT}:5555"
+      - "${FLOWER_PORT}:8002"
     networks:
       - backend
     depends_on:
