@@ -3,10 +3,16 @@
     tabindex="-1"
     role="dialog"
     id="modalTour"
-    style="overflow: hidden"
 >
-    <div class="modal-dialog d-flex" style="max-height: 100%">
-        <div class="modal-content rounded-4 shadow" style="max-height: 100%">
+    <div
+        class="modal-dialog d-flex"
+        style="
+            height: 100%;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+        "
+    >
+        <div class="modal-content rounded-4 shadow">
             <div class="modal-body d-flex row gap-3" style="max-height: 100%">
                 <ng-container *ngIf="scenarioCount; else no_data">
                     <h2 class="fw-bold mb-0 text-center">
@@ -15,117 +21,8 @@
                         {{ currentScenario.scenario?.name }}
                     </h2>
 
-                    <div
-                        class="border border-primary-subtle rounded-3 border-opacity-25 p-2"
-                        style="max-height: 70%"
-                    >
-                        <ul
-                            class="d-grid gap-4 list-unstyled small simulations p-2"
-                            style="overflow-y: auto; max-height: 100%"
-                        >
-                            <li
-                                class="d-flex gap-4"
-                                *ngFor="let item of scenarioList"
-                                style="justify-content: space-evenly"
-                            >
-                                <div
-                                    style="
-                                        width: 70px;
-                                        display: flex;
-                                        justify-content: center;
-                                        align-items: center;
-                                    "
-                                >
-                                    <div
-                                        class="spinner-border text-primary"
-                                        style="width: 3rem; height: 3rem"
-                                        role="status"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.STARTED
-                                        "
-                                    >
-                                        <span class="visually-hidden"
-                                            >Loading...</span
-                                        >
-                                    </div>
-
-                                    <img
-                                        src="../../../../../static/assets/icons/feather/black/x.svg"
-                                        alt=""
-                                        class="warn"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.STOPPED
-                                        "
-                                    />
-
-                                    <img
-                                        src="../../../../../static/assets/icons/feather/black/alert-triangle.svg"
-                                        alt=""
-                                        class="error"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.FAILED
-                                        "
-                                    />
-
-                                    <img
-                                        src="../../../../../static/assets/icons/feather/black/check-circle.svg"
-                                        alt=""
-                                        class="green"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.FINISHED
-                                        "
-                                    />
-                                </div>
-
-                                <div
-                                    (click)="openSimulation(item.id)"
-                                    style="cursor: pointer"
-                                >
-                                    <h5 class="mb-0">
-                                        ID:{{ item.id }}
-                                        -
-                                        <small>
-                                            {{
-                                                item.start_date | date : "short"
-                                            }}
-                                        </small>
-                                    </h5>
-
-                                    <span>
-                                        For Support: <b>{{ item.sim_token }}</b>
-                                    </span>
-                                </div>
-
-                                <div class="action">
-                                    <img
-                                        src="../../../../../static/assets/icons/feather/black/stop-circle.svg"
-                                        alt=""
-                                        class="stop"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.STARTED
-                                        "
-                                        title="stop"
-                                        (click)="onStopSimulation(scenarioId)"
-                                    />
-
-                                    <img
-                                        src="../../../../../static/assets/icons/feather/black/play-circle.svg"
-                                        alt=""
-                                        class="start"
-                                        *ngIf="
-                                            item.status ===
-                                            SimulationStatus.STOPPED
-                                        "
-                                        title="start"
-                                    />
-                                </div>
-                            </li>
-                        </ul>
+                    <div style="max-height: 70%">
+                        <app-simulation-list-card [data]="simulationList" />
                     </div>
                 </ng-container>
 

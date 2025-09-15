@@ -51,9 +51,10 @@
             <a
                 class="btn btn--medium btn--transparent"
                 *ngIf="step == 1 && scenarioData.scenario"
-                [routerLink]="['/simulation/list', scenarioData.scenario.id]"
                 [ngClass]="{ disabled: isScenarioNew }"
+                (click)="onOpenSimulations(scenarioData.scenario.id)"
             >
+                <!-- [routerLink]="['/simulation/list', scenarioData.scenario.id]" -->
                 Simulation(s)
             </a>
         </div>
