@@ -162,10 +162,11 @@
 <app-modal
     *ngIf="showSimulations"
     title="Simulations"
-    (closeModal)="showSimulations = false"
+    (closeModal)="closeSimulationModal()"
     [hidden]="false"
 >
     <div style="max-height: 70%" modal-body>
+        <!-- <button (click)="loadSimulations(1)">reload</button> -->
         <app-simulation-list-card [data]="simulationList" />
     </div>
 </app-modal>
