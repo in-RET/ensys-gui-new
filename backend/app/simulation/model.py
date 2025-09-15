@@ -39,6 +39,14 @@ class EnSimulation(BaseModel):
     end_date: int | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
 
+    def model_dump(self,  *args, **kwargs):
+        dump_data = super().model_dump(*args, **kwargs)
+
+        dump_data["start_date"] = datetime.fromtimestamp(self.start_date)
+        dump_data["end_date"] = datetime.fromtimestamp(self.end_date) if self.end_date else None
+
+        return dump_data
+
 
 class EnSimulationDB(SQLModel, table=True):
     """

@@ -39,6 +39,12 @@ class EnScenario(BaseModel):
     project_id: int = Field()
     modeling_data: str = Field(default="")
 
+    def model_dump(self, *args, **kwargs):
+        model_data = super().model_dump(*args, **kwargs)
+        model_data["start_date"] = datetime.fromtimestamp(self.start_date)
+
+        return model_data
+
 
 class EnScenarioDB(SQLModel, table=True):
     """

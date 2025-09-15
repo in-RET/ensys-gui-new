@@ -2,14 +2,14 @@ from datetime import datetime
 
 from fastapi import HTTPException
 from passlib.hash import pbkdf2_sha256
-from pydantic import field_validator
+from pydantic import field_validator, BaseModel
 from sqlmodel import Field, SQLModel
 from starlette import status
 
 PASSWORD_MAX_LENGTH = 128
 
 
-class EnUser(SQLModel):
+class EnUser(BaseModel):
     """
     Represents a user entity with various attributes and validation mechanisms for
     the user-related data fields.
@@ -36,12 +36,6 @@ class EnUser(SQLModel):
     lastname: str | None = Field(default=None, min_length=0, max_length=64)
     password: str = Field(min_length=8, max_length=PASSWORD_MAX_LENGTH)
     mail: str = Field(min_length=8, max_length=128)
-
-    def verify_password(self, plain_password: str) -> bool:
-        return pbkdf2_sha256.verify(plain_password, self.password)
-
-    def get_token_information(self) -> dict:
-        return self.model_dump(include={"username"})
 
     @field_validator('mail', mode='after')
     @classmethod
@@ -124,7 +118,7 @@ class EnUser(SQLModel):
         return value
 
 
-class EnUserDB(EnUser, table=True):
+class EnUserDB(SQLModel, table=True):
     """
     Represents a database model for storing user information.
 
@@ -149,10 +143,29 @@ class EnUserDB(EnUser, table=True):
     __tablename__ = "users"
 
     id: int = Field(default=None, primary_key=True)
+    username: str = Field(min_length=3, max_length=128)
+    firstname: str | None = Field(default=None, min_length=0, max_length=64)
+    lastname: str | None = Field(default=None, min_length=0, max_length=64)
+    password: str = Field(min_length=8, max_length=PASSWORD_MAX_LENGTH)
+    mail: str = Field(min_length=8, max_length=128)
     date_joined: datetime | None = Field(default=None)
     last_login: datetime | None = Field(default=None)
     is_active: bool = Field(default=False)
     is_staff: bool = Field(default=False)
+
+    def model_dump(self, *args, **kwargs):
+        dump_data = super().model_dump(*args, **kwargs)
+
+        dump_data["date_joined"] = datetime.timestamp(self.date_joined) if self.date_joined else None
+        dump_data["last_login"] = datetime.timestamp(self.last_login) if self.last_login else None
+
+        return dump_data
+
+    def get_token_information(self) -> dict:
+        return self.model_dump(include={"username"})
+
+    def verify_password(self, plain_password: str) -> bool:
+        return pbkdf2_sha256.verify(plain_password, self.password)
 
 
 class EnUserUpdate(EnUser):
