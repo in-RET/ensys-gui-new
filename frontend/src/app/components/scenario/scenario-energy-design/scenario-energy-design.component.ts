@@ -414,8 +414,7 @@ export class ScenarioEnergyDesignComponent {
                                         id: this.formModal_info.data.ports
                                             .inputs.length,
                                         name: port.name,
-                                        number:
-                                            value.node_data['efficiency'] ?? 1,
+                                        number: port.efficiency ?? 1,
                                     };
 
                                     this.formModal_info.data.ports.inputs.push(
@@ -436,8 +435,7 @@ export class ScenarioEnergyDesignComponent {
                                         id: this.formModal_info.data.ports
                                             .outputs.length,
                                         name: port.name,
-                                        number:
-                                            value.node_data['efficiency'] ?? 1,
+                                        number: port.efficiency ?? 1,
                                     };
 
                                     this.formModal_info.data.ports.outputs.push(
@@ -459,15 +457,14 @@ export class ScenarioEnergyDesignComponent {
                                 ? (this.formModal_info.node.oep = true)
                                 : null;
 
-                            // set oep switch on
-                            this.formComponent.setFieldData(
-                                'inputPort_name',
-                                null
-                            );
-                            this.formComponent.setFieldData(
-                                'outputPort_name',
-                                null
-                            );
+                            // this.formComponent.setFieldData(
+                            //     'inputPort_name',
+                            //     null
+                            // );
+                            // this.formComponent.setFieldData(
+                            //     'outputPort_name',
+                            //     null
+                            // );
                             // disable all fields
                             this.formComponent.disableControl('inputPort_name');
                             this.formComponent.disableControl(
@@ -649,7 +646,7 @@ export class ScenarioEnergyDesignComponent {
             this.formModal_info.node.oep =
                 this.formComponent.form.controls['oep'].value;
 
-        if (type == 'storage') {
+        if (type == 'genericstorage') {
             // user input data
             if (!this.formComponent.form.controls['oep'].value) {
                 this.formComponent.enabelControl('investment');

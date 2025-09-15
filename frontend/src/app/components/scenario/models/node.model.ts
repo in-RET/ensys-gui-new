@@ -11,6 +11,7 @@ export interface OEPPorts {
 export interface Port {
     name: string;
     flow_data: FlowData;
+    efficiency?: number;
 }
 
 export interface FlowData {
