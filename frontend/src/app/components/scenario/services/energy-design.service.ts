@@ -1141,7 +1141,11 @@ export class EnergyDesignService {
                                 name: 'defaults',
                                 class: 'col-12',
                                 visible: true,
-                                fields: this.getDefaultFields_flow(data),
+                                fields: this.getDefaultFields_flow(
+                                    oep,
+                                    data,
+                                    data.preDefData
+                                ),
                             },
                         ],
                     };
