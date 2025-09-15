@@ -201,9 +201,6 @@ async def get_local_oep_data(
     )
 
     port_data_path = os.path.join(root_path, "ports", f"{oep_name.lower()}.csv")
-    parameter_data_path = os.path.join(root_path, "parameter", f"{oep_name.lower()}.csv")
-    timeseries_data_path = os.path.join(root_path, "timeseries", f"{oep_name.lower()}.csv")
-
     # Einlesen der Portdaten
     if not os.path.isfile(port_data_path):
         raise HTTPException(status_code=404, detail="File with port specification not found.")
@@ -211,17 +208,10 @@ async def get_local_oep_data(
         with open(port_data_path, "r") as f:
             ports_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="records")
 
-    # Einlesen der Parameter
-    if not os.path.isfile(parameter_data_path):
-        raise HTTPException(status_code=404, detail="File with parameter data not found.")
-    else:
-        with open(parameter_data_path, "r") as f:
-            parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
-
+    timeseries_data_path = os.path.join(root_path, "timeseries", f"{oep_name.lower()}.csv")
     # Einlesen der Zeitreihe#
     if ((oep_type.lower() == "sink" or
-         oep_type.lower() == "source") and
-        oep_name.lower() not in ["electricity_export", "hydrogen_feed_in"]
+         oep_type.lower() == "source")
     ):
         # print(f"timeseries_data_path: {timeseries_data_path}")
         if not os.path.isfile(timeseries_data_path):
@@ -233,6 +223,28 @@ async def get_local_oep_data(
                 timeseries_data = list(timeseries_df[str(simulation_year)])
     else:
         timeseries_data = None
+
+    if oep_name.lower() == "storage_electricity_pumped_hydro_storage_power_technology":
+        parameter_node_data_path = os.path.join(root_path, "parameter", f"{oep_name.lower()}_node.csv")
+        parameter_flow_data_path = os.path.join(root_path, "parameter", f"{oep_name.lower()}_flow.csv")
+        # Einlesen der Parameter
+        if not os.path.isfile(parameter_flow_data_path) and not os.path.isfile(parameter_node_data_path):
+            raise HTTPException(status_code=404, detail="File with parameter data not found.")
+        else:
+            with open(parameter_flow_data_path, "r") as f:
+                parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
+
+            with open(parameter_node_data_path, "r") as f:
+                parameter_node_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
+
+    else:
+        parameter_data_path = os.path.join(root_path, "parameter", f"{oep_name.lower()}.csv")
+        # Einlesen der Parameter
+        if not os.path.isfile(parameter_data_path):
+            raise HTTPException(status_code=404, detail="File with parameter data not found.")
+        else:
+            with open(parameter_data_path, "r") as f:
+                parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
 
     parameter_year_select: dict = parameter_data[simulation_year]
 
@@ -267,20 +279,16 @@ async def get_local_oep_data(
         flow_data = {}
 
     if flow_ep_costs is not None:
-        flow_data["investment"] = {
-            "toggle": True,
-            "ep_costs": flow_ep_costs,
-            "calculation": {
-                "capex": parameter_year_select["investment_costs"],
-                "opex": parameter_year_select["operating_costs"] / 100,
-                "lifetime": parameter_year_select["lifetime"],
-                "interest_rate": parameter_year_select["interest_rate"] / 100
-            }
+        flow_data["investment"] = True
+        flow_data["ep_costs"] = flow_ep_costs
+        flow_data["calculation"] = {
+            "capex": parameter_year_select["investment_costs"],
+            "opex": parameter_year_select["operating_costs"] / 100,
+            "lifetime": parameter_year_select["lifetime"],
+            "interest_rate": parameter_year_select["interest_rate"] / 100
         }
     else:
-        flow_data["investment"] = {
-            "toggle": False
-        }
+        flow_data["investment"] = False
 
     # flow-daten die wichtig sind, zum Filtern bei der storage-daten
     flow_data_keys = ["nominal_value",
@@ -299,26 +307,21 @@ async def get_local_oep_data(
                       "lifetime"]
 
     # Löschen der nicht relevanten Einträge
-    parameter_ys_cleaned = parameter_year_select
     for key in ["investment_costs", "operating_costs", "lifetime", "interest_rate", "efficiency_el",
                 "efficiency_th"]:
-        if key in parameter_ys_cleaned.keys():
-            del parameter_ys_cleaned[key]
+        if key in parameter_year_select.keys():
+            del parameter_year_select[key]
 
     for key in flow_data_keys:
-        if key in parameter_ys_cleaned.keys() and not key in flow_data.keys():
-            flow_data[key] = parameter_ys_cleaned[key]
-            del parameter_ys_cleaned[key]
-        elif key in parameter_ys_cleaned.keys() and key in flow_data.keys():
-            del parameter_ys_cleaned[key]
+        if key in parameter_year_select.keys() and not key in flow_data.keys():
+            flow_data[key] = parameter_year_select[key]
+            del parameter_year_select[key]
+        elif key in parameter_year_select.keys() and key in flow_data.keys():
+            del parameter_year_select[key]
 
     for port in ports_data:
-
         if port["controlled_flow"]:
-            if oep_name in ["storage_electricity_pumped_hydro_storage_power_technology"]:
-                parameter_ys_cleaned = parameter_ys_cleaned | flow_data
-            else:
-                port["flow_data"] = flow_data
+            port["flow_data"] = flow_data
         else:
             print(f"Nicht steuernder Port: {port}")
 
@@ -355,6 +358,43 @@ async def get_local_oep_data(
 
         del parameter_year_select["inverse_c_rate"]
 
+    if oep_type.lower() == "generic_storage":
+        if oep_name.lower() == "storage_electricity_pumped_hydro_storage_power_technology":
+            # ep_costs berechnen für den Flow
+            parameter_node_year_selected = parameter_node_data[simulation_year]
+            print(f"parameter_node_year_selected: {parameter_node_year_selected}")
+
+            if "investment_costs" in parameter_node_data.keys() and \
+                "interest_rate" in parameter_node_data.keys() and \
+                "operating_costs" in parameter_node_data.keys() and \
+                "lifetime" in parameter_node_data.keys():
+                # Calculate EPC costs for flow
+                capex = parameter_node_year_selected["investment_costs"]
+                opex = parameter_node_year_selected["investment_costs"] * (parameter_node_year_selected["operating_costs"] / 100)
+                interest_rate = parameter_node_year_selected["interest_rate"] / 100
+
+                annuity = economics.annuity(
+                    capex=capex,
+                    wacc=interest_rate,
+                    n=parameter_node_year_selected["lifetime"]
+                )
+                node_ep_costs = annuity + opex
+            else:
+                node_ep_costs = None
+
+            print(f"node_ep_costs: {node_ep_costs}")
+            if node_ep_costs is not None:
+                parameter_year_select["investment"] = True
+                parameter_year_select["ep_costs"] = flow_ep_costs
+                parameter_year_select["calculation"] = {
+                    "capex": parameter_year_select["investment_costs"],
+                    "opex": parameter_year_select["operating_costs"] / 100,
+                    "lifetime": parameter_year_select["lifetime"],
+                    "interest_rate": parameter_year_select["interest_rate"] / 100
+                }
+        else:
+            parameter_year_select |= flow_data
+
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {
         "inputs": [],
@@ -371,7 +411,7 @@ async def get_local_oep_data(
             sorted_port_data["outputs"].append(item)
 
     return_data = [{
-        "node_data": parameter_ys_cleaned,
+        "node_data": parameter_year_select,
         "ports_data": sorted_port_data
     }]
 

@@ -10,7 +10,6 @@ class oemofBlockTypes(Enum):
 
 class oepTypes(Enum):
     # Storages
-    test_storage = "test_storage"
     storage_electricity_generic = "storage_electricity_generic"
     storage_electricity_li_ion = "storage_electricity_li_ion"
     storage_electricity_natrium = "storage_electricity_natrium"
@@ -18,7 +17,7 @@ class oepTypes(Enum):
     storage_gas = "storage_gas"
     storage_heat_district_heating = "storage_heat_district_heating"
     storage_heat_seasonal = "storage_heat_seasonal"
-    #storage_heat_household = "storage_heat_household"
+    # storage_heat_household = "storage_heat_household"
     storage_hydrogen = "storage_hydrogen"
 
     # Sinks
@@ -58,17 +57,16 @@ class oepTypes(Enum):
 
 oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
     oemofBlockTypes.generic_storage: [
-        {"name": "test_storage", "label": "Generic Test Storage"},
         {"name": "storage_electricity_generic", "label": "Electricity Storage - Generic"},
         {"name": "storage_electricity_li_ion", "label": "Electricity Storage - Li-ion"},
         {"name": "storage_electricity_natrium", "label": "Electricity Storage - Natrium"},
         # {"name": "storage_electricity_pumped_hydro_storage_power_technology",
-        # "label": "Electricity Storage - Pumped Hydro Storage Power Technology"
-        # },
+        #  "label": "Electricity Storage - Pumped Hydro Storage Power Technology"
+        #  },
         {"name": "storage_gas", "label": "Gas Storage"},
         {"name": "storage_heat_district_heating", "label": "Heat Storage - District Heating"},
         {"name": "storage_heat_seasonal", "label": "Heat Storage - Seasonal"},
-        #{"name": "storage_heat_household", "label": "Heat Storage - Household"},
+        # {"name": "storage_heat_household", "label": "Heat Storage - Household"},
         {"name": "storage_hydrogen", "label": "Hydrogen Storage"}
     ],
 
