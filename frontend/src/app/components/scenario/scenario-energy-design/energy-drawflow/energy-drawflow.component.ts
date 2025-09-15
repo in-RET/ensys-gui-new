@@ -23,8 +23,6 @@ import { ModalComponent } from '../modal/modal.component';
 export class EnergyDrawflowComponent {
     editor!: Drawflow;
     flowZoom: number = 1;
-    // currentNode: any;
-    // currentPosition: any;
 
     // form
     formData!: any;
@@ -939,10 +937,11 @@ export class EnergyDrawflowComponent {
             const confirmed = await this.alertService.confirm(
                 `Removing node: ${node.name}`
             );
+
             if (confirmed) {
                 this.editor.removeNodeId(`node-${node.id}`);
                 this.saveCurrentDrawflow();
-                this.alertService.success(
+                this.toastService.info(
                     `Node: ${node.name} deleted successfully!`
                 );
             }

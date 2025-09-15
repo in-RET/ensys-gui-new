@@ -751,6 +751,9 @@ export class ScenarioEnergyDesignComponent {
 
         let isOepSelected: boolean;
         isOepSelected = findOEPFieldData(this.formModal_info.data) ?? false;
+        if (this.formModal_info.editMode)
+            isOepSelected =
+                findOEPFieldData(this.formModal_info.node?.data.oep) ?? false;
         if (isOepSelected === undefined)
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.oep) ?? false;
