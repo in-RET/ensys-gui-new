@@ -5,8 +5,8 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
-      <env name="DATABASE_URL" value="postgresql://ensys_pg:ensys_pg@localhost:5432/ensys" />
       <env name="PYTHONUNBUFFERED" value="1" />
+      <env name="DATABASE_URL" value="postgresql://ensys_pg:ensys_pg@localhost:5432/ensys" />
     </envs>
     <option name="SDK_HOME" value="" />
     <option name="SDK_NAME" value="Python 3.12 (ensys-gui-new)" />

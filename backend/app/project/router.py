@@ -97,9 +97,7 @@ async def read_projects(
     statement = select(EnProjectDB).where(EnProjectDB.user_id == token_user.id)
     projects = db.exec(statement)
 
-    response_data = []
-    for project in projects:
-        response_data.append(project.get_return_data())
+    response_data = [project.model_dump() for project in projects]
 
     return DataResponse(
         data=GeneralDataModel(
@@ -139,7 +137,7 @@ async def read_project(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[db.get(EnProjectDB, project_id).get_return_data()],
+            items=[db.get(EnProjectDB, project_id).model_dump()],
             totalCount=1,
         ),
         success=True
