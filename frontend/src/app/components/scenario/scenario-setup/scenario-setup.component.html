@@ -79,7 +79,7 @@
                     <input
                         type="date"
                         class="form-control date"
-                        formControlName="sDate"
+                        [value]="unixToDateString(sDate?.value)"
                         placeholder="Start Date"
                         required
                         [ngClass]="{
@@ -88,6 +88,7 @@
                                 (sDate!.dirty || sDate!.touched)
                         }"
                         tabindex="3"
+                        disabled
                     />
                     <label>Start Date</label>
                 </div>

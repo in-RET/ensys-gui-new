@@ -7,7 +7,6 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -32,7 +31,7 @@ export class ScenarioSetupComponent implements OnInit {
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
-            value: new Date('2025').toISOString().split('T')[0],
+            value: new Date('2025').getTime() / 1000,
             disabled: true,
         }),
         timeStep: new FormControl({ value: 8760, disabled: true }),
@@ -90,7 +89,6 @@ export class ScenarioSetupComponent implements OnInit {
     projectList!: any[];
     simulationYearList: number[] = [2025, 2030, 2035, 2040, 2045, 2050];
 
-    private readonly route = inject(ActivatedRoute);
     scenarioService = inject(ScenarioService);
     toastService = inject(ToastService);
     projectService = inject(ProjectService);
@@ -106,7 +104,7 @@ export class ScenarioSetupComponent implements OnInit {
         });
 
         this.simulationYear?.valueChanges.subscribe((year) => {
-            this.sDate?.setValue(new Date(year).toISOString().split('T')[0]);
+            this.sDate?.setValue(new Date(year).getTime() / 1000);
             this.toastService.info('Date changed!');
         });
     }
@@ -175,5 +173,9 @@ export class ScenarioSetupComponent implements OnInit {
                     console.error(err);
                 },
             });
+    }
+
+    unixToDateString(unix: number): string {
+        return new Date(unix * 1000).toISOString().slice(0, 10);
     }
 }
