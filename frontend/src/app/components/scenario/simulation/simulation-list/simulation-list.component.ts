@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map } from 'rxjs';
 import { ResDataModel } from '../../../../shared/models/http.model';
@@ -9,18 +9,20 @@ import {
     SimulationStatus,
 } from '../models/simulation.model';
 import { SimulationService } from '../services/simulation.service';
+import { SimulationListCardComponent } from './simulation-list-card/simulation-list-card.component';
 
 @Component({
     selector: 'app-simulation-list',
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, SimulationListCardComponent],
     templateUrl: './simulation-list.component.html',
     styleUrl: './simulation-list.component.scss',
 })
 export class SimulationListComponent {
-    scenarioId!: number;
-    scenarioList!: SimulationResModel[];
+    simulationList!: SimulationResModel[];
     scenarioCount!: number;
     currentScenario!: ScenarioBaseInfoModel;
+
+    @Input() scenarioId!: number;
 
     route = inject(ActivatedRoute);
     simulationService = inject(SimulationService);
@@ -29,31 +31,23 @@ export class SimulationListComponent {
     SimulationStatus = SimulationStatus;
 
     ngOnInit() {
-        if (this.route.snapshot.params) {
+        if (!this.scenarioId)
             this.scenarioId = +this.route.snapshot.params['id'];
-            this.loadSimulations(this.scenarioId);
-            this.checkScenarioBaseDataAvailablity();
-        }
+
+        this.loadSimulations(this.scenarioId);
+        this.checkScenarioBaseDataAvailablity();
     }
 
     loadSimulations(scenarioId: number) {
         this.simulationService.loadSimulations(scenarioId).subscribe({
             next: (value: ResDataModel<SimulationResModel>) => {
                 this.scenarioCount = value.totalCount;
-                this.scenarioList = value.items;
+                this.simulationList = value.items;
             },
             error: (err) => {
                 console.error(err);
             },
         });
-    }
-
-    openSimulation(simId: number) {
-        // this.router.navigate(['/simulation/', simId,]);
-        const url = this.router.serializeUrl(
-            this.router.createUrlTree(['/simulation', simId])
-        );
-        window.open(url, '_blank');
     }
 
     checkScenarioBaseDataAvailablity() {

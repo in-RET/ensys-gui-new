@@ -4,12 +4,16 @@ import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
 import { map } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { ResDataModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
 import { OEPPorts, OEPResponse, Port } from '../models/node.model';
 import { ScenarioBaseInfoModel } from '../models/scenario.model';
 import { EnergyDesignService, Ports } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
 import { ScenarioService } from '../services/scenario.service';
+import { SimulationResModel } from '../simulation/models/simulation.model';
+import { SimulationService } from '../simulation/services/simulation.service';
+import { SimulationListCardComponent } from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
 import { FormComponent } from './form/form.component';
@@ -53,6 +57,7 @@ class FormModalInfo {
         EnergyComponentsComponent,
         EnergyDrawflowComponent,
         OrderListComponent,
+        SimulationListCardComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -63,6 +68,7 @@ export class ScenarioEnergyDesignComponent {
 
     editMode: boolean = false;
     isFullscreen: boolean = false;
+    showSimulations: boolean = false;
 
     formError: { msg: string | null; isShow: boolean } = {
         msg: '',
@@ -80,6 +86,8 @@ export class ScenarioEnergyDesignComponent {
         show: false,
         title: 'EP Costs Calculator',
     };
+
+    simulationList!: SimulationResModel[];
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -105,6 +113,7 @@ export class ScenarioEnergyDesignComponent {
     scenarioService = inject(ScenarioService);
     flowService = inject(FlowService);
     toastService = inject(ToastService);
+    simulationService = inject(SimulationService);
 
     ngOnInit() {
         this.loadEnergyComponents();
@@ -898,6 +907,22 @@ export class ScenarioEnergyDesignComponent {
 
     getData() {
         return this.energyDrawflowComponent.getData();
+    }
+
+    openSimulations(scenarioId: number) {
+        this.loadSimulations(scenarioId);
+    }
+
+    loadSimulations(scenarioId: number) {
+        this.simulationService.loadSimulations(scenarioId).subscribe({
+            next: (value: ResDataModel<SimulationResModel>) => {
+                this.simulationList = value.items;
+                this.showSimulations = true;
+            },
+            error: (err) => {
+                console.error(err);
+            },
+        });
     }
 
     ngOnDestroy() {

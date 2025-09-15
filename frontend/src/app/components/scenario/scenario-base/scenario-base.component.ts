@@ -318,4 +318,8 @@ export class ScenarioBaseComponent {
             return true;
         }
     }
+
+    openSimulations(scenarioId: number) {
+        this.scenarioEnergyDesignComponent.openSimulations(scenarioId);
+    }
 }

@@ -20,6 +20,7 @@ export class ScenarioFooterComponent {
     @Output() saveScenario: EventEmitter<any> = new EventEmitter<any>();
     @Output() updateScenario: EventEmitter<any> = new EventEmitter<any>();
     @Output() startSimulation: EventEmitter<any> = new EventEmitter<any>();
+    @Output() openSimulations: EventEmitter<any> = new EventEmitter<any>();
 
     scenarioService = inject(ScenarioService);
 
@@ -42,5 +43,9 @@ export class ScenarioFooterComponent {
 
     onStartSimulation() {
         this.startSimulation.emit(this.scenarioData.scenario?.id);
+    }
+
+    onOpenSimulations(scenarioId: number | undefined) {
+        if (scenarioId) this.openSimulations.emit(scenarioId);
     }
 }
