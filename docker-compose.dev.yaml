@@ -11,20 +11,20 @@ services:
         volumes:
             - ./storage/db:/var/lib/postgresql/data
 
-    pgadmin:
-        image: dpage/pgadmin4:latest
-        container_name: ensys-new-pgadmin
-        env_file: .env.dev
-        restart: always
-        networks:
-            - ensys
-        ports:
-            - "${PGADMIN_PORT}:80"
-        volumes:
-            - ./storage/pgadmin:/var/lib/pgadmin
-            - ./misc/:/var/lib/pgadmin/storage/admin_hs-nordhausen.de
-        depends_on:
-            - db
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ensys-new-pgadmin
+    env_file: .env.dev
+    restart: always
+    networks:
+      - ensys
+    ports:
+      - "${PGADMIN_PORT}:80"
+    volumes:
+      - ./storage/pgadmin:/var/lib/pgadmin
+      - ./misc:/var/lib/pgadmin/storage/admin_hs-nordhausen.de
+    depends_on:
+      - db
 
     frontend:
         build:

@@ -33,10 +33,10 @@ class EnScenario(BaseModel):
     :type modeling_data: JSONB
     """
     name: str = Field(min_length=1, max_length=100)
-    start_date: date = Field(default=datetime.now().date())  # start
-    time_steps: int | None = Field(default=8760, nullable=True)  # number
+    start_date: int = Field()  # start
+    time_steps: int = Field(default=8760)  # number
     interval: float = Field(default=1.0)  # interval
-    project_id: int
+    project_id: int = Field()
     modeling_data: str = Field(default="")
 
 
@@ -84,17 +84,17 @@ class EnScenarioDB(SQLModel, table=True):
 
     id: int = Field(default=None, primary_key=True)
     name: str = Field(min_length=1, max_length=100)
-    start_date: date = Field(nullable=False)
-    time_steps: int | None = Field(default=8760, nullable=True)
+    start_date: datetime = Field()
+    time_steps: int = Field(default=8760)
     interval: float = Field(default=1)
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
-    energysystem: EnEnergysystem = Field(sa_column=Column(JSONB), default={})
 
     def model_dump(self, *args, **kwargs):
         data = super().model_dump(*args, **kwargs)
-        data["simulation_year"] = data["start_date"].year
+        data["simulation_year"] = self.start_date.year
+        data["start_date"] = datetime.timestamp(self.start_date)
 
         return data
 
@@ -124,7 +124,7 @@ class EnScenarioUpdate(EnScenario):
     """
     name: Annotated[str | None, Field(default=None, min_length=1, max_length=100, nullable=True)]
     interval: Annotated[float | None, Field(default=1, nullable=True)]
-    start_date: Annotated[date | None, Field(default=None, nullable=True)]
+    start_date: Annotated[int | None, Field(default=None, nullable=True)]
     time_steps: Annotated[int | None, Field(default=8760, nullable=True)]
     modeling_data: Annotated[str | None, Field(default=None, nullable=True)]
     project_id: Annotated[None, Field(default=None, nullable=True, repr=False)]

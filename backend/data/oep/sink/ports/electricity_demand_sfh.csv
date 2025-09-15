@@ -1,2 +1,2 @@
 port_nr;type;name;investment;controlled_flow
-1;output;hydrogen;true;true
+1;input;electricity;false;true

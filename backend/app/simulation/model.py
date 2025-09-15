@@ -33,10 +33,10 @@ class EnSimulation(BaseModel):
     :type scenario_id: int
     """
     sim_token: str = Field(nullable=False)
-    status: int = Field(default=Status.STARTED.value, nullable=False)
+    status: int = Field(default=Status.STARTED.value)
     status_message: str | None = Field(default=None, nullable=True)
-    start_date: datetime = Field(nullable=False)
-    end_date: datetime | None = Field(default=None, nullable=True)
+    start_date: int = Field(nullable=False)
+    end_date: int | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
 
 
@@ -77,8 +77,16 @@ class EnSimulationDB(SQLModel, table=True):
     end_date: datetime | None = Field(default=None, nullable=True)
     scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
 
+    def model_dump(self,  *args, **kwargs):
+        dump_data = super().model_dump(*args, **kwargs)
 
-class EnSimulationUpdate(SQLModel):
+        dump_data["start_date"] = datetime.timestamp(self.start_date)
+        dump_data["end_date"] = datetime.timestamp(self.end_date) if self.end_date else None
+
+        return dump_data
+
+
+class EnSimulationUpdate(BaseModel):
     """
     Represents an energy simulation update model used to track the status
     and completion date of a simulation.
@@ -95,4 +103,4 @@ class EnSimulationUpdate(SQLModel):
     """
     status: int = Field(nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
-    end_date: datetime | None = Field(default=None, nullable=True)
+    end_date: int | None = Field(default=None, nullable=True)

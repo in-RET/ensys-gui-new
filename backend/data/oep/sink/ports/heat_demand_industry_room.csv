@@ -1,2 +1,2 @@
 port_nr;type;name;investment;controlled_flow
-1;input;testing;false;true
+1;input;heat;false;true
