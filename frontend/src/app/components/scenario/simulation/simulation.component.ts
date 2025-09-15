@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AlertService } from '../../../shared/services/alert.service';
 // import Plotly from 'plotly.js';
 declare const Plotly: any;
 
@@ -13,51 +15,68 @@ declare const Plotly: any;
 export class SimulationComponent {
     loading: boolean = false;
 
+    router = inject(Router);
+    route = inject(ActivatedRoute);
+    alertService = inject(AlertService);
+
     constructor(private http: HttpClient) {}
 
     ngOnInit() {
         this.loading = true;
 
-        this.http.get('./static/assets/json_data/response.json').subscribe({
-            next: (res: any) => {
-                res.forEach((bus: any) => {
-                    const plotname: any = bus.name;
-                    const x: any = bus.index;
-                    const y: any = {};
-                    bus.data.forEach((lineplot: any) => {
-                        y[lineplot.name] = lineplot.data;
-                    });
-                    const fig: any = {
-                        data: Object.keys(y).map((key) => ({
-                            x: x,
-                            y: y[key],
-                            type: 'scatter',
-                            mode: 'lines',
-                            name: key,
-                        })),
-                        layout: {
-                            title: 'Hallo Welt',
-                        },
-                    };
+        const simulationId = +this.route.snapshot.params['id'];
 
-                    let plotly_main_div: any =
-                        document.getElementById('plotly_div');
-                    let plot_heading: any = document.createElement('h3');
-                    let plot_div: any = document.createElement('div');
-                    plot_heading.innerHTML = bus.name;
-                    plot_heading.className = 'plot_heading';
-                    plot_div.id = bus.name;
-                    plot_div.name = bus.name;
-                    plotly_main_div.appendChild(plot_heading);
-                    plotly_main_div.appendChild(plot_div);
+        if (simulationId) this.loadSimulation(simulationId);
+    }
 
-                    this.loading = false;
-                    Plotly.newPlot(bus.name, fig.data, fig.layout);
-                });
-            },
-            error: (err) => {
-                console.error('Failed to load JSON', err);
-            },
+    loadSimulation(simulationId: number) {
+        this.http
+            .get('http://localhost:20002/results/' + simulationId)
+            .subscribe({
+                next: (value: any) => {
+                    this.loadGrapghs(value.data.items);
+                },
+                error: (err) => {
+                    console.error('Failed to load JSON', err);
+
+                    this.alertService.error(err.detail);
+                },
+            });
+    }
+
+    loadGrapghs(value: any) {
+        value.forEach((bus: any) => {
+            // const plotname: any = bus.name;
+            const x: any = bus.index;
+            const y: any = {};
+            bus.data.forEach((lineplot: any) => {
+                y[lineplot.name] = lineplot.data;
+            });
+            const fig: any = {
+                data: Object.keys(y).map((key) => ({
+                    x: x,
+                    y: y[key],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: key,
+                })),
+                layout: {
+                    title: 'Hallo Welt',
+                },
+            };
+
+            let plotly_main_div: any = document.getElementById('plotly_div');
+            let plot_heading: any = document.createElement('h3');
+            let plot_div: any = document.createElement('div');
+            plot_heading.innerHTML = bus.name;
+            plot_heading.className = 'plot_heading';
+            plot_div.id = bus.name;
+            plot_div.name = bus.name;
+            plotly_main_div.appendChild(plot_heading);
+            plotly_main_div.appendChild(plot_div);
+
+            this.loading = false;
+            Plotly.newPlot(bus.name, fig.data, fig.layout);
         });
     }
 }
