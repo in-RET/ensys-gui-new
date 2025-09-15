@@ -82,7 +82,8 @@ fastapi_app = FastAPI(
     },
     openapi_tags=tags_metadata,
     servers=[
-        {"url": "http://localhost:9004", "description": "Development environment"},
+        {"url": "http://localhost:20002", "description": "Development environment"},
+        {"url": "http://localhost:9004", "description": "Production Test environment"},
         {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
     ],
     root_path_in_servers=False

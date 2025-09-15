@@ -1,4 +1,0 @@
-port_nr;type;name;investment;controlled_flow
-1;input;energy;false;false
-2;output;heat;false;false
-3;output;electricity;true;true
