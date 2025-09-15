@@ -20,6 +20,10 @@
 
     .order-actions {
         height: 200px;
+
+        & button:disabled {
+            background-color: #0d1923 !important;
+        }
     }
 
     div.list {

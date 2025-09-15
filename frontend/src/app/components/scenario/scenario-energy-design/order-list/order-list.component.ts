@@ -44,13 +44,28 @@ export class OrderListComponent {
     }
 
     @Input() fields!: ('name' | 'num' | 'typ')[];
-    @Input() data!: OrderItem[];
     @Input() label!: string;
     @Input() editable: boolean = true;
 
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;
     @Input() acceptDuplicate: boolean = true;
+
+    private _data!: OrderItem[];
+    @Input() set data(value: OrderItem[] | null) {
+        this.clearEditMode();
+        this.clearMessage();
+        this.form?.reset();
+
+        if (value) {
+            this._data = value;
+        } else {
+            this._data = [];
+        }
+    }
+    get data(): OrderItem[] {
+        return this._data;
+    }
 
     ngOnInit() {
         this.initialForm();
@@ -125,7 +140,7 @@ export class OrderListComponent {
     }
 
     selectItem(id: number) {
-        if (!this.editableMode) {
+        if (!this.editableMode && this.editable) {
             id === this.selectedItem
                 ? (this.selectedItem = null)
                 : (this.selectedItem = id);

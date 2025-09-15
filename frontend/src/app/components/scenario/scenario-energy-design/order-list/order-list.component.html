@@ -1,5 +1,19 @@
-<section class="p-2 border border-primary-subtle rounded">
-    <h6>{{ label }}</h6>
+<section class="p-2 border border-primary-subtle rounded" *ngIf="data">
+    <h6>
+        {{ label }}
+        <img
+            src="../../../../../static/assets/icons/feather/black/lock.svg"
+            alt=""
+            height="20px"
+            *ngIf="!editable"
+        />
+        <img
+            src="../../../../../static/assets/icons/feather/black/unlock.svg"
+            alt=""
+            height="20px"
+            *ngIf="editable"
+        />
+    </h6>
 
     <p *ngIf="message" [ngClass]="{ 'text-danger': message.type === 'error' }">
         {{ message.txt }}
@@ -98,7 +112,10 @@
                 <div
                     class="order-item p-2 border-bottom d-flex"
                     *ngFor="let item of data"
-                    [ngClass]="{ active: selectedItem === item.id }"
+                    [ngClass]="{
+                        active: selectedItem === item.id,
+                        disabled: !editable
+                    }"
                     (click)="selectItem(item.id)"
                 >
                     <span>{{ item.name }}</span>
@@ -112,66 +129,68 @@
                     </span>
                 </div>
             </div>
+
+            <div
+                class="order-actions d-flex flex-column justify-content-between px-3"
+                *ngIf="editable"
+            >
+                <button
+                    class="btn btn--"
+                    [disabled]="
+                        selectedItem == null ||
+                        editableMode ||
+                        selectedItem == 0
+                    "
+                    (click)="moveItemUpDown('up')"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/chevron-up.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--"
+                    [disabled]="
+                        selectedItem == null ||
+                        editableMode ||
+                        selectedItem == data.length - 1
+                    "
+                    (click)="moveItemUpDown('down')"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/chevron-down.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--pending"
+                    [disabled]="selectedItem == null || editableMode"
+                    (click)="edit()"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/edit.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--error"
+                    [disabled]="selectedItem == null || editableMode"
+                    (click)="deleteItem()"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/x.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+            </div>
         </ng-container>
-
-        <div
-            class="order-actions d-flex flex-column justify-content-between px-3"
-            *ngIf="editable"
-        >
-            <button
-                class="btn btn--"
-                [disabled]="
-                    selectedItem == null || editableMode || selectedItem == 0
-                "
-                (click)="moveItemUpDown('up')"
-            >
-                <img
-                    src="../../../../../static/assets/icons/feather/white/chevron-up.svg"
-                    alt=""
-                    height="22px"
-                />
-            </button>
-
-            <button
-                class="btn btn--"
-                [disabled]="
-                    selectedItem == null ||
-                    editableMode ||
-                    selectedItem == data.length - 1
-                "
-                (click)="moveItemUpDown('down')"
-            >
-                <img
-                    src="../../../../../static/assets/icons/feather/white/chevron-down.svg"
-                    alt=""
-                    height="22px"
-                />
-            </button>
-
-            <button
-                class="btn btn--pending"
-                [disabled]="selectedItem == null || editableMode"
-                (click)="edit()"
-            >
-                <img
-                    src="../../../../../static/assets/icons/feather/white/edit.svg"
-                    alt=""
-                    height="22px"
-                />
-            </button>
-
-            <button
-                class="btn btn--error"
-                [disabled]="selectedItem == null || editableMode"
-                (click)="deleteItem()"
-            >
-                <img
-                    src="../../../../../static/assets/icons/feather/white/x.svg"
-                    alt=""
-                    height="22px"
-                />
-            </button>
-        </div>
 
         <ng-template #noDataSection>
             <div

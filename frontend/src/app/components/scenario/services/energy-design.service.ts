@@ -1027,8 +1027,6 @@ export class EnergyDesignService {
         data?: any,
         callback?: any
     ) {
-        console.log(oep);
-
         const getFields = async () => {
             switch (name) {
                 case 'genericstorage':
@@ -1483,9 +1481,12 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `input_${i + 1}`,
-                preDefData: preDefData
-                    ? preDefData.inputs[i].flow_data
-                    : undefined,
+                preDefData:
+                    preDefData &&
+                    preDefData.inputs[i] &&
+                    preDefData.inputs[i].flow_data
+                        ? preDefData.inputs[i].flow_data
+                        : undefined,
             };
             ports.inputs.push(newElm);
         });
@@ -1494,9 +1495,12 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `output_${i + 1}`,
-                preDefData: preDefData
-                    ? preDefData.outputs[i].flow_data
-                    : undefined,
+                preDefData:
+                    preDefData &&
+                    preDefData.inputs[i] &&
+                    preDefData.inputs[i].flow_data
+                        ? preDefData.outputs[i].flow_data
+                        : undefined,
             };
             ports.outputs.push(newElm);
         });

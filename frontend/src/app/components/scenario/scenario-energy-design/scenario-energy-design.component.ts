@@ -187,15 +187,14 @@ export class ScenarioEnergyDesignComponent {
                 this.defineCallbackFlowForm()
             );
 
-        if (e.node?.type == 'transformer') {
+        if (e.node?.type == 'transformer' || e.node?.class == 'transformer') {
             if (e.editMode) {
                 this.formModal_info.data.ports = {
                     ...this.formModal_info.data.ports,
-                    editable: this.formModal_info.data.oep,
+                    editable: !this.formModal_info.data.oep,
                 };
             } else {
                 // a new node
-
                 this.formModal_info.data = {
                     ports: {
                         inputs: [],
