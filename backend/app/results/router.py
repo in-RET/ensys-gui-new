@@ -57,12 +57,15 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
     )
 
     busses = []
+    components = []
     result_data = []
 
     for node in es.nodes:
         if isinstance(node, solph.Bus):
             print(f"Bus: {node}")
             busses.append(node)
+        else:
+            components.append(node)
 
     # TODO: Dat muss nochmal überdacht werden. Schon gut, aber irgendwie weird.
     for bus in busses:
@@ -86,6 +89,30 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
         )
 
         result_data.append(bus_data)
+
+    result_components = []
+    for component in components:
+        result_component_data = {}
+        component_data = solph.views.node(es.results["main"], node=component)
+
+        if "scalars" in component_data:
+            if type(component) == solph.components.GenericStorage:
+                result_component_data = {
+                    "name": str(component),
+                    "value": str(round(list(component_data["scalars"])[0],4)),
+                    "unit": "kWh"
+                }
+            else:
+                result_component_data = {
+                    "name": str(component),
+                    "value": str(round(list(component_data["scalars"])[0],4)),
+                    "unit": "kW"
+                }
+
+        if result_component_data != {}:
+            result_components.append(result_component_data)
+
+    result_data.extend(result_components)
 
     return_data: ResultDataModel = ResultDataModel(
         items=result_data,
