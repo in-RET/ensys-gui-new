@@ -1,51 +1,4 @@
 <section class="project d-flex p-2 mb-3">
-    <div class="dropdown" [hidden]="true">
-        <button
-            class="btn btn-secondary dropdown-toggle"
-            type="button"
-            id="newProjectButton"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-        >
-            <img
-                src="../../../../../static/assets/icons/feather/white/plus.svg"
-                alt=""
-                height="20px"
-            />
-            <span> Project / Scenario </span>
-        </button>
-
-        <ul class="dropdown-menu" aria-labelledby="newProjectButton">
-            <li class="p-2"><b> Project</b></li>
-
-            <li>
-                <a class="dropdown-item" [routerLink]="['../create']">
-                    Empty project
-                </a>
-            </li>
-
-            <li class="disabled">
-                <a class="dropdown-item"> From file </a>
-            </li>
-
-            <li class="disabled">
-                <a class="dropdown-item"> From use case </a>
-            </li>
-
-            <li><hr class="dropdown-divider" /></li>
-
-            <li class="p-2"><b>Scenario</b></li>
-
-            <li class="disabled">
-                <a class="dropdown-item" href="">Scenario</a>
-            </li>
-
-            <li class="disabled">
-                <a class="dropdown-item" href="">From File</a>
-            </li>
-        </ul>
-    </div>
-
     <button class="btn btn--medium" [routerLink]="['../create']">
         <img
             src="../../../../../static/assets/icons/feather/white/plus.svg"
@@ -73,4 +26,8 @@
 
         <div class="projects-empty__text">There are no projects yet</div>
     </div>
+</section>
+
+<section class="d-flex footer border-top fixed-bottom">
+    <app-footer />
 </section>

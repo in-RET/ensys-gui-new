@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
@@ -8,14 +8,15 @@ import { ScenarioService } from '../../scenario/services/scenario.service';
 import { ProjectModel, ProjectResModel } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
+import {FooterComponent} from '../../../core/layout/footer/footer.component';
 
 @Component({
     selector: 'app-project-explore',
-    imports: [CommonModule, RouterLink, ProjectItemComponent],
+    imports: [CommonModule, RouterLink, ProjectItemComponent, FooterComponent],
     templateUrl: './project-explore.component.html',
     styleUrl: './project-explore.component.scss',
 })
-export class ProjectExploreComponent {
+export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
 
     toastService = inject(ToastService);
