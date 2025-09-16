@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertService } from '../../../shared/services/alert.service';
+import {environment} from '../../../../environments/environment';
 // import Plotly from 'plotly.js';
 declare const Plotly: any;
 
@@ -12,8 +13,8 @@ declare const Plotly: any;
     templateUrl: './simulation.component.html',
     styleUrl: './simulation.component.scss',
 })
-export class SimulationComponent {
-    loading: boolean = false;
+export class SimulationComponent implements OnInit {
+    loading = false;
 
     router = inject(Router);
     route = inject(ActivatedRoute);
@@ -31,7 +32,7 @@ export class SimulationComponent {
 
     loadSimulation(simulationId: number) {
         this.http
-            .get('http://localhost:20002/results/' + simulationId)
+            .get(environment.apiUrl + 'results/' + simulationId)
             .subscribe({
                 next: (value: any) => {
                     this.loadGrapghs(value.data.items);
@@ -65,9 +66,9 @@ export class SimulationComponent {
                 },
             };
 
-            let plotly_main_div: any = document.getElementById('plotly_div');
-            let plot_heading: any = document.createElement('h3');
-            let plot_div: any = document.createElement('div');
+            const plotly_main_div: any = document.getElementById('plotly_div');
+            const plot_heading: any = document.createElement('h3');
+            const plot_div: any = document.createElement('div');
             plot_heading.innerHTML = bus.name;
             plot_heading.className = 'plot_heading';
             plot_div.id = bus.name;
