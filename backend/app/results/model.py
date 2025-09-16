@@ -59,7 +59,7 @@ class EnDataFrame(BaseModel):
     data: list[EnTimeSeries]
 
 
-class ResultDataModel(GeneralDataModel):
+class ResultDataModel(BaseModel):
     """
     Represents a specialized data model for storing results.
 
@@ -71,4 +71,5 @@ class ResultDataModel(GeneralDataModel):
         the data stored in the model.
     :type items: list[EnDataFrame]
     """
-    items: list[EnDataFrame | EnInvestResult]
+    static: list[EnInvestResult]
+    graphs: list[EnDataFrame]
