@@ -17,7 +17,7 @@ class oepTypes(Enum):
     storage_gas = "storage_gas"
     storage_heat_district_heating = "storage_heat_district_heating"
     storage_heat_seasonal = "storage_heat_seasonal"
-    # storage_heat_household = "storage_heat_household"
+    storage_heat_household = "storage_heat_household"
     storage_hydrogen = "storage_hydrogen"
 
     # Sinks
@@ -66,7 +66,7 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
         {"name": "storage_gas", "label": "Gas Storage"},
         {"name": "storage_heat_district_heating", "label": "Heat Storage - District Heating"},
         {"name": "storage_heat_seasonal", "label": "Heat Storage - Seasonal"},
-        # {"name": "storage_heat_household", "label": "Heat Storage - Household"},
+        {"name": "storage_heat_household", "label": "Heat Storage - Household"},
         {"name": "storage_hydrogen", "label": "Hydrogen Storage"}
     ],
 
