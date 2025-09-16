@@ -71,13 +71,12 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
     ],
 
     oemofBlockTypes.sink: [
-        {"name": "electricity_export", "label": "Electricity Export to Grid"},
         {"name": "electricity_demand_sfh", "label": "Electricity Demand - SFH"},
         {"name": "electricity_demand_electric_car", "label": "Electricity Demand - Electric Car"},
         {"name": "electricity_demand_industry", "label": "Electricity Demand - Industry"},
         {"name": "heat_demand_sfh", "label": "Heat Demand - SFH"},
-        {"name": "heat_demand_industry_room", "label": "Heat Demand - Industry (Room heating)"},
-        {"name": "heat_demand_industry_process", "label": "Heat Demand - Industry (Room heating)"},
+        {"name": "heat_demand_industry_room", "label": "Heat Demand - Industry (Room Heating)"},
+        {"name": "heat_demand_industry_process", "label": "Heat Demand - Industry (Process Heat)"},
         {"name": "demand_g0", "label": "Generic Demand - G0"},
         {"name": "demand_g3", "label": "Generic Demand - G3"},
         {"name": "demand_ha4", "label": "Generic Demand - HA4"},
