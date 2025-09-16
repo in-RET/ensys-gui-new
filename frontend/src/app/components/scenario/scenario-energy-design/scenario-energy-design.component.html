@@ -164,9 +164,13 @@
     title="Simulations"
     (closeModal)="closeSimulationModal()"
     [hidden]="false"
+    [size]="''"
 >
     <div style="max-height: 70%" modal-body>
         <!-- <button (click)="loadSimulations(1)">reload</button> -->
-        <app-simulation-list-card [data]="simulationList" />
+        <app-simulation-list-card
+            [data]="simulationList"
+            [loading]="loadSimulationsLoading"
+        />
     </div>
 </app-modal>

@@ -1,9 +1,9 @@
-import {CommonModule} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {AlertService} from '../../../shared/services/alert.service';
-import {environment} from '../../../../environments/environment';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../../../../environments/environment';
+import { AlertService } from '../../../shared/services/alert.service';
 // import Plotly from 'plotly.js';
 declare const Plotly: any;
 
@@ -20,8 +20,7 @@ export class SimulationComponent implements OnInit {
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
 
-    constructor(private http: HttpClient) {
-    }
+    constructor(private http: HttpClient) {}
 
     ngOnInit() {
         this.loading = true;
@@ -49,14 +48,17 @@ export class SimulationComponent implements OnInit {
 
     loadStatic(value: any) {
         value.forEach((static_data: any) => {
-            console.log(static_data);
-            const static_data_table: HTMLElement | null = document.getElementById('static_table');
+            const static_data_table: HTMLElement | null =
+                document.getElementById('static_table');
 
             const data_row: HTMLTableRowElement = document.createElement('tr');
 
-            const data_cell_name: HTMLTableCellElement = document.createElement('td');
-            const data_cell_value: HTMLTableCellElement = document.createElement('td');
-            const data_cell_unit: HTMLTableCellElement = document.createElement('td');
+            const data_cell_name: HTMLTableCellElement =
+                document.createElement('td');
+            const data_cell_value: HTMLTableCellElement =
+                document.createElement('td');
+            const data_cell_unit: HTMLTableCellElement =
+                document.createElement('td');
 
             data_cell_name.innerHTML = static_data.name;
             data_cell_value.innerHTML = static_data.value;
@@ -71,7 +73,7 @@ export class SimulationComponent implements OnInit {
             } else {
                 static_data_table.appendChild(data_row);
             }
-        })
+        });
     }
 
     loadGraphs(value: any) {

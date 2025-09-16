@@ -179,8 +179,6 @@ export class ScenarioBaseComponent {
     }
 
     async startSimulation(scenarioId: number | undefined): Promise<any> {
-        console.log(scenarioId);
-
         const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
         if (!drawflowData) {
             this.alertService.warning('Drawflow data missing!');

@@ -21,6 +21,7 @@ export class ModalComponent {
 
     @Input() title!: string;
     @Input() formData!: any;
+    @Input() size: 'sm' | '' | 'lg' | 'xl' = 'xl'; // sm, md, lg, xl, full
 
     @Output() closeModal: EventEmitter<any> = new EventEmitter<any>();
 

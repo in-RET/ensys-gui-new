@@ -1029,8 +1029,6 @@ export class EnergyDesignService {
         callback?: any
     ) {
         const getFields = async () => {
-            console.log(data.preDefData);
-
             switch (name) {
                 case 'genericstorage':
                     return {

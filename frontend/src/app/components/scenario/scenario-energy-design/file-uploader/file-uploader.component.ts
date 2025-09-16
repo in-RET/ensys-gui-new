@@ -33,15 +33,6 @@ export class FileUploaderComponent {
 
     @Input() fieldControl!: AbstractControl<any, any>;
 
-    // private _fieldControl: any;
-    // @Input() set fieldControl(val: any) {
-    //     console.log(val);
-    //     this._fieldControl = val;
-    // }
-    // get fieldControl() {
-    //     return this._fieldControl;
-    // }
-
     @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
 
     ngOnInit() {

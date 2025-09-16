@@ -933,25 +933,39 @@ export class ScenarioEnergyDesignComponent {
         this.loadSimulations(scenarioId);
     }
 
+    loadSimulationsLoading: boolean = false;
     loadSimulations(scenarioId: number) {
         this.showSimulations = true;
+        this.loadSimulationsLoading = true;
 
-        this.subscriptionSimulation = interval(1000) // every 1 second
-            .pipe(
-                switchMap(() =>
-                    this.simulationService.loadSimulations(scenarioId)
-                )
-            )
-            .subscribe({
-                next: (value: ResDataModel<SimulationResModel>) => {
-                    this.simulationList = value.items;
+        this.simulationService.loadSimulations(scenarioId).subscribe({
+            next: (value: ResDataModel<SimulationResModel>) => {
+                this.simulationList = value.items;
+                this.loadSimulationsLoading = false;
 
-                    // if (!this.showSimulations)
-                },
-                error: (err) => {
-                    console.error(err);
-                },
-            });
+                this.subscriptionSimulation = interval(1000) // every 1 second
+                    // timer(1000)
+                    .pipe(
+                        switchMap(() => {
+                            return this.simulationService.loadSimulations(
+                                scenarioId
+                            );
+                        })
+                    )
+                    .subscribe({
+                        next: (value: ResDataModel<SimulationResModel>) => {
+                            this.simulationList = value.items;
+                            this.loadSimulationsLoading = false;
+                        },
+                        error: (err) => {
+                            console.error(err);
+                        },
+                    });
+            },
+            error: (err) => {
+                console.error(err);
+            },
+        });
     }
 
     closeSimulationModal() {

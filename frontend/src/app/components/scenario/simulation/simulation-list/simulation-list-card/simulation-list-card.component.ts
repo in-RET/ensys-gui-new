@@ -15,12 +15,16 @@ import {
 })
 export class SimulationListCardComponent {
     currentScenario!: ScenarioBaseInfoModel;
-
     SimulationStatus = SimulationStatus;
 
     @Input() data!: SimulationResModel[];
+    @Input() loading!: boolean;
 
     router = inject(Router);
+
+    identify(index: any, item: any) {
+        return item.name;
+    }
 
     openSimulation(simId: number) {
         const url = this.router.serializeUrl(
