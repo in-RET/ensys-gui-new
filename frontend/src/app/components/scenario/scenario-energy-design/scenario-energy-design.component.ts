@@ -207,7 +207,7 @@ export class ScenarioEnergyDesignComponent {
         }
 
         if (this.formModal_info.node)
-            this.formModal_info.url = this.getNodeInfoUrl(
+            this.formModal_info.url = this.getEntityInfoUrl(
                 this.formModal_info.node.type
             );
         // appear Modal
@@ -265,6 +265,7 @@ export class ScenarioEnergyDesignComponent {
             }
         }
 
+        this.formModal_info.url = this.getEntityInfoUrl('flow');
         // appear Modal
         this.formModal_info.show = true;
     }
@@ -697,7 +698,7 @@ export class ScenarioEnergyDesignComponent {
         }
     }
 
-    getNodeInfoUrl(nodeName: string) {
+    getEntityInfoUrl(nodeName: string) {
         switch (nodeName) {
             case 'source':
                 return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._source';
@@ -713,6 +714,9 @@ export class ScenarioEnergyDesignComponent {
 
             case 'bus':
                 return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.busses.html';
+
+            case 'flow':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.flow.html#module-oemof.solph.flows';
 
             default:
                 return 'https://oemof-solph.readthedocs.io';
@@ -972,6 +976,10 @@ export class ScenarioEnergyDesignComponent {
         this.showSimulations = false;
         this.simulationList = [];
         this.subscriptionSimulation.unsubscribe();
+    }
+
+    openInfoUrl(url: string | undefined) {
+        if (url) window.open(url, '_blank')?.focus();
     }
 
     ngOnDestroy() {

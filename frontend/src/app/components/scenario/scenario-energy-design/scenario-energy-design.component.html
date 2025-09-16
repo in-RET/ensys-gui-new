@@ -20,9 +20,13 @@
     [hidden]="formModal_info.hide"
 >
     <div class="node-info" modal-header-center-icon>
-        <button title="Info">
-            <a [href]="formModal_info.url" target="_blank" class="w-100 h-100">
-            </a>
+        <button
+            title="Info"
+            (click)="openInfoUrl(formModal_info.url)"
+            class="btn btn--info btn--icon"
+        >
+            <!-- <a [href]="formModal_info.url" target="_blank" class="w-100 h-100">
+            </a> -->
         </button>
     </div>
 
