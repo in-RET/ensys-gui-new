@@ -176,14 +176,14 @@ export class EnergyDrawflowComponent {
 
         this.connectionMagneticSnap();
 
-        addEventListener(
-            'touchstart',
-            (e: any) => {
-                // this.touchStart(e);
-            },
-            { passive: false }
-        );
-        addEventListener('touchend', this.touchEnd, { passive: false });
+        // addEventListener(
+        //     'touchstart',
+        //     (e: any) => {
+        //         // this.touchStart(e);
+        //     },
+        //     { passive: false }
+        // );
+        // addEventListener('touchend', this.touchEnd, { passive: false });
 
         // this.listenNodeDBClick();
     }
@@ -198,9 +198,12 @@ export class EnergyDrawflowComponent {
 
         this.editor.container.addEventListener('mousedown', (e: any) => {
             if (
-                e.target.classList.contains('output') ||
-                e.target.classList.contains('input')
+                e.target.classList.contains('output')
+                // ||
+                // e.target.classList.contains('input')
             ) {
+                console.log(1);
+
                 isConnecting = true;
             }
         });
