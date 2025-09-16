@@ -738,7 +738,27 @@ export class ScenarioEnergyDesignComponent {
         };
     }
 
-    submitFormData() {
+    submitFormData(): boolean | undefined {
+        if (
+            this.formModal_info.type == 'flow' &&
+            (this.formModal_info.node?.oep ||
+                this.formModal_info.node?.data.oep)
+        ) {
+            const isOepSelected =
+                this.formModal_info.node?.oep ??
+                this.formModal_info.node?.data.oep;
+            let formData = this.formComponent.submit(!isOepSelected);
+            // save data of connection fields in both sides
+            this.energyDrawflowComponent.saveConnectionInNodes(
+                this.formModal_info.data.connection,
+                this.formModal_info.editMode,
+                formData
+            );
+
+            this.modalComponent._closeModal(true);
+            return true;
+        }
+
         const findOEPFieldData = (
             field: any | undefined
         ): boolean | undefined => {
