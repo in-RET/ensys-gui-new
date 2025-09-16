@@ -8,6 +8,7 @@ from sqlmodel import Session
 from starlette import status
 
 from .model import EnDataFrame, EnTimeSeries, ResultDataModel, EnInvestResult
+from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import ErrorModel, ErrorResponse, ResultResponse
 from ..security import oauth2_scheme
@@ -19,7 +20,7 @@ results_router = APIRouter(
 )
 
 
-def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
+def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
     """
     Fetches results from a simulation dump file based on the simulation ID. This function
     retrieves the energy system data from a serialized dump file stored in the local directory
@@ -99,28 +100,28 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
             if type(component) == solph.components.GenericStorage:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0],4),
+                    value=round(list(component_data["scalars"])[0] * 1000,4),
                     unit="kWh"
                 )
             else:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0],4),
+                    value=round(list(component_data["scalars"])[0] * 1000,4),
                     unit="kW"
                 )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
 
-    result_data.extend(result_components)
+    return_data = [ResultDataModel(
+        static=result_components,
+        graphs=result_data
+    )]
 
-    return_data: ResultDataModel = ResultDataModel(
-        items=result_data,
-        totalCount=len(result_data),
+    return GeneralDataModel(
+        items=return_data,
+        totalCount=len(return_data)
     )
-
-    print(return_data)
-    return return_data
 
 
 @results_router.get("/{simulation_id}", response_model=ResultResponse | ErrorResponse)

@@ -105,4 +105,4 @@ class ResultResponse(GeneralResponse):
     :ivar data: Contains the specific result data encapsulated in the ResultDataModel.
     :type data: ResultDataModel
     """
-    data: ResultDataModel
+    data: GeneralDataModel = Field(...)
