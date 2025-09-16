@@ -9,7 +9,7 @@
         <li
             class="d-flex gap-4"
             *ngFor="let item of data"
-            style="justify-content: space-evenly"
+            style="justify-content: space-between"
         >
             <div
                 style="
@@ -50,7 +50,7 @@
                 />
             </div>
 
-            <div (click)="openSimulation(item.id)" style="cursor: pointer">
+            <div (click)="openSimulation(item.id)" class="item">
                 <h5 class="mb-0">
                     ID:{{ item.id }}
                     -
@@ -71,14 +71,6 @@
                     class="stop"
                     *ngIf="item.status === SimulationStatus.STARTED"
                     title="stop"
-                />
-
-                <img
-                    src="../../../../../static/assets/icons/feather/black/play-circle.svg"
-                    alt=""
-                    class="start"
-                    *ngIf="item.status === SimulationStatus.STOPPED"
-                    title="start"
                 />
             </div>
         </li>

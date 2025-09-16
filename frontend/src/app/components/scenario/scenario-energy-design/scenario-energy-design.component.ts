@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, ViewChild } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
-import { interval, map, Subscription, switchMap } from 'rxjs';
+import { map, Subscription, switchMap, timer } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ResDataModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -88,6 +88,7 @@ export class ScenarioEnergyDesignComponent {
     };
 
     simulationList!: SimulationResModel[];
+    private subscriptionSimulation!: Subscription;
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -932,11 +933,11 @@ export class ScenarioEnergyDesignComponent {
         this.loadSimulations(scenarioId);
     }
 
-    private subscription!: Subscription;
     loadSimulations(scenarioId: number) {
         this.showSimulations = true;
 
-        this.subscription = interval(1000) // every 1 second
+        // this.subscriptionSimulation = interval(1000) // every 1 second
+        timer(1)
             .pipe(
                 switchMap(() =>
                     this.simulationService.loadSimulations(scenarioId)
@@ -957,12 +958,12 @@ export class ScenarioEnergyDesignComponent {
     closeSimulationModal() {
         this.showSimulations = false;
         this.simulationList = [];
-        this.subscription.unsubscribe();
+        this.subscriptionSimulation.unsubscribe();
     }
 
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        this.subscription.unsubscribe();
+        this.subscriptionSimulation.unsubscribe();
     }
 }
