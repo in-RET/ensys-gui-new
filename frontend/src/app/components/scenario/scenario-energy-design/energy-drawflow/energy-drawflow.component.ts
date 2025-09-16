@@ -142,7 +142,6 @@ export class EnergyDrawflowComponent {
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
-            // if (closestNode || closestEdge) {
             if (closestNode) {
                 this.showConextMenu(
                     e.clientX,
@@ -951,7 +950,8 @@ export class EnergyDrawflowComponent {
     // R-Click event , Touching events
     showConextMenu(x: any, y: any, nodeId: number) {
         this.contextMenuRef.nativeElement.style.display = 'block';
-        this.contextMenuRef.nativeElement.style.left = x + 'px';
+        this.contextMenuRef.nativeElement.style.left =
+            x <= window.innerWidth - 200 ? x + 'px' : x - 200 + 'px';
         this.contextMenuRef.nativeElement.style.top = y + 'px';
 
         if (nodeId) {
