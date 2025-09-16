@@ -202,11 +202,10 @@ export class ScenarioService {
             scenarioData.scenario.id
         ).pipe(
             map((res: ResModel<ScenarioResModel>) => {
-                if (res.success) return res.data.items[0];
+                if (res.success) {
+                    return res.data.items[0];
+                }
                 throw new Error('Unknown API error');
-
-                //  this.alertService.error(err.message || 'Save failed');
-                //  return false;
             })
         );
     }

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, Observable } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -144,17 +144,10 @@ export class ScenarioBaseComponent {
         return this.scenarioService.createScenario(newScenarioData);
     }
 
-    onUpdateScenario(): void {}
-
-    async updateScenario(
-        startSimulatioAfetr: boolean = false
-    ): Promise<void | boolean> {
+    onUpdateScenario() {
         this.scenarioService.onUpdateScenario()?.subscribe({
             next: (val: ScenarioResModel) => {
-                this.toastService.success(`Scenario ${val.name} updated`);
-            },
-            error: (err: string) => {
-                this.toastService.error(err);
+                this.toastService.success(`Scenario ${val.name} updated.`);
             },
         });
     }
@@ -196,32 +189,66 @@ export class ScenarioBaseComponent {
 
         // scenario has stored
         if (scenarioId) {
-            const confirmed = await this.alertService.confirm(
-                'Update Scenario & Start Simulation?',
-                'Update & Play',
-                `Update & Simulation`,
-                `Just Simulation`
-            );
+            const confirmed_updateAndSimulation =
+                await this.alertService.confirm(
+                    'Update Scenario & Start Simulation?',
+                    'Update & Play',
+                    `Update & Simulation`,
+                    `Just Simulation`
+                );
 
-            if (confirmed) await this.updateScenario(true);
-
-            // start simulation
-            this.simulationService
-                .startSimulation(scenarioId)
-                .pipe(
-                    map((res: ResModel<ScenarioResModel>) => {
-                        if (res.success) return res.data;
-                        throw new Error('Unknown API error');
-                    })
-                )
-                .subscribe({
-                    next: (val: ResDataModel<ScenarioResModel>) => {
-                        this.toastService.success('Simulation has started.');
-                    },
-                    error: (err) => {
-                        this.alertService.error('Failed');
-                    },
-                });
+            if (confirmed_updateAndSimulation) {
+                this.scenarioService
+                    .onUpdateScenario()
+                    ?.pipe(
+                        map((res: ScenarioResModel) => {
+                            if (res) {
+                                this.toastService.success(
+                                    `Scenario ${res.name} updated.`
+                                );
+                                return res;
+                            }
+                            throw new Error('Unknown API error');
+                        }),
+                        switchMap(() =>
+                            this.simulationService
+                                .startSimulation(scenarioId)
+                                .pipe(
+                                    map((res: ResModel<ScenarioResModel>) => {
+                                        if (res.success) return res.data;
+                                        throw new Error('Unknown API error');
+                                    })
+                                )
+                        )
+                    )
+                    .subscribe({
+                        next: (val: any) => {
+                            this.toastService.success(val);
+                        },
+                        error: (err) => {
+                            debugger;
+                            this.alertService.error('Failed');
+                        },
+                    });
+            } else {
+                // start simulation
+                this.simulationService
+                    .startSimulation(scenarioId)
+                    .pipe(
+                        map((res: ResModel<ScenarioResModel>) => {
+                            if (res.success) return res.data;
+                            throw new Error('Unknown API error');
+                        })
+                    )
+                    .subscribe({
+                        next: (val: any) => {
+                            this.toastService.success(val);
+                        },
+                        error: (err) => {
+                            this.alertService.error('Failed');
+                        },
+                    });
+            }
         }
         // has not stored yet
         else {

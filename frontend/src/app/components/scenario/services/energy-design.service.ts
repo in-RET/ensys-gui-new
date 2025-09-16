@@ -201,6 +201,7 @@ export class EnergyDesignService {
                 span: 'auto',
             },
         ].map((item: any) => {
+            if (item.name === 'ep_costs') debugger;
             if (data && !data.oep && !preDefData) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
@@ -1028,6 +1029,8 @@ export class EnergyDesignService {
         callback?: any
     ) {
         const getFields = async () => {
+            console.log(data.preDefData);
+
             switch (name) {
                 case 'genericstorage':
                     return {
@@ -1178,7 +1181,8 @@ export class EnergyDesignService {
                                             );
                                         },
                                         undefined,
-                                        oep
+                                        oep,
+                                        data.preDefData.investment
                                     ),
                                 ],
                             },

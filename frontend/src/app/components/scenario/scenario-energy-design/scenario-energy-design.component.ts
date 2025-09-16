@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input, ViewChild } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
-import { map, Subscription, switchMap, timer } from 'rxjs';
+import { interval, map, Subscription, switchMap } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ResDataModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -936,8 +936,7 @@ export class ScenarioEnergyDesignComponent {
     loadSimulations(scenarioId: number) {
         this.showSimulations = true;
 
-        // this.subscriptionSimulation = interval(1000) // every 1 second
-        timer(1)
+        this.subscriptionSimulation = interval(1000) // every 1 second
             .pipe(
                 switchMap(() =>
                     this.simulationService.loadSimulations(scenarioId)
