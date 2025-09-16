@@ -247,15 +247,14 @@ async def get_local_oep_data(
                 parameter_data = pd.read_csv(f, index_col=0, decimal=",", delimiter=";").to_dict(orient="index")
 
     parameter_year_select: dict = parameter_data[simulation_year]
+    print(f"parameter_year_select: {parameter_year_select}")
 
     # Hier hat man die Parameter für das ausgewählte Jahr eingelesen
-    param_keys = parameter_year_select.keys()
-
     # ep_costs berechnen für den Flow
-    if "investment_costs" in param_keys and \
-        "interest_rate" in param_keys and \
-        "operating_costs" in param_keys and \
-        "lifetime" in param_keys:
+    if "investment_costs" in parameter_year_select.keys() and \
+        "interest_rate" in parameter_year_select.keys() and \
+        "operating_costs" in parameter_year_select.keys() and \
+        "lifetime" in parameter_year_select.keys():
         # Calculate EPC costs for flow
         capex = parameter_year_select["investment_costs"]
         opex = parameter_year_select["investment_costs"] * (parameter_year_select["operating_costs"] / 100)
@@ -302,15 +301,8 @@ async def get_local_oep_data(
                       "full_load_time_min",
                       "integer",
                       "nonconvex",
-                      "fixed_costs",
-                      "age",
-                      "lifetime"]
-
-    # Löschen der nicht relevanten Einträge
-    for key in ["investment_costs", "operating_costs", "lifetime", "interest_rate", "efficiency_el",
-                "efficiency_th"]:
-        if key in parameter_year_select.keys():
-            del parameter_year_select[key]
+                      "fixed_costs"
+                      ]
 
     for key in flow_data_keys:
         if key in parameter_year_select.keys() and not key in flow_data.keys():
@@ -328,27 +320,27 @@ async def get_local_oep_data(
         del port["investment"]
         del port["controlled_flow"]
 
-        if "efficiency_el" in param_keys and port["name"] == "electricity" and port["type"] == "output":
+        if "efficiency_el" in parameter_year_select.keys() and port["name"] == "electricity" and port["type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency_el"] / 100
-            del parameter_year_select["efficiency_el"]
+            #del parameter_year_select["efficiency_el"]
 
-        if "efficiency_th" in param_keys and port["name"] == "heat" and port["type"] == "output":
+        if "efficiency_th" in parameter_year_select.keys() and port["name"] == "heat" and port["type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency_th"] / 100
-            del parameter_year_select["efficiency_th"]
+            #del parameter_year_select["efficiency_th"]
 
-        if "efficiency" in param_keys and port["type"] == "output":
+        if "efficiency" in parameter_year_select.keys() and port["type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency"] / 100
-            del parameter_year_select["efficiency"]
+            #del parameter_year_select["efficiency"]
 
-    if "efficiency_in" in param_keys:
+    if "efficiency_in" in parameter_year_select.keys():
         parameter_year_select["inflow_conversion_factor"] = parameter_year_select["efficiency_in"] / 100
         del parameter_year_select["efficiency_in"]
 
-    if "efficiency_out" in param_keys:
+    if "efficiency_out" in parameter_year_select.keys():
         parameter_year_select["outflow_conversion_factor"] = parameter_year_select["efficiency_out"] / 100
         del parameter_year_select["efficiency_out"]
 
-    if "inverse_c_rate" in param_keys:
+    if "inverse_c_rate" in parameter_year_select.keys():
         inverse_c_rate = parameter_year_select["inverse_c_rate"]
 
         # TODO: check if this is correct
@@ -394,6 +386,12 @@ async def get_local_oep_data(
                 }
         else:
             parameter_year_select |= flow_data
+
+    # Löschen der nicht relevanten Einträge
+    for key in ["investment_costs", "operating_costs", "lifetime", "interest_rate", "efficiency_el",
+                "efficiency_th"]:
+        if key in parameter_year_select.keys():
+            del parameter_year_select[key]
 
     # Ab hier starten die Sonderwünsche
     sorted_port_data = {

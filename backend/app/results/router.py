@@ -69,18 +69,13 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
         graph_data = []
 
         for t, g in solph.views.node(es.results["main"], node=bus)["sequences"].items():
-            print(f"G:{len(g)}")
             idx_asset = abs(t[0].index(bus) - 1)
-            if idx_asset > 0:
-                time_series = EnTimeSeries(
-                    name=str(t[0][1]),
-                    data=nan_to_num(g.values) * pow(-1, idx_asset)
-                )
-            else:
-                time_series = EnTimeSeries(
-                    name=str(t[0][0]),
-                    data=nan_to_num(g.values) * pow(-1, idx_asset)
-                )
+
+            series_name = str(t[0][0]) + " > " + str(t[0][1])
+            time_series = EnTimeSeries(
+                name=series_name,
+                data=nan_to_num(g.values) * pow(-1, idx_asset)
+            )
 
             graph_data.append(time_series)
 

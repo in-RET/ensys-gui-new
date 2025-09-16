@@ -158,11 +158,11 @@ class EnGenericStorage(EnBaseModel):
         description='The normed maximum storage content as fraction of the nominal storage capacity or the capacity that has been invested into (between 0 and 1). To set different values in every time step use a sequence.'
     )
 
-    investment: EnInvestment | None = Field(
-        default=None,
-        title='Investment',
-        description='Object indicating if a nominal_value of the flow is determined by the optimization problem. Note: This will refer all attributes to an investment variable instead of to the nominal_storage_capacity. The nominal_storage_capacity should not be set (or set to None) if an investment object is used.'
-    )
+    # investment: EnInvestment | None = Field(
+    #     default=None,
+    #     title='Investment',
+    #     description='Object indicating if a nominal_value of the flow is determined by the optimization problem. Note: This will refer all attributes to an investment variable instead of to the nominal_storage_capacity. The nominal_storage_capacity should not be set (or set to None) if an investment object is used.'
+    # )
 
     storage_costs: float | list[float] | None = Field(
         default=None,
