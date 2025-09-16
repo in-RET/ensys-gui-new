@@ -41,7 +41,8 @@ class EnScenario(BaseModel):
 
     def model_dump(self, *args, **kwargs):
         model_data = super().model_dump(*args, **kwargs)
-        model_data["start_date"] = datetime.fromtimestamp(self.start_date)
+        if self.start_date:
+            model_data["start_date"] = datetime.fromtimestamp(self.start_date)
 
         return model_data
 

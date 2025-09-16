@@ -366,38 +366,69 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
     """
     ensys_es = EnEnergysystem()
 
+
     for flowchart_index in flowchart_data:
+        ensys_data = {}
+
         flowchart_component = flowchart_data[flowchart_index]
 
         component_data = flowchart_component["data"]
 
         if flowchart_component["class"] != "bus":
             input_data, output_data = create_io_data(flowchart_data, flowchart_component)
-            component_data["inputs"] = input_data
-            component_data["outputs"] = output_data
+            ensys_data["inputs"] = input_data
+            ensys_data["outputs"] = output_data
 
             # change name to label
-            component_data["label"] = component_data["name"]
+            ensys_data["label"] = component_data["name"]
+
             del component_data["name"]
 
         if flowchart_component["class"] in ["converter", "transformer"]:
             conversion_factors = build_conversion_factors(flowchart_data, flowchart_component)
-            component_data["conversion_factors"] = conversion_factors
+            ensys_data["conversion_factors"] = conversion_factors
 
-            ensys_component = EnConverter(**component_data)
+            ensys_component = EnConverter(**ensys_data)
 
         elif flowchart_component["class"] == "sink":
-            ensys_component = EnSink(**component_data)
+            ensys_component = EnSink(**ensys_data)
 
         elif flowchart_component["class"] == "source":
-            ensys_component = EnSource(**component_data)
+            ensys_component = EnSource(**ensys_data)
 
         elif flowchart_component["class"] == "genericStorage":
-            ensys_component = EnGenericStorage(**component_data)
+            if component_data["investment"] is True:
+                ensys_data["nominal_storage_capacity"] = EnInvestment(
+                    maximum=component_data["maximum"] if component_data["maximum"] else None,
+                    minimum=component_data["minimum"] if component_data["minimum"] else None,
+                    ep_costs=component_data["ep_costs"] if component_data["ep_costs"] else None,
+                    existing=component_data["existing"] if component_data["existing"] else None,
+                    nonconvex=component_data["nonconvex"] if component_data["nonconvex"] else None,
+                    offset=component_data["offset"] if component_data["offset"] else None,
+                    overall_maximum=component_data["overall_maximum"] if component_data["overall_maximum"] else None,
+                    overalL_minimum=component_data["overall_minimum"] if component_data["overall_minimum"] else None,
+                )
+            else:
+                ensys_data["nominal_storage_capacity"] = component_data["nominal_storage_capacity"]
 
+            ensys_data["invest_relation_input_capacity"] = component_data["invest_relation_input_capacity"] if component_data["invest_relation_input_capacity"] else None
+            ensys_data["invest_relation_output_capacity"] = component_data["invest_relation_output_capacity"] if component_data["invest_relation_output_capacity"] else None
+            ensys_data["initial_storage_level"] = component_data["initial_storage_level"] if component_data["initial_storage_level"] else None
+            ensys_data["balanced"] = component_data["balanced"] if component_data["balanced"] else None
+            ensys_data["loss_rate"] = component_data["loss_rate"] if component_data["loss_rate"] else None
+            ensys_data["fixed_losses_relative"] = component_data["fixed_losses_relative"] if component_data["fixed_losses_relative"] else None
+            ensys_data["fixed_losses_absolute"] = component_data["fixed_losses_absolute"] if component_data["fixed_losses_absolute"] else None
+            ensys_data["inflow_conversion_factor"] = component_data["inflow_conversion_factor"] if component_data["inflow_conversion_factor"] else None
+            ensys_data["outflow_conversion_factor"] = component_data["outflow_conversion_factor"] if component_data["outflow_conversion_factor"] else None
+            ensys_data["min_storage_level"] = component_data["min_storage_level"] if component_data["min_storage_level"] else None
+            ensys_data["max_storage_level"] = component_data["max_storage_level"] if component_data["max_storage_level"] else None
+            ensys_data["storage_costs"] = component_data["storage_costs"] if component_data["storage_costs"] else None
+
+            ensys_component = EnGenericStorage(**ensys_data)
+
+            print(f"ensys_component: {ensys_component.model_dump_json(indent=2)}")
         elif flowchart_component["class"] == "bus":
             ensys_component = EnBus(label=flowchart_component["name"])
-
         else:
             raise Exception(f"Component {flowchart_component["name"]} is not supported yet")
 
