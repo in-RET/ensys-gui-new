@@ -22,6 +22,24 @@ class EnTimeSeries(BaseModel):
     data: list[float]
 
 
+class EnInvestResult(BaseModel):
+    """
+    Represents an investment result with its details.
+
+    This class is used to represent the result of an investment, including the
+    name of the investment, the associated data value, and its corresponding unit.
+
+    :ivar name: The name of the investment.
+    :type name: str
+    :ivar data: The numerical value of the investment result.
+    :type data: float
+    :ivar unit: The unit of measurement for the investment result.
+    :type unit: str
+    """
+    name: str
+    value: float
+    unit: str
+
 class EnDataFrame(BaseModel):
     """
     Represents a data model for a DataFrame-like structure with enhanced time series data.
@@ -53,4 +71,4 @@ class ResultDataModel(GeneralDataModel):
         the data stored in the model.
     :type items: list[EnDataFrame]
     """
-    items: list[EnDataFrame]
+    items: list[EnDataFrame | EnInvestResult]

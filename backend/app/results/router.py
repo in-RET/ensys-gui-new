@@ -7,7 +7,7 @@ from oemof import solph
 from sqlmodel import Session
 from starlette import status
 
-from .model import EnDataFrame, EnTimeSeries, ResultDataModel
+from .model import EnDataFrame, EnTimeSeries, ResultDataModel, EnInvestResult
 from ..db import get_db_session
 from ..responses import ErrorModel, ErrorResponse, ResultResponse
 from ..security import oauth2_scheme
@@ -97,17 +97,17 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
 
         if "scalars" in component_data:
             if type(component) == solph.components.GenericStorage:
-                result_component_data = {
-                    "name": str(component),
-                    "value": str(round(list(component_data["scalars"])[0],4)),
-                    "unit": "kWh"
-                }
+                result_component_data = EnInvestResult(
+                    name=str(component),
+                    value=round(list(component_data["scalars"])[0],4),
+                    unit="kWh"
+                )
             else:
-                result_component_data = {
-                    "name": str(component),
-                    "value": str(round(list(component_data["scalars"])[0],4)),
-                    "unit": "kW"
-                }
+                result_component_data = EnInvestResult(
+                    name=str(component),
+                    value=round(list(component_data["scalars"])[0],4),
+                    unit="kW"
+                )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
@@ -119,6 +119,7 @@ def get_results_from_dump(simulation_id: int, db: Session) -> ResultDataModel:
         totalCount=len(result_data),
     )
 
+    print(return_data)
     return return_data
 
 
