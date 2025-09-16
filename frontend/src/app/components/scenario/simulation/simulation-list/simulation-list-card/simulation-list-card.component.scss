@@ -1,10 +1,17 @@
-green.simulations {
+.simulations {
     li {
-        img {
-            width: 2rem;
-            height: 2rem;
-            cursor: pointer;
-        }
+        // img {
+        //     width: 2rem;
+        //     height: 2rem;
+        //     cursor: pointer;
+        // }
+    }
+
+    .item {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        cursor: pointer;
     }
 }
 
@@ -29,8 +36,11 @@ img {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 70px;
-    cursor: pointer;
+    width: 45px;
+
+    img {
+        cursor: pointer;
+    }
 
     .stop {
         filter: brightness(0) saturate(100%) invert(13%) sepia(83%)
