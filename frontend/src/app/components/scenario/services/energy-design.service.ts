@@ -5,12 +5,12 @@ import { OrderItem } from '../scenario-energy-design/order-list/order-list.compo
 import { FlowService } from './flow.service';
 import { ScenarioService } from './scenario.service';
 
-type EPCostParams = {
+interface EPCostParams {
     capex: number;
-    zinsatz: number; // interest rate (0 < zinsatz < 1)
+    zinsatz: number; // interest rate (0 <= zinsatz )
     lifetime: number; // project lifetime in years
-    opexPercentage: number; // opex as a decimal (e.g., 0.05 for 5%)
-};
+    opexPercentage: number; // opex as a (0 <= opex)
+}
 
 interface Port extends OrderItem {
     code: string;
@@ -1346,7 +1346,7 @@ export class EnergyDesignService {
         },
         preDefData?: OEPPorts
     ): { ports: Ports; inp: number; out: number } | false {
-        let makePorts = (): Ports | false => {
+        const makePorts = (): Ports | false => {
             let ports: Ports;
 
             if (
@@ -1518,17 +1518,20 @@ export class EnergyDesignService {
         lifetime,
         opexPercentage,
     }: EPCostParams): number | false {
-        if (zinsatz <= 0 || zinsatz >= 1) {
+        const n = lifetime;
+        const u = n;
+        const wacc = zinsatz / 100;
+
+        if ((n < 1) || (wacc < 0 || wacc > 1 ) || (u < 0 )) {
             return false;
         }
 
-        const numerator = zinsatz * Math.pow(1 + zinsatz, lifetime);
-        const denominator = Math.pow(1 + zinsatz, lifetime) - 1;
-        const capexCosts = capex * (numerator / denominator);
-        const opexCosts = capex * opexPercentage;
-        const epCosts = capexCosts + opexCosts;
+        const annuity = (
+            capex * (wacc * (1 + wacc) ** n) / ((1 + wacc) ** n - 1) * (1 - (u - n) / (u * (1 + wacc) ** n))
+        )
+        const opex_costs = capex * opexPercentage / 100;
 
-        return Math.trunc(epCosts * 1000) / 1000;
+        return annuity + opex_costs;
     }
 
     private getDrawflowData(): {} {
@@ -1555,7 +1558,7 @@ export class EnergyDesignService {
         return `${nodeType}_${nodes.length + 1}`;
     }
 
-    private normalizeNumber(val: number, roundCount: number = 3) {
+    private normalizeNumber(val: number, roundCount = 3) {
         // check if it's number anyway
         if (isNaN(Number(val))) return val;
         return Number(Number(val).toFixed(roundCount));

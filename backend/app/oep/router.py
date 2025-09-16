@@ -3,7 +3,6 @@ from typing import Annotated
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Path
-from oemof.tools import economics
 from oep_client.oep_client import OepClient
 from starlette import status
 
@@ -148,6 +147,22 @@ async def get_local_oep_schemas(
     )
 
 
+def calc_annuity(capex, wacc, n, u=None):
+    if u is None:
+        u = n
+
+    if (
+        (n < 1)
+        or (wacc < 0 or wacc > 1)
+        or (u < 1)
+    ):
+        raise ValueError("Input arguments for 'annuity' out of bounds!")
+
+    return (
+        capex * (wacc * (1 + wacc) ** n) / ((1 + wacc) ** n - 1) * (1 - (u - n) / (u * (1 + wacc) ** n))
+    )
+
+
 @oep_router.get("/local_data/{oep_name}/{simulation_year}")
 async def get_local_oep_data(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -260,7 +275,7 @@ async def get_local_oep_data(
         opex = parameter_year_select["investment_costs"] * (parameter_year_select["operating_costs"] / 100)
         interest_rate = parameter_year_select["interest_rate"] / 100
 
-        annuity = economics.annuity(
+        annuity = calc_annuity(
             capex=capex,
             wacc=interest_rate,
             n=parameter_year_select["lifetime"]
@@ -320,17 +335,18 @@ async def get_local_oep_data(
         del port["investment"]
         del port["controlled_flow"]
 
-        if "efficiency_el" in parameter_year_select.keys() and port["name"] == "electricity" and port["type"] == "output":
+        if "efficiency_el" in parameter_year_select.keys() and port["name"] == "electricity" and port[
+            "type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency_el"] / 100
-            #del parameter_year_select["efficiency_el"]
+            # del parameter_year_select["efficiency_el"]
 
         if "efficiency_th" in parameter_year_select.keys() and port["name"] == "heat" and port["type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency_th"] / 100
-            #del parameter_year_select["efficiency_th"]
+            # del parameter_year_select["efficiency_th"]
 
         if "efficiency" in parameter_year_select.keys() and port["type"] == "output":
             port["efficiency"] = parameter_year_select["efficiency"] / 100
-            #del parameter_year_select["efficiency"]
+            # del parameter_year_select["efficiency"]
 
     if "efficiency_in" in parameter_year_select.keys():
         parameter_year_select["inflow_conversion_factor"] = parameter_year_select["efficiency_in"] / 100
@@ -362,10 +378,11 @@ async def get_local_oep_data(
                 "lifetime" in parameter_node_data.keys():
                 # Calculate EPC costs for flow
                 capex = parameter_node_year_selected["investment_costs"]
-                opex = parameter_node_year_selected["investment_costs"] * (parameter_node_year_selected["operating_costs"] / 100)
+                opex = parameter_node_year_selected["investment_costs"] * (
+                    parameter_node_year_selected["operating_costs"] / 100)
                 interest_rate = parameter_node_year_selected["interest_rate"] / 100
 
-                annuity = economics.annuity(
+                annuity = calc_annuity(
                     capex=capex,
                     wacc=interest_rate,
                     n=parameter_node_year_selected["lifetime"]
