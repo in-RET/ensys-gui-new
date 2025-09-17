@@ -89,7 +89,7 @@ export class EnergyDesignService {
 
     private getNonInvestmentFields(
         data?: any,
-        callback?: any,
+        name?: any,
         preDefData?: FlowData
     ) {
         return [
@@ -109,7 +109,11 @@ export class EnergyDesignService {
                 item['value'] = null;
             }
 
-            item['disabled'] = data.oep;
+            if (name === 'sink') {
+                if (data.oep) item['disabled'] = false;
+                else item['disabled'] = data.oep;
+            } else item['disabled'] = data.oep;
+
             item['label'] = this.generalService.convertText_uppercaseAt0(
                 item['label']
             );
@@ -1193,7 +1197,7 @@ export class EnergyDesignService {
                                 fields: [
                                     ...this.getNonInvestmentFields(
                                         data,
-                                        callback,
+                                        name,
                                         data.preDefData
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
@@ -1204,7 +1208,11 @@ export class EnergyDesignService {
 
                                         if (!oep)
                                             elm['disabled'] = isInvSelected;
-                                        else elm['disabled'] = true;
+                                        else {
+                                            if (name === 'sink')
+                                                elm['disabled'] = false;
+                                            else elm['disabled'] = true;
+                                        }
 
                                         if (elm.actions) {
                                             elm.actions.forEach(
