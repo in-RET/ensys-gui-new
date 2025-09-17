@@ -79,7 +79,6 @@ export class EnergyDrawflowComponent {
     private initDrawFlow() {
         if (typeof document !== 'undefined') {
             const drawFlowHtmlElement = document.getElementById('drawflow');
-            // this.editor = new Drawflow(drawFlowHtmlElement as HTMLElement);
             this.editor = new Drawflowoverride(
                 drawFlowHtmlElement as HTMLElement
             );
@@ -202,8 +201,6 @@ export class EnergyDrawflowComponent {
                 // ||
                 // e.target.classList.contains('input')
             ) {
-                console.log(1);
-
                 isConnecting = true;
             }
         });
@@ -734,6 +731,7 @@ export class EnergyDrawflowComponent {
         let _preDefData: any;
 
         if (nodeIn.class == 'bus') {
+            debugger;
             startPortName = connection.output_class;
 
             node.data.ports.outputs.forEach((element: any) => {
@@ -742,8 +740,8 @@ export class EnergyDrawflowComponent {
                 }
             });
         } else {
+            debugger;
             startPortName = connection.input_class;
-
             node.data.ports.inputs.forEach((element: any) => {
                 if (element.code == startPortName) {
                     _preDefData = element.preDefData;
@@ -779,16 +777,16 @@ export class EnergyDrawflowComponent {
                 return true;
             } else {
                 this.alertService.error(
-                    'Unexpected Connection',
-                    'More than 1 connection per port is not allowed.'
+                    'More than 1 connection per port is not allowed.',
+                    'Unexpected Connection'
                 );
 
                 return false;
             }
         } else {
             this.alertService.error(
-                'Unexpected Connection',
-                'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.'
+                'Please connect assets to each other\n only through a bus node. Interconnecting busses is also not allowed.',
+                'Unexpected Connection'
             );
 
             return false;
@@ -954,7 +952,17 @@ export class EnergyDrawflowComponent {
     showConextMenu(x: any, y: any, nodeId: number) {
         this.contextMenuRef.nativeElement.style.display = 'block';
         this.contextMenuRef.nativeElement.style.left =
-            x <= window.innerWidth - 200 ? x + 'px' : x - 200 + 'px';
+            x <= window.innerWidth - 360 ? x + 'px' : x - 360 + 'px';
+
+        const children =
+            this.contextMenuRef.nativeElement.querySelectorAll('.nested-menu');
+
+        children.forEach((child: Element) => {
+            if (x <= window.innerWidth - 200)
+                (child as HTMLElement).style.right = '100%';
+            else (child as HTMLElement).style.left = '100%';
+        });
+
         this.contextMenuRef.nativeElement.style.top = y + 'px';
 
         if (nodeId) {

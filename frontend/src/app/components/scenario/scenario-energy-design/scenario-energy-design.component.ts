@@ -230,7 +230,6 @@ export class ScenarioEnergyDesignComponent {
         // if (!e.editMode) {
         //     nodeType = e.node?.type ?? '';
         // } else nodeType = e.node?.class ?? '';
-
         this.formModal_info.formData =
             await this.energyDesignService.getFormFields_flow(
                 nodeType,

@@ -201,13 +201,14 @@ export class EnergyDesignService {
                 span: 'auto',
             },
         ].map((item: any) => {
-            if (item.name === 'ep_costs') debugger;
+            // if (item.name === 'ep_costs') debugger;
             if (data && !data.oep && !preDefData) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
-                item['value'] = preDefData['investment']
-                    ? preDefData['investment'][item.name.toLocaleLowerCase()]
-                    : null;
+                // item['value'] = preDefData['investment']
+                //     ? preDefData['investment'][item.name.toLocaleLowerCase()]
+                //     : null;
+                item['value'] = preDefData[item.name.toLocaleLowerCase()];
             } else {
                 item['value'] = null;
             }
@@ -1180,7 +1181,7 @@ export class EnergyDesignService {
                                         },
                                         undefined,
                                         oep,
-                                        data.preDefData.investment
+                                        data.preDefData?.investment
                                     ),
                                 ],
                             },
@@ -1504,6 +1505,7 @@ export class EnergyDesignService {
                         ? preDefData.outputs[i].flow_data
                         : undefined,
             };
+            debugger;
             ports.outputs.push(newElm);
         });
 
@@ -1520,14 +1522,14 @@ export class EnergyDesignService {
         const u = n;
         const wacc = zinsatz / 100;
 
-        if ((n < 1) || (wacc < 0 || wacc > 1 ) || (u < 0 )) {
+        if (n < 1 || wacc < 0 || wacc > 1 || u < 0) {
             return false;
         }
 
-        const annuity = (
-            capex * (wacc * (1 + wacc) ** n) / ((1 + wacc) ** n - 1) * (1 - (u - n) / (u * (1 + wacc) ** n))
-        )
-        const opex_costs = capex * opexPercentage / 100;
+        const annuity =
+            ((capex * (wacc * (1 + wacc) ** n)) / ((1 + wacc) ** n - 1)) *
+            (1 - (u - n) / (u * (1 + wacc) ** n));
+        const opex_costs = (capex * opexPercentage) / 100;
 
         return annuity + opex_costs;
     }
