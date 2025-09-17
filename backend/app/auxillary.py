@@ -235,72 +235,82 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
     # build component_data["inputs"]
     component_data = flowchart_component["data"]
 
-    input_data = {}
-    if len(flowchart_component["inputs"]) > 0:
-        for input_name in flowchart_component["inputs"]:
-            target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
-            target_bus_name = flowchart_data[target_bus_id]["name"]
+    print(f"Component Data: {component_data}")
+    if component_data["connections"] is not None:
+        print(f"Number of Connections: {len(component_data["connections"])}")
+    else:
+        print(f"Number of Connections: {component_data["connections"]}")
 
-            # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
-            for node_input in component_data["connections"]["inputs"]:
-                if input_name in node_input:
-                    flow_data = node_input[input_name]["formInfo"]
+    if component_data["connections"] is not None:
+        input_data = {}
+        if len(flowchart_component["inputs"]) > 0:
+            for input_name in flowchart_component["inputs"]:
+                target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
+                target_bus_name = flowchart_data[target_bus_id]["name"]
 
-                    if flow_data["investment"] is True:
-                        flow_data["nominal_value"] = EnInvestment(
-                            maximum=flow_data["maximum"],
-                            minimum=flow_data["minimum"],
-                            ep_costs=flow_data["ep_costs"],
-                            existing=flow_data["existing"],
-                            nonconvex=flow_data["nonconvex"],
-                            offset=flow_data["offset"],
-                            overall_maximum=flow_data["overall_maximum"],
-                            overalL_minimum=flow_data["overall_minimum"],
-                            lifetime=flow_data["lifetime"],
-                            age=flow_data["age"],
-                            interest_rate=flow_data["interest_rate"],
-                            fixed_costs=flow_data["fixed_costs"],
-                            # custom_attributes="to be done"
-                        )
+                # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
+                for node_input in component_data["connections"]["inputs"]:
+                    if input_name in node_input:
+                        flow_data = node_input[input_name]["formInfo"]
 
-            input_data[target_bus_name] = EnFlow(**flow_data)
+                        if flow_data["investment"] is True:
+                            flow_data["nominal_value"] = EnInvestment(
+                                maximum=flow_data["maximum"],
+                                minimum=flow_data["minimum"],
+                                ep_costs=flow_data["ep_costs"],
+                                existing=flow_data["existing"],
+                                nonconvex=flow_data["nonconvex"],
+                                offset=flow_data["offset"],
+                                overall_maximum=flow_data["overall_maximum"],
+                                overalL_minimum=flow_data["overall_minimum"],
+                                lifetime=flow_data["lifetime"],
+                                age=flow_data["age"],
+                                interest_rate=flow_data["interest_rate"],
+                                fixed_costs=flow_data["fixed_costs"],
+                                # custom_attributes="to be done"
+                            )
 
-    # build component_data["outputs"]
-    output_data = {}
+                input_data[target_bus_name] = EnFlow(**flow_data)
 
-    if len(flowchart_component["outputs"]) > 0:
-        for output_name in flowchart_component["outputs"]:
-            target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
-            target_bus_name = flowchart_data[target_bus_id]["name"]
+        # build component_data["outputs"]
+        output_data = {}
 
-            # print(f"target_bus_name: {target_bus_name}")
-            # print(f"output_name: {output_name}")
+        if len(flowchart_component["outputs"]) > 0:
+            for output_name in flowchart_component["outputs"]:
+                target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
+                target_bus_name = flowchart_data[target_bus_id]["name"]
 
-            for output in component_data["connections"]["outputs"]:
-                # print(f"output: {output}")
-                if output_name in output:
-                    flow_data = output[output_name]["formInfo"]
+                # print(f"target_bus_name: {target_bus_name}")
+                # print(f"output_name: {output_name}")
 
-                    if flow_data["investment"] is True:
-                        flow_data["nominal_value"] = EnInvestment(
-                            maximum=flow_data["maximum"],
-                            minimum=flow_data["minimum"],
-                            ep_costs=flow_data["ep_costs"],
-                            existing=flow_data["existing"],
-                            nonconvex=flow_data["nonconvex"],
-                            offset=flow_data["offset"],
-                            overall_maximum=flow_data["overall_maximum"],
-                            overalL_minimum=flow_data["overall_minimum"],
-                            lifetime=flow_data["lifetime"],
-                            age=flow_data["age"],
-                            interest_rate=flow_data["interest_rate"],
-                            fixed_costs=flow_data["fixed_costs"],
-                            # custom_attributes="to be done"
-                        )
+                for output in component_data["connections"]["outputs"]:
+                    # print(f"output: {output}")
+                    if output_name in output:
+                        flow_data = output[output_name]["formInfo"]
 
-            output_data[target_bus_name] = EnFlow(**flow_data)
+                        if flow_data["investment"] is True:
+                            flow_data["nominal_value"] = EnInvestment(
+                                maximum=flow_data["maximum"],
+                                minimum=flow_data["minimum"],
+                                ep_costs=flow_data["ep_costs"],
+                                existing=flow_data["existing"],
+                                nonconvex=flow_data["nonconvex"],
+                                offset=flow_data["offset"],
+                                overall_maximum=flow_data["overall_maximum"],
+                                overalL_minimum=flow_data["overall_minimum"],
+                                lifetime=flow_data["lifetime"],
+                                age=flow_data["age"],
+                                interest_rate=flow_data["interest_rate"],
+                                fixed_costs=flow_data["fixed_costs"],
+                                # custom_attributes="to be done"
+                            )
 
-    return input_data, output_data
+                output_data[target_bus_name] = EnFlow(**flow_data)
+
+        return input_data, output_data
+
+    else:
+        return {}, {}
 
 
 def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
@@ -365,7 +375,6 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
     :rtype: EnEnergysystem
     """
     ensys_es = EnEnergysystem()
-
 
     for flowchart_index in flowchart_data:
         ensys_data = {}
