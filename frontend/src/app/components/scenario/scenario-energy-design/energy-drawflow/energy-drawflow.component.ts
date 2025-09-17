@@ -731,7 +731,6 @@ export class EnergyDrawflowComponent {
         let _preDefData: any;
 
         if (nodeIn.class == 'bus') {
-            debugger;
             startPortName = connection.output_class;
 
             node.data.ports.outputs.forEach((element: any) => {
@@ -740,7 +739,6 @@ export class EnergyDrawflowComponent {
                 }
             });
         } else {
-            debugger;
             startPortName = connection.input_class;
             node.data.ports.inputs.forEach((element: any) => {
                 if (element.code == startPortName) {

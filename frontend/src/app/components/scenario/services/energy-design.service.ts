@@ -1479,7 +1479,6 @@ export class EnergyDesignService {
             outputs: [],
         };
         // const ports: any = {};
-
         inputList.forEach((element: OrderItem, i: number) => {
             const newElm: Port = {
                 ...element,
@@ -1500,12 +1499,11 @@ export class EnergyDesignService {
                 code: `output_${i + 1}`,
                 preDefData:
                     preDefData &&
-                    preDefData.inputs[i] &&
-                    preDefData.inputs[i].flow_data
+                    preDefData.outputs[i] &&
+                    preDefData.outputs[i].flow_data
                         ? preDefData.outputs[i].flow_data
                         : undefined,
             };
-            debugger;
             ports.outputs.push(newElm);
         });
 
