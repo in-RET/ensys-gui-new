@@ -48,7 +48,7 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
 
     simulation_token = simulation.sim_token
     simulations_path = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump"))
-    # print(f"simulations_path: {simulations_path}")
+    print(f"simulations_path: {simulations_path}")
 
     if not os.path.isfile(os.path.join(simulations_path, "oemof_es.dump")):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dumpfile not found")
@@ -115,6 +115,7 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
         if result_component_data != {}:
             result_components.append(result_component_data)
 
+    costs = None
     costs = cost_calculation_from_energysystem(es)
     print(f"Costs: {costs}")
 

@@ -9,13 +9,14 @@ import numpy as np
 import pandas as pd
 from oemof import solph
 
-dict_costs = {"investment costs": {},
-              "variable costs": {},
-              "profits": {}
-              }
 
 
 def __cost_calculation(energysystem, results) -> pd.DataFrame:
+    dict_costs = {"investment costs": {},
+                  "variable costs": {},
+                  "profits": {}
+                  }
+
     # % FIXME: Es liegt ein Problem damit vor, das es abhängig von der Berechnung des Systems ist.
     NODE_LIST = energysystem.node
 
