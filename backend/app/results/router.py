@@ -100,13 +100,13 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
             if type(component) == solph.components.GenericStorage:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000,4),
+                    value=round(list(component_data["scalars"])[0] * 1000,2),
                     unit="kWh"
                 )
             else:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000,4),
+                    value=round(list(component_data["scalars"])[0] * 1000,2),
                     unit="kW"
                 )
 
