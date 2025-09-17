@@ -1,0 +1,11 @@
+.run
+.venv
+.vscode
+.gitignore
+.git
+.env
+.angular
+node_modules
+.DS_Store
+dockerfile
+/backend/data

@@ -1,0 +1,540 @@
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as *;
+
+.system-design {
+    @include flex-row;
+    // height: calc(
+    //     100vh - #{$top-nav-height} - #{$wizard-height +1} - #{$footer-scenario-height +1}
+    // );
+    height: 100%;
+    border-top: $gray-border;
+
+    .components {
+        width: 22rem;
+        background-color: $primary-gray-color-1;
+        border-right: $gray-border;
+        overflow-y: auto;
+    }
+
+    .components__title {
+        @include flex-column-justify-center;
+        height: 2.85rem;
+        background-color: $white;
+        padding: 1rem;
+
+        h2 {
+            padding: 0;
+            margin: 0;
+            font-size: $font-size-normal;
+            color: $primary-color-2;
+            font-weight: 700;
+            display: inline-block;
+        }
+    }
+
+    .components__content {
+        padding: 0.5rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+
+        .section {
+            padding-bottom: 1rem;
+
+            &__title h3 {
+                font-size: $font-size-normal;
+            }
+
+            &__component {
+                @include flex-row;
+                align-items: center;
+                height: 3rem;
+                border-radius: $gui-component-radius;
+                box-shadow: $box-shadow-frame;
+                background-color: $white;
+                border-left: 4px solid #a4adfb;
+                padding: 0.5rem;
+                margin-bottom: 0.5rem;
+                @include user-select-none;
+                cursor: move;
+
+                box-shadow: 0px 0px 10px 0.25rem rgba(0, 0, 0, 0.25);
+            }
+
+            .img {
+                height: 2rem;
+                width: 2rem;
+            }
+
+            .name {
+                font-size: 1rem;
+                font-weight: 300;
+                color: $primary-color-2;
+                padding: 0 0.5rem;
+            }
+
+            .drag {
+                flex: 1;
+                text-align: right;
+            }
+
+            @each $component-category, $component-color in $component-categories
+            {
+                &--#{$component-category} .section__component {
+                    border-left-color: $component-color;
+                }
+            }
+        }
+    }
+
+    .gui {
+        position: relative;
+        flex: 1;
+        height: 100%;
+
+        &__clear {
+            @include flex-row;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 1rem;
+            background-color: $white;
+
+            .load-scenario {
+                padding-right: 1rem;
+            }
+
+            .form-select {
+                font-size: $font-size-small;
+            }
+
+            button.btn {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
+        &__save {
+            @include flex-row;
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 1rem;
+        }
+
+        #js-designSaved {
+            display: none;
+            color: $success-color;
+            font-weight: 700;
+
+            &.display {
+                display: block;
+                -webkit-animation: slide-in-blurred-top 0.6s
+                    cubic-bezier(0.23, 1, 0.32, 1) both;
+                animation: slide-in-blurred-top 0.6s
+                    cubic-bezier(0.23, 1, 0.32, 1) both;
+            }
+        }
+
+        #js-saveDesign.hidden {
+            display: none;
+        }
+
+        &__empty-text {
+            // display: inline-block;
+            // position: absolute;
+            // top: 50%;
+            // transform: translateY(-50%);
+            // transform: translateX(-50%);
+            // left: 50%;
+
+            // span {
+            //     color: $primary-color-2;
+            //     font-weight: 300;
+            // }
+        }
+    }
+
+    .drawflow .connection .main-path {
+        width: 2px;
+    }
+
+    .drawflow .drawflow-delete {
+        display: none;
+    }
+
+    .parent-node .drawflow-delete {
+        // content: "X";
+        // position: absolute;
+        // top: 0;
+        // right: 0;
+        // background-color: $white;
+        // color: black;
+        // width: 1.15rem;
+        // height: 1.15rem;
+        // font-weight: 700;
+        // line-height: 1rem;
+        // padding-left: 0.25rem;
+        // border: 1px solid $primary-gray-color-4;
+        // border-radius: 100%;
+        // cursor: pointer;
+        display: none;
+    }
+
+    .drawflow .drawflow-node {
+        position: absolute;
+        height: 8rem;
+        width: 9.5rem;
+        border-radius: $gui-component-radius;
+        background-color: $primary-gray-color-1;
+        font-size: 12px;
+        border-left: none;
+        border-right: none;
+        border-top: none;
+        border-bottom: 4px solid #a4adfb;
+        cursor: move;
+        padding: 0 0.5rem 0.5rem;
+
+        &:hover {
+            background-color: darken($primary-gray-color-1, 2%);
+        }
+
+        &.selected {
+            background-color: $primary-gray-color-2;
+        }
+
+        .drawflow_content_node {
+            height: 100%;
+            @include flex-column;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .inputs {
+            bottom: $gui-component-position-btm;
+            left: $gui-component-position-side;
+        }
+
+        .outputs {
+            bottom: $gui-component-position-btm;
+            right: $gui-component-position-side;
+        }
+
+        .inputs,
+        .outputs {
+            position: absolute;
+
+            .input,
+            .output {
+                width: $gui-component-node-size;
+                height: $gui-component-node-size;
+                border-radius: 100%;
+                margin: 0.25rem 0;
+                border: 1px solid $white;
+                cursor: pointer;
+            }
+
+            .input {
+                background-color: #4ec4c4;
+                left: -22px;
+            }
+
+            .output {
+                background-color: #c46a4e;
+                right: -10px;
+            }
+        }
+
+        @each $component-name,
+            $component-category in $component-categories-mapping
+        {
+            @if $component-category ==
+                "providers" or
+                $component-category ==
+                "production"
+            {
+                &.#{$component-name} .input {
+                    display: none;
+                }
+            }
+        }
+
+        @each $component-name,
+            $component-category in $component-categories-mapping
+        {
+            @if $component-category == "demand" {
+                &.#{$component-name} .output {
+                    display: none;
+                }
+            }
+        }
+
+        // .img {
+        //     position: relative;
+        //     width: $gui-component-bg-size;
+        //     height: $gui-component-bg-size;
+        //     background-color: $white;
+        //     border-radius: 100%;
+        // }
+
+        /* section colors */
+
+        // components images
+        @each $component-name,
+            $component-category in $component-categories-mapping
+        {
+            &.#{$component-category} {
+                border-bottom-color: map-get(
+                    $component-categories,
+                    $component-category
+                );
+            }
+
+            &.#{$component-name} .img::before {
+                @include gui-component-image(
+                    url("/static/assets/gui/#{$component-name}.svg")
+                );
+            }
+        }
+    }
+}
+
+.modal.modal--gui {
+    .modal-dialog {
+        min-width: 1000px;
+    }
+
+    .modal-body .container {
+        padding: 0;
+    }
+
+    .row {
+        margin-bottom: 1rem;
+    }
+}
+
+.system-design .drawflow .connection .main-path {
+    width: 20px;
+}
+
+.system-design .parent-node .drawflow-delete {
+    // content: "X";
+    // position: absolute;
+    // top: 0;
+    // right: 0;
+    // background-color: #fff;
+    // color: black;
+    // width: 1.15rem;
+    // height: 1.15rem;
+    // font-weight: 700;
+    // line-height: 1rem;
+    // padding-left: 0.25rem;
+    // border: 1px solid #495965;
+    // border-radius: 100%;
+    // cursor: pointer;
+    display: none;
+}
+
+.system-design .drawflow .drawflow-node {
+    position: absolute;
+    height: 8rem;
+    width: 9.5rem;
+    border-radius: 8px;
+    background-color: #f4f7f9;
+    font-size: 12px;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    border-bottom: 4px solid #a4adfb;
+    cursor: move;
+    padding: 0 0.5rem 0.5rem;
+    /* section colors */
+}
+
+.system-design .drawflow .drawflow-node:hover {
+    background-color: #edf2f5;
+    box-shadow: 0 0 1rem 0.3rem #d4d4d4;
+}
+
+.system-design .drawflow .drawflow-node {
+    box-shadow: 0 0 0.5rem 0.3rem #d4d4d4;
+}
+
+.system-design .drawflow .drawflow-node.selected {
+    background-color: #e3eaee;
+}
+
+.system-design .drawflow .drawflow-node .drawflow_content_node {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.system-design .drawflow .drawflow-node .inputs {
+    left: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .outputs {
+    right: 0.5rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs,
+.system-design .drawflow .drawflow-node .outputs {
+    position: relative;
+    top: 0.4rem;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .input,
+.system-design .drawflow .drawflow-node .outputs .output {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 100%;
+    margin: 0.25rem 0;
+    border: 1px solid #fff;
+    cursor: pointer;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input,
+.system-design .drawflow .drawflow-node .outputs .input {
+    background-color: #4ec4c4;
+    left: -22px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .input.mirrored,
+.system-design .drawflow .drawflow-node .outputs .input.mirrored {
+    background-color: #4ec4c4;
+    left: -5px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output,
+.system-design .drawflow .drawflow-node .outputs .output {
+    background-color: #c46a4e;
+    right: -10px;
+}
+
+.system-design .drawflow .drawflow-node .inputs .output.mirrored,
+.system-design .drawflow .drawflow-node .outputs .output.mirrored {
+    background-color: #c46a4e;
+    right: 5px;
+}
+
+.system-design .drawflow .drawflow-node .img {
+    position: relative;
+    width: 4.5rem;
+    height: 4.5rem;
+    background-color: #fff;
+    border-radius: 100%;
+}
+
+.system-design .drawflow .drawflow-node.source,
+.system-design .drawflow .drawflow-node.predefinedSource {
+    border-bottom-color: hsl(50, 100%, 81%);
+    background-color: hsl(50 20% 90% / 1);
+}
+
+.system-design .drawflow {
+    .drawflow-node.source {
+        .img::before {
+            background-image: url("/static/assets/gui/source.svg");
+        }
+    }
+}
+
+.system-design .drawflow .drawflow-node.source .img::before,
+.system-design .drawflow .drawflow-node.predefinedSource .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/source.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.transformer,
+.system-design .drawflow .drawflow-node.predefinedTransformer {
+    border-bottom-color: hsl(143, 81%, 71%);
+    background-color: hsl(143 20% 90% / 1);
+}
+
+.system-design .drawflow .drawflow-node.transformer .img::before,
+.system-design .drawflow .drawflow-node.predefinedTransformer .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/transformer.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.genericStorage,
+.system-design .drawflow .drawflow-node.predefinedStorage {
+    border-bottom-color: hsl(179, 78%, 75%);
+    background-color: hsl(179 20% 90% / 1);
+}
+
+.system-design .drawflow .drawflow-node.genericStorage .img::before,
+.system-design .drawflow .drawflow-node.predefinedStorage .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/genericStorage.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.sink,
+.system-design .drawflow .drawflow-node.predefinedSink,
+.system-design .drawflow .drawflow-node.OEP,
+.system-design .drawflow .drawflow-node.excess,
+.system-design .drawflow .drawflow-node.export {
+    border-bottom-color: hsl(345, 100%, 92%);
+    background-color: hsl(345 20% 90% / 1);
+}
+
+.system-design .drawflow .drawflow-node.sink .img::before,
+.system-design .drawflow .drawflow-node.predefinedSink .img::before,
+.system-design .drawflow .drawflow-node.OEP .img::before,
+.system-design .drawflow .drawflow-node.excess .img::before,
+.system-design .drawflow .drawflow-node.export .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/sink.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}
+
+.system-design .drawflow .drawflow-node.bus {
+    border-bottom-color: hsl(32, 80%, 79%);
+    background-color: hsl(32 20% 90% / 1);
+}
+
+.system-design .drawflow .drawflow-node.bus .img::before {
+    content: "";
+    position: absolute;
+    top: calc(4.5rem / 2);
+    right: calc((4.5rem - 3rem) / 2);
+    transform: translateY(-50%);
+    background-image: url("/static/assets/gui/bus.svg");
+    background-size: cover;
+    height: 3rem;
+    width: 3rem;
+}

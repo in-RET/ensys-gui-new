@@ -1,0 +1,24 @@
+<section class="h-100 w-10 shadow">
+    <div
+        class="h-100"
+        style="display: flex; flex-direction: column; background-color: #f4f7f9"
+    >
+        <div class="components__content h-100">
+            <div
+                class="section section--{{ componet.group_name }}"
+                *ngFor="let componet of components"
+            >
+                <ng-container
+                    *ngFor="let component of componet.group_components"
+                >
+                    <app-energy-drag-items
+                        [id]="component.id"
+                        [name]="component.name"
+                        [group]="componet.group_name"
+                        (touchEnd)="_touchEnd($event)"
+                    />
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,243 @@
+<ng-container *ngIf="form && formVisible">
+    <form
+        class="row"
+        [formGroup]="form"
+        (ngSubmit)="onSubmit()"
+        (keydown.enter)="onSubmit()"
+    >
+        <div
+            [ngClass]="section.class"
+            *ngFor="let section of formData.sections; let i = index"
+        >
+            <ng-container
+                *ngIf="
+                    section.name &&
+                    section.name != 'divider' &&
+                    (section.visible || section.visible == undefined)
+                "
+            >
+                <h5 *ngIf="section.label">{{ section.label }}</h5>
+
+                <div class="row">
+                    <div
+                        [ngClass]="
+                            field.span ? 'col-md-' + field.span : 'col-md'
+                        "
+                        [class]="field.class"
+                        *ngFor="let field of section.fields"
+                    >
+                        <!-- text / number -->
+                        <div
+                            class="form-floating mb-3"
+                            *ngIf="
+                                field.type == 'text' || field.type == 'number'
+                            "
+                            [ngClass]="{ 'd-flex gap-2': field.actions }"
+                        >
+                            <input
+                                [type]="field.type"
+                                class="form-control"
+                                [placeholder]="field.placeholder"
+                                [required]="field.isReq"
+                                [formControlName]="field.name"
+                                [ngClass]="{
+                                    'is-invalid':
+                                        form.get(field.name)!.invalid &&
+                                        (form.get(field.name)!.dirty ||
+                                            form.get(field.name)!.touched)
+                                }"
+                                [step]="field.step"
+                            />
+                            <label *ngIf="!field.isReq"
+                                >{{ field.label }}
+                            </label>
+                            <label *ngIf="field.isReq"
+                                >{{ field.label }} *</label
+                            >
+
+                            <ng-container *ngIf="field.actions">
+                                <a
+                                    class="d-flex align-items-center"
+                                    *ngFor="let action of field.actions"
+                                    (click)="action.onClick()"
+                                    [ngClass]="{
+                                        'd-none':
+                                            form.controls[field.name].disabled
+                                    }"
+                                >
+                                    <span *ngIf="action.label">
+                                        {{ action.label }}
+                                    </span>
+
+                                    <img
+                                        src="/static/assets/icons/calculator.svg"
+                                        [alt]="action.name"
+                                        style="
+                                            height: 3rem;
+                                            filter: invert(48%) sepia(79%)
+                                                saturate(2476%)
+                                                hue-rotate(191deg)
+                                                brightness(118%) contrast(119%);
+                                        "
+                                    />
+                                </a>
+                            </ng-container>
+                        </div>
+
+                        <!-- dropdown -->
+                        <div
+                            class="form-floating mb-3"
+                            *ngIf="field.type == 'select'"
+                        >
+                            <select
+                                class="form-select"
+                                id="floatingSelect"
+                                [formControlName]="field.name"
+                                [ngClass]="{
+                                    'is-invalid':
+                                        form.get(field.name)!.invalid &&
+                                        (form.get(field.name)!.dirty ||
+                                            form.get(field.name)!.touched)
+                                }"
+                                (change)="
+                                    field.onClick(form.get(field.name)?.value)
+                                "
+                            >
+                                <option
+                                    selected
+                                    disabled
+                                    value="null"
+                                    *ngIf="field.label.trim() != ''"
+                                >
+                                    {{ field.label }}
+                                </option>
+                                <option
+                                    [ngValue]="option.value"
+                                    *ngFor="
+                                        let option of field.selectOptionList
+                                    "
+                                >
+                                    {{ option.name }}
+                                </option>
+                            </select>
+
+                            <label for="floatingSelect">{{
+                                field.placeholder
+                            }}</label>
+                        </div>
+
+                        <!-- checkbox -->
+                        <div class="form-check" *ngIf="field.type == 'check'">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                [formControlName]="field.name"
+                                id="checkDefault"
+                                (click)="field.onClick()"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="checkDefault"
+                                style="user-select: none"
+                            >
+                                {{ field.label }}
+                            </label>
+                        </div>
+
+                        <!-- switcher -->
+                        <div
+                            *ngIf="field.type == 'switch'"
+                            class="d-flex align-items-center"
+                        >
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    [formControlName]="field.name"
+                                    (change)="
+                                        field.onClick ? field.onClick() : null
+                                    "
+                                    [id]="'switch-' + field.name"
+                                />
+                                <label
+                                    for="switch-{{ field.name }}"
+                                    [ngClass]="{
+                                        disabled:
+                                            form.controls[field.name].disabled
+                                    }"
+                                >
+                                    {{ field.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div *ngIf="field.type == 'toggle'">
+                            <input
+                                type="checkbox"
+                                class="btn-check"
+                                id="btn-check-outlined"
+                                autocomplete="off"
+                            />
+                            <label
+                                class="btn btn-outline-primary"
+                                for="btn-check-outlined"
+                            >
+                                {{ field.label }} </label
+                            ><br />
+                        </div>
+
+                        <!-- uploader -->
+                        <div *ngIf="field.type == 'range'" class="card mb-3">
+                            <div class="card-body range-component">
+                                <label
+                                    class="card-title text-center"
+                                    *ngIf="!field.isReq"
+                                    >{{ field.label }}
+                                </label>
+                                <label
+                                    class="card-title text-center"
+                                    *ngIf="field.isReq"
+                                    >{{ field.label }} *</label
+                                >
+                                <app-file-uploader
+                                    [data]="field.value"
+                                    [fieldControl]="form.controls[field.name]"
+                                    (fileUploaderChange)="
+                                        fileUploaderChange($event, field.name)
+                                    "
+                                />
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    placeholder="value"
+                                    [required]="field.isReq"
+                                    [formControlName]="field.name"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            form.get(field.name)!.invalid &&
+                                            (form.get(field.name)!.dirty ||
+                                                form.get(field.name)!.touched)
+                                    }"
+                                />
+                            </div>
+                        </div>
+                        <!-- uploader -->
+                    </div>
+                </div>
+            </ng-container>
+
+            <ng-container
+                *ngIf="
+                    section.name == 'divider' &&
+                    i < formData.sections.length - 1 &&
+                    formData.sections[i + 1].visible
+                "
+            >
+                <!-- divider -->
+                <hr class="mt-2 mb-3" [ngClass]="section.class" />
+            </ng-container>
+        </div>
+    </form>
+</ng-container>

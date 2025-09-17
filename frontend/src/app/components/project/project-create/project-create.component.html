@@ -1,0 +1,204 @@
+<div>
+    <section class="d-flex py-1 px-3 mb-3">
+        <div>
+            <div>
+                <a [routerLink]="['/projects/explore']"> < Projects</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="project-setup two-columns p-3 mb-3">
+        <div class="left" style="width: 100%">
+            <div>
+                <form [formGroup]="form">
+                    <div class="row g-2">
+                        <div class="col-md">
+                            <div class="form-floating mb-3">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="name"
+                                    placeholder="Name"
+                                    required
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            name!.invalid &&
+                                            (name!.dirty || name!.touched)
+                                    }"
+                                />
+                                <label>Name</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md">
+                            <div class="form-floating mb-3">
+                                <select
+                                    class="form-select"
+                                    formControlName="country"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            country!.invalid &&
+                                            (country!.dirty || country!.touched)
+                                    }"
+                                >
+                                    <option selected disabled value="">
+                                        Choose...
+                                    </option>
+                                    <option
+                                        *ngFor="let item of regionList"
+                                        [value]="item.name"
+                                    >
+                                        {{ item.name }}
+                                    </option>
+                                </select>
+                                <label>Country</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <textarea
+                            class="form-control"
+                            formControlName="description"
+                            placeholder="Description"
+                            required
+                            style="height: 100px"
+                            [ngClass]="{
+                                'is-invalid':
+                                    description!.invalid &&
+                                    (description!.dirty || description!.touched)
+                            }"
+                        ></textarea>
+                        <label>Description</label>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md">
+                            <div class="form-floating mb-3">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="latitude"
+                                    placeholder="Latitude"
+                                    required
+                                    readonly
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            latitude!.invalid &&
+                                            (latitude!.dirty ||
+                                                latitude!.touched)
+                                    }"
+                                />
+                                <label>Latitude</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md">
+                            <div class="form-floating mb-3">
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    formControlName="longitude"
+                                    placeholder="Longitude"
+                                    required
+                                    readonly
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            longitude!.invalid &&
+                                            (longitude!.dirty ||
+                                                longitude!.touched)
+                                    }"
+                                />
+                                <label>Longitude</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="row g-2">
+                        <div class="col-md">
+                            <div class="form-floating">
+                                <select
+                                    class="form-select"
+                                    formControlName="currency"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            currency!.invalid &&
+                                            (currency!.dirty ||
+                                                currency!.touched)
+                                    }"
+                                >
+                                    <option selected disabled value="">
+                                        Choose...
+                                    </option>
+                                    <option value="EUR">EUR</option>
+                                </select>
+                                <label>Currency</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md">
+                            <div class="form-floating">
+                                <select
+                                    class="form-select"
+                                    formControlName="unit_energy"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            unit_energy!.invalid &&
+                                            (unit_energy!.dirty ||
+                                                unit_energy!.touched)
+                                    }"
+                                >
+                                    <option selected disabled value="">
+                                        Choose...
+                                    </option>
+                                    <option value="MW/MWh">MW/MWh</option>
+                                </select>
+                                <label>Energy</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md">
+                            <div class="form-floating">
+                                <select
+                                    class="form-select"
+                                    formControlName="unit_co2"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            unit_co2!.invalid &&
+                                            (unit_co2!.dirty ||
+                                                unit_co2!.touched)
+                                    }"
+                                >
+                                    <option selected disabled value="">
+                                        Choose...
+                                    </option>
+                                    <option value="t CO2">t CO2</option>
+                                </select>
+                                <label>CO2</label>
+                            </div>
+                        </div>
+                    </div> -->
+                </form>
+            </div>
+        </div>
+
+        <div class="right" style="width: 100%">
+            <div>
+                <div class="map" id="mapFrame"></div>
+            </div>
+        </div>
+    </section>
+
+    <div class="d-flex" style="justify-content: center">
+        <button
+            class="btn btn--medium"
+            type="submit"
+            [disabled]="!form.valid"
+            (click)="submitProject()"
+        >
+            <span *ngIf="mode === 'create'">Save </span>
+            <span *ngIf="mode === 'update'">Update </span>
+            Project
+        </button>
+    </div>
+</div>

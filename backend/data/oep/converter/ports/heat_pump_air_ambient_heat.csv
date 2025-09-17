@@ -1,0 +1,4 @@
+port_nr;type;name;investment;controlled_flow
+1;input;electricity;false;false
+2;input;heat_low;false;false
+2;output;heat_high;true;true

@@ -1,0 +1,35 @@
+<app-scenario-progression
+    [step]="currentStep"
+    [currentScenario]="currentScenario"
+    style="
+        position: fixed;
+        top: 10px;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        left: 50%;
+        margin-left: -250px; /* Negative half of width. */
+    "
+/>
+
+<app-scenario-setup *ngIf="currentStep == 0" #setup />
+
+<app-scenario-energy-design
+    *ngIf="currentStep == 1"
+    [currentScenario]="currentScenario"
+    #sed
+/>
+
+<app-scenario-footer
+    [step]="currentStep"
+    [scenarioData]="currentScenario"
+    [isScenarioNew]="isScenarioNew"
+    (nextStep)="nextStep()"
+    (prevtStep)="prevtStep()"
+    (saveScenario)="onSaveScenario()"
+    (updateScenario)="onUpdateScenario()"
+    (startSimulation)="startSimulation($event)"
+    (openSimulations)="openSimulations($event)"
+/>

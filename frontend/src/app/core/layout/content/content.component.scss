@@ -1,0 +1,15 @@
+main {
+    height: 92vh;
+}
+
+::ng-deep .fullscreen {
+    app-navbar,
+    app-scenario-footer,
+    app-scenario-progression {
+        display: none;
+    }
+
+    .main-section {
+        height: 100vh !important;
+    }
+}

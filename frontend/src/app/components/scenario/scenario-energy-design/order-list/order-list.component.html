@@ -1,0 +1,208 @@
+<section class="p-2 border border-primary-subtle rounded" *ngIf="data">
+    <h6>
+        {{ label }}
+        <img
+            src="../../../../../static/assets/icons/feather/black/lock.svg"
+            alt=""
+            height="20px"
+            *ngIf="!editable"
+        />
+        <img
+            src="../../../../../static/assets/icons/feather/black/unlock.svg"
+            alt=""
+            height="20px"
+            *ngIf="editable"
+        />
+    </h6>
+
+    <p *ngIf="message" [ngClass]="{ 'text-danger': message.type === 'error' }">
+        {{ message.txt }}
+    </p>
+
+    <form class="d-flex flex-row" [formGroup]="form" *ngIf="editable">
+        <div class="d-flex gap-1">
+            <!-- inp text -->
+            <input
+                type="text"
+                class="form-control w-100"
+                placeholder="Name"
+                formControlName="name"
+                [ngClass]="{
+                    'is-invalid': name.invalid && (name.dirty || name.touched)
+                }"
+                *ngIf="name"
+            />
+
+            <!-- inp number -->
+            <input
+                type="number"
+                class="form-control w-100"
+                placeholder="Number"
+                formControlName="num"
+                [ngClass]="{
+                    'is-invalid': num.invalid && (num.dirty || num.touched)
+                }"
+                *ngIf="num"
+            />
+
+            <!-- type list -->
+            <select
+                class="form-select"
+                formControlName="typ"
+                [ngClass]="{
+                    'is-invalid': typ.invalid && (typ.dirty || typ.touched)
+                }"
+                *ngIf="typ"
+            >
+                <option selected disabled value="null">
+                    {{ typeLabel || "Type..." }}
+                </option>
+                <option [ngValue]="type" *ngFor="let type of typeList">
+                    {{ type.name }}
+                </option>
+            </select>
+        </div>
+
+        <!-- actions -->
+        <div class="d-flex flex-row gap-1 justify-content-between px-3">
+            <button
+                class="btn btn--success"
+                type="submit"
+                (click)="addItem()"
+                *ngIf="!editableMode"
+            >
+                <img
+                    src="../../../../../static/assets/icons/feather/white/plus.svg"
+                    alt=""
+                    height="22px"
+                />
+            </button>
+
+            <ng-container *ngIf="editableMode">
+                <button
+                    type="submit"
+                    class="btn btn-secondary"
+                    (click)="onEdit(true)"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/check.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    (click)="onEdit(false)"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/x.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+            </ng-container>
+        </div>
+    </form>
+
+    <div class="order d-flex mt-3">
+        <ng-container *ngIf="data && data.length; else noDataSection">
+            <div class="list card p-1 gap-1">
+                <div
+                    class="order-item p-2 border-bottom d-flex"
+                    *ngFor="let item of data"
+                    [ngClass]="{
+                        active: selectedItem === item.id,
+                        disabled: !editable
+                    }"
+                    (click)="selectItem(item.id)"
+                >
+                    <span>{{ item.name }}</span>
+
+                    <span *ngIf="fields.includes('num')">
+                        : {{ item.number }}
+                    </span>
+
+                    <span *ngIf="fields.includes('typ') && item.type">
+                        : {{ item.type.name }}
+                    </span>
+                </div>
+            </div>
+
+            <div
+                class="order-actions d-flex flex-column justify-content-between px-3"
+                *ngIf="editable"
+            >
+                <button
+                    class="btn btn--"
+                    [disabled]="
+                        selectedItem == null ||
+                        editableMode ||
+                        selectedItem == 0
+                    "
+                    (click)="moveItemUpDown('up')"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/chevron-up.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--"
+                    [disabled]="
+                        selectedItem == null ||
+                        editableMode ||
+                        selectedItem == data.length - 1
+                    "
+                    (click)="moveItemUpDown('down')"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/chevron-down.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--pending"
+                    [disabled]="selectedItem == null || editableMode"
+                    (click)="edit()"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/edit.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--error"
+                    [disabled]="selectedItem == null || editableMode"
+                    (click)="deleteItem()"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/x.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+            </div>
+        </ng-container>
+
+        <ng-template #noDataSection>
+            <div
+                class="list card p-1 gap-1"
+                style="
+                    background-color: #ffcf9f33;
+                    justify-content: center;
+                    align-items: center;
+                "
+            >
+                <b>No Data!</b>
+            </div>
+        </ng-template>
+    </div>
+</section>

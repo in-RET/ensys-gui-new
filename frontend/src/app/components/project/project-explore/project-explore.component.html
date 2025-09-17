@@ -1,0 +1,33 @@
+<section class="project d-flex p-2 mb-3">
+    <button class="btn btn--medium" [routerLink]="['../create']">
+        <img
+            src="../../../../../static/assets/icons/feather/white/plus.svg"
+            alt=""
+            height="20px"
+        />
+        <span> Project</span>
+    </button>
+</section>
+
+<app-project-item
+    [project]="project"
+    *ngFor="let project of project_list"
+    (deleteProject)="deleteProject($event)"
+/>
+
+<section class="projects-empty" *ngIf="!project_list || !project_list.length">
+    <div>
+        <div class="projects-empty__img">
+            <img
+                src="./static/assets/illustrations/empty_folder.svg"
+                alt="Empty folder"
+            />
+        </div>
+
+        <div class="projects-empty__text">There are no projects yet</div>
+    </div>
+</section>
+
+<section class="d-flex footer border-top fixed-bottom">
+    <app-footer />
+</section>

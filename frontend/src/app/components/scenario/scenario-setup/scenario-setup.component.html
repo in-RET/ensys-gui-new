@@ -1,0 +1,230 @@
+<div class="scenario-main">
+    <form [formGroup]="form">
+        <div class="row g-2">
+            <!-- project -->
+            <div class="col-auto" formGroupName="project">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="id"
+                        [ngClass]="{
+                            'is-invalid':
+                                projectId!.invalid &&
+                                (projectId!.dirty || projectId!.touched)
+                        }"
+                        tabindex="1"
+                    >
+                        <option selected disabled value="null">
+                            Choose...
+                        </option>
+
+                        <option
+                            [value]="project.id"
+                            *ngFor="let project of projectList"
+                        >
+                            {{ project.name }}
+                        </option>
+                    </select>
+                    <label>Project</label>
+                </div>
+            </div>
+
+            <!-- name -->
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input
+                        type="text"
+                        class="form-control"
+                        formControlName="name"
+                        placeholder="Name"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                name!.invalid && (name!.dirty || name!.touched)
+                        }"
+                        tabindex="2"
+                    />
+                    <label>Name</label>
+                </div>
+            </div>
+
+            <!-- sim-year -->
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="simulationYear"
+                        [ngClass]="{
+                            'is-invalid':
+                                simulationYear!.invalid &&
+                                (simulationYear!.dirty ||
+                                    simulationYear!.touched)
+                        }"
+                        tabindex="6"
+                    >
+                        <option selected disabled value="null">
+                            Choose...
+                        </option>
+                        <ng-container *ngFor="let item of simulationYearList">
+                            <option [value]="item">{{ item }}</option>
+                        </ng-container>
+                    </select>
+                    <label>Simulation year</label>
+                </div>
+            </div>
+
+            <!-- datepiocker -->
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input
+                        type="date"
+                        class="form-control date"
+                        [value]="unixToDateString(sDate?.value)"
+                        placeholder="Start Date"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                sDate!.invalid &&
+                                (sDate!.dirty || sDate!.touched)
+                        }"
+                        tabindex="3"
+                        disabled
+                    />
+                    <label>Start Date</label>
+                </div>
+            </div>
+
+            <!-- sim-period -->
+            <div class="col-2">
+                <div class="form-floating mb-3">
+                    <input
+                        type="number"
+                        class="form-control"
+                        formControlName="simulationPeriod"
+                        placeholder="Simulation period of one year"
+                        required
+                        [ngClass]="{
+                            'is-invalid':
+                                simulationPeriod!.invalid &&
+                                (simulationPeriod!.dirty ||
+                                    simulationPeriod!.touched)
+                        }"
+                        tabindex="4"
+                    />
+                    <label>Simulation period</label>
+                </div>
+            </div>
+
+            <!-- time-step -->
+            <div class="col-auto">
+                <div class="form-floating mb-3">
+                    <select
+                        class="form-select"
+                        formControlName="timeStep"
+                        [ngClass]="{
+                            'is-invalid':
+                                timeStep!.invalid &&
+                                (timeStep!.dirty || timeStep!.touched)
+                        }"
+                        tabindex="5"
+                    >
+                        <option selected disabled value="null">
+                            Choose...
+                        </option>
+                        <option value="8760">60 min</option>
+                        <option value="15">15 min</option>
+                    </select>
+                    <label>Time Step</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-auto"></div>
+
+        <section style="display: none">
+            <!-- <hr />
+            <h4>Constraints</h4>
+
+            <div class="math_wrapper">
+                <p>
+                    'Bilanziell erneuerbar'/Bilanzielle Autarkie [MWh] (factor)
+                    -
+
+                    <img
+                        src="/static/assets/illustrations/bilanziellErneuerbar.svg"
+                    /><br />
+                </p>
+            </div>
+
+            <div class="row g-2">
+                <div class="col-3">
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            formControlName="minimal_renewable_factor_active"
+                            (change)="
+                                minimal_renewable_factor_active?.value
+                                    ? minimal_renewable_factor?.enable()
+                                    : minimal_renewable_factor?.disable()
+                            "
+                        />
+                        <label for="">X</label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            formControlName="minimal_renewable_factor"
+                            placeholder="Value"
+                            required
+                            [ngClass]="{
+                                'is-invalid':
+                                    minimal_renewable_factor!.invalid &&
+                                    (minimal_renewable_factor!.dirty ||
+                                        minimal_renewable_factor!.touched)
+                            }"
+                        />
+                        <label>Value</label>
+                    </div>
+                </div>
+
+                <div class="col-4">
+                    <div class="form-check form-switch">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            role="switch"
+                            formControlName="maximum_emissions_active"
+                            (change)="
+                                maximum_emissions_active?.value
+                                    ? maximum_emissions?.enable()
+                                    : maximum_emissions?.disable()
+                            "
+                        />
+                        <label for="">Maximal CO2 emissions (kgCO2eq/a) </label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input
+                            type="number"
+                            class="form-control"
+                            formControlName="maximum_emissions"
+                            placeholder="Value"
+                            required
+                            [ngClass]="{
+                                'is-invalid':
+                                    maximum_emissions!.invalid &&
+                                    (maximum_emissions!.dirty ||
+                                        maximum_emissions!.touched)
+                            }"
+                        />
+                        <label>Value</label>
+                    </div>
+                </div>
+            </div> -->
+        </section>
+    </form>
+</div>

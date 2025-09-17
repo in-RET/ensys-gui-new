@@ -1,0 +1,7 @@
+"";investment_costs;operating_costs;lifetime;interest_rate;efficiency_in;efficiency_out;inverse_c_rate;balanced;initial_storage_level
+2025;900000;1;15;5;100;85,5;1;true;0
+2030;717000;1;15;5;100;86,5;1;true;0
+2035;585000;1;15;5;100;87,2;1;true;0
+2040;453000;1;15;5;100;87,8;1;true;0
+2045;344000;1;15;5;100;88,5;1;true;0
+2050;236000;1;15;5;100;90;1;true;0

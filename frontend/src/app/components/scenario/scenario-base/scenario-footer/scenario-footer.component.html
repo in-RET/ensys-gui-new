@@ -1,0 +1,62 @@
+<footer class="step-footer" style="z-index: 1">
+    <div>
+        <div class="step-footer__left"></div>
+
+        <div class="step-footer__center gap-1 d-flex">
+            <button
+                class="btn btn--medium btn--hollow btn--previous"
+                *ngIf="step > 0"
+                (click)="previous()"
+            >
+                Previous
+            </button>
+
+            <button class="btn btn--medium" *ngIf="step < 1" (click)="next()">
+                Next
+            </button>
+
+            <ng-container *ngIf="step == 1">
+                <button
+                    class="btn btn--medium btn--success"
+                    (click)="onStartSimulation()"
+                >
+                    <img
+                        src="/static/assets/icons/feather/black/play.svg"
+                        alt="start"
+                        title="start simulation"
+                    />
+                </button>
+
+                <button
+                    class="btn btn--medium btn--transparent"
+                    *ngIf="isScenarioNew"
+                    [disabled]="scenarioService.isDrawflowEmpty$ | async"
+                    (click)="save()"
+                >
+                    Save
+                </button>
+
+                <button
+                    class="btn btn--medium btn--transparent"
+                    *ngIf="!isScenarioNew"
+                    [disabled]="scenarioService.isDrawflowEmpty$ | async"
+                    (click)="update()"
+                >
+                    Update
+                </button>
+            </ng-container>
+        </div>
+
+        <div class="step-footer__right">
+            <a
+                class="btn btn--medium btn--transparent"
+                *ngIf="step == 1 && scenarioData.scenario"
+                [ngClass]="{ disabled: isScenarioNew }"
+                (click)="onOpenSimulations(scenarioData.scenario.id)"
+            >
+                <!-- [routerLink]="['/simulation/list', scenarioData.scenario.id]" -->
+                Simulation(s)
+            </a>
+        </div>
+    </div>
+</footer>

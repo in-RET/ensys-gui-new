@@ -1,0 +1,46 @@
+FROM ubuntu:24.10
+
+SHELL ["/bin/bash", "-c"]
+
+ARG os_version
+
+RUN mkdir backend
+WORKDIR backend/
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Update docker container
+RUN apt-get -y update
+RUN apt-get -y upgrade
+RUN apt-get -y install wget git
+RUN apt-get -y install python3.12 python3.12-venv python3.12-dev
+RUN apt-get -y install libpq-dev gcc libc-dev libhdf5-dev
+
+# create venv
+RUN python3.12 -m venv venv
+ENV PATH="/backend/venv/bin:$PATH"
+
+# install gurobi
+
+RUN wget https://packages.gurobi.com/12.0/gurobi12.0.2_${os_version}.tar.gz
+RUN tar -xzvf gurobi12.0.2_${os_version}.tar.gz
+RUN rm gurobi12.0.2_${os_version}.tar.gz
+
+ENV GUROBI_HOME="/backend/gurobi1202/${os_version}"
+ENV GRB_LICENSE_FILE="/backend/gurobi.lic"
+ENV PATH="${PATH}:${GUROBI_HOME}/bin"
+ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+
+RUN apt autoclean
+
+COPY docker/requirements.txt requirements.txt
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+COPY app/ app/
+
+COPY versions/ versions/
+COPY env.py env.py
+COPY alembic.ini alembic.ini

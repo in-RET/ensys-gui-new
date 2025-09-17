@@ -5,6 +5,10 @@
 /tmp
 /out-tsc
 /bazel-out
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
 # Node
 /node_modules
@@ -40,3 +44,20 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+/.venv/
+.env.prod
+.angular/
+node_modules/
+*.sqlite
+/frontend/package-lock.json
+/site/
+*/node_modules/
+.frontend
+storage
+/data
+.cache
+/.env.dev
+/.env.prod
+/.env.test
+/frontend/dist/*
+docs/config/site/*

@@ -1,0 +1,38 @@
+.order {
+    width: 100% !important;
+    height: 200px;
+    overflow-y: auto;
+    gap: 10px;
+
+    .order-item {
+        align-content: space-between;
+        gap: 0.25rem;
+
+        &:hover {
+            cursor: pointer;
+            background-color: #a4adfb1f;
+        }
+
+        &.active {
+            background-color: #a4adfb52;
+        }
+    }
+
+    .order-actions {
+        height: 200px;
+
+        & button:disabled {
+            background-color: #0d1923 !important;
+        }
+    }
+
+    div.list {
+        width: 100% !important;
+    }
+}
+
+.actions {
+    align-items: center;
+    flex-direction: column;
+    gap: 0.5rem;
+}

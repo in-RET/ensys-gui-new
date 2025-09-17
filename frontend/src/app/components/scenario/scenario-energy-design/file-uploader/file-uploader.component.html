@@ -1,0 +1,34 @@
+<div
+    class="file-upload border border-success rounded"
+    [ngClass]="{ _disabled: fieldControl.disabled }"
+>
+    <ng-container *ngIf="!fileInfo">
+        <img
+            class="img"
+            src="/static/assets/icons/feather/black/upload-cloud.svg"
+            alt="upload"
+        />
+        <input
+            type="file"
+            #fileInput
+            (change)="onFileSelect(fileInput)"
+            accept=".csv"
+            class="border rounded"
+            [disabled]="fieldControl.disabled"
+        />
+    </ng-container>
+
+    <div
+        class="d-flex align-items-center"
+        *ngIf="fileInfo"
+        style="width: 100%; justify-content: space-between; padding: 0.5rem"
+    >
+        <span class="file-info">{{ fileInfo.label }}</span>
+        <button
+            type="button"
+            class="btn-close"
+            aria-label="Close"
+            (click)="clearFileData()"
+        ></button>
+    </div>
+</div>

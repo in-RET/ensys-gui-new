@@ -1,0 +1,180 @@
+<div class="system-design">
+    <app-energy-components
+        [components]="components"
+        (touchEnd)="touchEnd($event)"
+        *ngIf="!isFullscreen"
+    />
+
+    <app-energy-drawflow
+        class="w-100 h-100 border"
+        (showFormModal_node)="showFormModal_node($event)"
+        (showFormModal_flow)="showFormModal_flow($event)"
+        (toggleFullScreen)="toggleFullScreen()"
+    />
+</div>
+
+<app-modal
+    *ngIf="formModal_info && formModal_info.show"
+    [title]="formModal_info.title"
+    (closeModal)="closeModal($event)"
+    [hidden]="formModal_info.hide"
+>
+    <div class="node-info" modal-header-center-icon>
+        <button
+            title="Info"
+            (click)="openInfoUrl(formModal_info.url)"
+            class="btn btn--info btn--icon"
+        >
+            <!-- <a [href]="formModal_info.url" target="_blank" class="w-100 h-100">
+            </a> -->
+        </button>
+    </div>
+
+    <div modal-form>
+        <div *ngIf="formModal_info.formData !== null">
+            <p
+                class="text-center p-2 border border-warning rounded-4 shadow"
+                *ngIf="
+                    formModal_info.type == 'flow' &&
+                    (formModal_info.data.oep || formModal_info.node?.data?.oep)
+                "
+            >
+                The <b>OEP </b> field is enabled at the node level, so please
+                review and adjust its parameters directly in the node.
+            </p>
+
+            <app-form
+                [formData]="formModal_info.formData"
+                (onSubmit)="submitFormData()"
+                #form
+            />
+        </div>
+
+        <!-- ports -->
+        <!-- transformer -->
+        <div
+            class="row mb-3"
+            *ngIf="
+                formModal_info.type == 'node' &&
+                formModal_info.node &&
+                (formModal_info.node.type === 'transformer' ||
+                    formModal_info.node.class === 'transformer')
+            "
+        >
+            <div class="col-6">
+                <app-order-list
+                    label="Inputs"
+                    [data]="formModal_info.data.ports.inputs"
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num']"
+                    [editable]="formModal_info.data.ports?.editable"
+                    #transform_inputs
+                />
+            </div>
+
+            <div class="col-6">
+                <app-order-list
+                    label="Outputs"
+                    [data]="
+                        formModal_info.data
+                            ? formModal_info.data.ports.outputs
+                            : null
+                    "
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'num']"
+                    [editable]="formModal_info.data.ports?.editable"
+                    #transform_outputs
+                />
+            </div>
+        </div>
+    </div>
+
+    <div
+        modal-actions
+        *ngIf="formModal_info.formData !== null; else empty_form_actions"
+    >
+        <span
+            class="text-danger"
+            style="position: absolute; left: 0; padding-left: 3rem"
+            *ngIf="formError.isShow"
+        >
+            {{ formError.msg }}
+        </span>
+
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="submitFormData()"
+        >
+            <span>{{ formModal_info.action.label }}</span>
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="modalComponent._closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>
+
+<!-- form modal calculator -->
+<app-modal
+    *ngIf="formModal_calculator.show"
+    [title]="formModal_calculator.title"
+    (closeModal)="closeModalEpCostsCalculator()"
+>
+    <div modal-form>
+        <p class="text-danger" *ngIf="formCalError.isShow">
+            Error: {{ formCalError.msg }}
+        </p>
+
+        <app-form
+            [formData]="formModal_calculator.formData"
+            (onSubmit)="calculateEpCosts()"
+            #form_cal
+        />
+    </div>
+
+    <div
+        modal-actions
+        *ngIf="formModal_calculator.formData !== null; else empty_form_actions"
+    >
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="calculateEpCosts()"
+        >
+            <span>{{ formModal_calculator.action.label }}</span>
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="modalComponent._closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>
+
+<app-modal
+    *ngIf="showSimulations"
+    title="Simulations"
+    (closeModal)="closeSimulationModal()"
+    [hidden]="false"
+    [size]="''"
+>
+    <div style="max-height: 70%" modal-body>
+        <!-- <button (click)="loadSimulations(1)">reload</button> -->
+        <app-simulation-list-card
+            [data]="simulationList"
+            [loading]="loadSimulationsLoading"
+        />
+    </div>
+</app-modal>

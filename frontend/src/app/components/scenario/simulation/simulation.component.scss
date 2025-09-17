@@ -1,0 +1,48 @@
+#wrapper {
+    border: 1px solid black;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+}
+
+#header {
+    border: 1px solid black;
+    text-align: center;
+    font-size: 12pt;
+    padding: 0.5em;
+    margin: 5px;
+}
+
+.plot_heading {
+    border: 1px solid black;
+    text-align: center;
+    margin: 5px;
+    padding: 0.5em;
+}
+
+.static_table {
+    width: 55%;
+    margin: auto;
+    font-size: 12pt;
+    text-align: left;
+}
+
+.static_table th {
+    border-bottom: 2px black double;
+}
+
+.static_table th:last-of-type {
+    width: 25%;
+}
+
+#static_div {
+    width: 100%;
+    margin: auto;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem;
+}

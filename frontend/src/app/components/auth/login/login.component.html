@@ -1,0 +1,102 @@
+<main class="w-100 m-auto signup">
+    <div
+        class="d-flex justify-content-center gap-2"
+        style="position: absolute; top: 0; left: 0; margin: 1rem"
+    >
+        <button
+            class="btn btn--success btn--small"
+            type="button"
+            [routerLink]="['/']"
+        >
+            Home
+        </button>
+    </div>
+
+    <form class="signup-frame" [formGroup]="form">
+        <div class="signup-frame__img">
+            <img
+                src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
+                alt="open_plan cells"
+                style="height: 6.125rem"
+            />
+        </div>
+
+        <div class="form-floating mb-3">
+            <input
+                type="text"
+                class="form-control"
+                formControlName="user"
+                placeholder="Username"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
+            />
+            <label for="floatingInput">Username</label>
+
+            <div
+                *ngIf="user!.invalid && (user!.dirty || user!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        user!.invalid && (user!.dirty || user!.touched)
+                }"
+            >
+                <div *ngIf="user!.hasError('required')">
+                    UserName is required.
+                </div>
+            </div>
+        </div>
+
+        <div class="form-floating">
+            <input
+                type="password"
+                class="form-control"
+                formControlName="pass"
+                placeholder="Password"
+                required
+                [ngClass]="{
+                    'is-invalid':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            />
+            <label for="floatingPassword">Password</label>
+
+            <div
+                *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
+                [ngClass]="{
+                    'invalid-feedback':
+                        pass!.invalid && (pass!.dirty || pass!.touched)
+                }"
+            >
+                <div *ngIf="pass!.hasError('required')">
+                    Password is required.
+                </div>
+            </div>
+        </div>
+
+        <button
+            class="btn btn--large"
+            type="submit"
+            (click)="logIn()"
+            [disabled]="!form.valid"
+        >
+            Login
+        </button>
+
+        <div class="mt-1 text-danger" *ngIf="error && error.messge">
+            Error:
+            <span> {{ error.messge }}</span>
+        </div>
+
+        <div class="signup-frame__subheading">
+            Do you not have an account yet?
+            <a href="/auth/signup">Sign up</a>
+        </div>
+
+        <div class="signup-frame__subheading">
+            Forgot your password?
+            <a href="/auth/password_reset">Reset Password</a>
+        </div>
+    </form>
+</main>

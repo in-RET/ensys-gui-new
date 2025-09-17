@@ -1,0 +1,65 @@
+@use "../abstracts/variables" as *;
+@use "../abstracts/mixins" as *;
+
+app-login,
+app-signup,
+app-password-reset {
+    height: 100%;
+    display: flex;
+    background-color: $primary-gray-color-1 !important;
+    overflow-y: auto;
+}
+
+.signup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem 0 1.5rem 0;
+
+    .signup-frame {
+        background-color: $white;
+        padding: 2.5rem 5rem;
+        width: 100%;
+
+        box-shadow: $box-shadow-frame;
+        max-width: 500px;
+
+        &__img {
+            text-align: center;
+            margin-bottom: 3rem;
+
+            img {
+                height: 6.125rem;
+            }
+        }
+
+        &__heading {
+            font-size: $font-size-large;
+            text-align: center;
+            padding-top: 1rem;
+        }
+
+        &__subheading {
+            font-size: $font-size-small;
+            color: $text-color-secondary;
+            font-weight: 300;
+            text-align: center;
+            padding-top: 1rem;
+        }
+
+        &__form {
+            // padding-top: 2rem;
+        }
+
+        .form-check {
+            font-size: $font-size-small;
+            color: $text-color-secondary;
+            font-weight: 300;
+            padding-top: 1rem;
+        }
+
+        button {
+            margin-top: 1.5rem;
+        }
+    }
+}

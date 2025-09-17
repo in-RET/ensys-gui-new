@@ -1,0 +1,92 @@
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { map } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { ScenarioResModel } from '../../../scenario/models/scenario.model';
+import { ScenarioService } from '../../../scenario/services/scenario.service';
+import { ProjectModel } from '../../models/project.model';
+import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
+
+@Component({
+    selector: 'app-project-item',
+    imports: [CommonModule, RouterLink, ProjectScenarioItemComponent],
+    templateUrl: './project-item.component.html',
+    styleUrl: './project-item.component.scss',
+})
+export class ProjectItemComponent {
+    @Input() project!: ProjectModel;
+
+    @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
+
+    constructor(
+        private scenarioService: ScenarioService,
+        private router: Router,
+        private alertService: AlertService,
+        private toastService: ToastService
+    ) {}
+
+    ngOnInit() {
+        this.getScenarios(this.project.id);
+    }
+
+    async delete_modal(id: number) {
+        const confirmed = await this.alertService.confirm(
+            'This will also delete all related project data.',
+            undefined,
+            undefined,
+            undefined,
+            'warning'
+        );
+        if (confirmed) {
+            this._deleteProject(id);
+            this.alertService.success(`Removed the project`);
+        }
+    }
+
+    _deleteProject(id: number) {
+        this.deleteProject.emit(id);
+    }
+
+    getScenarios(projectId: number) {
+        this.scenarioService
+            .getScenarios(projectId)
+            .pipe(
+                map((res: ResModel<ScenarioResModel>) => {
+                    if (res.success) return res.data;
+                    throw new Error('Unknown API error');
+                })
+            )
+            .subscribe({
+                next: (val: ResDataModel<ScenarioResModel>) => {
+                    this.project.scenarioList = val.items;
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error(err);
+                },
+            });
+    }
+
+    newScenario(pId: number, pName: string) {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioService.removeDrawflow_Storage();
+
+        this.scenarioService.saveBaseInfo_Storage({
+            project: {
+                id: pId,
+                name: pName,
+                scenarioList: this.project.scenarioList ?? [],
+            },
+        });
+        this.router.navigate(['../../scenario']);
+    }
+
+    deleteScenario(scenarioId: number) {
+        this.project.scenarioList = this.project.scenarioList?.filter(
+            (x: any) => x.id !== scenarioId
+        );
+    }
+}

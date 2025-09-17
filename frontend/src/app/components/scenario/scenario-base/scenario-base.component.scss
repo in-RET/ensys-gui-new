@@ -1,0 +1,17 @@
+::ng-deep input[type="date"]::-webkit-calendar-picker-indicator {
+    &:focus {
+        outline: none;
+    }
+}
+
+::ng-deep .fullscreen .system-design {
+    height: 100vh !important;
+}
+
+::ng-deep .step-footer {
+    display: flex;
+}
+
+::ng-deep main {
+    height: 86vh !important;
+}

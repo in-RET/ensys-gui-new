@@ -1,0 +1,38 @@
+<section class="p-3">
+    <div id="wrapper">
+        <div id="header">
+            <h1>Results Prototyping</h1>
+        </div>
+
+        <div class="plot_heading">
+            <h2>Static</h2>
+        </div>
+
+        <div id="static_div">
+            <!-- TODO -->
+            <table class="static_table" id="static_table">
+                <tr>
+                    <th>Name</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                </tr>
+                <tr>
+                    <td>Emissions</td>
+                    <td>Coming soon..</td>
+                    <td>kg CO2</td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="plotly_div" style="width: 100%"></div>
+    </div>
+
+    <div class="loading" *ngIf="loading">
+        <div
+            class="spinner-border text-primary"
+            style="width: 3rem; height: 3rem"
+            role="status"
+        ></div>
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</section>
