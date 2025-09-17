@@ -1,3 +1,4 @@
+import math
 import os
 from typing import Annotated
 
@@ -7,6 +8,7 @@ from oemof import solph
 from sqlmodel import Session
 from starlette import status
 
+from .automatic_cost_calc import cost_calculation_from_energysystem
 from .model import EnDataFrame, EnTimeSeries, ResultDataModel, EnInvestResult
 from ..data.model import GeneralDataModel
 from ..db import get_db_session
@@ -100,18 +102,40 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
             if type(component) == solph.components.GenericStorage:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000,2),
+                    value=round(list(component_data["scalars"])[0] * 1000, 2),
                     unit="kWh"
                 )
             else:
                 result_component_data = EnInvestResult(
                     name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000,2),
+                    value=round(list(component_data["scalars"])[0] * 1000, 2),
                     unit="kW"
                 )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
+
+    costs = cost_calculation_from_energysystem(es)
+    print(f"Costs: {costs}")
+
+    # for key in costs.keys():
+    #     for index in costs.index:
+    #         data = costs.loc[index, key]
+    #
+    #         if not math.isnan(data):
+    #             result_components.append(EnInvestResult(
+    #                 name=f"{index} ({key})",
+    #                 value=round(data, 2),
+    #                 unit="EUR"
+    #             ))
+
+    result_components.append(
+        EnInvestResult(
+            name="Costs",
+            value=round(costs.sum().sum(), 2),
+            unit="EUR/a"
+        )
+    )
 
     return_data = [ResultDataModel(
         static=result_components,
@@ -126,8 +150,8 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
 
 @results_router.get("/{simulation_id}", response_model=ResultResponse | ErrorResponse)
 async def get_results(
-        simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-        db: Session = Depends(get_db_session)
+    simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session)
 ) -> ResultResponse | ErrorResponse:
     """
     Retrieve the results of a simulation based on the given simulation id. This endpoint checks
