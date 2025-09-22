@@ -17,7 +17,7 @@ from .user.model import EnUserDB
 
 
 async def send_mail(token: str, user: EnUserDB):
-    with open(os.path.abspath(os.path.join(os.getcwd(), "templates", "activation_mail.html"))) as f:
+    with open(os.path.abspath(os.path.join(os.getcwd(), "templates", "mail", "activation_mail.html"))) as f:
         mail_template = Template(f.read())
 
     mail_body = HTMLBody(mail_template.render(
