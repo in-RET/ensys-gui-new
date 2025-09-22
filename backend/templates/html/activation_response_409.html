@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href={{ url_for('static', path='/style.css') }}>
+    <title>User already activated</title>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src={{ url_for('static', path='/ensys_icon.svg') }} alt="ensys logo">
+        </div>
+        <div class="text">
+            <h1>Activation already activated.</h1>
+            <p>Your account {{ user }} has been already activated, and you can now log in under <a href="https://ensys.hs-nordhausen.de/auth/login">ensys.hs-nordhausen.de/auth/login</a>.</p>
+        </div>
+    </div>
+</body>

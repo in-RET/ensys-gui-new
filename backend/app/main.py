@@ -1,9 +1,9 @@
-from contextlib import asynccontextmanager
-from os import MFD_ALLOW_SEALING
+import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from starlette import status
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
@@ -13,26 +13,6 @@ from .results.router import results_router
 from .scenario.router import scenario_router
 from .simulation.router import simulation_router
 from .user.router import users_router
-
-
-@asynccontextmanager
-async def lifespan(fastapi_app: FastAPI):
-    """
-    Manages the lifespan of a FastAPI application, handling setup during startup and cleanup
-    during shutdown.
-
-    This function is meant to be used as an async context manager for setting up and tearing
-    down application-wide resources or configurations in a uniform way.
-
-    :param fastapi_app: Instance of the FastAPI application
-    :type fastapi_app: FastAPI
-    :return: Async context for managing the lifespan of the FastAPI application
-    :rtype: AsyncIterator[None]
-    """
-    # startup event
-    yield
-    # shutdown events
-
 
 tags_metadata = [
     {
@@ -66,7 +46,6 @@ tags_metadata = [
 ]
 
 fastapi_app = FastAPI(
-    lifespan=lifespan,
     root_path="/api",
     title="EnSys Backend",
     summary="The API and backend for the software package 'EnSys by in.RET'",
@@ -88,6 +67,9 @@ fastapi_app = FastAPI(
     ],
     root_path_in_servers=False
 )
+
+fastapi_app.mount("/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static")
+templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 origins = [
     "http://localhost:9004",
@@ -113,8 +95,8 @@ for router in routers:
     )
 
 
-@fastapi_app.get("/", response_class=HTMLResponse)
-async def root():
+@fastapi_app.get("/")
+async def root(request: Request):
     """
     Handles the root endpoint of the FastAPI application, which responds with an HTML page
     providing a welcome message and links to documentation.
@@ -126,23 +108,10 @@ async def root():
     :return: HTMLResponse containing the welcome page content and HTTP status code 200.
     :rtype: HTMLResponse
     """
-    html_content = """
-    <html>
-        <head>
-            <title>EnSys FastAPI</title>
-        </head>
-        <body style="background-color:#dcdcde; margin: auto; width: 75vh; height: 75%; display: flex; justify-content: center; align-items: center;">
-        <div style="background-color:#fcf9e8; width:100%; text-align: center; font-family: monospace; padding: 15px">
-            <h1>Welcome</h1>
-            <p>For documentation see '/docs', '/redoc' or <a target="_blank" href="https://in-ret.github.io/ensys-gui-new/">this link</a>.<p>
-        </div>
-        </body>
-    </html>
-    """
 
-    return HTMLResponse(
-        content=html_content,
-        status_code=status.HTTP_200_OK
+    return templates.TemplateResponse(
+        request=request,
+        name="main_response.html"
     )
 
 # @app.exception_handler(CustomException)

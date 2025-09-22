@@ -1,8 +1,10 @@
 import asyncio
+import os
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.templating import Jinja2Templates
 from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from sqlmodel import Session, select
@@ -15,6 +17,8 @@ from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
 from ..security import decode_token, oauth2_scheme, token_secret
+
+templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 users_router = APIRouter(
     prefix="/user",
@@ -136,6 +140,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
 @users_router.get("/auth/activate/{token}")
 async def user_activate(
+    request: Request,
     token: str,
     db: Session = Depends(get_db_session)
 ):
@@ -148,16 +153,21 @@ async def user_activate(
     user = db.exec(statement).first()
 
     if user.is_active:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already activated.")
+        return templates.TemplateResponse(
+            request=request,
+            name="activation_response_409.html",
+            context={"user": user.username}
+        )
 
     user.is_active = True
 
     db.add(user)
     db.commit()
 
-    return MessageResponse(
-        data="User successfully activated.",
-        success=True
+    return templates.TemplateResponse(
+        request=request,
+        name="activation_response_200.html",
+        context={"user": user.username}
     )
 
 
