@@ -1,15 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
-import { ValidateService } from '../services/validate.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {Router} from '@angular/router';
+import {AuthService} from '../services/auth.service';
+import {ValidateService} from '../services/validate.service';
 
 @Component({
     selector: 'app-signup',
@@ -26,14 +20,8 @@ export class SignupComponent {
             fName: new FormControl(null, Validators.required),
             lName: new FormControl(null, Validators.required),
             user: new FormControl(null, Validators.required),
-            pass: new FormControl(null, [
-                Validators.required,
-                this.validateService.passwordMinLowerCaseLettersValidator(),
-            ]),
-            confirmPass: new FormControl(
-                null,
-                Validators.compose([Validators.required])
-            ),
+            pass: new FormControl(null, Validators.required),
+            confirmPass: new FormControl(null, Validators.compose([Validators.required])),
             consentOpt: new FormControl(false, Validators.required),
         },
         this.validateService.passwordMatch('pass', 'confirmPass')
@@ -69,7 +57,8 @@ export class SignupComponent {
 
     errorList!: { messge: string }[];
 
-    constructor(private authService: AuthService, private router: Router) {}
+    constructor(private authService: AuthService, private router: Router) {
+    }
 
     signup() {
         this.authService

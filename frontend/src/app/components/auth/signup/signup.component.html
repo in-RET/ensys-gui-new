@@ -137,7 +137,7 @@
 
         <div class="form-floating mb-3">
             <input
-                type="text"
+                type="password"
                 class="form-control"
                 id="passwordTxt"
                 placeholder="Password"
@@ -153,24 +153,60 @@
             <div
                 *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
                 [ngClass]="{
-                    'invalid-feedback':
-                        pass!.invalid && (pass!.dirty || pass!.touched)
-                }"
+                                'invalid-feedback':
+                                    pass!.invalid && (pass!.dirty || pass!.touched)
+                            }"
             >
                 <div *ngIf="pass!.hasError('required')">
                     Password is required.
                 </div>
+            </div>
 
-                <div *ngIf="pass!.hasError('invalidPasswordLetters')">
-                    Password must contain at least number, uppercase and
-                    lowercase letter
-                </div>
+            <div
+                *ngIf="!validateService.passwordLength(pass?.value) ||
+                !validateService.hasSpecialCharacters(pass?.value) ||
+                !validateService.hasNumber(pass?.value) ||
+                !validateService.hasLowerCaseCharacters(pass?.value) ||
+                !validateService.hasUpperCaseCharacters(pass?.value)"
+            >
+                <small>
+                    <span>Requirements:</span>
+                    <ul class="pl-2 my-0 leading-normal">
+                        <li *ngIf="!validateService.hasNumber(pass?.value)">Contain a number
+                        </li>
+                        <li *ngIf="validateService.hasNumber(pass?.value)" style="color: #008000">Contain a number</li>
+                        <li *ngIf="!validateService.hasUpperCaseCharacters(pass?.value)">
+                            Contain a uppercase
+                        </li>
+                        <li *ngIf="validateService.hasUpperCaseCharacters(pass?.value)" style="color: #008000">Contain a
+                            uppercase
+                        </li>
+                        <li *ngIf="!validateService.hasLowerCaseCharacters(pass?.value)">
+                            Contain a lowercase
+                        </li>
+                        <li *ngIf="validateService.hasLowerCaseCharacters(pass?.value)" style="color: #008000">Contain a
+                            lowercase
+                        </li>
+                        <li *ngIf="!validateService.hasSpecialCharacters(pass?.value)">Contain
+                            a special character
+                        </li>
+                        <li *ngIf="validateService.hasSpecialCharacters(pass?.value)" style="color: #008000">Contain a
+                            special character
+                        </li>
+                        <li *ngIf="!validateService.passwordLength(pass?.value)">Must be at
+                            least 8 characters long
+                        </li>
+                        <li *ngIf="validateService.passwordLength(pass?.value)" style="color: #008000">Must be at least
+                            8 characters long
+                        </li>
+                    </ul>
+                </small>
             </div>
         </div>
 
         <div class="form-floating">
             <input
-                type="text"
+                type="password"
                 class="form-control"
                 placeholder="Password Confirmation"
                 formControlName="confirmPass"
@@ -209,6 +245,7 @@
                 class="form-check-input"
                 type="checkbox"
                 formControlName="consentOpt"
+                required
             />
             <label class="form-check-label" for="flexCheckDefault">
                 I have read and accept the
