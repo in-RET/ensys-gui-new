@@ -13,6 +13,7 @@
     [project]="project"
     *ngFor="let project of project_list"
     (deleteProject)="deleteProject($event)"
+    (duplicateProject)="duplicateProject($event)"
 />
 
 <section class="projects-empty" *ngIf="!project_list || !project_list.length">

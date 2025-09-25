@@ -11,7 +11,7 @@ from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
 from ..scenario.model import EnScenarioDB
-from ..scenario.router import delete_scenario
+from ..scenario.router import delete_scenario, duplicate_scenario, __duplicate_scenario__
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -242,9 +242,44 @@ async def delete_project(
         success=True
     )
 
-# @projects_router.post("/duplicate", status_code=status.HTTP_501_NOT_IMPLEMENTED)
-# async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> None:
-#     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED, detail="Not implemented.")
+@projects_router.post("/duplicate/{project_id}")
+async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> MessageResponse:
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    if not validate_project_owner(project_id=project_id, token=token):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    project = db.get(EnProjectDB, project_id)
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
+
+    new_project_data = project.model_dump()
+    new_project_data["id"] = None
+    new_project_data["user_id"] = project.user_id
+    new_project_data["date_created"] = project.date_created
+    new_project_data["date_updated"] = datetime.now()
+
+    new_project = EnProjectDB(**new_project_data)
+
+    db.add(new_project)
+    db.commit()
+    db.refresh(new_project)
+
+    scenarios = db.exec(select(EnScenarioDB).where(EnScenarioDB.project_id == project.id))
+    for scenario in scenarios:
+        __duplicate_scenario__(
+            scenario_id=scenario.id,
+            db=db,
+            new_project_id=new_project.id
+        )
+
+    return MessageResponse(
+        data="Project and all scenarios duplicated.",
+        success=True
+    )
+
+
 #
 # @projects_router.post("/share", status_code=status.HTTP_501_NOT_IMPLEMENTED)
 # async def share_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, user_id: int, db: Session = Depends(get_db_session)) -> None:

@@ -29,4 +29,8 @@ export class ProjectService {
     deleteProject(id: number) {
         return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }
+
+    duplicateProject(id: number) {
+        return this.baseHttp.post(`${this.baseUrl}/duplicate/${id}`);
+    }
 }

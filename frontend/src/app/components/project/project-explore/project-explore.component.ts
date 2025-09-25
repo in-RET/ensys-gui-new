@@ -20,11 +20,8 @@ export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
 
     toastService = inject(ToastService);
-
-    constructor(
-        private projectService: ProjectService,
-        private scenarioService: ScenarioService
-    ) {}
+    projectService = inject(ProjectService)
+    scenarioService = inject(ScenarioService)
 
     ngOnInit() {
         this.getProjects();
@@ -69,5 +66,18 @@ export class ProjectExploreComponent implements OnInit {
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioService.removeDrawflow_Storage();
         this.toastService.info('Storage cleared.');
+    }
+
+    duplicateProject(id: number) {
+        this.projectService.duplicateProject(id).subscribe({
+            next: (value) => {
+                if (value.success) {
+                    this.getProjects();
+                } else this.toastService.error('An error occured.');
+            },
+            error: (err) => {
+                this.toastService.error(err);
+            }
+        })
     }
 }

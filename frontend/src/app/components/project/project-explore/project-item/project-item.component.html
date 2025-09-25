@@ -32,6 +32,17 @@
                 </a>
 
                 <button
+                    id="duplicate_{{ project.id }}"
+                    style="margin-top: 0.25rem"
+                    class="btn btn--action action"
+                    type="button"
+                    value="Delete"
+                    (click)="duplicate_modal(project.id)"
+                >
+                    <span class="icon icon-duplicate" aria-hidden="true"></span>
+                </button>
+
+                <button
                     id="delete_{{ project.id }}"
                     style="margin-top: 0.25rem"
                     class="btn btn--action action"
@@ -88,6 +99,7 @@
                                 [project]="project"
                                 [scenario]="scenario"
                                 (deleteScenario)="deleteScenario($event)"
+                                (duplicateScenario)="duplicateScenario($event)"
                             />
                         </li>
                     </ul>

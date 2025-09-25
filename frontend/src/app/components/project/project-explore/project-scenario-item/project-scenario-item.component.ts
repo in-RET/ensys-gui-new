@@ -1,14 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { AlertService } from '../../../../shared/services/alert.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import {
-    ScenarioBaseInfoModel,
-    ScenarioModel,
-} from '../../../scenario/models/scenario.model';
-import { ScenarioService } from '../../../scenario/services/scenario.service';
-import { ProjectModel } from '../../models/project.model';
+import {CommonModule} from '@angular/common';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {Router, RouterModule} from '@angular/router';
+import {AlertService} from '../../../../shared/services/alert.service';
+import {ToastService} from '../../../../shared/services/toast.service';
+import {ScenarioBaseInfoModel, ScenarioModel,} from '../../../scenario/models/scenario.model';
+import {ScenarioService} from '../../../scenario/services/scenario.service';
+import {ProjectModel} from '../../models/project.model';
 
 @Component({
     selector: 'app-project-scenario-item',
@@ -21,14 +18,12 @@ export class ProjectScenarioItemComponent {
     @Input() scenario!: ScenarioModel;
 
     @Output() deleteScenario: EventEmitter<any> = new EventEmitter<any>();
+    @Output() duplicateScenario: EventEmitter<any> = new EventEmitter<any>();
 
     toastService = inject(ToastService);
     alertService = inject(AlertService);
-
-    constructor(
-        private scenarioService: ScenarioService,
-        private router: Router
-    ) {}
+    scenarioService = inject(ScenarioService)
+    router = inject(Router)
 
     openScenario(data: ScenarioModel) {
         if (data.modeling_data)
@@ -73,6 +68,29 @@ export class ProjectScenarioItemComponent {
                             `Scenario ${this.scenario.name} deleted.`
                         );
                         this.deleteScenario.emit(scenarioId);
+                    } else this.toastService.error('An error occured.');
+                },
+                error: (err) => {
+                    this.toastService.error(err);
+                },
+            });
+        }
+    }
+
+    async onDuplicateScenario(scenarioId: number) {
+        const confirmed = await this.alertService.confirm(
+            `Are you sure duplicate scenario ${this.scenario.name}?`,
+            'Duplicate'
+        );
+
+        if (confirmed) {
+            this.scenarioService.duplicateScenario(scenarioId).subscribe({
+                next: (value) => {
+                    if (value.success) {
+                        this.toastService.success(
+                            `Scenario ${this.scenario.name} duplicated.`
+                        );
+                        this.duplicateScenario.emit(this.scenario.project_id);
                     } else this.toastService.error('An error occured.');
                 },
                 error: (err) => {
