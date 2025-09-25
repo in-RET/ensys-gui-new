@@ -30,6 +30,7 @@ export class SimulationListCardComponent {
         const url = this.router.serializeUrl(
             this.router.createUrlTree(['/simulation', simId])
         );
+        console.log("Link:", url)
         window.open(url, '_blank');
     }
 }

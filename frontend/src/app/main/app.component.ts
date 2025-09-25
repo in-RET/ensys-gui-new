@@ -1,7 +1,5 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {Router, RouterOutlet} from '@angular/router';
-import {AuthCoreService} from '../core/auth/auth.service';
-import {BaseHttpService} from '../core/base-http/base-http.service';
+import {Component} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
 import {ToastContainerComponent} from '../shared/components/toast-container/toast-container.component';
 
 @Component({
@@ -10,18 +8,6 @@ import {ToastContainerComponent} from '../shared/components/toast-container/toas
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss',
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
     title = 'ensys-gui-angular';
-
-    authCoreService = inject(AuthCoreService);
-    router = inject(Router);
-    httpService = inject(BaseHttpService);
-
-    ngOnInit() {
-        this.authCoreService.currentToken.subscribe((res) => {
-            if (res) {
-                this.router.navigate(['/projects'])
-            }
-        });
-    }
 }
