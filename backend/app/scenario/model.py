@@ -97,6 +97,7 @@ class EnScenarioDB(SQLModel, table=True):
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
+    is_template: bool = Field(default=False)
 
     def model_dump(self, *args, **kwargs):
         data = super().model_dump(*args, **kwargs)

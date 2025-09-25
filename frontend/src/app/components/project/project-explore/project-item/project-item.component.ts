@@ -9,6 +9,7 @@ import {ScenarioResModel} from '../../../scenario/models/scenario.model';
 import {ScenarioService} from '../../../scenario/services/scenario.service';
 import {ProjectModel} from '../../models/project.model';
 import {ProjectScenarioItemComponent} from '../project-scenario-item/project-scenario-item.component';
+import {NgModel} from '@angular/forms';
 
 @Component({
     selector: 'app-project-item',
@@ -112,4 +113,6 @@ export class ProjectItemComponent implements OnInit {
     duplicateScenario(project_id: number) {
         this.getScenarios(project_id);
     }
+
+    protected readonly NgModel = NgModel;
 }
