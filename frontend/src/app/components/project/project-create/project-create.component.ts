@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -13,13 +13,14 @@ import { map, Observable } from 'rxjs';
 import { RegionService } from '../../../shared/services/region.service';
 import { ProjectService } from '../services/project.service';
 
+
 @Component({
     selector: 'app-project-create',
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
     templateUrl: './project-create.component.html',
     styleUrl: './project-create.component.scss',
 })
-export class ProjectCreateComponent {
+export class ProjectCreateComponent implements OnInit {
     form: FormGroup = new FormGroup({
         id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
@@ -27,9 +28,18 @@ export class ProjectCreateComponent {
         description: new FormControl(null, [Validators.required]),
         latitude: new FormControl(null, [Validators.required]),
         longitude: new FormControl(null, [Validators.required]),
-        currency: new FormControl('EUR', [Validators.required]),
-        unit_energy: new FormControl('MW/MWh', [Validators.required]),
-        unit_co2: new FormControl('t CO2', [Validators.required]),
+        currency: new FormControl({
+            value: 'EUR',
+            disabled: true,
+        }, [Validators.required]),
+        unit_energy: new FormControl({
+            value: 'MW/MWh',
+            disabled: true,
+        }, [Validators.required]),
+        unit_co2: new FormControl({
+            value: 't CO2',
+            disabled: true
+        }, [Validators.required]),
     });
 
     get name() {
@@ -154,7 +164,7 @@ export class ProjectCreateComponent {
 
     submitProject() {
         if (this.mode == 'create') {
-            let newProject = this.form.getRawValue();
+            const newProject = this.form.getRawValue();
 
             this.projectService
                 .createProject(newProject)
@@ -174,7 +184,7 @@ export class ProjectCreateComponent {
                     },
                 });
         } else if (this.mode == 'update') {
-            let currentProject = this.form.getRawValue();
+            const currentProject = this.form.getRawValue();
 
             this.projectService
                 .updateProject(currentProject)
