@@ -217,9 +217,9 @@ async def update_scenario(
 
     possible_duplicates = db.exec(
         select(EnScenarioDB)
-        .where(EnScenarioDB.name == new_scenario_data["name"]) # selects all with the same name
-        .where(EnScenarioDB.project_id == db_scenario.project_id) # just in this project
-        .where(EnScenarioDB.id != db_scenario.id) # ignore the one which we will update
+        .where(EnScenarioDB.name == new_scenario_data["name"])  # selects all with the same name
+        .where(EnScenarioDB.project_id == db_scenario.project_id)  # just in this project
+        .where(EnScenarioDB.id != db_scenario.id)  # ignore the one which we will update
     ).all()
 
     if len(possible_duplicates) > 0:
@@ -285,5 +285,73 @@ async def delete_scenario(
 
     return MessageResponse(
         data="Scenario deleted.",
+        success=True
+    )
+
+
+def check_scenario_duplicates(scen_name: str, scen_proj_id: int, db):
+    possible_duplicates = db.exec(
+        select(EnScenarioDB)
+        .where(EnScenarioDB.name == scen_name)
+        .where(EnScenarioDB.project_id == scen_proj_id)
+    ).all()
+
+    return not (len(possible_duplicates) > 0)
+
+
+def __duplicate_scenario__(scenario_id: int, db, new_project_id: int | None = None):
+    db_scenario = db.get(EnScenarioDB, scenario_id)
+    if not db_scenario:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
+
+
+    new_scenario_data = db_scenario.model_dump()
+
+    if new_project_id is None:
+        new_scenario_name = f"{db_scenario.name} - Copy"
+
+        i = 1
+        while not check_scenario_duplicates(
+            scen_name=new_scenario_name,
+            scen_proj_id=db_scenario.project_id,
+            db=db):
+            new_scenario_name = f"{db_scenario.name} - Copy {i}"
+            i += 1
+    else:
+        new_scenario_name = db_scenario.name
+        new_scenario_data["project_id"] = new_project_id
+
+    new_scenario_data["name"] = new_scenario_name
+    new_scenario_data["id"] = None
+    new_scenario_data["start_date"] = db_scenario.start_date
+
+    new_scenario = EnScenarioDB(**new_scenario_data)
+
+    db.add(new_scenario)
+    db.commit()
+    db.refresh(new_scenario)
+
+
+@scenario_router.post("/duplicate/{scenario_id}", response_model=MessageResponse)
+async def duplicate_scenario(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    scenario_id: int,
+    db: Session = Depends(get_db_session)
+):
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+
+    validate_scenario_result, validate_scenario_code, validate_scenario_msg = validate_scenario_owner(
+        scenario_id=scenario_id,
+        token=token
+    )
+
+    if not validate_scenario_result:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    __duplicate_scenario__(scenario_id, db)
+
+    return MessageResponse(
+        data="Scenario duplicated.",
         success=True
     )

@@ -43,6 +43,10 @@ export class ScenarioService {
         return this.baseHttp.patch(`${this.baseUrl}/${id}`, data);
     }
 
+    duplicateScenario(id: number) {
+        return this.baseHttp.post(`${this.baseUrl}/duplicate/${id}`);
+    }
+
     deleteScenario(id: number) {
         return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }
@@ -134,7 +138,7 @@ export class ScenarioService {
             return;
         }
 
-        let newScenarioData: ScenarioReqModel = {
+        const newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario.timeStep,
@@ -182,7 +186,7 @@ export class ScenarioService {
             return;
         }
 
-        let newScenarioData: ScenarioReqModel = {
+        const newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,

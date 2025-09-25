@@ -5,6 +5,17 @@
 
     <div class="actions">
         <button
+            id="duplicate_{{ scenario.id }}"
+            style="margin-top: 0.25rem;"
+            class="btn btn--action action"
+            type="button"
+            value="Duplicate"
+            (click)="onDuplicateScenario(scenario.id)"
+        >
+            <span class="icon icon-duplicate" aria-hidden="true"></span>
+        </button>
+
+        <button
             id="delete_{{ scenario.id }}"
             style="margin-top: 0.25rem"
             class="btn btn--action action"
@@ -14,5 +25,6 @@
         >
             <span class="icon icon-delete" aria-hidden="true"></span>
         </button>
+
     </div>
 </div>

@@ -1,14 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
-import { AlertService } from '../../../../shared/services/alert.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { ScenarioResModel } from '../../../scenario/models/scenario.model';
-import { ScenarioService } from '../../../scenario/services/scenario.service';
-import { ProjectModel } from '../../models/project.model';
-import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
+import {CommonModule} from '@angular/common';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Router, RouterLink} from '@angular/router';
+import {map} from 'rxjs';
+import {ResDataModel, ResModel} from '../../../../shared/models/http.model';
+import {AlertService} from '../../../../shared/services/alert.service';
+import {ToastService} from '../../../../shared/services/toast.service';
+import {ScenarioResModel} from '../../../scenario/models/scenario.model';
+import {ScenarioService} from '../../../scenario/services/scenario.service';
+import {ProjectModel} from '../../models/project.model';
+import {ProjectScenarioItemComponent} from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
     selector: 'app-project-item',
@@ -16,17 +16,17 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
 })
-export class ProjectItemComponent {
+export class ProjectItemComponent implements OnInit {
     @Input() project!: ProjectModel;
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
+    @Output() duplicateProject: EventEmitter<any> = new EventEmitter<any>();
 
-    constructor(
-        private scenarioService: ScenarioService,
-        private router: Router,
-        private alertService: AlertService,
-        private toastService: ToastService
-    ) {}
+
+    scenarioService = inject(ScenarioService)
+    router = inject(Router)
+    alertService = inject(AlertService)
+    toastService = inject(ToastService)
 
     ngOnInit() {
         this.getScenarios(this.project.id);
@@ -46,8 +46,27 @@ export class ProjectItemComponent {
         }
     }
 
-    _deleteProject(id: number) {
+    private _deleteProject(id: number) {
         this.deleteProject.emit(id);
+    }
+
+    async duplicate_modal(id: number) {
+        const confirmed = await this.alertService.confirm(
+            'This will also duplicate all related project data.',
+            undefined,
+            undefined,
+            undefined,
+            'warning'
+        );
+
+        if (confirmed) {
+            this._duplicateProject(id);
+            this.alertService.success(`Duplicated the project`);
+        }
+    }
+
+    private _duplicateProject(id: number) {
+        this.duplicateProject.emit(id);
     }
 
     getScenarios(projectId: number) {
@@ -88,5 +107,9 @@ export class ProjectItemComponent {
         this.project.scenarioList = this.project.scenarioList?.filter(
             (x: any) => x.id !== scenarioId
         );
+    }
+
+    duplicateScenario(project_id: number) {
+        this.getScenarios(project_id);
     }
 }
