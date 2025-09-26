@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -22,7 +22,7 @@ import { FileUploaderComponent } from '../file-uploader/file-uploader.component'
 })
 export class FormComponent {
     form!: FormGroup;
-    formVisible: boolean = false;
+    formVisible = false;
 
     _formData: any;
     @Input() set formData(d: any) {
@@ -37,18 +37,16 @@ export class FormComponent {
 
     @Output('onSubmit') _onSubmit: EventEmitter<any> = new EventEmitter<any>();
 
-    ngOnInit() {}
-
     initForm(formData: any) {
         this.form = new FormGroup({});
 
         formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports' && section.fields)
                 section.fields.forEach((field: any) => {
-                    let fControl: FormControl = new FormControl(
+                    const fControl: FormControl = new FormControl(
                         {
                             value: field['value'] ? field['value'] : null,
-                            disabled: field.hasOwnProperty('disabled')
+                            disabled: Object.prototype.hasOwnProperty.call(field, 'disabled')
                                 ? field['disabled']
                                 : null,
                         },
@@ -66,7 +64,7 @@ export class FormComponent {
         this.formVisible = true;
     }
 
-    submit(checkFormValidation: boolean = true) {
+    submit(checkFormValidation = true) {
         if (checkFormValidation) return this.checkFormValidation();
         else return this.form.getRawValue();
     }

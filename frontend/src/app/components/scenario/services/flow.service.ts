@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { GeneralService } from '../../../shared/services/general.service';
-import { ScenarioService } from './scenario.service';
+import {inject, Injectable} from '@angular/core';
+import {BehaviorSubject, map, Observable} from 'rxjs';
+import {GeneralService} from '../../../shared/services/general.service';
+import {ScenarioService} from './scenario.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,10 +19,8 @@ export class FlowService {
         ],
     };
 
-    constructor(
-        private scenarioService: ScenarioService,
-        private generalService: GeneralService
-    ) {}
+    generalService = inject(GeneralService)
+    scenarioService = inject(ScenarioService)
 
     private getPreDefinedList(name: string): Observable<any[]> {
         return this.scenarioService.getPreDefinedList(name).pipe(
@@ -65,7 +63,7 @@ export class FlowService {
     }
 
     private set_preDefined(name: string, items: any[]): void {
-        let preDefinedObj = this._preDefinedList$.getValue() ?? {};
+        const preDefinedObj = this._preDefinedList$.getValue() ?? {};
         preDefinedObj[name] = items;
         this._preDefinedList$.next(preDefinedObj);
     }

@@ -14,7 +14,7 @@ export class EnergyDragItemsComponent {
     @Input() group!: string;
     @Input() id: any;
 
-    @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
+    @Output('touchEnd') _touchEnd = new EventEmitter<any>();
 
     drag(ev: DragEvent) {
         ev.dataTransfer?.setData('id', this.id);

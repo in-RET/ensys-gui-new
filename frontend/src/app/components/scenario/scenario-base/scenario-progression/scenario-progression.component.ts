@@ -11,6 +11,6 @@ import { RouterModule } from '@angular/router';
 export class ScenarioProgressionComponent {
     steps: any = ['Scenario Setup', 'Energy system design', 'Simulation'];
 
-    @Input('step') currentStep!: number;
-    @Input('currentScenario') currentScenario!: any;
+    @Input() currentStep!: number;
+    @Input() currentScenario!: any;
 }

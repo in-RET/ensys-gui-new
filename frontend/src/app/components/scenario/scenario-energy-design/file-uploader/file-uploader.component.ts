@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
 
 @Component({
@@ -8,7 +8,7 @@ import { AbstractControl } from '@angular/forms';
     templateUrl: './file-uploader.component.html',
     styleUrl: './file-uploader.component.scss',
 })
-export class FileUploaderComponent {
+export class FileUploaderComponent implements OnInit {
     fileInfo!: { name: string; label: string; data: any } | null;
 
     private _data: any;
@@ -33,7 +33,7 @@ export class FileUploaderComponent {
 
     @Input() fieldControl!: AbstractControl<any, any>;
 
-    @Output() fileUploaderChange: EventEmitter<any> = new EventEmitter();
+    @Output() fileUploaderChange = new EventEmitter<any>();
 
     ngOnInit() {
         this.fieldControl.valueChanges.subscribe((res: any) => {
@@ -106,11 +106,11 @@ export class FileUploaderComponent {
     }
 
     shortenList(str: string) {
-        let arr = str.split(',');
+        const arr = str.split(',');
         if (arr.length <= 4) return str; // Nothing to shorten
 
-        let firstTwo = arr.slice(0, 4).map((num: string) => (+num).toFixed(3));
-        let lastTwo = arr.slice(-4).map((num: string) => (+num).toFixed(3));
+        const firstTwo = arr.slice(0, 4).map((num: string) => (+num).toFixed(3));
+        const lastTwo = arr.slice(-4).map((num: string) => (+num).toFixed(3));
 
         return [...firstTwo, '...', ...lastTwo].join(',');
     }

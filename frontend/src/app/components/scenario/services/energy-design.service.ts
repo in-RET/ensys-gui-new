@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { GeneralService } from '../../../shared/services/general.service';
-import { FlowData, OEPPorts } from '../models/node.model';
-import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
-import { FlowService } from './flow.service';
-import { ScenarioService } from './scenario.service';
+import {inject, Injectable} from '@angular/core';
+import {GeneralService} from '../../../shared/services/general.service';
+import {FlowData, OEPPorts} from '../models/node.model';
+import {OrderItem} from '../scenario-energy-design/order-list/order-list.component';
+import {FlowService} from './flow.service';
+import {ScenarioService} from './scenario.service';
 
 interface EPCostParams {
     capex: number;
@@ -26,11 +26,10 @@ export interface Ports {
     providedIn: 'root',
 })
 export class EnergyDesignService {
-    constructor(
-        private flowService: FlowService,
-        private generalService: GeneralService,
-        private scenarioService: ScenarioService
-    ) {}
+
+    flowService = inject(FlowService)
+    generalService = inject(GeneralService)
+    scenarioService = inject(ScenarioService)
 
     dividerSec() {
         return {
@@ -73,7 +72,7 @@ export class EnergyDesignService {
             isReq: isReq,
             value: this.getFieldData(
                 name,
-                { mode: editMode, data },
+                {mode: editMode, data},
                 defaultVal
             ),
             type: type,
@@ -805,10 +804,10 @@ export class EnergyDesignService {
                                             mode: editMode,
                                             data,
                                         }) ||
-                                            this.getFieldData('oep', {
-                                                mode: editMode,
-                                                data,
-                                            })
+                                        this.getFieldData('oep', {
+                                            mode: editMode,
+                                            data,
+                                        })
                                     ),
                                 ],
                             },
@@ -1086,9 +1085,9 @@ export class EnergyDesignService {
                                         undefined,
                                         oep != true
                                             ? this.getFieldData('investment', {
-                                                  mode: editMode,
-                                                  data,
-                                              })
+                                                mode: editMode,
+                                                data,
+                                            })
                                             : oep
                                     ),
                                 ],
@@ -1374,7 +1373,7 @@ export class EnergyDesignService {
                     return ports;
                 } else return false;
             } else {
-                ports = { inputs: [], outputs: [] };
+                ports = {inputs: [], outputs: []};
 
                 if (infoData.inputport_name) {
                     ports.inputs.push({
@@ -1404,7 +1403,7 @@ export class EnergyDesignService {
 
         switch (nodeType) {
             case 'source':
-                return { ports: _ports, inp: 0, out: 1 };
+                return {ports: _ports, inp: 0, out: 1};
 
             case 'transformer':
                 return {
@@ -1414,13 +1413,13 @@ export class EnergyDesignService {
                 };
 
             case 'genericStorage':
-                return { ports: _ports, inp: 1, out: 1 };
+                return {ports: _ports, inp: 1, out: 1};
 
             case 'sink':
-                return { ports: _ports, inp: 1, out: 0 };
+                return {ports: _ports, inp: 1, out: 0};
 
             case 'bus':
-                return { ports: _ports, inp: 1, out: 1 };
+                return {ports: _ports, inp: 1, out: 1};
 
             default:
                 return false;
@@ -1519,11 +1518,11 @@ export class EnergyDesignService {
     }
 
     epCostsCal({
-        capex,
-        zinsatz,
-        lifetime,
-        opexPercentage,
-    }: EPCostParams): number | false {
+                   capex,
+                   zinsatz,
+                   lifetime,
+                   opexPercentage,
+               }: EPCostParams): number | false {
         const n = lifetime;
         const u = n;
         const wacc = zinsatz / 100;
