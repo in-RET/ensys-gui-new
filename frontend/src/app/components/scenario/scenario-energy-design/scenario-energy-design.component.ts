@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
 import { interval, map, Subscription, switchMap } from 'rxjs';
@@ -35,17 +35,17 @@ interface FormNode {
 
 class FormModalInfo {
     id?: number;
-    title: string = '';
+    title = '';
     formData: any | undefined;
     action: any | undefined;
     data: any | undefined;
     type: 'node' | 'flow' | undefined;
-    editMode: boolean = false;
-    hide: boolean = false;
-    show: boolean = false;
+    editMode = false;
+    hide = false;
+    show = false;
     node?: FormNode;
     preDefData!: OEPPorts | undefined;
-    url: string = '';
+    url = '';
 }
 
 @Component({
@@ -62,13 +62,13 @@ class FormModalInfo {
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent {
+export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterViewInit {
     components: any;
     editor!: Drawflow;
 
-    editMode: boolean = false;
-    isFullscreen: boolean = false;
-    showSimulations: boolean = false;
+    editMode = false;
+    isFullscreen = false;
+    showSimulations = false;
 
     formError: { msg: string | null; isShow: boolean } = {
         msg: '',
@@ -226,7 +226,7 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.data = e.data;
         this.formModal_info.preDefData = e.data.preDefData;
 
-        let nodeType = e.node?.class ?? '';
+        const nodeType = e.node?.class ?? '';
         // if (!e.editMode) {
         //     nodeType = e.node?.type ?? '';
         // } else nodeType = e.node?.class ?? '';
@@ -283,7 +283,7 @@ export class ScenarioEnergyDesignComponent {
     }
 
     defineCallbackFlowForm() {
-        let callbackList: any = [];
+        const callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
 
         callbackList['toggleFomFields'] = this.toggleFomFields.bind(this);
@@ -324,7 +324,7 @@ export class ScenarioEnergyDesignComponent {
     toggleVisibilitySection(d: any) {
         if (d) {
             d.forEach((name: any) => {
-                let formSection = this.formComponent.formData.sections.find(
+                const formSection = this.formComponent.formData.sections.find(
                     (x: any) => x.name == name
                 );
 
@@ -368,7 +368,7 @@ export class ScenarioEnergyDesignComponent {
     onChangePreDefined(e: { option: string; type: string }) {
         this.cleanFormError();
 
-        // just in storage node there are aditional sec
+        // just in the storage node there is aditional sec
         if (e.type == 'genericstorage')
             this.setPredefinedFormFields_storage(e.option);
         else this.setPredefinedFormFields_node(e.option, e.type);
@@ -377,7 +377,7 @@ export class ScenarioEnergyDesignComponent {
     private setPredefinedFormFields_node(option: string, type: string) {
         // get oep data form fields
         if (option != 'user_defined') {
-            //set data from server
+            //set data from a server
             const scenarioBaseData: ScenarioBaseInfoModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
@@ -409,8 +409,7 @@ export class ScenarioEnergyDesignComponent {
                                         port.name
                                     );
                                 } else {
-                                    let inputItem: OrderItem;
-                                    inputItem = {
+                                    const inputItem: OrderItem = {
                                         id: this.formModal_info.data.ports
                                             .inputs.length,
                                         name: port.name,
@@ -430,8 +429,7 @@ export class ScenarioEnergyDesignComponent {
                                         port.name
                                     );
                                 } else {
-                                    let outputItem: OrderItem;
-                                    outputItem = {
+                                    const outputItem: OrderItem = {
                                         id: this.formModal_info.data.ports
                                             .outputs.length,
                                         name: port.name,
@@ -450,12 +448,8 @@ export class ScenarioEnergyDesignComponent {
                             // set form fields
                             this.formComponent.enabelControl('oep');
                             this.formComponent.setFieldData('oep', true);
-                            this.formModal_info.data
-                                ? (this.formModal_info.data.oep = true)
-                                : null;
-                            this.formModal_info.node
-                                ? (this.formModal_info.node.oep = true)
-                                : null;
+                            this.formModal_info.data ? (this.formModal_info.data.oep = true) : null;
+                            this.formModal_info.node ? (this.formModal_info.node.oep = true) : null;
 
                             // this.formComponent.setFieldData(
                             //     'inputPort_name',
@@ -751,7 +745,7 @@ export class ScenarioEnergyDesignComponent {
             const isOepSelected =
                 this.formModal_info.node?.oep ??
                 this.formModal_info.node?.data.oep;
-            let formData = this.formComponent.submit(!isOepSelected);
+            const formData = this.formComponent.submit(!isOepSelected);
             // save data of connection fields in both sides
             this.energyDrawflowComponent.saveConnectionInNodes(
                 this.formModal_info.data.connection,
@@ -881,7 +875,7 @@ export class ScenarioEnergyDesignComponent {
     calculateEpCosts() {
         this.setFormCalError(false, '');
 
-        let formData = this.formCalComponent.submit();
+        const formData = this.formCalComponent.submit();
 
         if (formData) {
             const epCosts: number | false = this.energyDesignService.epCostsCal(
@@ -936,7 +930,7 @@ export class ScenarioEnergyDesignComponent {
         this.loadSimulations(scenarioId);
     }
 
-    loadSimulationsLoading: boolean = false;
+    loadSimulationsLoading = false;
     loadSimulations(scenarioId: number) {
         this.showSimulations = true;
         this.loadSimulationsLoading = true;
@@ -974,7 +968,7 @@ export class ScenarioEnergyDesignComponent {
     closeSimulationModal() {
         this.showSimulations = false;
         this.simulationList = [];
-        this.subscriptionSimulation.unsubscribe();
+        if (this.subscriptionSimulation) this.subscriptionSimulation.unsubscribe();
     }
 
     openInfoUrl(url: string | undefined) {
@@ -984,6 +978,6 @@ export class ScenarioEnergyDesignComponent {
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        this.subscriptionSimulation.unsubscribe();
+        if (this.subscriptionSimulation) this.subscriptionSimulation.unsubscribe()
     }
 }

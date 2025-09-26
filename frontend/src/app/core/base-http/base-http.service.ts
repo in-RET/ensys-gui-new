@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { Observable, catchError, map, throwError } from 'rxjs';
 
 @Injectable({
@@ -16,7 +16,7 @@ export class BaseHttpService {
         'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
     };
 
-    constructor(private http: HttpClient) {}
+    http = inject(HttpClient);
 
     private setHeader(data: any) {
         if (data) {

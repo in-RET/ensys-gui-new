@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { ContentLayoutService } from '../services/content-layout.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {NavbarComponent} from '../navbar/navbar.component';
+import {ContentLayoutService} from '../services/content-layout.service';
 
 @Component({
     selector: 'app-content',
@@ -11,7 +11,7 @@ import { ContentLayoutService } from '../services/content-layout.service';
     styleUrl: './content.component.scss',
     standalone: true,
 })
-export class ContentComponent {
+export class ContentComponent implements OnInit {
     isFullscreen: boolean | undefined = true;
 
     contentLayoutService = inject(ContentLayoutService);

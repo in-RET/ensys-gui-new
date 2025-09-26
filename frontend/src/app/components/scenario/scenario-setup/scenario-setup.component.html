@@ -5,6 +5,7 @@
             <div class="col-auto" formGroupName="project">
                 <div class="form-floating mb-3">
                     <select
+                        id="project"
                         class="form-select"
                         formControlName="id"
                         [ngClass]="{
@@ -25,7 +26,7 @@
                             {{ project.name }}
                         </option>
                     </select>
-                    <label>Project</label>
+                    <label for="project">Project</label>
                 </div>
             </div>
 
@@ -33,6 +34,7 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
+                        id="name"
                         type="text"
                         class="form-control"
                         formControlName="name"
@@ -44,7 +46,7 @@
                         }"
                         tabindex="2"
                     />
-                    <label>Name</label>
+                    <label for="name">Name</label>
                 </div>
             </div>
 
@@ -52,6 +54,7 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <select
+                        id="simulation_year"
                         class="form-select"
                         formControlName="simulationYear"
                         [ngClass]="{
@@ -69,14 +72,15 @@
                             <option [value]="item">{{ item }}</option>
                         </ng-container>
                     </select>
-                    <label>Simulation year</label>
+                    <label for="simulation_year">Simulation year</label>
                 </div>
             </div>
 
-            <!-- datepiocker -->
+            <!-- datepicker -->
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
+                        id="date"
                         type="date"
                         class="form-control date"
                         [value]="unixToDateString(sDate?.value)"
@@ -90,7 +94,7 @@
                         tabindex="3"
                         disabled
                     />
-                    <label>Start Date</label>
+                    <label for="date">Start Date</label>
                 </div>
             </div>
 
@@ -98,6 +102,7 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
+                        id="simulation_period"
                         type="number"
                         class="form-control"
                         formControlName="simulationPeriod"
@@ -111,7 +116,7 @@
                         }"
                         tabindex="4"
                     />
-                    <label>Simulation period</label>
+                    <label for="simulation_period">Simulation period</label>
                 </div>
             </div>
 
@@ -119,6 +124,7 @@
             <div class="col-auto">
                 <div class="form-floating mb-3">
                     <select
+                        id="time_step"
                         class="form-select"
                         formControlName="timeStep"
                         [ngClass]="{
@@ -134,7 +140,7 @@
                         <option value="8760">60 min</option>
                         <option value="15">15 min</option>
                     </select>
-                    <label>Time Step</label>
+                    <label for="time_step">Time Step</label>
                 </div>
             </div>
         </div>

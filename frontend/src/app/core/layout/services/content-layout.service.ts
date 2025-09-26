@@ -11,8 +11,6 @@ export class ContentLayoutService {
     fullscreenStatus: Observable<boolean | undefined> =
         this._fullscreenStatus.asObservable();
 
-    constructor() {}
-
     setScreenFull(status: boolean) {
         this._fullscreenStatus.next(status);
     }
