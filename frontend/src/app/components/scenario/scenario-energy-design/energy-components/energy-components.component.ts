@@ -16,7 +16,7 @@ export class EnergyComponentsComponent {
 
     @Input() components: any;
 
-    @Output('touchEnd') touchEnd: EventEmitter<any> = new EventEmitter();
+    @Output() touchEnd = new EventEmitter<any>();
 
     _touchEnd(e: any) {
         this.touchEnd.emit(e);

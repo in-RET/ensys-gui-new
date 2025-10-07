@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -16,8 +16,8 @@ export interface OrderItem {
 }
 
 class OrderType {
-    id: number = -1;
-    name: string = '';
+    id = -1;
+    name = '';
 }
 
 @Component({
@@ -26,9 +26,9 @@ class OrderType {
     templateUrl: './order-list.component.html',
     styleUrl: './order-list.component.scss',
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit {
     selectedItem!: number | null;
-    editableMode: boolean = false;
+    editableMode = false;
     message!: { type: 'error'; txt: string } | null;
 
     form!: FormGroup;
@@ -45,11 +45,11 @@ export class OrderListComponent {
 
     @Input() fields!: ('name' | 'num' | 'typ')[];
     @Input() label!: string;
-    @Input() editable: boolean = true;
+    @Input() editable = true;
 
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;
-    @Input() acceptDuplicate: boolean = true;
+    @Input() acceptDuplicate = true;
 
     private _data!: OrderItem[];
     @Input() set data(value: OrderItem[] | null) {
@@ -141,9 +141,11 @@ export class OrderListComponent {
 
     selectItem(id: number) {
         if (!this.editableMode && this.editable) {
-            id === this.selectedItem
-                ? (this.selectedItem = null)
-                : (this.selectedItem = id);
+            if (id === this.selectedItem) {
+                this.selectedItem = null;
+            } else {
+                this.selectedItem = id;
+            }
         }
     }
 
@@ -154,7 +156,9 @@ export class OrderListComponent {
 
         // decrease id
         this.data.forEach((element, index) => {
-            index > foundItemIndex ? (element.id -= 1) : null;
+            if (index > foundItemIndex) {
+                element.id -= 1;
+            }
         });
 
         this.data.splice(foundItemIndex, 1);
@@ -250,6 +254,7 @@ export class OrderListComponent {
     }
 
     moveItemUpDown(direction: 'down' | 'up') {
+        let element;
         switch (direction) {
             case 'down':
                 if (
@@ -263,7 +268,7 @@ export class OrderListComponent {
                     this.data[i].id += 1;
                     this.data[i + 1].id -= 1;
 
-                    var element = this.data[i];
+                    element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i + 1, 0, element);
 
@@ -280,7 +285,7 @@ export class OrderListComponent {
                     this.data[i].id -= 1;
                     this.data[i - 1].id += 1;
 
-                    var element = this.data[i];
+                    element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i - 1, 0, element);
 

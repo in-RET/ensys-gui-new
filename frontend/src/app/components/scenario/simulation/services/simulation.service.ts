@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { BaseHttpService } from '../../../../core/base-http/base-http.service';
@@ -10,7 +10,7 @@ import { SimulationResModel } from '../models/simulation.model';
 })
 export class SimulationService {
     private baseUrl: string = environment.apiUrl + 'simulation';
-    constructor(private baseHttp: BaseHttpService) {}
+    baseHttp = inject(BaseHttpService);
 
     getSimulations(scenarioId: number) {
         return this.baseHttp.get(`${this.baseUrl}s/${scenarioId}`);

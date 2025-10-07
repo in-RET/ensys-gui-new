@@ -1,9 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { environment } from '../../../../environments/environment';
-import { AlertService } from '../../../shared/services/alert.service';
+import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {environment} from '../../../../environments/environment';
+import {AlertService} from '../../../shared/services/alert.service';
 // import Plotly from 'plotly.js';
 declare const Plotly: any;
 
@@ -19,8 +19,7 @@ export class SimulationComponent implements OnInit {
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
-
-    constructor(private http: HttpClient) {}
+    http = inject(HttpClient);
 
     ngOnInit() {
         this.loading = true;

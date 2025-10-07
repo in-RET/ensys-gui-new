@@ -11,9 +11,9 @@ import { ScenarioService } from '../../services/scenario.service';
     styleUrl: './scenario-footer.component.scss',
 })
 export class ScenarioFooterComponent {
-    @Input('step') step!: number;
-    @Input('scenarioData') scenarioData!: ScenarioBaseInfoModel;
-    @Input('isScenarioNew') isScenarioNew!: boolean;
+    @Input() step!: number;
+    @Input() scenarioData!: ScenarioBaseInfoModel;
+    @Input() isScenarioNew!: boolean;
 
     @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
     @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();

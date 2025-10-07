@@ -1,18 +1,11 @@
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Output,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import Drawflow, { DrawflowNode } from 'drawflow';
-import { AlertService } from '../../../../shared/services/alert.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { ScenarioService } from '../../services/scenario.service';
-import { FormComponent } from '../form/form.component';
-import { ModalComponent } from '../modal/modal.component';
+import {CommonModule} from '@angular/common';
+import {AfterViewInit, Component, ElementRef, EventEmitter, inject, Output, Renderer2, ViewChild,} from '@angular/core';
+import Drawflow, {DrawflowNode} from 'drawflow';
+import {AlertService} from '../../../../shared/services/alert.service';
+import {ToastService} from '../../../../shared/services/toast.service';
+import {ScenarioService} from '../../services/scenario.service';
+import {FormComponent} from '../form/form.component';
+import {ModalComponent} from '../modal/modal.component';
 
 @Component({
     selector: 'app-energy-drawflow',
@@ -20,9 +13,9 @@ import { ModalComponent } from '../modal/modal.component';
     templateUrl: './energy-drawflow.component.html',
     styleUrl: './energy-drawflow.component.scss',
 })
-export class EnergyDrawflowComponent {
+export class EnergyDrawflowComponent implements AfterViewInit {
     editor!: Drawflow;
-    flowZoom: number = 1;
+    flowZoom = 1;
 
     // form
     formData!: any;
@@ -30,8 +23,8 @@ export class EnergyDrawflowComponent {
         msg: '',
         isShow: false,
     };
-    seelctedConnection: any = { title: '' };
-    ASSET_TYPE_NAME: string = 'asset_type_name';
+    seelctedConnection: any = {title: ''};
+    ASSET_TYPE_NAME = 'asset_type_name';
 
     selected_nodeId: any;
     selected_flowId: any;
@@ -46,23 +39,20 @@ export class EnergyDrawflowComponent {
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
 
-    @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
-    @Output('showFormModal_node') showFormModal_node = new EventEmitter();
-    @Output('showFormModal_flow') showFormModal_flow = new EventEmitter();
-    @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
-    @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
+    @Output('_drop') drop = new EventEmitter<any>();
+    @Output() showFormModal_node = new EventEmitter();
+    @Output() showFormModal_flow = new EventEmitter();
+    @Output() toggleFullScreen = new EventEmitter<any>();
+    @Output('touchEnd') _touchEnd = new EventEmitter<any>();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild('contextMenu') contextMenuRef!: ElementRef<HTMLDivElement>;
 
-    constructor(
-        private scenarioService: ScenarioService,
-        private renderer: Renderer2,
-        private alertService: AlertService,
-        private toastService: ToastService
-    ) {}
 
-    ngOnInit() {}
+    scenarioService = inject(ScenarioService);
+    renderer = inject(Renderer2);
+    alertService = inject(AlertService);
+    toastService = inject(ToastService);
 
     ngAfterViewInit() {
         setTimeout(() => {
@@ -188,7 +178,7 @@ export class EnergyDrawflowComponent {
     }
 
     connectionMagneticSnap() {
-        let isConnecting: boolean = false;
+        let isConnecting = false;
         let snapSource: any = null;
         let snapTarget: any = null;
         let ports_all: NodeListOf<Element>;
@@ -472,7 +462,7 @@ export class EnergyDrawflowComponent {
                 // input_id = 1
                 // output_class ...
                 // output_id ...
-                let newConnection: {
+                const newConnection: {
                     input_class: string;
                     input_id: string;
                     output_class: string;
@@ -501,9 +491,11 @@ export class EnergyDrawflowComponent {
         //     // this.touchHolding(e);
         // }, 500);
     }
+
     touchEnd() {
         if (this.touchTimer) clearTimeout(this.touchTimer);
     }
+
     touchHolding(e: any) {
         const closestNode = e.target.closest('.drawflow-node');
         const closestEdge = e.target.closest('.main-path');
@@ -530,7 +522,7 @@ export class EnergyDrawflowComponent {
 
         this.showFormModal_node.emit({
             title: `${nodeName}`,
-            action: { fn: 'submitFormData', label: 'Save' },
+            action: {fn: 'submitFormData', label: 'Save'},
             editMode: false,
             node: {
                 type: nodeType,
@@ -544,7 +536,7 @@ export class EnergyDrawflowComponent {
     }
 
     loadCurrentDrawflow() {
-        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
+        const CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
 
         if (CURRENT_DRAWFLOW) {
             const dataToImport = {
@@ -567,22 +559,22 @@ export class EnergyDrawflowComponent {
         if (type == 'x')
             return (
                 position *
-                    (this.editor.precanvas.clientWidth /
-                        (this.editor.precanvas.clientWidth *
-                            this.editor.zoom)) -
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth *
+                        this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().x *
-                    (this.editor.precanvas.clientWidth /
-                        (this.editor.precanvas.clientWidth * this.editor.zoom))
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth * this.editor.zoom))
             );
         else if (type == 'y')
             return (
                 position *
-                    (this.editor.precanvas.clientHeight /
-                        (this.editor.precanvas.clientHeight *
-                            this.editor.zoom)) -
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight *
+                        this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().y *
-                    (this.editor.precanvas.clientHeight /
-                        (this.editor.precanvas.clientHeight * this.editor.zoom))
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight * this.editor.zoom))
             );
         else return false;
     }
@@ -654,7 +646,7 @@ export class EnergyDrawflowComponent {
     }
 
     updateNode(nodeId: number, nodeType: string, data: any) {
-        let currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
+        const currentNode = this.editor.drawflow.drawflow.Home.data[nodeId];
 
         currentNode.name = data.name;
         currentNode.html = `
@@ -672,7 +664,7 @@ export class EnergyDrawflowComponent {
 
         if (nodeType === 'transformer') {
             // remove/reorder port if it changed
-            this.updatePortsAfterEdit({ ...currentNode }, data);
+            this.updatePortsAfterEdit({...currentNode}, data);
         }
 
         this.editor.dispatch('nodeDataChanged', nodeId);
@@ -681,10 +673,10 @@ export class EnergyDrawflowComponent {
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
         currentNode.inputs = Object.entries(currentNode.inputs).map(
-            ([name]) => ({ name })
+            ([name]) => ({name})
         );
         currentNode.outputs = Object.entries(currentNode.outputs).map(
-            ([name]) => ({ name })
+            ([name]) => ({name})
         );
 
         const syncPorts = (original: any, modified: any, isInput: boolean) => {
@@ -721,9 +713,9 @@ export class EnergyDrawflowComponent {
     }
 
     connectionCreated(connection: any) {
-        var nodeIn = this.editor.getNodeFromId(connection['input_id']);
-        var nodeOut = this.editor.getNodeFromId(connection['output_id']);
-        let followRules = this.checkRules(connection, nodeIn, nodeOut);
+        const nodeIn = this.editor.getNodeFromId(connection['input_id']);
+        const nodeOut = this.editor.getNodeFromId(connection['output_id']);
+        const followRules = this.checkRules(connection, nodeIn, nodeOut);
 
         const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
 
@@ -751,7 +743,7 @@ export class EnergyDrawflowComponent {
             this.showFormModal_flow.emit({
                 id: node.class.toLocaleLowerCase(),
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
-                action: { fn: 'submitFormData', label: 'save' },
+                action: {fn: 'submitFormData', label: 'save'},
                 editMode: false,
                 data: {
                     connection: connection,
@@ -766,10 +758,10 @@ export class EnergyDrawflowComponent {
     }
 
     checkRules(connection: any, nodeIn: any, nodeOut: any) {
-        let rule_1 = this.isConnectionThroughBus(nodeIn, nodeOut);
+        const rule_1 = this.isConnectionThroughBus(nodeIn, nodeOut);
 
         if (rule_1) {
-            let rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
+            const rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
 
             if (rule_3) {
                 return true;
@@ -838,7 +830,8 @@ export class EnergyDrawflowComponent {
         );
     }
 
-    investFieldsToggleVisible() {}
+    investFieldsToggleVisible() {
+    }
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
@@ -875,7 +868,7 @@ export class EnergyDrawflowComponent {
                         id: node.class.toLocaleLowerCase(),
                         node: node,
                         title: `Edit: ${node.name}`,
-                        action: { fn: 'submitFormData', label: 'Update' },
+                        action: {fn: 'submitFormData', label: 'Update'},
                         editMode: true,
                         data: node.data,
                         _id: this.contextmenu.nodeId,
@@ -886,15 +879,15 @@ export class EnergyDrawflowComponent {
                 const source_connectionList =
                     this.editor.drawflow.drawflow.Home.data[
                         connection.source.node.id
-                    ].data['connections'];
+                        ].data['connections'];
                 const out_connectionList = source_connectionList['outputs'];
                 const outIndex = out_connectionList.findIndex(
                     (out: any) =>
                         out.hasOwnProperty(connection.source.port.id) &&
                         out[connection.source.port.id].baseInfo.input_id ==
-                            connection.destination.node.id &&
+                        connection.destination.node.id &&
                         out[connection.source.port.id].baseInfo.input_class ==
-                            connection.destination.port.id
+                        connection.destination.port.id
                 );
                 const _connectionData: { baseInfo: any; formInfo: any } =
                     out_connectionList[outIndex][connection.source.port.id];
@@ -916,7 +909,7 @@ export class EnergyDrawflowComponent {
                 this.showFormModal_flow.emit({
                     id: node.class.toLocaleLowerCase(),
                     title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
-                    action: { fn: 'submitFormData', label: 'save' },
+                    action: {fn: 'submitFormData', label: 'save'},
                     editMode: true,
                     data: _connectionData.formInfo,
                     node: node,
@@ -965,8 +958,8 @@ export class EnergyDrawflowComponent {
 
         if (nodeId) {
             const currentNode = this.editor.getNodeFromId(nodeId);
-            let nodeConnections_in: any[] = [];
-            let nodeConnections_out: any[] = [];
+            const nodeConnections_in: any[] = [];
+            const nodeConnections_out: any[] = [];
 
             if (currentNode.data.ports.inputs)
                 currentNode.data.ports.inputs.forEach(
@@ -978,7 +971,7 @@ export class EnergyDrawflowComponent {
                         if (currentNode.inputs[currentNode_input.code])
                             currentNode.inputs[
                                 currentNode_input.code
-                            ].connections.forEach(
+                                ].connections.forEach(
                                 (input_conn: {
                                     input: string;
                                     node: string;
@@ -1031,7 +1024,7 @@ export class EnergyDrawflowComponent {
                         if (currentNode.outputs[currentNode_output.code])
                             currentNode.outputs[
                                 currentNode_output.code
-                            ].connections.forEach((output_conn: any) => {
+                                ].connections.forEach((output_conn: any) => {
                                 const destionationNode =
                                     this.editor.getNodeFromId(output_conn.node);
 
@@ -1160,15 +1153,15 @@ export class EnergyDrawflowComponent {
         const out_connections =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-            ];
+                ];
 
         if (!out_connections) {
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
                 {
                     ...this.editor.drawflow.drawflow.Home.data[
                         connection.output_id
-                    ].data,
-                    connections: { outputs: [], inputs: [] },
+                        ].data,
+                    connections: {outputs: [], inputs: []},
                 };
         } else if (!out_connections['outputs']) {
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
@@ -1182,7 +1175,7 @@ export class EnergyDrawflowComponent {
         const CurrentConnections_Out: any[] =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-            ]['outputs'];
+                ]['outputs'];
 
         if (!editMode) {
             CurrentConnections_Out.push({
@@ -1196,36 +1189,36 @@ export class EnergyDrawflowComponent {
                 (out: any) =>
                     out.hasOwnProperty(connection.output_class) &&
                     out[connection.output_class].baseInfo.input_id ==
-                        connection.input_id
+                    connection.input_id
             );
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-            ]['outputs'][outIndex][connection.output_class].formInfo = data;
+                ]['outputs'][outIndex][connection.output_class].formInfo = data;
         }
 
         this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
             'connections'
-        ]['outputs'] = CurrentConnections_Out;
+            ]['outputs'] = CurrentConnections_Out;
 
         // --------------------In------------------------
         if (
             !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-            ]
+                ]
         ) {
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
                 {
                     ...this.editor.drawflow.drawflow.Home.data[
                         connection.input_id
-                    ].data,
-                    connections: { outputs: [], inputs: [] },
+                        ].data,
+                    connections: {outputs: [], inputs: []},
                 };
         }
 
         if (
             !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-            ]['inputs']
+                ]['inputs']
         ) {
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
                 {
@@ -1237,7 +1230,7 @@ export class EnergyDrawflowComponent {
         const CurrentConnections_In: any[] =
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-            ]['inputs'];
+                ]['inputs'];
 
         if (!editMode) {
             CurrentConnections_In.push({
@@ -1251,16 +1244,16 @@ export class EnergyDrawflowComponent {
                 (inp: any) =>
                     inp.hasOwnProperty(connection.input_class) &&
                     inp[connection.input_class].baseInfo.output_id ==
-                        connection.output_id
+                    connection.output_id
             );
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-            ]['inputs'][inIndex][connection.input_class].formInfo = data;
+                ]['inputs'][inIndex][connection.input_class].formInfo = data;
         }
 
         this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
             'connections'
-        ]['inputs'] = CurrentConnections_In;
+            ]['inputs'] = CurrentConnections_In;
 
         this.saveCurrentDrawflow();
     }
@@ -1313,35 +1306,35 @@ export class EnergyDrawflowComponent {
         const in_connectionList =
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-            ];
+                ];
         const in_connectionsList: any[] = in_connectionList['inputs'];
         const inIndex = in_connectionsList.findIndex(
             (inp: any) =>
                 inp.hasOwnProperty(connection.input_class) &&
                 inp[connection.input_class].baseInfo.output_id ==
-                    connection.output_id
+                connection.output_id
         );
 
         this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
             'connections'
-        ]['inputs'].splice(inIndex, 1);
+            ]['inputs'].splice(inIndex, 1);
 
         //----------------------- outputs -----------------------
         const out_connectionList =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-            ];
+                ];
         const out_connectionsList: any[] = out_connectionList['outputs'];
         const outIndex = out_connectionsList.findIndex(
             (out: any) =>
                 out.hasOwnProperty(connection.output_class) &&
                 out[connection.output_class].baseInfo.input_id ==
-                    connection.input_id
+                connection.input_id
         );
 
         this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
             'connections'
-        ]['outputs'].splice(outIndex, 1);
+            ]['outputs'].splice(outIndex, 1);
     }
 
     getData() {
@@ -1351,7 +1344,8 @@ export class EnergyDrawflowComponent {
 }
 
 class Drawflowoverride extends Drawflow {
-    removeConnection(e: any) {}
+    removeConnection(e: any) {
+    }
 }
 
 //  onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {

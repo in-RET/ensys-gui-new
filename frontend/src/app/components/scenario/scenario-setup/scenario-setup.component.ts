@@ -176,6 +176,12 @@ export class ScenarioSetupComponent implements OnInit {
     }
 
     unixToDateString(unix: number): string {
-        return new Date(unix * 1000).toISOString().slice(0, 10);
+        if (unix) {
+            return new Date(unix * 1000).toISOString().slice(0, 10);
+        } else {
+            // TODO: fix this
+            const ret_date = '01/02/' + this.simulationYear?.value;
+            return new Date(ret_date).toISOString().slice(0, 10);
+        }
     }
 }
