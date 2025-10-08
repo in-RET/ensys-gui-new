@@ -1,12 +1,10 @@
-from datetime import date, datetime
+from datetime import datetime
 from typing import Annotated
 
 from pydantic import BaseModel
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
-
-from ensys.components.energysystem import EnEnergysystem
 
 
 class EnScenario(BaseModel):
@@ -97,7 +95,6 @@ class EnScenarioDB(SQLModel, table=True):
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
-    is_template: bool = Field(default=False)
 
     def model_dump(self, *args, **kwargs):
         data = super().model_dump(*args, **kwargs)

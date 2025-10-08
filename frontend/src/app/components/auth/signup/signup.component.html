@@ -263,10 +263,7 @@
             Sign up
         </button>
         <div class="mt-1 text-danger" *ngIf="errorList">
-            Errors:
-            <ul>
-                <li *ngFor="let error of errorList">{{ error }}</li>
-            </ul>
+            <p *ngFor="let error of errorList">{{ error }}</p>
         </div>
 
         <div class="signup-frame__subheading">

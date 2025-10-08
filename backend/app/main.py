@@ -2,8 +2,8 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
@@ -12,6 +12,7 @@ from .project.router import projects_router
 from .results.router import results_router
 from .scenario.router import scenario_router
 from .simulation.router import simulation_router
+from .templates.router import templates_router
 from .user.router import users_router
 
 tags_metadata = [
@@ -42,6 +43,10 @@ tags_metadata = [
     {
         "name": "results",
         "description": "Get results."
+    },
+    {
+        "name": "templates",
+        "description": "Manage templates."
     }
 ]
 
@@ -73,22 +78,20 @@ templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 origins = [
     "http://localhost:9004",
-    "http://localhost:20001",
-    "http://localhost:20002",
     "https://ensys.hs-nordhausen.de",
     "http://surak.hs-nordhausen.de:9004",
-    "http://surak.hs-nordhausen.de:20001",
 ]
 
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router]
+routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router,
+           templates_router]
 for router in routers:
     fastapi_app.include_router(
         router=router

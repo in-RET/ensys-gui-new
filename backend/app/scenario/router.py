@@ -304,7 +304,6 @@ def __duplicate_scenario__(scenario_id: int, db, new_project_id: int | None = No
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
 
-
     new_scenario_data = db_scenario.model_dump()
 
     if new_project_id is None:

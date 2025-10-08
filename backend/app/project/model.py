@@ -32,6 +32,7 @@ class EnProject(BaseModel):
     longitude: float = Field(nullable=True)
     latitude: float = Field(nullable=True)
     is_favorite: bool = Field(default=False)
+    # is_template: bool = Field(default=False)
 
 
 class EnProjectDB(SQLModel, table=True):
@@ -63,6 +64,7 @@ class EnProjectDB(SQLModel, table=True):
     date_created: datetime = Field()
     date_updated: datetime | None = Field(default=None, nullable=True)
     is_favorite: bool = Field(default=False)
+    is_template: bool = Field(default=False)
 
     def model_dump(self, *args, **kwargs):
         model_dump_data = super().model_dump(
@@ -107,3 +109,4 @@ class EnProjectUpdate(BaseModel):
     longitude: float | None = Field(default=None, nullable=True)
     latitude: float | None = Field(default=None, nullable=True)
     is_favorite: bool | None = Field(default=False, nullable=True)
+    # is_template: bool | None = Field(default=False, nullable=True)

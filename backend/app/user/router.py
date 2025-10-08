@@ -17,6 +17,7 @@ from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
 from ..security import decode_token, oauth2_scheme, token_secret
+from ..templates.router import create_getting_started_project
 
 templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
@@ -100,7 +101,7 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         - If the email is already in use (HTTP status 409).
         - If user registration fails due to an unknown issue (HTTP status 404).
     """
-    # Test against same username
+    # Test against the same username
     statement = select(EnUserDB).where(EnUserDB.username == user.username.lower())
     results = db.exec(statement).first()
 
@@ -125,6 +126,13 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
 
     token = jwt.encode(db_user.get_token_information(), token_secret, algorithm="HS256")
     print(f"Token: {token}")
+
+    if db_user.id is not None:
+        response = await create_getting_started_project(
+            token=token,
+            db=db
+        )
+        print(f"{response}")
 
     # TODO: Rework after releasen of 0.1.0
     asyncio.create_task(send_mail(token=token, user=db_user))

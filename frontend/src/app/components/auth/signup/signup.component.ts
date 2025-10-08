@@ -55,10 +55,10 @@ export class SignupComponent {
         return this.form.get('consentOpt');
     }
 
-    errorList!: { messge: string }[];
+    errorList: string[] = [];
 
-    constructor(private authService: AuthService, private router: Router) {
-    }
+    authService = inject(AuthService);
+    router = inject(Router);
 
     signup() {
         this.authService
@@ -70,7 +70,7 @@ export class SignupComponent {
                 this.email?.value
             )
             .subscribe({
-                next: (value: any) => {
+                next: () => {
                     this.goLogin();
                 },
 
@@ -78,11 +78,7 @@ export class SignupComponent {
                     console.error(err);
 
                     if (err.error.detail) {
-                        this.errorList = [];
-
-                        err.error.detail.forEach((element: any) => {
-                            this.errorList.push(element.msg);
-                        });
+                        this.errorList.push(err.error.detail);
                     }
                 },
             });
