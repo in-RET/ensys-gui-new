@@ -1,64 +1,64 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { catchError, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ScenarioService } from '../../scenario/services/scenario.service';
 import { ProjectModel, ProjectResModel } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
-import {FooterComponent} from '../../../core/layout/footer/footer.component';
 
 @Component({
     selector: 'app-project-explore',
-    imports: [CommonModule, RouterLink, ProjectItemComponent, FooterComponent],
+    imports: [CommonModule, RouterLink, ProjectItemComponent],
     templateUrl: './project-explore.component.html',
     styleUrl: './project-explore.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
 
+    projects$ = this.projectService
+        .getProjects()
+        .pipe(
+            map((res: ResModel<ProjectResModel>) => {
+                if (res.success) return (res.data as ResDataModel<ProjectResModel>).items as ProjectModel[];
+                throw new Error('Unknown API error');
+            }),
+            catchError((err) => {
+                console.error(err);
+                this.toastService.error('Failed to load projects.');
+                return of([] as ProjectModel[]);
+            }),
+            shareReplay({ bufferSize: 1, refCount: true })
+        );
+
     toastService = inject(ToastService);
-    projectService = inject(ProjectService)
-    scenarioService = inject(ScenarioService)
+    projectService = inject(ProjectService);
+    scenarioService = inject(ScenarioService);
 
     ngOnInit() {
-        this.getProjects();
+        // Initialize storage cleanup on enter
         this.clearScenarioDataStorage();
+        // Prime local list cache
+        this.projects$.subscribe((items) => (this.project_list = items));
     }
 
-    getProjects() {
-        this.projectService
-            .getProjects()
-            .pipe(
-                map((res: ResModel<ProjectResModel>) => {
-                    if (res.success) return res.data;
-                    throw new Error('Unknown API error');
-                })
-            )
-            .subscribe({
-                next: (val: ResDataModel<ProjectResModel>) => {
-                    this.project_list = val.items;
-                },
-
-                error: (err) => {
-                    console.error(err);
-                },
-            });
-    }
+    trackByProjectId = (_: number, item: ProjectModel) => item.id;
 
     deleteProject(id: number) {
         this.projectService.deleteProject(id).subscribe({
             next: (value) => {
                 if (value.success) {
-                    this.project_list.splice(
-                        this.project_list.findIndex((x) => x.id == id),
-                        1
-                    );
+                    // Immutable update to work well with OnPush
+                    this.project_list = this.project_list.filter((p) => p.id !== id);
                 }
             },
-            error(err) {},
+            error: (err) => {
+                console.error(err);
+                this.toastService.error('Failed to delete project.');
+            },
         });
     }
 
@@ -72,12 +72,28 @@ export class ProjectExploreComponent implements OnInit {
         this.projectService.duplicateProject(id).subscribe({
             next: (value) => {
                 if (value.success) {
-                    this.getProjects();
+                    // Reload projects after duplication
+                    this.projects$ = this.projectService
+                        .getProjects()
+                        .pipe(
+                            map((res: ResModel<ProjectResModel>) => {
+                                if (res.success)
+                                    return (res.data as ResDataModel<ProjectResModel>).items as ProjectModel[];
+                                throw new Error('Unknown API error');
+                            }),
+                            catchError((err) => {
+                                console.error(err);
+                                this.toastService.error('Failed to load projects.');
+                                return of([] as ProjectModel[]);
+                            }),
+                            shareReplay({ bufferSize: 1, refCount: true })
+                        );
+                    this.projects$.subscribe((items) => (this.project_list = items));
                 } else this.toastService.error('An error occured.');
             },
             error: (err) => {
                 this.toastService.error(err);
-            }
-        })
+            },
+        });
     }
 }

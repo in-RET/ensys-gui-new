@@ -2,18 +2,50 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.responses import HTMLResponse, JSONResponse
 
 from .admin.router import admin_router
+from .core.config import get_settings
+from .db import engine
 from .oep.router import oep_router
-from .project.router import projects_router
-from .results.router import results_router
-from .scenario.router import scenario_router
-from .simulation.router import simulation_router
-from .templates.router import templates_router
-from .user.router import users_router
+from .project import projects_router
+from .results import results_router
+from .scenario import scenario_router
+from .simulation import simulation_router
+from .templates import templates_router
+from .user import users_router
+
+"""
+EnSys GUI Backend Application
+============================
+
+This module serves as the main entry point for the EnSys GUI backend application.
+It configures the FastAPI application, sets up middleware, and includes all routers.
+
+The application provides REST API endpoints for:
+    - User management and authentication
+    - Project handling
+    - Scenario management
+    - Simulation control
+    - Results retrieval
+    - Template management
+    - Administrative functions
+
+Configuration
+------------
+The application uses environment variables for configuration, managed through the
+settings module. See core.config for details.
+
+API Documentation
+---------------
+Once running, the API documentation is available at:
+    - /docs (Swagger UI)
+    - /redoc (ReDoc)
+"""
 
 tags_metadata = [
     {
@@ -50,8 +82,10 @@ tags_metadata = [
     }
 ]
 
+_settings = get_settings()
+
 fastapi_app = FastAPI(
-    root_path="/api",
+    root_path=_settings.root_path,
     title="EnSys Backend",
     summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
@@ -65,30 +99,22 @@ fastapi_app = FastAPI(
         "identifier": "aGPL",
     },
     openapi_tags=tags_metadata,
-    servers=[
-        {"url": "http://localhost:20002", "description": "Development environment"},
-        {"url": "http://localhost:9004", "description": "Production Test environment"},
-        {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
-    ],
-    root_path_in_servers=False
+    default_response_class=ORJSONResponse,
 )
 
 fastapi_app.mount("/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static")
 templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
-origins = [
-    "http://localhost:9004",
-    "https://ensys.hs-nordhausen.de",
-    "http://surak.hs-nordhausen.de:9004",
-]
-
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=_settings.cors_origins,
+    allow_credentials=_settings.allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Enable gzip compression for larger responses to reduce bandwidth
+fastapi_app.add_middleware(GZipMiddleware, minimum_size=1024)
 
 routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router,
            templates_router]
@@ -96,6 +122,21 @@ for router in routers:
     fastapi_app.include_router(
         router=router
     )
+
+
+@fastapi_app.get("/health", tags=["default"])
+async def health():
+    return {"status": "ok"}
+
+
+@fastapi_app.get("/readiness", tags=["default"])
+async def readiness():
+    try:
+        with engine.connect() as conn:
+            conn.exec_driver_sql("SELECT 1")
+        return {"status": "ready"}
+    except Exception as ex:  # noqa: BLE001
+        return JSONResponse(status_code=503, content={"status": "unready", "detail": str(ex)})
 
 
 @fastapi_app.get("/")
@@ -116,26 +157,3 @@ async def root(request: Request):
         request=request,
         name="main_response.html"
     )
-
-# @app.exception_handler(CustomException)
-# async def custom_exceptions_handler(request: Request, exc: CustomException):
-#     return CustomResponse(
-#         data=None,
-#         success=False,
-#         errors=[ErrorModel(
-#             code=exc.code,
-#             message=exc.message
-#         )]
-#     )
-
-# @app.exception_handler(RequestValidationError)
-# async def validation_exception_handler(request: Request, exc: RequestValidationError):
-#     #print(exc.errors())
-#     return CustomResponse(
-#         data=None,
-#         success=False,
-#         errors=[ErrorModel(
-#             code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#             message=repr(exc.errors())
-#         )]
-#     )

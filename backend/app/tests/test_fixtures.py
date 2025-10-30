@@ -2,7 +2,7 @@ import pytest
 from jose import jwt
 from sqlmodel import Session, select
 
-from backend.app.db import db_engine
+from backend.app.db import get_db_session
 from backend.app.main import fastapi_app
 from backend.app.security import token_secret
 from backend.app.user.model import EnUser, EnUserDB
@@ -33,7 +33,7 @@ def get_test_user():
 
 @pytest.fixture
 def get_test_user_db():
-    db = Session(db_engine)
+    db: Session = get_db_session()
 
     statement = select(EnUserDB).where(EnUserDB.username == TEST_USER_DATA["username"])
     db_user = db.exec(statement).first()

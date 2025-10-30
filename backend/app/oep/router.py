@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, Path
 from oep_client.oep_client import OepClient
 from starlette import status
 
-from ..data.model import GeneralDataModel
-from ..responses import DataResponse
+from . import get_oep_client
+from ..models import DataResponse, GeneralDataModel
 from ..security import oauth2_scheme
 from ..types import oemofBlockTypes, oepTypes, oepTypesData
 
@@ -15,28 +15,6 @@ oep_router = APIRouter(
     prefix="/oep",
     tags=["oep"],
 )
-
-
-def get_oep_client():
-    """
-    Provides a generator function to yield an instance of the OepClient class.
-
-    This function accesses environment variables to retrieve the necessary
-    credentials and configurations required for creating an OepClient instance.
-    It uses `os.getenv` to get the `OEP_TOKEN` and `OEP_TOPIC` values for
-    authentication and topic management, respectively. The OepClient instance is
-    yielded, allowing the caller to manage resources appropriately.
-
-    :return:
-        OepClient: A generator that yields an instance of the OepClient class
-        configured with a token and a default schema retrieved from the
-        environment variables.
-    :rtype: OepClient
-    """
-    yield OepClient(
-        token=os.getenv("OEP_TOKEN"),
-        default_schema=os.getenv("OEP_TOPIC")
-    )
 
 
 @oep_router.get("/{table_name}")

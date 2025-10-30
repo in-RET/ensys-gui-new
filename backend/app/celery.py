@@ -1,76 +1,123 @@
+"""
+Celery Task Configuration and Management
+======================================
+
+This module configures and manages Celery tasks for the EnSys application,
+particularly focusing on energy system simulations and optimizations.
+
+The module provides:
+    - Celery application configuration
+    - Prometheus metrics for task monitoring
+    - Logging setup for task execution
+    - Core simulation task implementation
+"""
+
+# Standard Library
 import json
 import logging
 import os
 import pathlib
 from datetime import datetime
 
+# Third Party
 from celery import Celery
 from celery.signals import after_setup_logger
 from celery.utils.log import get_task_logger
 from fastapi import HTTPException
 from oemof import solph
 from prometheus_client import Counter, Gauge
-from sqlalchemy import create_engine
-from sqlmodel import Session
+from sqlalchemy.exc import IntegrityError
+from starlette import status
 
+# Local Application
 from ensys.components import EnModel
 from .auxillary import convert_gui_json_to_ensys
+from .core.config import get_settings
+from .db import SessionLocal
 from .scenario.model import EnScenarioDB
 from .simulation.model import EnSimulationDB, Status
 
+_settings = get_settings()
+
 celery_app = Celery(
     "Sellerie",
-    broker=f"redis://redis:{os.getenv("REDIS_PORT")}",
-    backend=f"redis://redis:{os.getenv("REDIS_PORT")}",
+    broker=_settings.redis_url,
+    backend=_settings.redis_url,
 )
 
-task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
-task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
+# Prometheus metrics for monitoring
+task_counter = Counter("celery_tasks_total", "Total number of Celery tasks")
+task_in_progress = Gauge(
+    "celery_tasks_in_progress", "Number of Celery tasks in progress"
+)
 
 logger = logging.getLogger(__name__)
 
+
 @after_setup_logger.connect
 def setup_loggers(logger, *args, **kwargs):
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    """
+    Configure logging for Celery tasks.
 
-    # add filehandler
-    fh = logging.FileHandler(os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), "celery.log")))
+    Sets up file-based logging with detailed formatting for debugging and monitoring
+    task execution.
+
+    :param logger: The logger instance to configure
+    :type logger: logging.Logger
+    :param args: Additional positional arguments
+    :param kwargs: Additional keyword arguments
+    """
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+
+    fh = logging.FileHandler(
+        os.path.abspath(os.path.join(_settings.local_datadir, "celery.log"))
+    )
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
 
+def start_task(simulation: EnSimulationDB):
+    # Start Celery task
+    task = simulation_task.apply_async(
+        (simulation.scenario_id, simulation.id), task_id=simulation.sim_token
+    )
+
+    return task
+
+
 @celery_app.task(name="ensys.optimization")
 def simulation_task(scenario_id: int, simulation_id: int):
     """
-    Perform simulation task including data preparation, energy system creation, optimization,
-    and result processing.
+    Execute an energy system optimization simulation task.
 
-    This function is a Celery task that interacts with a database to fetch simulation and
-    scenario data. It creates an energy system model, optimizes using the oemof library,
-    processes the results, and updates the database with the results of the simulation.
+    This task performs a complete energy system simulation workflow:
+        1. Loads scenario and simulation data from the database
+        2. Prepares the energy system model
+        3. Runs the optimization
+        4. Processes and stores results
+        5. Updates simulation status
 
-    Detailed actions performed by the function include:
-    - Fetching scenario and simulation details from the database.
-    - Preparing necessary directory structures and dumping input data.
-    - Configuring and initializing the oemof energy system.
-    - Solving an optimization model using specified solver parameters.
-    - Writing optimization results to files for further analysis.
-    - Updating the status of the simulation task in the database.
-
-    :param scenario_id: Identifier of the scenario to be simulated.
+    :param scenario_id: Database ID of the scenario to simulate
     :type scenario_id: int
-    :param simulation_id: Identifier of the simulation instance.
+    :param simulation_id: Database ID of the simulation record
     :type simulation_id: int
+    :raises HTTPException: If scenario or simulation data cannot be found
+    :return: Dictionary containing simulation results and status
+    :rtype: dict
 
-    :return: None
-    :rtype: NoneType
+    Note:
+        - The task updates simulation status in the database throughout execution
+        - Results are stored in the configured data directory
+        - Task execution is monitored via Prometheus metrics
     """
     try:
         task_counter.inc()
         task_in_progress.inc()
 
-        db = Session(create_engine(os.getenv("DATABASE_URL")))
+        db = SessionLocal()
 
         scenario = db.get(EnScenarioDB, scenario_id)
         simulation = db.get(EnSimulationDB, simulation_id)
@@ -78,16 +125,15 @@ def simulation_task(scenario_id: int, simulation_id: int):
         # create the necessary directories for dumping and logging
         sim_token = simulation.sim_token
 
-        dump_path = os.path.join(os.getenv("LOCAL_DATADIR"), sim_token, "dump")
-        log_path = os.path.join(os.getenv("LOCAL_DATADIR"), sim_token, "log")
+        dump_path = os.path.join(_settings.local_datadir, sim_token, "dump")
+        log_path = os.path.join(_settings.local_datadir, sim_token, "log")
         os.makedirs(dump_path, exist_ok=True)
         os.makedirs(log_path, exist_ok=True)
 
-        simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), sim_token))
-        os.makedirs(
-            name=simulation_folder,
-            exist_ok=True
+        simulation_folder = os.path.abspath(
+            os.path.join(_settings.local_datadir, sim_token)
         )
+        os.makedirs(name=simulation_folder, exist_ok=True)
 
         # Logger initialisieren
         logger = get_task_logger(__name__)
@@ -98,7 +144,9 @@ def simulation_task(scenario_id: int, simulation_id: int):
         # Datei-Handler zu Logger hinzufügen
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -113,9 +161,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         # Create Energysystem to be stored
         logger.info("create energysystem to be stored")
-        simulation_model = EnModel(
-            energysystem=converted_energy_system
-        )
+        simulation_model = EnModel(energysystem=converted_energy_system)
 
         with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:
             f.write(simulation_model.model_dump_json(indent=4))
@@ -133,8 +179,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         )
 
         oemof_es: solph.EnergySystem = solph.EnergySystem(
-            timeindex=timeindex,
-            infer_last_interval=False
+            timeindex=timeindex, infer_last_interval=False
         )
 
         oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
@@ -154,12 +199,12 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info("solve optimization model")
         oemof_model.solve(
             solver=str(simulation_model.solver.value),
-            #solve_kwargs={"tee": True},
+            # solve_kwargs={"tee": True},
             cmdline_opts={
                 "LogFile": gurobi_logfile,
                 "LogToConsole": 0,
-                "OutputFlag": 1
-            }
+                "OutputFlag": 1,
+            },
         )
 
         logger.info("simulation finished")
@@ -167,7 +212,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info("write lp file")
         oemof_model.write(
             filename=os.path.join(dump_path, "oemof_model.lp"),
-            io_options={"symbolic_solver_labels": True}
+            io_options={"symbolic_solver_labels": True},
         )
 
         logger.info("collect results")
@@ -175,15 +220,22 @@ def simulation_task(scenario_id: int, simulation_id: int):
         oemof_es.results["meta"] = solph.processing.meta_results(oemof_model)
 
         logger.info("dump results")
-        oemof_es.dump(
-            dpath=dump_path,
-            filename="oemof_es.dump"
-        )
+        oemof_es.dump(dpath=dump_path, filename="oemof_es.dump")
 
         logger.info("update database")
         simulation.status = Status.FINISHED.value
         simulation.end_date = datetime.now()
-        db.commit()
+
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            db.rollback()
+            # Generic handling; DB should ideally have unique constraints and proper messages
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Database integrity error at simulation task - 1",
+            ) from exc
+
         db.refresh(simulation)
         logger.info("backgroundtask finished")
 
@@ -193,15 +245,29 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.critical("error - runtime error")
         logger.critical(runError)
 
-        simulation.status = Status.FAILED.value
-        simulation.status_message = str(runError)
-        simulation.end_date = datetime.now()
-        db.commit()
-        db.refresh(simulation)
+        try:
+            if "simulation" in locals() and simulation is not None:
+                simulation.status = Status.FAILED.value
+                simulation.status_message = str(runError)
+                simulation.end_date = datetime.now()
+
+                try:
+                    db.commit()
+                except IntegrityError as exc:
+                    db.rollback()
+                    # Generic handling; DB should ideally have unique constraints and proper messages
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="Database integrity error at simulation task - 2",
+                    ) from exc
+
+                db.refresh(simulation)
+        except Exception:  # noqa: BLE001
+            pass
 
         task_in_progress.dec()
 
-        raise HTTPException(status_code=500, detail=runError)
+        raise HTTPException(status_code=500, detail=str(runError))
 
     except Exception as ex:
         logger.critical("error - aborting task")
@@ -209,4 +275,4 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         task_in_progress.dec()
 
-        raise HTTPException(status_code=500, detail=ex)
+        raise HTTPException(status_code=500, detail=str(ex))

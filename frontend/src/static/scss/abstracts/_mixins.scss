@@ -1,4 +1,5 @@
 @use 'variables' as *;
+@use 'sass:color';
 
 // Section-width
 @mixin nav-section-width {
@@ -114,7 +115,7 @@
   background-color: $btn-background-color;
 
   #{$anchor-pseudo-classes-active-state} {
-    background-color: darken($btn-background-color, 10%) !important;
+    background-color: color.adjust($btn-background-color, $alpha: -10) !important;
   }
 }
 

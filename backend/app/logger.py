@@ -52,42 +52,55 @@ class EnsysLogger:
 
     def info(self, msg):
         """
-        Logs an informational message prefixed with the custom identifier "[---I-]"
+        Logs an informational message prefixed with the custom identifier "[INFO-]".
 
-        :param msg: The message to log.
+        Used for general operational messages about program execution and state.
+
+        :param msg: The message to be logged
         :type msg: str
         :return: None
         """
-        self.logger.info(msg=f"[---I-] {msg}")
+        self.logger.info(msg=f"[INFO-] {msg}")
 
-    def warn(self, msg):
+    def warning(self, msg):
         """
-        Logs a warning message prefixed with the custom identifier "[--W--]".
+        Logs a warning message prefixed with the custom identifier "[WARN-]".
 
-        :param msg: The message to be logged as a warning.
+        Used for potentially problematic situations that don't prevent program execution
+        but should be noted.
+
+        :param msg: The warning message to be logged
         :type msg: str
         :return: None
         """
-        self.logger.warning(msg=f"[--W--] {msg}")
+        self.logger.warning(msg=f"[WARN-] {msg}")
 
     def error(self, msg):
         """
-        Logs an error message prefixed with the custom identifier "[-E---]".
+        Logs an error message prefixed with the custom identifier "[ERROR]".
 
-        :param msg: The message string to be logged.
+        Used for error conditions that affect program execution but don't force
+        termination.
+
+        :param msg: The error message to be logged
         :type msg: str
         :return: None
         """
-        self.logger.error(msg=f"[-E---] {msg}")
+        self.logger.error(msg=f"[ERROR] {msg}")
 
     def critical(self, msg):
         """
-        Logs a critical severity message prefixed with the custom identifier "[C----]"
+        Logs a critical error message prefixed with the custom identifier "[CRIT-]".
 
-        :param msg: The message to log. It provides the content describing the
-            critical issue or context.
+        Used for severe error conditions that might lead to program termination or
+        data loss.
+
+        :param msg: The critical error message to be logged
         :type msg: str
-
         :return: None
+
+        Note:
+            Critical logs should be monitored and addressed immediately as they
+            indicate serious system issues.
         """
-        self.logger.critical(msg=f"[C----]  {msg}")
+        self.logger.critical(msg=f"[CRIT-] {msg}")

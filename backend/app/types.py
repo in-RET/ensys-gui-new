@@ -1,7 +1,31 @@
+"""
+EnSys Type Definitions
+=====================
+
+This module defines the core type enumerations used throughout the EnSys application
+for component and system modeling.
+
+It includes two main enumerations:
+    - oemofBlockTypes: Basic block types for energy system modeling
+    - oepTypes: Detailed component types for specific energy system elements
+"""
+
 from enum import Enum
 
 
 class oemofBlockTypes(Enum):
+    """
+    Basic block types for energy system modeling based on oemof framework.
+
+    This enumeration defines the fundamental building blocks that can be used
+    to construct energy system models.
+
+    Attributes:
+        generic_storage: Generic storage component for energy storage systems
+        sink: Component representing energy consumption or demand
+        source: Component representing energy generation or supply
+        converter: Component for energy conversion between different forms
+    """
     generic_storage = "generic_storage"
     sink = "sink"
     source = "source"
@@ -9,6 +33,31 @@ class oemofBlockTypes(Enum):
 
 
 class oepTypes(Enum):
+    """
+    Detailed component types for specific energy system elements.
+
+    This enumeration provides a comprehensive list of specific energy system
+    components, categorized by their function (storage, sink, source, converter).
+
+    Storage Components:
+        storage_electricity_*: Various electricity storage technologies
+        storage_gas: Gas storage systems
+        storage_heat_*: Different heat storage implementations
+        storage_hydrogen: Hydrogen storage systems
+
+    Sink Components:
+        electricity_demand_*: Various electricity consumption patterns
+        heat_demand_*: Different heat demand profiles
+        demand_*: Generic demand profiles
+
+    Source Components:
+        *_power_plant: Different types of power generation plants
+
+    Converter Components:
+        *_system: Various energy conversion systems
+        *_plant: Different types of power and heating plants
+    """
+
     # Storages
     storage_electricity_generic = "storage_electricity_generic"
     storage_electricity_li_ion = "storage_electricity_li_ion"

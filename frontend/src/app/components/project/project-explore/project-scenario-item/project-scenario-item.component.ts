@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
 import {Router, RouterModule} from '@angular/router';
 import {AlertService} from '../../../../shared/services/alert.service';
 import {ToastService} from '../../../../shared/services/toast.service';
@@ -9,9 +9,11 @@ import {ProjectModel} from '../../models/project.model';
 
 @Component({
     selector: 'app-project-scenario-item',
+    standalone: true,
     imports: [CommonModule, RouterModule],
     templateUrl: './project-scenario-item.component.html',
     styleUrl: './project-scenario-item.component.scss',
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectScenarioItemComponent {
     @Input() project!: ProjectModel;

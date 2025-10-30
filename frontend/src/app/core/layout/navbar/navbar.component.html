@@ -1,4 +1,4 @@
-<header class="py-2 border-bottom d-flex justify-content-between p-3">
+<header class="py-2 border-bottom d-flex justify-content-between p-3 sticky-top bg-white">
     <div>
         <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
             <img
@@ -13,7 +13,14 @@
         <ng-container *ngIf="user.is_authenticated">
             <button
                 type="button"
-                class="btn btn-light text-dark me-2"
+                class="btn btn--hollow me-2"
+                [routerLink]="['templates']"
+            >
+                Templates
+            </button>
+            <button
+                type="button"
+                class="btn me-2"
                 (click)="logout()"
             >
                 Log Out
@@ -24,14 +31,14 @@
             <div class="text-end">
                 <button
                     type="button"
-                    class="btn btn-light text-dark me-2"
+                    class="btn me-2"
                     [routerLink]="['auth/login']"
                 >
                     Login
                 </button>
                 <button
                     type="button"
-                    class="btn btn-primary"
+                    class="btn btn--hollow me-2"
                     [routerLink]="['auth/signup']"
                 >
                     Sign Up

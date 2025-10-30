@@ -9,6 +9,7 @@ from app.project.model import EnProjectDB
 from app.scenario.model import EnScenarioDB
 from app.user.model import EnUserDB
 from app.simulation.model import EnSimulationDB
+from app.templates.model import EnTemplateDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

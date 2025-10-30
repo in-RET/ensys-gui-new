@@ -1,0 +1,23 @@
+<section class="template-list">
+    <ng-container *ngIf="templates$ | async as templates; else emptyTemplates">
+        <app-template-item
+            *ngFor="let template of templates; trackBy: trackByTemplateId"
+            [template]="template"
+        />
+    </ng-container>
+</section>
+
+<ng-template #emptyTemplates>
+    <section class="templates-empty d-flex justify-content-center" role="status" aria-live="polite">
+        <div class="d-flex flex-column justify-content-center gap-3 align-items-center">
+            <img
+                src="static/assets/illustrations/empty_folder.svg"
+                alt="Empty folder"
+                width="160"
+                height="120"
+                loading="lazy"
+            />
+            <div>There are no templates yet</div>
+        </div>
+    </section>
+</ng-template>

@@ -1,8 +1,6 @@
 from pydantic import BaseModel, Field
 
-from .data.model import GeneralDataModel
-from .errors.model import ErrorModel
-from .results.model import ResultDataModel
+from . import ErrorModel, GeneralDataModel
 
 
 class GeneralResponse(BaseModel):
@@ -11,7 +9,7 @@ class GeneralResponse(BaseModel):
 
     This class encapsulates the standard response format, including the data
     returned, success status, and any errors that occurred during the request.
-    It is utilized as the base model for structuring API responses.
+    It is used as the base model for structuring API responses.
 
     :ivar data: Data returned by the request.
     :type data: None
@@ -51,7 +49,6 @@ class DataResponse(GeneralResponse):
     """
     data: GeneralDataModel = Field(...)
 
-
 class MessageResponse(GeneralResponse):
     """
     Represents a response message inheriting properties from `GeneralResponse`.
@@ -63,7 +60,6 @@ class MessageResponse(GeneralResponse):
     :type data: str
     """
     data: str = Field(...)
-
 
 class ErrorResponse(GeneralResponse):
     """
@@ -83,26 +79,30 @@ class ErrorResponse(GeneralResponse):
         default=None,
         description="Data returned by the request."
     )
-    errors: list[ErrorModel] | None = Field(
-        default=None,
-        description="List of errors encountered during the request."
-    )
     success: bool = Field(
         default=False,
         description="Indicates whether the request was successful or not."
     )
 
+
 class ResultResponse(GeneralResponse):
     """
-    Represents a response containing result data, inheriting from GeneralResponse.
+    Represents a successful response containing result data.
 
-    This class is used to encapsulate response data specific to result information.
-    It extends the functionality provided by GeneralResponse and includes additional
-    data fields related to results. The purpose of this class is to standardize the
-    structure of result-related responses and ensure consistent access to result
-    data in the response object.
+    This class extends the GeneralResponse and is designed to provide a standard
+    structure for returning successful operation results. It includes attributes
+    that indicate the success status and the actual result data.
 
-    :ivar data: Contains the specific result data encapsulated in the ResultDataModel.
-    :type data: ResultDataModel
+    :ivar data: The result data returned by the request.
+    :type data: GeneralDataModel
+    :ivar success: Indicates whether the request was successful or not. Default is True.
+    :type success: bool
     """
-    data: GeneralDataModel = Field(...)
+    data: GeneralDataModel = Field(
+        ...,
+        description="The result data returned by the request."
+    )
+    success: bool = Field(
+        default=True,
+        description="Indicates whether the request was successful or not."
+    )

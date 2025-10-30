@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec  6 15:50:15 2023
-
-@author: treinhardt01, alubojanski
-"""
-
 import numpy as np
 import pandas as pd
 from oemof import solph

@@ -216,3 +216,5 @@ windpowerlib==0.0.4
 WTForms==3.1.2
 xyzservices==2025.4.0
 zipp==3.23.0
+
+pydantic-settings==2.7.1

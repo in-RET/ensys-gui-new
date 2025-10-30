@@ -1,3 +1,17 @@
+"""
+Energy System Simulation Models
+===========================
+
+This module provides data models for managing energy system simulations,
+including status tracking, execution metadata, and result handling.
+
+The module includes:
+    - Simulation status enumeration
+    - Base simulation model
+    - Database persistence model
+    - Status update operations
+"""
+
 from datetime import datetime
 from enum import Enum
 
@@ -6,6 +20,17 @@ from sqlmodel import Field, SQLModel
 
 
 class Status(Enum):
+    """
+    Enumeration of possible simulation states.
+
+    Defines the lifecycle states of a simulation from initiation to completion
+    or failure.
+
+    :cvar STARTED: Initial state when simulation begins (value: 1)
+    :cvar FINISHED: Successful completion state (value: 2)
+    :cvar FAILED: Error or failure state (value: 3)
+    :cvar STOPPED: User-initiated termination state (value: 4)
+    """
     STARTED = 1
     FINISHED = 2
     FAILED = 3
@@ -14,100 +39,107 @@ class Status(Enum):
 
 class EnSimulation(BaseModel):
     """
-    Represents the simulation entity in the application.
+    Base simulation model with metadata and status tracking.
 
-    The `EnSimulation` class models a simulation instance with its various
-    properties, including token, status, start and end dates, and
-    association to a specific scenario. It provides a structured
-    representation of simulation for storing and retrieving purposes.
+    Represents a simulation instance with its various properties, including
+    identification, timing, and scenario association.
 
-    :ivar sim_token: Unique token identifying the simulation.
+    :ivar sim_token: Unique token for simulation identification
     :type sim_token: str
-    :ivar status: Current status of the simulation, e.g., started, completed.
-    :type status: str
-    :ivar start_date: Date and time when the simulation was started.
-    :type start_date: datetime
-    :ivar end_date: Date and time when the simulation was ended (optional).
-    :type end_date: datetime | None
-    :ivar scenario_id: Identifier of the related scenario in the database.
+    :ivar status: Current simulation status (from Status enum)
+    :type status: int
+    :ivar status_message: Optional message describing current status
+    :type status_message: str | None
+    :ivar scenario_id: ID of the associated scenario
     :type scenario_id: int
     """
-    sim_token: str = Field(nullable=False)
+    sim_token: str
     status: int = Field(default=Status.STARTED.value)
-    status_message: str | None = Field(default=None, nullable=True)
-    start_date: int = Field(nullable=False)
-    end_date: int | None = Field(default=None, nullable=True)
-    scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
-
-    def model_dump(self,  *args, **kwargs):
-        dump_data = super().model_dump(*args, **kwargs)
-
-        dump_data["start_date"] = datetime.fromtimestamp(self.start_date)
-        dump_data["end_date"] = datetime.fromtimestamp(self.end_date) if self.end_date else None
-
-        return dump_data
+    status_message: str | None = Field(default=None)
+    scenario_id: int
 
 
 class EnSimulationDB(SQLModel, table=True):
     """
-    Representation of a simulation entry in the database.
+    Database model for simulation persistence.
 
-    This class defines the data structure and table mapping for
-    simulation entries in the database. It includes fields
-    for basic simulation attributes such as its unique identifier,
-    status, dates, and related scenario. This model is used to
-    manage and interact with the simulation data persisted in the
-    database.
+    Extends the base simulation model with additional fields needed for
+    database storage and relationship management.
 
-    :ivar id: Unique identifier for the simulation.
+    :ivar id: Primary key for the simulation record
     :type id: int
-    :ivar sim_token: Token associated with the simulation, used for
-        identification or access.
+    :ivar sim_token: Unique token for simulation identification
     :type sim_token: str
-    :ivar status: Current status of the simulation. Default is
-        `Status.STARTED.value`.
-    :type status: str
-    :ivar start_date: Date and time when the simulation started.
-    :type start_date: datetime
-    :ivar end_date: Date and time when the simulation ended, if available.
-    :type end_date: datetime | None
-    :ivar scenario_id: Identifier of the related scenario. Links the
-        simulation record to a scenario in the database.
+    :ivar status: Current status of the simulation
+    :type status: int
+    :ivar status_message: Optional message describing the current status
+    :type status_message: str | None
+    :ivar scenario_id: Foreign key to the associated scenario
     :type scenario_id: int
+    :ivar start_date: Timestamp when simulation started
+    :type start_date: datetime
+    :ivar end_date: Timestamp when simulation completed/failed
+    :type end_date: datetime | None
     """
     __tablename__ = "simulations"
 
-    id: int = Field(default=None, primary_key=True)
-    sim_token: str = Field(nullable=False)
-    status: int = Field(default=Status.STARTED.value, nullable=False)
-    status_message: str | None = Field(default=None, nullable=True, max_length=255)
-    start_date: datetime = Field(nullable=False)
-    end_date: datetime | None = Field(default=None, nullable=True)
-    scenario_id: int = Field(default=None, nullable=False, foreign_key="scenarios.id")
+    id: int | None = Field(default=None, primary_key=True)
+    sim_token: str = Field(unique=True, index=True)
+    status: int = Field(default=Status.STARTED.value)
+    status_message: str | None = Field(default=None)
+    scenario_id: int = Field(foreign_key="scenarios.id")
+    start_date: datetime = Field(default_factory=datetime.now)
+    end_date: datetime | None = Field(default=None)
 
-    def model_dump(self,  *args, **kwargs):
+    class Config:
+        arbitrary_types_allowed = True
+
+    def model_dump(self, *args, **kwargs) -> dict:
+        """
+        Convert simulation model to dictionary representation.
+
+        Handles datetime conversions for timestamps.
+
+        :param args: Additional positional arguments
+        :param kwargs: Additional keyword arguments
+        :return: Dictionary with simulation data
+        :rtype: dict
+        """
         dump_data = super().model_dump(*args, **kwargs)
-
         dump_data["start_date"] = datetime.timestamp(self.start_date)
         dump_data["end_date"] = datetime.timestamp(self.end_date) if self.end_date else None
-
         return dump_data
+
+    def model_update(self, obj: dict) -> SQLModel:
+        """
+        Update simulation record with new data.
+
+        Wrapper for SQLModel update operation with type hints.
+
+        :param obj: Dictionary of fields to update
+        :type obj: dict
+        :return: Updated simulation model
+        :rtype: SQLModel
+        """
+        return super().model_update(obj)
 
 
 class EnSimulationUpdate(BaseModel):
     """
-    Represents an energy simulation update model used to track the status
-    and completion date of a simulation.
+    Model for simulation status updates.
 
-    This class models the data structure for storing information about an
-    energy simulation's current status and its potential end date. It
-    inherits from SQLModel to enable database interactions and data
-    serialization.
+    Provides a structure for updating simulation status and completion
+    information while maintaining data validation.
 
-    :ivar status: Indicates the current status of the energy simulation.
-    :type status: str
-    :ivar end_date: Represents the simulation's end date if available.
-    :type end_date: datetime | None
+    :ivar status: New simulation status code
+    :type status: int
+    :ivar status_message: New status description or error message
+    :type status_message: str | None
+    :ivar end_date: New completion timestamp
+    :type end_date: int | None
+
+    Note:
+        Used primarily for status changes and completion recording.
     """
     status: int = Field(nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
