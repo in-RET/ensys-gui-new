@@ -5,11 +5,11 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-from app.project.model import EnProjectDB
-from app.scenario.model import EnScenarioDB
-from app.user.model import EnUserDB
-from app.simulation.model import EnSimulationDB
-from app.templates.model import EnTemplateDB
+from app.project import EnProjectDB
+from app.scenario import EnScenarioDB
+from app.simulation import EnSimulationDB
+from app.templates import EnTemplateDB
+from app.user import EnUserDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -31,6 +31,44 @@ target_metadata = SQLModel.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+black_placeholder_user = EnUserDB(
+    id=1,
+    username="admin",
+    email="",
+    hashed_password="",
+    is_active=True,
+    is_superuser=True,
+)
+
+black_placeholder_project = EnProjectDB(
+    id=1,
+    name="black_placeholder_project",
+    description="",
+    owner_id=1,
+    is_favorite=False,
+)
+
+black_placeholder_scenario = EnScenarioDB(
+    id=1,
+    name="black_placeholder_scenario",
+    description="",
+    project_id=1,
+)
+
+black_placeholder_template = EnTemplateDB(
+    id=1,
+    name="black_placeholder_template",
+)
+
+black_placeholder_simulation = EnSimulationDB(
+    id=1,
+    name="black_placeholder_simulation",
+    description="",
+    project_id=1,
+    scenario_id=1,
+    status=1,
+)
 
 
 def run_migrations_offline() -> None:
@@ -74,9 +112,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()
