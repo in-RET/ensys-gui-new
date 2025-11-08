@@ -34,26 +34,48 @@
                             "
                             [ngClass]="{ 'd-flex gap-2': field.actions }"
                         >
-                            <input
-                                [type]="field.type"
-                                class="form-control"
-                                [placeholder]="field.placeholder"
-                                [required]="field.isReq"
-                                [formControlName]="field.name"
-                                [ngClass]="{
-                                    'is-invalid':
-                                        form.get(field.name)!.invalid &&
-                                        (form.get(field.name)!.dirty ||
-                                            form.get(field.name)!.touched)
-                                }"
-                                [step]="field.step"
-                            />
-                            <label *ngIf="!field.isReq"
-                                >{{ field.label }}
-                            </label>
-                            <label *ngIf="field.isReq"
-                                >{{ field.label }} *</label
+                            <ng-container
+                                *ngIf="field.type == 'text'; else numberField"
                             >
+                                <input
+                                    [type]="field.type"
+                                    class="form-control"
+                                    [placeholder]="field.placeholder"
+                                    [required]="field.isReq"
+                                    [formControlName]="field.name"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            form.get(field.name)!.invalid &&
+                                            (form.get(field.name)!.dirty ||
+                                                form.get(field.name)!.touched)
+                                    }"
+                                    [step]="field.step"
+                                    [numberOnly]="field.numberOnlyAllowed"
+                                    [numbersArray]="field.numbersArrayAllowed"
+                                />
+                            </ng-container>
+
+                            <ng-template #numberField>
+                                <input
+                                    [type]="field.type"
+                                    class="form-control"
+                                    [placeholder]="field.placeholder"
+                                    [required]="field.isReq"
+                                    [formControlName]="field.name"
+                                    [ngClass]="{
+                                        'is-invalid':
+                                            form.get(field.name)!.invalid &&
+                                            (form.get(field.name)!.dirty ||
+                                                form.get(field.name)!.touched)
+                                    }"
+                                    [step]="field.step"
+                                />
+                            </ng-template>
+
+                            <label>
+                                {{ field.label }}
+                                <span *ngIf="field.isReq"> * </span>
+                            </label>
 
                             <ng-container *ngIf="field.actions">
                                 <a
@@ -220,6 +242,8 @@
                                             (form.get(field.name)!.dirty ||
                                                 form.get(field.name)!.touched)
                                     }"
+                                    [numberOnly]="true"
+                                    [numbersArray]="true"
                                 />
                             </div>
                         </div>

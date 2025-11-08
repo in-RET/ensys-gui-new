@@ -633,11 +633,6 @@ export class ScenarioEnergyDesignComponent {
                 this.formComponent.setFieldData(element.name, null);
                 this.formComponent.disableControl(element.name);
             });
-
-            // this.formComponent.setFieldData('nominal_value', null);
-            // this.formComponent.setFieldData('maximum', null);
-            // this.formComponent.setFieldData('minimum', null);
-            // this.formComponent.setFieldData('ep_costs', null);
         }
     }
 
