@@ -14,17 +14,17 @@ The module provides:
 
 from datetime import datetime
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
-from . import EnTemplateDB
-from ..db import get_db_session
-from ..project import EnProjectDB
+from .model import EnTemplateDB
+from ..db import SessionLocal
+from ..project.model import EnProjectDB
 
 
-def get_all_templates(db: Session = Depends(get_db_session())) -> list[dict]:
+def get_all_templates(db: Session = SessionLocal()) -> list[dict]:
     """
     Retrieve all available templates from the database.
 
@@ -40,7 +40,7 @@ def get_all_templates(db: Session = Depends(get_db_session())) -> list[dict]:
 
 
 def clone_template_to_project(
-    template_id: int, user_id: int, db: Session = Depends(get_db_session())
+    template_id: int, user_id: int, db: Session = SessionLocal()
 ) -> EnProjectDB:
     """
     Generate a new project from a template.
@@ -96,7 +96,7 @@ def clone_template_to_project(
     return new_project
 
 
-def validate_template_name(name: str, db: Session = Depends(get_db_session())) -> bool:
+def validate_template_name(name: str, db: Session = SessionLocal()) -> bool:
     """
     Verify template name uniqueness.
 
@@ -112,3 +112,82 @@ def validate_template_name(name: str, db: Session = Depends(get_db_session())) -
     """
     existing = db.exec(select(EnTemplateDB).where(EnTemplateDB.name == name)).first()
     return existing is None
+
+
+def delete_template(template_id: int, db: Session = SessionLocal()) -> None:
+    """
+    Delete a template from the database.
+
+    Removes a template and all its associated data.
+
+    :param template_id: ID of the template to delete
+    :type template_id: int
+    :param db: Database session for transaction
+    :type db: Session
+    :raises HTTPException: If template not found (404)
+    """
+    template = db.exec(
+        select(EnTemplateDB).where(EnTemplateDB.id == template_id)
+    ).first()
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Template not found."
+        )
+
+    db.delete(template)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Could not delete template; DB constraint violated.",
+        )
+
+
+def duplicate_template(template_id: int, db: Session = SessionLocal()) -> EnTemplateDB:
+    """
+    Duplicate an existing template.
+
+    Creates a copy of a template with all its configurations.
+
+    :param template_id: ID of the template to duplicate
+    :type template_id: int
+    :param db: Database session for transaction
+    :type db: Session
+    :return: Newly created template instance
+    :rtype: EnTemplateDB
+    :raises HTTPException: If template not found (404) or constraint violations (409)
+    """
+    template = db.exec(
+        select(EnTemplateDB).where(EnTemplateDB.id == template_id)
+    ).first()
+    if not template:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Template not found."
+        )
+
+    # Create a copy with a new name
+    new_template = EnTemplateDB(
+        name=f"{template.name} (Copy)",
+        description=template.description,
+        country=template.country,
+        longitude=template.longitude,
+        latitude=template.latitude,
+        currency=template.currency,
+        unit_energy=template.unit_energy,
+        unit_co2=template.unit_co2,
+    )
+
+    db.add(new_template)
+    try:
+        db.commit()
+        db.refresh(new_template)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Could not duplicate template; DB constraint violated.",
+        )
+
+    return new_template

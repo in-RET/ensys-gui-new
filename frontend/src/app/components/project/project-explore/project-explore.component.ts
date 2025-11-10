@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { catchError, map, of, shareReplay } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { ScenarioService } from '../../scenario/services/scenario.service';
-import { ProjectModel, ProjectResModel } from '../models/project.model';
-import { ProjectService } from '../services/project.service';
-import { ProjectItemComponent } from './project-item/project-item.component';
+import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {catchError, map, of, shareReplay} from 'rxjs';
+import {ResDataModel, ResModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {ScenarioService} from '../../scenario/services/scenario.service';
+import {ProjectModel, ProjectResModel} from '../models/project.model';
+import {ProjectService} from '../services/project.service';
+import {ProjectItemComponent} from './project-item/project-item.component';
 
 @Component({
     selector: 'app-project-explore',
@@ -18,6 +18,10 @@ import { ProjectItemComponent } from './project-item/project-item.component';
 })
 export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
+
+    toastService = inject(ToastService);
+    projectService = inject(ProjectService);
+    scenarioService = inject(ScenarioService);
 
     projects$ = this.projectService
         .getProjects()
@@ -34,9 +38,6 @@ export class ProjectExploreComponent implements OnInit {
             shareReplay({ bufferSize: 1, refCount: true })
         );
 
-    toastService = inject(ToastService);
-    projectService = inject(ProjectService);
-    scenarioService = inject(ScenarioService);
 
     ngOnInit() {
         // Initialize storage cleanup on enter

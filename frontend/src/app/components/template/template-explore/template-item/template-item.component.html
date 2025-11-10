@@ -11,7 +11,48 @@
             </a>
         </div>
 
-        <div class="actions">
+        <div class="project__details">
+            <div class="details">
+                <div class="detail">
+                    <span class="detail__property">Description</span>
+
+                    <span class="detail__value">
+                        {{ template.description || "{not defined}" }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a
+                    class="btn btn--action action"
+                    [routerLink]="['../update/', template.id]"
+                    fragment="update"
+                >
+                    <span class="icon icon-edit" aria-hidden="true"></span>
+                </a>
+
+                <button
+                    id="duplicate_{{ template.id }}"
+                    style="margin-top: 0.25rem"
+                    class="btn btn--action action"
+                    type="button"
+                    value="Delete"
+                    (click)="duplicate_modal(template.id)"
+                >
+                    <span class="icon icon-duplicate" aria-hidden="true"></span>
+                </button>
+
+                <button
+                    id="delete_{{ template.id }}"
+                    style="margin-top: 0.25rem"
+                    class="btn btn--action action"
+                    type="button"
+                    value="Delete"
+                    (click)="delete_modal(template.id)"
+                >
+                    <span class="icon icon-delete" aria-hidden="true"></span>
+                </button>
+            </div>
         </div>
 
         <div class="project__scenarios">
@@ -32,6 +73,14 @@
                     </span>
 
                     <span class="js-toggle-scenario-name">Show scenarios</span>
+                </button>
+
+                <button
+                    class="btn btn--success action border p-2"
+                    type="button"
+                    (click)="newScenario(+template.id, template.name)"
+                >
+                    New Scenario
                 </button>
             </div>
 

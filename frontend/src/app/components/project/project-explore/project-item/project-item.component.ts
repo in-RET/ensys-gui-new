@@ -30,6 +30,7 @@ export class ProjectItemComponent implements OnInit {
     toastService = inject(ToastService)
 
     ngOnInit() {
+        // joar ist halt irre langsam --> was machen wir denn da?<
         this.getScenarios(this.project.id);
     }
 

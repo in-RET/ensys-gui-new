@@ -2,32 +2,12 @@
 Project Management Module
 =======================
 
-This module handles all project-related functionality including
-- Project creation and management
-- Project metadata handling
-- Project permissions and sharing
+This package provides project management functionality for the EnSys application,
+including CRUD operations and project hierarchy management.
+
+The module includes:
+    - Project models and validation
+    - Project service layer
+    - Project API endpoints
+    - Scenario associations
 """
-
-from .model import EnProject, EnProjectDB, EnProjectUpdate
-from .router import projects_router
-from .service import (
-    create_project,
-    read_project,
-    read_projects,
-    update_project,
-    delete_project,
-    duplicate_project,
-)
-
-__all__ = [
-    "EnProject",
-    "EnProjectDB",
-    "EnProjectUpdate",
-    "projects_router",
-    "create_project",
-    "read_project",
-    "read_projects",
-    "update_project",
-    "delete_project",
-    "duplicate_project",
-]

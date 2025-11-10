@@ -7,12 +7,13 @@ from oemof import solph
 from sqlmodel import Session
 from starlette import status
 
-from . import EnDataFrame, EnTimeSeries, EnInvestResult, ResultDataModel
 from .automatic_cost_calc import cost_calculation_from_energysystem
-from ..db import get_db_session
-from ..models import GeneralDataModel, ErrorModel, ErrorResponse, ResultResponse
+from .model import EnDataFrame, EnTimeSeries, EnInvestResult, ResultDataModel
+from ..db import get_db_session, SessionLocal
+from ..models.base import GeneralDataModel, ErrorModel
+from ..models.response import ErrorResponse, ResultResponse
 from ..security import oauth2_scheme
-from ..simulation import EnSimulationDB, Status
+from ..simulation.model import EnSimulationDB, Status
 
 results_router = APIRouter(
     prefix="/results",
@@ -20,7 +21,7 @@ results_router = APIRouter(
 )
 
 
-def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
+def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> GeneralDataModel:
     """
     Fetches results from a simulation dump file based on the simulation ID. This function
     retrieves the energy system data from a serialized dump file stored in the local directory

@@ -124,6 +124,7 @@ oemof.network==0.5.0
 oemof.solph==0.6.0
 oemof.tools==0.4.3
 oep-client==0.17.1
+orjson==3.11.4
 packaging==25.0
 paginate==0.5.7
 pandas==2.3.2
@@ -151,6 +152,7 @@ px==0.2.2
 pyasn1==0.6.1
 pycparser==2.23
 pydantic==2.11.7
+pydantic-settings==2.11.0
 pydantic_core==2.33.2
 Pygments==2.19.2
 pymdown-extensions==10.16.1
@@ -216,5 +218,3 @@ windpowerlib==0.0.4
 WTForms==3.1.2
 xyzservices==2025.4.0
 zipp==3.23.0
-
-pydantic-settings==2.7.1

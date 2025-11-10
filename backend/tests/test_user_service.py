@@ -2,8 +2,8 @@ import pytest
 from fastapi import HTTPException
 from sqlmodel import SQLModel, create_engine, Session
 
-from backend.app.user import create_user
-from backend.app.user.model import EnUser
+from ..app.user.model import EnUser
+from ..app.user.service import create_user
 
 
 def setup_in_memory_db():

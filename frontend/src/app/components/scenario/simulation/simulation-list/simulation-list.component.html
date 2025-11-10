@@ -16,7 +16,8 @@
             <div class="modal-body d-flex row gap-3" style="max-height: 100%">
                 <ng-container *ngIf="scenarioCount; else no_data">
                     <h2 class="fw-bold mb-0 text-center">
-                        {{ currentScenario.project.name }}
+                        {{ currentScenario.project?.name }}
+                        {{ currentScenario.template?.name }}
                         /
                         {{ currentScenario.scenario?.name }}
                     </h2>

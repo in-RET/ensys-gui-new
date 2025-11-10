@@ -31,6 +31,7 @@ class Status(Enum):
     :cvar FAILED: Error or failure state (value: 3)
     :cvar STOPPED: User-initiated termination state (value: 4)
     """
+
     STARTED = 1
     FINISHED = 2
     FAILED = 3
@@ -53,6 +54,7 @@ class EnSimulation(BaseModel):
     :ivar scenario_id: ID of the associated scenario
     :type scenario_id: int
     """
+
     sim_token: str
     status: int = Field(default=Status.STARTED.value)
     status_message: str | None = Field(default=None)
@@ -81,10 +83,11 @@ class EnSimulationDB(SQLModel, table=True):
     :ivar end_date: Timestamp when simulation completed/failed
     :type end_date: datetime | None
     """
+
     __tablename__ = "simulations"
 
     id: int | None = Field(default=None, primary_key=True)
-    sim_token: str = Field(unique=True, index=True)
+    sim_token: str = Field(unique=True)
     status: int = Field(default=Status.STARTED.value)
     status_message: str | None = Field(default=None)
     scenario_id: int = Field(foreign_key="scenarios.id")
@@ -107,7 +110,9 @@ class EnSimulationDB(SQLModel, table=True):
         """
         dump_data = super().model_dump(*args, **kwargs)
         dump_data["start_date"] = datetime.timestamp(self.start_date)
-        dump_data["end_date"] = datetime.timestamp(self.end_date) if self.end_date else None
+        dump_data["end_date"] = (
+            datetime.timestamp(self.end_date) if self.end_date else None
+        )
         return dump_data
 
     def model_update(self, obj: dict) -> SQLModel:
@@ -141,6 +146,7 @@ class EnSimulationUpdate(BaseModel):
     Note:
         Used primarily for status changes and completion recording.
     """
+
     status: int = Field(nullable=False)
     status_message: str | None = Field(default=None, nullable=True)
     end_date: int | None = Field(default=None, nullable=True)

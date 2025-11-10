@@ -6,18 +6,17 @@ from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.gzip import GZipMiddleware
-from starlette.responses import HTMLResponse, JSONResponse
+from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
 from .core.config import get_settings
-from .db import engine
 from .oep.router import oep_router
-from .project import projects_router
-from .results import results_router
-from .scenario import scenario_router
-from .simulation import simulation_router
-from .templates import templates_router
-from .user import users_router
+from .project.router import projects_router
+from .results.router import results_router
+from .scenario.router import scenario_router
+from .simulation.router import simulation_router
+from .templates.router import templates_router
+from .user.router import users_router
 
 """
 EnSys GUI Backend Application
@@ -50,36 +49,18 @@ Once running, the API documentation is available at:
 tags_metadata = [
     {
         "name": "user",
-        "description": "Operations with users. The **login** logic is also here."
+        "description": "Operations with users. The **login** logic is also here.",
     },
     {
         "name": "project",
         "description": "Manage projects.",
     },
-    {
-        "name": "admin",
-        "description": "Just a Teapot."
-    },
-    {
-        "name": "scenario",
-        "description": "Manage scenarios."
-    },
-    {
-        "name": "default",
-        "description": "The root of all evil."
-    },
-    {
-        "name": "simulation",
-        "description": "Manage simulations."
-    },
-    {
-        "name": "results",
-        "description": "Get results."
-    },
-    {
-        "name": "templates",
-        "description": "Manage templates."
-    }
+    {"name": "admin", "description": "Just a Teapot."},
+    {"name": "scenario", "description": "Manage scenarios."},
+    {"name": "default", "description": "The root of all evil."},
+    {"name": "simulation", "description": "Manage simulations."},
+    {"name": "results", "description": "Get results."},
+    {"name": "templates", "description": "Manage templates."},
 ]
 
 _settings = get_settings()
@@ -102,7 +83,9 @@ fastapi_app = FastAPI(
     default_response_class=ORJSONResponse,
 )
 
-fastapi_app.mount("/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static")
+fastapi_app.mount(
+    "/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static"
+)
 templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 fastapi_app.add_middleware(
@@ -116,27 +99,18 @@ fastapi_app.add_middleware(
 # Enable gzip compression for larger responses to reduce bandwidth
 fastapi_app.add_middleware(GZipMiddleware, minimum_size=1024)
 
-routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router,
-           templates_router]
+routers = [
+    users_router,
+    admin_router,
+    projects_router,
+    scenario_router,
+    simulation_router,
+    results_router,
+    oep_router,
+    templates_router,
+]
 for router in routers:
-    fastapi_app.include_router(
-        router=router
-    )
-
-
-@fastapi_app.get("/health", tags=["default"])
-async def health():
-    return {"status": "ok"}
-
-
-@fastapi_app.get("/readiness", tags=["default"])
-async def readiness():
-    try:
-        with engine.connect() as conn:
-            conn.exec_driver_sql("SELECT 1")
-        return {"status": "ready"}
-    except Exception as ex:  # noqa: BLE001
-        return JSONResponse(status_code=503, content={"status": "unready", "detail": str(ex)})
+    fastapi_app.include_router(router=router)
 
 
 @fastapi_app.get("/")
@@ -153,7 +127,4 @@ async def root(request: Request):
     :rtype: HTMLResponse
     """
 
-    return templates.TemplateResponse(
-        request=request,
-        name="main_response.html"
-    )
+    return templates.TemplateResponse(request=request, name="main_response.html")

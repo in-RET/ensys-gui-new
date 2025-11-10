@@ -1,27 +1,42 @@
+"""
+User Router Module
+================
+
+This module provides the API endpoints for user management in the EnSys application.
+It handles user registration, authentication, profile management, and account activation.
+
+The module provides endpoints for:
+    - User login and authentication
+    - New user registration
+    - Email verification and account activation
+    - User profile retrieval and updates
+    - Account deletion
+"""
+
 import asyncio
 import os
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.templating import Jinja2Templates
-from jose import jwt
 from sqlmodel import Session
 from starlette import status
 from starlette.responses import JSONResponse
 
-from . import (
+from .model import EnUser, EnUserUpdate, EnUserDB
+from .service import (
     authenticate_user,
-    EnUser,
-    EnUserUpdate,
     create_user,
-    EnUserDB,
     read_user_by_token,
     update_user,
     delete_user,
+    activate_user,
 )
 from ..db import get_db_session
 from ..mail import send_mail
-from ..models import GeneralDataModel, DataResponse, MessageResponse
-from ..security import decode_token, token_secret
+from ..models.base import GeneralDataModel
+from ..models.response import DataResponse, MessageResponse
+from ..security import oauth2_scheme
 
 templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
@@ -60,12 +75,10 @@ async def login_user_endpoint(
     # Authenticate via service
     user_db = authenticate_user(username=username, password=password, db=db)
 
-    token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
-
     return JSONResponse(
         content={
             "message": "User login successful.",
-            "access_token": token,
+            "access_token": user_db.get_token(),
             "token_type": "bearer",
         },
         status_code=status.HTTP_200_OK,
@@ -78,7 +91,7 @@ async def login_user_endpoint(
     response_model=MessageResponse,
 )
 async def register_user_endpoint(
-    user: EnUser, db: Session = Depends(get_db_session)
+    user: EnUser,
 ) -> MessageResponse:
     """
     Registers a new user in the system. The function verifies whether the username
@@ -114,48 +127,39 @@ async def register_user_endpoint(
 
 
 @users_router.get("/auth/activate/{token}")
-async def activate_user_endpoint(
-    request: Request, token: str, db: Session = Depends(get_db_session)
-):
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
+async def activate_user_endpoint(request: Request, token: str):
+    """
+    Activate a user account via email verification link.
 
-    token_data = decode_token(token)
+    This endpoint handles user account activation by verifying the token sent
+    via email. Upon successful activation, a success page is rendered.
 
-    statement = db.exec  # placeholder to avoid removing previous behavior comment
-    # keep existing activate flow (direct DB access)
-    from sqlmodel import select
-    from .model import EnUserDB
+    :param request: FastAPI request object for template rendering
+    :type request: Request
+    :param token: Account activation token from email
+    :type token: str
+    :return: HTML template response indicating activation status
+    :rtype: TemplateResponse
+    :raises HTTPException: If activation fails or token is invalid (status code 409)
+    """
+    user = read_user_by_token(token=token)
 
-    statement = select(EnUserDB).where(
-        EnUserDB.username == token_data["username"].lower()
-    )
-    user = db.exec(statement).first()
-
-    if user.is_active:
+    if activate_user(user=user):
         return templates.TemplateResponse(
             request=request,
-            name="activation_response_409.html",
+            name="activation_response_200.html",
             context={"user": user.username},
         )
-
-    user.is_active = True
-
-    db.add(user)
-    db.commit()
-
-    return templates.TemplateResponse(
-        request=request,
-        name="activation_response_200.html",
-        context={"user": user.username},
-    )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Database integrity error on user activation.",
+        )
 
 
 @users_router.get("/", response_model=DataResponse)
 async def read_user_endpoint(
-    user: EnUserDB = Depends(read_user_by_token()),
+    token: Annotated[str, Depends(oauth2_scheme)],
 ) -> DataResponse:
     """
     Handles a GET API endpoint to read user information from the database.
@@ -175,6 +179,8 @@ async def read_user_endpoint(
              and retrieval are successful.
     :rtype: DataResponse
     """
+    user = read_user_by_token(token=token)
+
     return DataResponse(
         data=GeneralDataModel(
             items=[user.model_dump()],
@@ -186,7 +192,7 @@ async def read_user_endpoint(
 
 @users_router.patch("/", response_model=DataResponse)
 def update_user_endpoint(
-    data: EnUserUpdate, user: EnUserDB = Depends(read_user_by_token())
+    data: EnUserUpdate, token: Annotated[str, Depends(oauth2_scheme)]
 ) -> DataResponse:
     """
     Updates the user information in the database based on the provided token and
@@ -203,7 +209,9 @@ def update_user_endpoint(
     :return: Response containing the updated user details in a data response format.
     :rtype: DataResponse
     """
-    updated = update_user(update_data=data)
+    user = read_user_by_token(token=token)
+
+    updated = update_user(user=user, update_data=data)
 
     return DataResponse(
         data=GeneralDataModel(
@@ -215,7 +223,9 @@ def update_user_endpoint(
 
 
 @users_router.delete("/", response_model=MessageResponse)
-async def delete_user_endpoint() -> MessageResponse:
+async def delete_user_endpoint(
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> MessageResponse:
     """
     Deletes a user based on the credentials and token provided. The function
     retrieves the user's data from the database using the information decoded
@@ -229,6 +239,8 @@ async def delete_user_endpoint() -> MessageResponse:
     :rtype: MessageResponse
     :raises HTTPException: If the user is not found, with status code 404.
     """
-    delete_user()
+    user = read_user_by_token(token=token)
+
+    delete_user(user=user)
 
     return MessageResponse(data=f"User was successfully deleted.", success=True)

@@ -40,8 +40,11 @@ class EnProject(BaseModel):
     :ivar is_favorite: Whether the project is marked as favorite
     :type is_favorite: bool
     """
+
     name: str = Field(min_length=1, max_length=100)
-    description: str | None = Field(default=None, min_length=1, max_length=255, nullable=True)
+    description: str | None = Field(
+        default=None, min_length=1, max_length=255, nullable=True
+    )
     country: str = Field(min_length=1, max_length=40)
     longitude: float | None = Field(nullable=True)
     latitude: float | None = Field(nullable=True)
@@ -81,18 +84,21 @@ class EnProjectDB(SQLModel, table=True):
           when provided
         - Updates to the project automatically set the date_updated field
     """
+
     __tablename__ = "projects"
 
     id: int = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="users.id")
     name: str = Field(min_length=1, max_length=100)
-    description: str | None = Field(default=None, min_length=1, max_length=255, nullable=True)
+    description: str | None = Field(
+        default=None, min_length=1, max_length=255, nullable=True
+    )
     country: str = Field(min_length=1, max_length=40)
     longitude: float | None = Field(nullable=True)
     latitude: float | None = Field(nullable=True)
     is_favorite: bool = Field(default=False)
     date_created: datetime = Field(default_factory=datetime.now)
-    date_updated: datetime = Field(default_factory=datetime.now)
+    date_updated: datetime | None = Field(default_factory=datetime.now)
 
     def model_dump(self, *args, **kwargs) -> dict:
         """
@@ -145,9 +151,14 @@ class EnProjectUpdate(BaseModel):
         Can be None if not provided. If specified, must be a float value.
     :type latitude: float | None
     """
+
     name: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
-    country: str | None = Field(default=None, min_length=1, max_length=100, nullable=True)
-    description: str | None = Field(default=None, min_length=1, max_length=255, nullable=True)
+    country: str | None = Field(
+        default=None, min_length=1, max_length=100, nullable=True
+    )
+    description: str | None = Field(
+        default=None, min_length=1, max_length=255, nullable=True
+    )
     longitude: float | None = Field(default=None, nullable=True)
     latitude: float | None = Field(default=None, nullable=True)
     is_favorite: bool | None = Field(default=False, nullable=True)

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from . import ErrorModel, GeneralDataModel
+from ..models.base import ErrorModel, GeneralDataModel
 
 
 class GeneralResponse(BaseModel):
@@ -18,17 +18,13 @@ class GeneralResponse(BaseModel):
     :ivar errors: List of errors encountered during the request.
     :type errors: list[ErrorModel] | None
     """
-    data: None = Field(
-        default=None,
-        description="Data returned by the request."
-    )
+
+    data: None = Field(default=None, description="Data returned by the request.")
     success: bool = Field(
-        default=True,
-        description="Indicates whether the request was successful or not."
+        default=True, description="Indicates whether the request was successful or not."
     )
     errors: list[ErrorModel] | None = Field(
-        default=None,
-        description="List of errors encountered during the request."
+        default=None, description="List of errors encountered during the request."
     )
 
 
@@ -47,7 +43,9 @@ class DataResponse(GeneralResponse):
                 the response.
     :type data: GeneralDataModel
     """
+
     data: GeneralDataModel = Field(...)
+
 
 class MessageResponse(GeneralResponse):
     """
@@ -59,7 +57,9 @@ class MessageResponse(GeneralResponse):
     :ivar data: The content of the response message.
     :type data: str
     """
+
     data: str = Field(...)
+
 
 class ErrorResponse(GeneralResponse):
     """
@@ -75,13 +75,13 @@ class ErrorResponse(GeneralResponse):
     :ivar success: Indicates whether the request was successful or not. Default is False.
     :type success: bool
     """
+
     data: GeneralDataModel | None = Field(
-        default=None,
-        description="Data returned by the request."
+        default=None, description="Data returned by the request."
     )
     success: bool = Field(
         default=False,
-        description="Indicates whether the request was successful or not."
+        description="Indicates whether the request was successful or not.",
     )
 
 
@@ -98,11 +98,10 @@ class ResultResponse(GeneralResponse):
     :ivar success: Indicates whether the request was successful or not. Default is True.
     :type success: bool
     """
+
     data: GeneralDataModel = Field(
-        ...,
-        description="The result data returned by the request."
+        ..., description="The result data returned by the request."
     )
     success: bool = Field(
-        default=True,
-        description="Indicates whether the request was successful or not."
+        default=True, description="Indicates whether the request was successful or not."
     )

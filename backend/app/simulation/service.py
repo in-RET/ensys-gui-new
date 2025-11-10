@@ -14,24 +14,39 @@ from typing import List
 
 from celery import uuid
 from celery.worker.control import revoke
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from oemof.tools import logger
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
-from . import EnSimulationDB, Status
+from .model import EnSimulationDB, Status
 from ..celery import start_task
-from ..db import get_db_session
-from ..user import EnUserDB
-from ..user.service import read_user_by_token
+from ..db import SessionLocal
+from ..user.model import EnUserDB
 
 
 def create_simulation(
     scenario_id: int,
     simulation_token: str = uuid(),
-    db: Session = Depends(get_db_session()),
+    db: Session = SessionLocal(),
 ) -> EnSimulationDB:
+    """
+    Create a new simulation record for a scenario.
+
+    Initializes a simulation database entry with the provided or generated
+    token, associating it with a specific scenario.
+
+    :param scenario_id: ID of the scenario to simulate
+    :type scenario_id: int
+    :param simulation_token: Unique token for the simulation (auto-generated if not provided)
+    :type simulation_token: str
+    :param db: Database session for transaction
+    :type db: Session
+    :return: Created simulation database object
+    :rtype: EnSimulationDB
+    :raises HTTPException: If database integrity error occurs (409)
+    """
     # Create new simulation
     simulation = EnSimulationDB(
         sim_token=simulation_token,
@@ -56,24 +71,29 @@ def create_simulation(
 
 
 def start_simulation(
-    simulation_id: int, user: EnUserDB = Depends(read_user_by_token())
-) -> tuple[str, str]:
+    simulation_id: int, user: EnUserDB
+) -> tuple[int | None, str | None]:
     """
     Start a new simulation for a given scenario.
 
-    :param scenario_id: The scenario ID to simulate
-    :param token: Authentication token
-    :param db: Database session
+    Validates user authorization, stops any running simulations for the scenario,
+    and initiates a new simulation task.
+
+    :param simulation_id: The simulation ID to start
+    :type simulation_id: int
+    :param user: Authenticated user starting the simulation
+    :type user: EnUserDB
     :return: Tuple of (simulation ID, task ID)
-    :raises HTTPException: If not authenticated or authorized
+    :rtype: tuple[int | None, str | None]
+    :raises HTTPException: If not authenticated or authorized (401)
     """
-    simulation = read_simulation(simulation_id)
+    simulation = read_simulation(simulation_id, user)
 
     if not user.check_user_rights(scenario_id=simulation.scenario_id):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     stopped_simulations = stop_simulations_for_scenario(
-        scenario_id=simulation.scenario_id
+        scenario_id=simulation.scenario_id, user=user
     )
     # for debugging
     print(f"stopped_simulations: {stopped_simulations}")
@@ -84,34 +104,43 @@ def start_simulation(
     return simulation.id, task.id
 
 
-def read_simulation_status(simulation_id: int) -> int:
+def read_simulation_status(simulation_id: int, user: EnUserDB) -> int:
     """
-    Get the status of a specific simulation.
+        Get the status of a specific simulation.
+    ®
+        Retrieves the current status code of a simulation.
 
-    :param simulation_id: The simulation ID
-    :param token: Authentication token
-    :param db: Database session
-    :return: The simulation object
-    :raises HTTPException: If simulation not found or not authorized
+        :param simulation_id: The simulation ID
+        :type simulation_id: int
+        :param user: Authenticated user requesting the status
+        :type user: EnUserDB
+        :return: The simulation status code
+        :rtype: int
+        :raises HTTPException: If simulation not found or not authorized
     """
 
-    return read_simulation(simulation_id).status
+    return read_simulation(simulation_id, user).status
 
 
 def read_simulation(
     simulation_id: int,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> EnSimulationDB:
     """
     Get a specific simulation.
 
-    :param user:
+    Retrieves a simulation by ID and validates user authorization.
+
     :param simulation_id: The simulation ID
-    :param token: Authentication token
+    :type simulation_id: int
+    :param user: Authenticated user requesting the simulation
+    :type user: EnUserDB
     :param db: Database session
-    :return: The simulation
-    :raises HTTPException: If not found or not authorized
+    :type db: Session
+    :return: The simulation database object
+    :rtype: EnSimulationDB
+    :raises HTTPException: If not found (404) or not authorized (401)
     """
     simulation = db.exec(
         select(EnSimulationDB).where(EnSimulationDB.id == simulation_id)
@@ -130,18 +159,23 @@ def read_simulation(
 
 def read_scenario_simulations(
     scenario_id: int,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> List[EnSimulationDB] | None:
     """
     Get all simulations for a scenario.
 
-    :param user:
+    Retrieves all simulation records associated with a specific scenario
+    if the user has authorization.
+
     :param scenario_id: The scenario ID
-    :param token: Authentication token
+    :type scenario_id: int
+    :param user: Authenticated user requesting the simulations
+    :type user: EnUserDB
     :param db: Database session
-    :return: List of simulations
-    :raises HTTPException: If not authorized
+    :type db: Session
+    :return: List of simulations or None if not authorized
+    :rtype: List[EnSimulationDB] | None
     """
     if user.check_user_rights(scenario_id):
         statement = select(EnSimulationDB).where(
@@ -155,18 +189,26 @@ def read_scenario_simulations(
 
 def stop_simulation(
     simulation_id: int,
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> EnSimulationDB:
     """
     Stop a specific simulation.
 
+    Revokes the running simulation task and updates its status to stopped.
+
     :param simulation_id: The simulation ID to stop
-    :param token: Authentication token
+    :type simulation_id: int
+    :param user: Authenticated user stopping the simulation
+    :type user: EnUserDB
     :param db: Database session
-    :return: The stopped simulation
-    :raises HTTPException: If not found or not authorized
+    :type db: Session
+    :return: The stopped simulation database object
+    :rtype: EnSimulationDB
+    :raises HTTPException: If not found (404), not authorized (401),
+        or database error (409)
     """
-    simulation = read_simulation(simulation_id)
+    simulation = read_simulation(simulation_id, user)
 
     revoke(simulation.sim_token, terminate=True)
     simulation.status = Status.STOPPED.value
@@ -187,18 +229,25 @@ def stop_simulation(
 
 
 def stop_simulations_for_scenario(
-    scenario_id: int, db: Session = Depends(get_db_session())
+    scenario_id: int, user: EnUserDB, db: Session = SessionLocal()
 ) -> List[EnSimulationDB]:
     """
     Stop all running simulations for a scenario.
 
+    Revokes all active simulation tasks for a given scenario and updates
+    their status to stopped.
+
     :param scenario_id: The scenario ID
-    :param token: Authentication token
+    :type scenario_id: int
+    :param user: Authenticated user stopping the simulations
+    :type user: EnUserDB
     :param db: Database session
-    :return: Tuple of (stopped simulations, error message if multiple found)
-    :raises HTTPException: If not authorized or no simulations found
+    :type db: Session
+    :return: List of stopped simulations
+    :rtype: List[EnSimulationDB]
+    :raises HTTPException: If not authorized (401) or database error (500)
     """
-    simulations = read_scenario_simulations(scenario_id)
+    simulations = read_scenario_simulations(scenario_id=scenario_id, user=user)
 
     for simulation in simulations:
         revoke(simulation.sim_token, terminate=True)
@@ -220,15 +269,23 @@ def stop_simulations_for_scenario(
 
 
 def delete_simulation(
-    simulation_id: int, db: Session = Depends(get_db_session())
+    simulation_id: int, user: EnUserDB, db: Session = SessionLocal()
 ) -> None:
     """
     Delete a simulation from the database.
 
+    Permanently removes a simulation record and all associated data.
+
     :param simulation_id: The simulation ID to delete
+    :type simulation_id: int
+    :param user: Authenticated user deleting the simulation
+    :type user: EnUserDB
     :param db: Database session
+    :type db: Session
+    :raises HTTPException: If not found (404), not authorized (401),
+        or database error (409)
     """
-    simulation = read_simulation(simulation_id)
+    simulation = read_simulation(simulation_id, user)
     if simulation:
         db.delete(simulation)
         try:

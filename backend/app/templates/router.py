@@ -13,23 +13,25 @@ The module provides endpoints for:
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlmodel import Session
-from starlette import status
 
-from . import get_all_templates, clone_template_to_project
-from ..db import get_db_session
-from ..models import DataResponse, MessageResponse, GeneralDataModel
+from .service import (
+    get_all_templates,
+    clone_template_to_project,
+    delete_template,
+    duplicate_template,
+)
+from ..models.base import GeneralDataModel
+from ..models.response import DataResponse, MessageResponse
 from ..security import oauth2_scheme
-from ..user import read_user_by_token, EnUserDB
+from ..user.service import read_user_by_token
 
 templates_router = APIRouter(prefix="/templates", tags=["templates"])
 
 
 @templates_router.get("/")
-async def get_templates(
-    token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db_session)
-) -> DataResponse:
+async def get_templates_endpoint() -> DataResponse:
     """
     Retrieve all available templates.
 
@@ -44,12 +46,7 @@ async def get_templates(
     :rtype: DataResponse
     :raises HTTPException: If not authenticated (401)
     """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
-
-    response_list = get_all_templates(db)
+    response_list = get_all_templates()
 
     return DataResponse(
         data=GeneralDataModel(items=response_list, totalCount=len(response_list)),
@@ -58,8 +55,8 @@ async def get_templates(
 
 
 @templates_router.post("/{template_id}")
-async def create_project_from_template(
-    template_id: int, user: EnUserDB = Depends(read_user_by_token())
+async def create_project_from_template_endpoint(
+    template_id: int, token: Annotated[str, Depends(oauth2_scheme)]
 ) -> MessageResponse:
     """
     Create a new project from a template.
@@ -82,6 +79,52 @@ async def create_project_from_template(
         - Copies all template configurations
         - Associates project with current user
     """
+    user = read_user_by_token(token)
+
     clone_template_to_project(template_id=template_id, user_id=user.id)
 
     return MessageResponse(data="Template cloned to project.", success=True)
+
+
+@templates_router.delete("/{template_id}")
+async def delete_template_endpoint(
+    template_id: int, token: Annotated[str, Depends(oauth2_scheme)]
+) -> MessageResponse:
+    """
+    Delete a template.
+
+    Removes a template and its associated data from the database.
+
+    :param template_id: ID of the template to delete
+    :type template_id: int
+    :param token: Authentication token from OAuth2 scheme
+    :type token: str
+    :return: Success message with operation result
+    :rtype: MessageResponse
+    :raises HTTPException: If not authenticated (401) or template not found (404)
+    """
+    delete_template(template_id=template_id)
+
+    return MessageResponse(data="Template deleted successfully.", success=True)
+
+
+@templates_router.post("/{template_id}/duplicate")
+async def duplicate_template_endpoint(
+    template_id: int, token: Annotated[str, Depends(oauth2_scheme)]
+) -> MessageResponse:
+    """
+    Duplicate a template.
+
+    Creates a copy of an existing template with all its configurations.
+
+    :param template_id: ID of the template to duplicate
+    :type template_id: int
+    :param token: Authentication token from OAuth2 scheme
+    :type token: str
+    :return: Success message with operation result
+    :rtype: MessageResponse
+    :raises HTTPException: If not authenticated (401) or template not found (404)
+    """
+    duplicate_template(template_id=template_id)
+
+    return MessageResponse(data="Template duplicated successfully.", success=True)

@@ -1,13 +1,13 @@
 """
-Open Energy Platform (OEP) Module
-==============================
+Open Energy Platform (OEP) Integration Module
+==========================================
 
-Handles all OEP-related functionality including
-- Data retrieval from OEP
-- Data transformation and mapping
-- OEP authentication and API interaction
+This package provides integration with the Open Energy Platform for the
+EnSys application, enabling access to open energy data.
+
+The module includes:
+    - OEP client configuration
+    - OEP data retrieval services
+    - OEP API endpoints
+    - Schema and metadata handling
 """
-
-from .service import get_oep_client
-
-__all__ = ['get_oep_client']

@@ -11,33 +11,35 @@ It handles the business logic for project operations including:
 """
 
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
-from . import EnProject, EnProjectDB, EnProjectUpdate
-from ..db import get_db_session
-from ..scenario import EnScenarioDB
+from .model import EnProject, EnProjectDB, EnProjectUpdate
+from ..db import SessionLocal
+from ..scenario.model import EnScenarioDB
 from ..scenario.service import read_scenarios, delete_scenario
-from ..user import EnUserDB
-from ..user.service import read_user_by_token
+from ..user.model import EnUserDB
 
 
 def create_project(
     project_data: EnProject,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> None:
     """
     Create a new project for a user.
 
+    Initializes a project with creation and update timestamps, associating
+    it with the specified user.
+
     :param project_data: Project data to create
     :type project_data: EnProject
-    :param current_user: User who will own the project
-    :type current_user: EnUserDB
+    :param user: User who will own the project
+    :type user: EnUserDB
     :param db: Database session
     :type db: Session
     """
@@ -51,8 +53,8 @@ def create_project(
 
 
 def read_projects(
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> List[dict]:
     """
     Retrieve all projects owned by a user.
@@ -70,9 +72,7 @@ def read_projects(
 
 
 def read_project(
-    project_id: int,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    project_id: int, user: EnUserDB, db: Session = SessionLocal()
 ) -> EnProjectDB:
     """
     Retrieve a specific project by ID.
@@ -103,19 +103,26 @@ def read_project(
 def update_project(
     project_id: int,
     project_data: EnProjectUpdate,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> EnProjectDB:
     """
     Update an existing project.
+
+    Applies partial updates to a project's data and refreshes the update timestamp.
 
     :param project_id: ID of the project to update
     :type project_id: int
     :param project_data: New project data
     :type project_data: EnProjectUpdate
+    :param user: User performing the update
+    :type user: EnUserDB
     :param db: Database session
     :type db: Session
-    :raises HTTPException: If project not found (404)
+    :return: Updated project database object
+    :rtype: EnProjectDB
+    :raises HTTPException: If not authorized (401), project not found (404),
+        or database error (409)
     """
     if not user.check_project_rights(project_id):
         raise HTTPException(
@@ -123,7 +130,7 @@ def update_project(
             detail="You do not have permission to update this project.",
         )
     else:
-        project = read_project(project_id)
+        project = read_project(project_id, user)
 
         update_data = project_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -147,19 +154,21 @@ def update_project(
 
 def delete_project(
     project_id: int,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> None:
     """
     Delete a project and all its scenarios.
 
+    Performs a cascading delete of all scenarios before removing the project.
+
     :param project_id: ID of the project to delete
     :type project_id: int
-    :param token: Authentication token for scenario deletion
-    :type token: str
+    :param user: Authenticated user deleting the project
+    :type user: EnUserDB
     :param db: Database session
     :type db: Session
-    :raises HTTPException: If project not found (404)
+    :raises HTTPException: If not authorized (401) or project not found (404)
     """
     if user.check_project_rights(project_id):
         project = read_project(project_id)
@@ -167,7 +176,7 @@ def delete_project(
         # Delete all associated scenarios first
         scenarios = read_scenarios(project_id=project_id)
         for scenario in scenarios:
-            delete_scenario(scenario.id)
+            delete_scenario(scenario.id, user)
 
         # Then delete the project
         db.delete(project)
@@ -181,19 +190,21 @@ def delete_project(
 
 def duplicate_project(
     project_id: int,
-    user: EnUserDB = Depends(read_user_by_token()),
-    db: Session = Depends(get_db_session()),
+    user: EnUserDB,
+    db: Session = SessionLocal(),
 ) -> None:
     """
     Duplicate a project and all its scenarios.
 
+    Creates a copy of a project with all associated scenarios and configurations.
+
     :param project_id: ID of the project to duplicate
     :type project_id: int
+    :param user: Authenticated user duplicating the project
+    :type user: EnUserDB
     :param db: Database session
     :type db: Session
-    :param user_id: Optional ID of the new owner user
-    :type user_id: Optional[int]
-    :raises HTTPException: If project not found (404)
+    :raises HTTPException: If not authorized (401) or project not found (404)
     """
     if not user.check_project_rights(project_id):
         raise HTTPException(

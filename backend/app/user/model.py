@@ -18,11 +18,12 @@ from fastapi import HTTPException
 from jose import jwt
 from passlib.hash import pbkdf2_sha256
 from pydantic import field_validator, BaseModel
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Session
 from starlette import status
 
-from ..project import read_project
-from ..scenario import read_scenario
+from ..db import SessionLocal
+from ..project.model import EnProjectDB
+from ..scenario.model import EnScenarioDB
 from ..security import token_secret
 
 PASSWORD_MAX_LENGTH = 128
@@ -195,9 +196,10 @@ class EnUserDB(SQLModel, table=True):
     username: str = Field(min_length=3, max_length=128, unique=True)
     firstname: str | None = Field(default=None, min_length=0, max_length=64)
     lastname: str | None = Field(default=None, min_length=0, max_length=64)
-    password_hash: str = Field(max_length=PASSWORD_MAX_LENGTH)
+    password: str = Field(min_length=8, max_length=PASSWORD_MAX_LENGTH)
     mail: str = Field(min_length=8, max_length=128)
-    date_joined: datetime = Field(default_factory=datetime.now)
+    date_joined: datetime | None = Field(default_factory=datetime.now)
+    last_login: datetime | None = Field(default=None)
     is_active: bool = Field(default=False)
     is_staff: bool = Field(default=False)
 
@@ -210,7 +212,7 @@ class EnUserDB(SQLModel, table=True):
         :return: True if password matches, False otherwise
         :rtype: bool
         """
-        return pbkdf2_sha256.verify(password, self.password_hash)
+        return pbkdf2_sha256.verify(password, self.password)
 
     def get_token(self) -> str:
         """
@@ -221,32 +223,76 @@ class EnUserDB(SQLModel, table=True):
         """
         return jwt.encode({"username": self.username}, token_secret, algorithm="HS256")
 
-    def check_scenario_rights(self, scenario_id: int) -> bool:
-        scenario = read_scenario(scenario_id)
+    def check_scenario_rights(
+        self, scenario_id: int, db: Session = SessionLocal()
+    ) -> bool:
+        """
+        Check if the user has access rights to a specific scenario.
 
+        Verifies if the user is either an admin or the owner of the scenario.
+
+        :param db: db session to use
+        :type db: Session
+        :param scenario_id: ID of the scenario to check
+        :type scenario_id: int
+        :return: True if user has access rights, False otherwise
+        :rtype: bool
+        """
+        scenario: EnScenarioDB = db.get(EnScenarioDB, scenario_id)
         if self.is_staff:
             return True
-        elif scenario.user_id == self.id:
+
+        if scenario and scenario.user_id == self.id:
             return True
         else:
             return False
 
-    def check_project_rights(self, project_id: int) -> bool:
-        project = read_project(project_id)
+    def check_project_rights(
+        self, project_id: int, db: Session = SessionLocal()
+    ) -> bool:
+        """
+        Check if the user has access rights to a specific project.
+
+        Verifies if the user is either an admin or the owner of the project.
+
+        :param db: db session to use
+        :type db: Session
+        :param project_id: ID of the project to check
+        :type project_id: int
+        :return: True if user has access rights, False otherwise
+        :rtype: bool
+        :raises bool: Returns False if user doesn't have access
+        """
+        project: EnProjectDB = db.get(EnProjectDB, project_id)
 
         if self.is_staff:
             return True
-        elif project.user_id == self.id:
+
+        if project and project.user_id == self.id:
             return True
         else:
             raise False
 
-    def check_user_rights(self, scenario_id: int) -> bool:
-        scenario = read_scenario(scenario_id)
+    def check_user_rights(self, scenario_id: int, db: Session = SessionLocal()) -> bool:
+        """
+        Check if the user has full access rights to a scenario and its parent project.
+
+        Validates that the user has access to both the scenario and its associated
+        project.
+
+        :param db: db session to use
+        :type db: Session
+        :param scenario_id: ID of the scenario to check
+        :type scenario_id: int
+        :return: True if user has full access rights, False otherwise
+        :rtype: bool
+        :raises HTTPException: If scenario or project doesn't exist (status code 404)
+        """
+        scenario = db.get(EnScenarioDB, scenario_id)
         if scenario is None:
             raise HTTPException(status_code=404, detail="Scenario does not exist.")
 
-        project = read_project(scenario.project_id)
+        project = db.get(EnProjectDB, scenario.project_id)
         if project is None:
             raise HTTPException(status_code=404, detail="Project does not exist.")
 
