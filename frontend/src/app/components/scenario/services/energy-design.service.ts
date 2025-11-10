@@ -234,6 +234,121 @@ export class EnergyDesignService {
         });
     }
 
+    getInvestmentFields_storage(data?: any, callback?: any) {
+        return [
+            {
+                name: 'maximum',
+                placeholder: 'maximum',
+                label: 'maximum',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'minimum',
+                placeholder: 'minimum',
+                label: 'minimum',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'ep_costs',
+                placeholder: 'ep_costs',
+                label: 'ep_costs',
+                type: 'text',
+                span: 'auto',
+                actions: [
+                    {
+                        name: 'ep_costs_calculator',
+                        label: '',
+                        icon: 'calculator',
+                        onClick: () => {
+                            callback['showEpCostsCalModal']();
+                        },
+                    },
+                ],
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'existing',
+                placeholder: 'existing',
+                label: 'existing',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'nonconvex',
+                placeholder: 'nonconvex',
+                label: 'nonconvex',
+                type: 'text',
+                span: 'auto',
+            },
+            {
+                name: 'offset',
+                placeholder: 'offset',
+                label: 'offset',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'overall_maximum',
+                placeholder: 'overall_maximum',
+                label: 'overall_maximum',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'overall_minimum',
+                placeholder: 'overall_minimum',
+                label: 'overall_minimum',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'interest_rate',
+                placeholder: 'interest_rate',
+                label: 'interest_rate',
+                type: 'text',
+                span: 'auto',
+                numberOnlyAllowed: true,
+            },
+            {
+                name: 'lifetime',
+                placeholder: 'lifetime',
+                label: 'lifetime',
+                type: 'number',
+                span: 'auto',
+            },
+        ].map((item: any) => {
+            if (data) {
+                item['value'] = data[item.name.toLocaleLowerCase()];
+            } else {
+                item['value'] = null;
+            }
+
+            // set disabled based on oep && investment
+            if (data && !data.oep) {
+                const isInvSelected: boolean = this.getFieldData('investment', {
+                    mode: true,
+                    data,
+                });
+
+                item['disabled'] = !isInvSelected;
+            } else item['disabled'] = true;
+
+            item['label'] = this.generalService.convertText_uppercaseAt0(
+                item['label']
+            );
+
+            return item;
+        });
+    }
+
     getDefaultFields_flow(oep: boolean, data?: any, preDefData?: any) {
         return [
             {
@@ -775,7 +890,7 @@ export class EnergyDesignService {
                                         'my-3',
                                         () => {
                                             const InvestmentFields =
-                                                this.getInvestmentFields(
+                                                this.getInvestmentFields_storage(
                                                     data
                                                 ).map((elm: any) => elm.name);
 
@@ -828,26 +943,18 @@ export class EnergyDesignService {
                                 class: 'col-12',
                                 visible: true,
                                 fields: [
-                                    ...this.getInvestmentFields(
+                                    ...this.getInvestmentFields_storage(
                                         data,
                                         callback
                                     ).map((elm: any) => {
-                                        const isInvSelected: boolean =
-                                            this.getFieldData('investment', {
-                                                mode: editMode,
-                                                data,
-                                            });
-
-                                        elm['disabled'] = !isInvSelected;
-
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                }
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         }
+                                        //     );
+                                        // }
 
                                         return elm;
                                     }),

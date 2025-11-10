@@ -979,6 +979,6 @@ export class ScenarioEnergyDesignComponent {
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        this.subscriptionSimulation.unsubscribe();
+        if (this.showSimulations) this.subscriptionSimulation.unsubscribe();
     }
 }

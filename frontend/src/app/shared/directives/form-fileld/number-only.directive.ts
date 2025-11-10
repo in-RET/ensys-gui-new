@@ -4,13 +4,15 @@ import { Directive, HostListener, Input } from '@angular/core';
     selector: '[numberOnly]',
 })
 export class NumberOnlyDirective {
-    @Input() numberOnly: boolean = true;
-    @Input() numbersArray: boolean = true;
+    @Input() numberOnly!: boolean;
+    @Input() numbersArray!: boolean;
 
     constructor() {}
 
     @HostListener('input', ['$event'])
     onInput(event: Event) {
+        if (!this.numberOnly && !this.numbersArray) return;
+
         const input = event.target as HTMLInputElement;
 
         // Remove characters not allowed at all
