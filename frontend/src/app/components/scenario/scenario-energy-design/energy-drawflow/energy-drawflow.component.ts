@@ -981,15 +981,14 @@ export class EnergyDrawflowComponent {
 
     // R-Click event , Touching events
     showConextMenu(x: any, y: any, nodeId: number, node?: any) {
-        // if (nodeId) {
-        let contextWithActionsDirection: 'left' | 'right' = 'right';
-        // this.contextMenuRef.nativeElement.style.left = x + 'px';
+        let contextWithActionsDirection: 'left' | 'right' = 'left';
         this.contextMenuRef.nativeElement.style.display = 'block';
 
         const currentNode = this.editor.getNodeFromId(nodeId);
         let nodeConnections_in: any[] = [];
         let nodeConnections_out: any[] = [];
 
+        // make nodeConnections
         if (currentNode.data.ports.inputs)
             currentNode.data.ports.inputs.forEach(
                 (currentNode_input: {
@@ -1039,6 +1038,7 @@ export class EnergyDrawflowComponent {
                 }
             );
 
+        // make nodeConnections
         if (currentNode.data.ports.outputs)
             currentNode.data.ports.outputs.forEach(
                 (currentNode_output: {
@@ -1095,40 +1095,19 @@ export class EnergyDrawflowComponent {
             },
             direction: contextWithActionsDirection,
         };
-        console.log(contextWithActionsDirection);
 
         setTimeout(() => {
-            const contextMenuWidth =
-                this.contextMenuRef.nativeElement.offsetWidth;
-            const contextMenuWidth_actions = 150;
+            const contextMenuStyle = {
+                w: this.contextMenuRef.nativeElement.offsetWidth,
+                w_actioons: 150,
+            };
             const reaminingWidth_contextWithActions =
                 window.innerWidth -
-                (x + contextMenuWidth + contextMenuWidth_actions);
+                (x + contextMenuStyle.w + contextMenuStyle.w_actioons);
 
-            const reaminingWidth_context =
-                x + contextMenuWidth - window.innerWidth;
-
-            // console.log(
-            //     reaminingWidth_contextWithActions,
-            //     reaminingWidth_context
-            // );
-
-            if (reaminingWidth_context >= 0) {
-                this.contextMenuRef.nativeElement.style.left = `${
-                    x - reaminingWidth_context
-                }px`;
-
-                if (reaminingWidth_contextWithActions <= 0) {
-                    // for actions context menu
-                    contextWithActionsDirection = 'left';
-
-                    if (this.contextmenu)
-                        this.contextmenu = {
-                            ...this.contextmenu,
-                            direction: contextWithActionsDirection,
-                        };
-                }
-            } else if (reaminingWidth_contextWithActions <= 0) {
+            if (reaminingWidth_contextWithActions <= 0) {
+                this.contextMenuRef.nativeElement.style.left =
+                    x - contextMenuStyle.w + 'px';
                 // for actions context menu
                 contextWithActionsDirection = 'left';
 
@@ -1162,8 +1141,6 @@ export class EnergyDrawflowComponent {
 
             this.contextMenuRef.nativeElement.style.top = y + 'px';
         }, 0);
-
-        // }
     }
 
     unShowConextMenu() {
