@@ -227,9 +227,9 @@ export class ScenarioEnergyDesignComponent {
         this.formModal_info.preDefData = e.data.preDefData;
 
         let nodeType = e.node?.class ?? '';
-        // if (!e.editMode) {
-        //     nodeType = e.node?.type ?? '';
-        // } else nodeType = e.node?.class ?? '';
+
+        console.log('current fix: ' + e.data?.fix?.[0]);
+
         this.formModal_info.formData =
             await this.energyDesignService.getFormFields_flow(
                 nodeType,
@@ -390,6 +390,21 @@ export class ScenarioEnergyDesignComponent {
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
+                            // save in/out data port based on predefined item, to use in flow
+                            this.formModal_info.preDefData = value.ports_data;
+
+                            console.log(value.ports_data);
+
+                            console.log(
+                                value.ports_data.inputs.length &&
+                                    value.ports_data.inputs[0].flow_data
+                                        ?.fix?.[0]
+                                    ? value.ports_data.inputs[0].flow_data
+                                          ?.fix?.[0]
+                                    : value.ports_data.outputs[0].flow_data
+                                          ?.fix?.[0]
+                            );
+
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
                                     ...this.formModal_info.data,
@@ -401,7 +416,7 @@ export class ScenarioEnergyDesignComponent {
                                 };
                             }
 
-                            // set node's ports name+...props
+                            // set node's ports name + ...props
                             value.ports_data.inputs.forEach((port: Port) => {
                                 if (type != 'transformer') {
                                     this.formComponent.setFieldData(
@@ -421,6 +436,58 @@ export class ScenarioEnergyDesignComponent {
                                         inputItem
                                     );
                                 }
+
+                                this.formModal_info.node?.data?.connections?.inputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.inputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'input_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+
+                                this.formModal_info.data?.connections?.inputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.inputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'input_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
                             });
 
                             value.ports_data.outputs.forEach((port: Port) => {
@@ -442,10 +509,59 @@ export class ScenarioEnergyDesignComponent {
                                         outputItem
                                     );
                                 }
-                            });
 
-                            // save in/out data port based on predefined item, to use in flow
-                            this.formModal_info.preDefData = value.ports_data;
+                                this.formModal_info.node?.data?.connections?.outputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.outputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'output_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+
+                                this.formModal_info.data?.connections?.outputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.outputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'output_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+                            });
 
                             // set form fields
                             this.formComponent.enabelControl('oep');
@@ -466,13 +582,13 @@ export class ScenarioEnergyDesignComponent {
                             //     null
                             // );
                             // disable all fields
+
                             this.formComponent.disableControl('inputPort_name');
                             this.formComponent.disableControl(
                                 'outputPort_name'
                             );
                         },
                         error: (err) => {
-                            console.log(err);
                             this.toastService.error(
                                 err.error && err.error.detail
                                     ? err.error.detail
@@ -595,7 +711,6 @@ export class ScenarioEnergyDesignComponent {
                             this.formModal_info.preDefData = value.ports_data;
                         },
                         error: (err) => {
-                            console.log(err);
                             this.toastService.error(
                                 err.error && err.error.detail
                                     ? err.error.detail
@@ -769,6 +884,7 @@ export class ScenarioEnergyDesignComponent {
 
         let isOepSelected: boolean;
         isOepSelected = findOEPFieldData(this.formModal_info.data) ?? false;
+
         if (this.formModal_info.editMode)
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.data.oep) ?? false;
@@ -776,12 +892,9 @@ export class ScenarioEnergyDesignComponent {
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.oep) ?? false;
 
-        //    if (this.formModal_info.type !== 'flow')
-
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData) {
-            // new-node
             if (this.formModal_info.type === 'node') {
                 const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
@@ -816,6 +929,8 @@ export class ScenarioEnergyDesignComponent {
                         }
 
                         formData = { ...formData, ...portsInfo };
+
+                        // cause of flow pre-data
                         formData['connections'] = this.formModal_info.data
                             ? this.formModal_info.data['connections']
                             : null;
@@ -854,9 +969,7 @@ export class ScenarioEnergyDesignComponent {
                 } else {
                     this.setFormError(true, ' * The name is duplicated!');
                 }
-            }
-            // flow
-            else if (this.formModal_info.type === 'flow') {
+            } else if (this.formModal_info.type === 'flow') {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
                     this.formModal_info.data.connection,

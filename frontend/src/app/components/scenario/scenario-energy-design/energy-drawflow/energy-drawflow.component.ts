@@ -885,21 +885,52 @@ export class EnergyDrawflowComponent {
 
                 this.unShowConextMenu();
             } else if (type == 'flow' && connection) {
-                const source_connectionList =
-                    this.editor.drawflow.drawflow.Home.data[
-                        connection.source.node.id
-                    ].data['connections'];
-                const out_connectionList = source_connectionList['outputs'];
-                const outIndex = out_connectionList.findIndex(
-                    (out: any) =>
-                        out.hasOwnProperty(connection.source.port.id) &&
-                        out[connection.source.port.id].baseInfo.input_id ==
-                            connection.destination.node.id &&
-                        out[connection.source.port.id].baseInfo.input_class ==
-                            connection.destination.port.id
+                const _node = this.editor.getNodeFromId(
+                    this.contextmenu.nodeId
                 );
-                const _connectionData: { baseInfo: any; formInfo: any } =
-                    out_connectionList[outIndex][connection.source.port.id];
+                const source_connectionList =
+                    // this.editor.drawflow.drawflow.Home.data[
+                    //     connection.source.node.id
+                    // ].data['connections'];
+                    _node.data['connections'];
+
+                let connectionList;
+                let portIndex;
+                let _connectionData!: { baseInfo: any; formInfo: any };
+
+                if (connection.destination.node.id == _node.id) {
+                    connectionList = source_connectionList['inputs'];
+
+                    portIndex = connectionList.findIndex(
+                        (port: any) =>
+                            port.hasOwnProperty(
+                                connection.destination.port.id
+                            ) &&
+                            port[connection.destination.port.id].baseInfo
+                                .input_id == connection.destination.node.id &&
+                            port[connection.destination.port.id].baseInfo
+                                .input_class == connection.destination.port.id
+                    );
+
+                    _connectionData =
+                        connectionList[portIndex][
+                            connection.destination.port.id
+                        ];
+                } else if (connection.source.node.id == _node.id) {
+                    connectionList = source_connectionList['outputs'];
+
+                    portIndex = connectionList.findIndex(
+                        (port: any) =>
+                            port.hasOwnProperty(connection.source.port.id) &&
+                            port[connection.source.port.id].baseInfo
+                                .output_id == connection.source.node.id &&
+                            port[connection.source.port.id].baseInfo
+                                .output_class == connection.source.port.id
+                    );
+
+                    _connectionData =
+                        connectionList[portIndex][connection.source.port.id];
+                }
 
                 _connectionData.formInfo['connection'] =
                     _connectionData.baseInfo;
@@ -1077,10 +1108,10 @@ export class EnergyDrawflowComponent {
             const reaminingWidth_context =
                 x + contextMenuWidth - window.innerWidth;
 
-            console.log(
-                reaminingWidth_contextWithActions,
-                reaminingWidth_context
-            );
+            // console.log(
+            //     reaminingWidth_contextWithActions,
+            //     reaminingWidth_context
+            // );
 
             if (reaminingWidth_context >= 0) {
                 this.contextMenuRef.nativeElement.style.left = `${
