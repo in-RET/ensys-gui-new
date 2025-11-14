@@ -230,7 +230,7 @@ def duplicate_template(template_id: int, db: Session = SessionLocal()) -> EnTemp
         country=template.country,
         longitude=template.longitude,
         latitude=template.latitude,
-        currency=template.currency,
+        unit_currency=template.unit_currency,
         unit_energy=template.unit_energy,
         unit_co2=template.unit_co2,
     )

@@ -25,37 +25,55 @@ def upgrade() -> None:
     op.add_column(
         "projects",
         sa.Column(
-            "unit_currency", sqlmodel.sql.sqltypes.AutoString(length=8), nullable=False
+            "unit_currency",
+            sqlmodel.sql.sqltypes.AutoString(length=8),
+            nullable=False,
+            default="EUR",
         ),
     )
     op.add_column(
         "projects",
         sa.Column(
-            "unit_energy", sqlmodel.sql.sqltypes.AutoString(length=10), nullable=False
+            "unit_energy",
+            sqlmodel.sql.sqltypes.AutoString(length=10),
+            nullable=False,
+            default="kW/kWh",
         ),
     )
     op.add_column(
         "projects",
         sa.Column(
-            "unit_co2", sqlmodel.sql.sqltypes.AutoString(length=10), nullable=False
+            "unit_co2",
+            sqlmodel.sql.sqltypes.AutoString(length=10),
+            nullable=False,
+            default="tCO2",
         ),
     )
     op.add_column(
         "templates",
         sa.Column(
-            "unit_currency", sqlmodel.sql.sqltypes.AutoString(length=8), nullable=False
+            "unit_currency",
+            sqlmodel.sql.sqltypes.AutoString(length=8),
+            nullable=False,
+            default="EUR",
         ),
     )
     op.add_column(
         "templates",
         sa.Column(
-            "unit_energy", sqlmodel.sql.sqltypes.AutoString(length=10), nullable=False
+            "unit_energy",
+            sqlmodel.sql.sqltypes.AutoString(length=10),
+            nullable=False,
+            default="kW/kWh",
         ),
     )
     op.add_column(
         "templates",
         sa.Column(
-            "unit_co2", sqlmodel.sql.sqltypes.AutoString(length=10), nullable=False
+            "unit_co2",
+            sqlmodel.sql.sqltypes.AutoString(length=10),
+            nullable=False,
+            default="tCO2",
         ),
     )
     # ### end Alembic commands ###

@@ -48,7 +48,7 @@ class EnTemplate(BaseModel):
     latitude: float = Field(nullable=True)
     unit_currency: str = Field(default="EUR", max_length=8, nullable=False)
     unit_energy: str = Field(default="kW/kWh", max_length=10, nullable=False)
-    unit_co2: str = Field(default="kg/tCO2", max_length=10, nullable=False)
+    unit_co2: str = Field(default="tCO2", max_length=10, nullable=False)
 
 
 class EnTemplateDB(SQLModel, table=True):
@@ -88,7 +88,7 @@ class EnTemplateDB(SQLModel, table=True):
     latitude: float = Field(nullable=True)
     unit_currency: str = Field(default="EUR", max_length=8, nullable=False)
     unit_energy: str = Field(default="kW/kWh", max_length=10, nullable=False)
-    unit_co2: str = Field(default="kg/tCO2", max_length=10, nullable=False)
+    unit_co2: str = Field(default="tCO2", max_length=10, nullable=False)
 
     def model_dump(self, *args, **kwargs) -> dict:
         """
@@ -134,9 +134,9 @@ class EnTemplateUpdate(BaseModel):
     )
     longitude: float | None = Field(default=None, nullable=True)
     latitude: float | None = Field(default=None, nullable=True)
-    unit_currency: str | None = Field(default="EUR", max_length=8, nullable=True)
-    unit_energy: str | None = Field(default="kW/kWh", max_length=10, nullable=True)
-    unit_co2: str | None = Field(default="kg/tCO2", max_length=10, nullable=True)
+    unit_currency: str | None = Field(default=None, max_length=8, nullable=True)
+    unit_energy: str | None = Field(default=None, max_length=10, nullable=True)
+    unit_co2: str | None = Field(default=None, max_length=10, nullable=True)
 
 
 class EnTemplateScenario(BaseModel):
