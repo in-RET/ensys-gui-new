@@ -87,7 +87,7 @@ class EnSimulationDB(SQLModel, table=True):
     __tablename__ = "simulations"
 
     id: int | None = Field(default=None, primary_key=True)
-    sim_token: str = Field(unique=True)
+    sim_token: str = Field()
     status: int = Field(default=Status.STARTED.value)
     status_message: str | None = Field(default=None)
     scenario_id: int = Field(foreign_key="scenarios.id")

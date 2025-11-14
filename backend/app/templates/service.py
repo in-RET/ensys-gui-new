@@ -19,7 +19,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
-from .model import EnTemplateDB
+from .model import EnTemplateDB, EnTemplateScenarioDB
 from ..db import SessionLocal
 from ..project.model import EnProjectDB
 
@@ -37,6 +37,62 @@ def get_all_templates(db: Session = SessionLocal()) -> list[dict]:
     """
     templates = db.exec(select(EnTemplateDB)).all()
     return [t.model_dump() for t in templates]
+
+
+def get_template_scenarios(
+    template_id: int, db: Session = SessionLocal()
+) -> list[EnTemplateScenarioDB]:
+    """
+    Retrieve all scenarios associated with a specific template.
+
+    Fetches scenarios linked to the given template ID.
+
+    :param template_id: ID of the template to fetch scenarios for
+    :type template_id: int
+    :param db: Active database session for query execution
+    :type db: Session
+    :return: List of scenarios associated with the template
+    :rtype: list[EnTemplateScenarioDB]
+    """
+
+    scenarios = db.exec(
+        select(EnTemplateScenarioDB).where(
+            EnTemplateScenarioDB.template_id == template_id
+        )
+    ).all()
+
+    return scenarios
+
+
+def get_template_scenario(
+    template_scenario_id: int, db: Session = SessionLocal()
+) -> EnTemplateScenarioDB:
+    """
+    Retrieve a specific template scenario by its ID.
+
+    Fetches the scenario record corresponding to the provided scenario ID.
+
+    :param template_scenario_id: ID of the template scenario to retrieve
+    :type template_scenario_id: int
+    :param db: Active database session for query execution
+    :type db: Session
+    :return: Template scenario record
+    :rtype: EnTemplateScenarioDB
+    :raises HTTPException: If scenario not found (404)
+    """
+    scenario = db.exec(
+        select(EnTemplateScenarioDB).where(
+            EnTemplateScenarioDB.id == template_scenario_id
+        )
+    ).first()
+
+    if not scenario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Template scenario not found.",
+        )
+
+    return scenario
 
 
 def clone_template_to_project(

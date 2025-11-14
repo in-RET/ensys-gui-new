@@ -21,6 +21,8 @@ from .service import (
     clone_template_to_project,
     delete_template,
     duplicate_template,
+    get_template_scenarios,
+    get_template_scenario,
 )
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse, MessageResponse
@@ -50,6 +52,48 @@ async def get_templates_endpoint() -> DataResponse:
 
     return DataResponse(
         data=GeneralDataModel(items=response_list, totalCount=len(response_list)),
+        success=True,
+    )
+
+
+@templates_router.get("/{template_id}")
+async def get_templates_scenarios_endpoint(template_id: int) -> DataResponse:
+    """
+    Retrieve all scenarios for a specific template.
+
+    Lists all scenarios associated with the specified template.
+
+    :param template_id: ID of the template
+    :type template_id: int
+    :return: Response containing list of scenarios and count
+    :rtype: DataResponse
+    :raises HTTPException: If template not found (404)
+    """
+    response_list = get_template_scenarios(template_id=template_id)
+
+    return DataResponse(
+        data=GeneralDataModel(items=response_list, totalCount=len(response_list)),
+        success=True,
+    )
+
+
+@templates_router.get("/{template_scenario_id}")
+async def get_template_scenarios_endpoint(template_scenario_id: int) -> DataResponse:
+    """
+    Retrieve details for a specific template scenario.
+
+    Provides detailed information about the specified template scenario.
+
+    :param template_scenario_id: ID of the template scenario
+    :type template_scenario_id: int
+    :return: Response containing scenario details
+    :rtype: DataResponse
+    :raises HTTPException: If template scenario not found (404)
+    """
+    response = get_template_scenario(template_scenario_id=template_scenario_id)
+
+    return DataResponse(
+        data=GeneralDataModel(items=[response], totalCount=1),
         success=True,
     )
 

@@ -49,6 +49,9 @@ class EnProject(BaseModel):
     longitude: float | None = Field(nullable=True)
     latitude: float | None = Field(nullable=True)
     is_favorite: bool = Field(default=False)
+    unit_currency: str = Field(default="EUR", max_length=8, nullable=False)
+    unit_energy: str = Field(default="kW/kWh", max_length=10, nullable=False)
+    unit_co2: str = Field(default="kg/tCO2", max_length=10, nullable=False)
 
 
 class EnProjectDB(SQLModel, table=True):
@@ -99,6 +102,9 @@ class EnProjectDB(SQLModel, table=True):
     is_favorite: bool = Field(default=False)
     date_created: datetime = Field(default_factory=datetime.now)
     date_updated: datetime | None = Field(default_factory=datetime.now)
+    unit_currency: str = Field(default="EUR", max_length=8, nullable=False)
+    unit_energy: str = Field(default="kW/kWh", max_length=10, nullable=False)
+    unit_co2: str = Field(default="kg/tCO2", max_length=10, nullable=False)
 
     def model_dump(self, *args, **kwargs) -> dict:
         """
@@ -162,3 +168,6 @@ class EnProjectUpdate(BaseModel):
     longitude: float | None = Field(default=None, nullable=True)
     latitude: float | None = Field(default=None, nullable=True)
     is_favorite: bool | None = Field(default=False, nullable=True)
+    unit_currency: str | None = Field(default="EUR", max_length=8, nullable=True)
+    unit_energy: str | None = Field(default="kW/kWh", max_length=10, nullable=True)
+    unit_co2: str | None = Field(default="kg/tCO2", max_length=10, nullable=True)
