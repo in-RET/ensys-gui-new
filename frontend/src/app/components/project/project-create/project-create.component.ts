@@ -8,7 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import * as L from 'leaflet';
+import L from 'leaflet';
 import { map, Observable } from 'rxjs';
 import { RegionService } from '../../../shared/services/region.service';
 import { ProjectService } from '../services/project.service';
@@ -129,8 +129,8 @@ export class ProjectCreateComponent {
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
-            accessToken:
-                'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
+            // accessToken:
+            //     'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
 
         // this.map.invalidateSize();

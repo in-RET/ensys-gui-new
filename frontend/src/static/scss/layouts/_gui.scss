@@ -1,6 +1,9 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
 
+@use "sass:color";
+@use "sass:map";
+
 .system-design {
     @include flex-row;
     // height: calc(
@@ -198,7 +201,13 @@
         padding: 0 0.5rem 0.5rem;
 
         &:hover {
-            background-color: darken($primary-gray-color-1, 2%);
+            // warrning
+            // background-color: darken($primary-gray-color-1, 2%);
+            background-color: color.mix(
+                black,
+                $primary-gray-color-1,
+                2%
+            ) !important;
         }
 
         &.selected {
@@ -286,7 +295,7 @@
             $component-category in $component-categories-mapping
         {
             &.#{$component-category} {
-                border-bottom-color: map-get(
+                border-bottom-color: map.get(
                     $component-categories,
                     $component-category
                 );
