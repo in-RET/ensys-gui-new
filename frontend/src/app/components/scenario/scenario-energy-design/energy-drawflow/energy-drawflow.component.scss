@@ -137,7 +137,7 @@
     }
 }
 
-.submenu-parent {
+.submenu-parent:not(.color-picker) {
     cursor: pointer;
 }
 
@@ -149,7 +149,7 @@
 }
 
 .submenu-parent:hover .nested-menu {
-    display: block;
+    display: flex;
 }
 
 ::ng-deep .magnet-highlight {
@@ -168,4 +168,9 @@
 .right-100 {
     right: 100% !important;
     left: unset !important;
+}
+
+::ng-deep .drawflow .connection .main-path {
+    pointer-events: none !important;
+    // stroke: #d5ab00 !important;
 }

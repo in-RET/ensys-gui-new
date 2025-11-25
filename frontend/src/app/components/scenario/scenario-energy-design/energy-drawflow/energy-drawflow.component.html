@@ -38,12 +38,12 @@
 >
     <div class="list-group list-group-flush rounded">
         <div
-            class="submenu-parent list-group-item d-flex justify-content-between position-relative"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative"
         >
             <span *ngIf="contextmenu?.direction === 'left'">
                 <i class="arrow-left"></i>
             </span>
-            <span> Node</span>
+            <span> Node </span>
             <span *ngIf="contextmenu?.direction === 'right'">
                 <i class="arrow-right"> </i>
             </span>
@@ -87,10 +87,47 @@
             </div>
         </div>
 
+        <!-- color picker - flows -->
+        <div
+            class="submenu-parent color-picker list-group-item list-group-item-action d-flex justify-content-between position-relative"
+            *ngIf="contextmenu?.nodeClass === 'bus'"
+        >
+            <!-- color picker for bus -->
+            <span> Flows Color &nbsp;</span>
+
+            <div
+                class="nested-menu list-group position-absolute bg-white border rounded p-1"
+                [ngClass]="{
+                    'right-100': contextmenu?.direction === 'left',
+                    'left-100': contextmenu?.direction === 'right'
+                }"
+                style="flex-direction: row; gap: 0.5rem"
+            >
+                <button
+                    class="btn btn--info"
+                    (click)="onChangeBusFlowsColor(colorPicker)"
+                >
+                    <img
+                        src="../../../../../static/assets/icons/feather/white/check.svg"
+                        alt=""
+                        height="22px"
+                    />
+                </button>
+
+                <input
+                    #colorPicker
+                    id="colorPickerBus_{{ contextmenu?.nodeId }}"
+                    type="color"
+                    class="w-100 h-auto"
+                    [value]="contextmenu?.nodeFlowsColor"
+                />
+            </div>
+        </div>
+
         <!-- flows -->
         <!-- in -->
         <div
-            class="submenu-parent list-group-item d-flex justify-content-between position-relative"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative"
             *ngFor="let item of contextmenu?.nodeConnections?.in; let i = index"
         >
             <span *ngIf="contextmenu?.direction === 'left'">
@@ -151,7 +188,7 @@
 
         <!-- out -->
         <div
-            class="submenu-parent list-group-item d-flex justify-content-between position-relative"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative"
             *ngFor="let item of contextmenu?.nodeConnections?.out"
         >
             <span *ngIf="contextmenu?.direction === 'left'">

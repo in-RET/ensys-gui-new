@@ -40,8 +40,10 @@ export class EnergyDrawflowComponent {
     contextmenu!: {
         nodeId: number;
         nodePorts: { inputs: any; outputs: any };
+        nodeClass: string;
         nodeConnections: { in: any; out: any };
         direction: 'left' | 'right';
+        nodeFlowsColor: string;
     } | null;
 
     @ViewChild(ModalComponent)
@@ -557,7 +559,15 @@ export class EnergyDrawflowComponent {
                 },
             };
             this.editor.import(dataToImport);
+            this.setBusColorFlows(CURRENT_DRAWFLOW);
         }
+    }
+
+    setBusColorFlows(drawflowData: any) {
+        Object.values(drawflowData).forEach((element: any) => {
+            if (element.class == 'bus' && element.data.flowsColor)
+                this.setBusFlowsColor(element.id, element.data.flowsColor);
+        });
     }
 
     saveCurrentDrawflow() {
@@ -679,6 +689,7 @@ export class EnergyDrawflowComponent {
 
         this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.import(this.editor.export());
+        this.setBusColorFlows(this.editor.export().drawflow.Home.data);
     }
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
@@ -1092,11 +1103,13 @@ export class EnergyDrawflowComponent {
         this.contextmenu = {
             nodeId: nodeId,
             nodePorts: currentNode.data.ports,
+            nodeClass: currentNode.class,
             nodeConnections: {
                 in: nodeConnections_in,
                 out: nodeConnections_out,
             },
             direction: contextWithActionsDirection,
+            nodeFlowsColor: currentNode.data.flowsColor || '#000000',
         };
 
         setTimeout(() => {
@@ -1417,6 +1430,27 @@ export class EnergyDrawflowComponent {
     getData() {
         const drawflowData = this.editor.export().drawflow.Home.data;
         return drawflowData;
+    }
+
+    onChangeBusFlowsColor(e: any) {
+        const currentNode = this.editor.getNodeFromId(this.contextmenu!.nodeId);
+        currentNode.data.flowsColor = e.value;
+        this.updateNode(this.contextmenu!.nodeId, 'bus', currentNode.data);
+        this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
+    }
+
+    setBusFlowsColor(nodeId: number, color: string) {
+        const connections = document.querySelectorAll(
+            `#drawflow .connection.node_out_node-${nodeId} path , #drawflow .connection.node_in_node-${nodeId} path`
+        );
+
+        console.log(connections.length);
+
+        connections.forEach((connection: Element) => {
+            console.log(connection);
+
+            (connection as HTMLElement).style.stroke = color;
+        });
     }
 }
 
