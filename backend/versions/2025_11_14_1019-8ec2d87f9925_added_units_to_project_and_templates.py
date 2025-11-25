@@ -29,6 +29,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=8),
             nullable=False,
             default="EUR",
+            server_default="EUR",
         ),
     )
     op.add_column(
@@ -38,6 +39,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=10),
             nullable=False,
             default="kW/kWh",
+            server_default="kW/kWh",
         ),
     )
     op.add_column(
@@ -47,6 +49,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=10),
             nullable=False,
             default="tCO2",
+            server_default="tCO2",
         ),
     )
     op.add_column(
@@ -56,6 +59,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=8),
             nullable=False,
             default="EUR",
+            server_default="EUR",
         ),
     )
     op.add_column(
@@ -65,6 +69,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=10),
             nullable=False,
             default="kW/kWh",
+            server_default="kW/kWh",
         ),
     )
     op.add_column(
@@ -74,6 +79,7 @@ def upgrade() -> None:
             sqlmodel.sql.sqltypes.AutoString(length=10),
             nullable=False,
             default="tCO2",
+            server_default="tCO2",
         ),
     )
     # ### end Alembic commands ###

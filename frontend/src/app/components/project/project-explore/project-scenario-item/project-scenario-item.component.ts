@@ -27,36 +27,49 @@ export class ProjectScenarioItemComponent {
     scenarioService = inject(ScenarioService)
     router = inject(Router)
 
-    openScenario(data: ScenarioModel) {
-        if (data.modeling_data)
-            this.scenarioService.saveDrawflow_Storage(
-                data.modeling_data,
-                false
-            );
+    openScenario(scenario_id: number) {
+        this.scenarioService.getScenario(scenario_id).subscribe({
+            next: (res) => {
+                if (res.success && res.data && res.data.length != 0) {
+                    const data = res.data.items[0];
 
-        // save project,scenario - storage
-        const scenarioData: ScenarioBaseInfoModel = {
-            project: {
-                id: this.project.id,
-                name: this.project.name ?? '_',
-                scenarioList: this.project.scenarioList ?? [],
-            },
-            scenario: {
-                id: data.id,
-                name: data.name,
-                sDate: data.sDate,
-                timeStep: 8760,
-                interval: data.interval,
-                simulationYear: 2025,
-            },
-        };
+                    this.scenarioService.saveDrawflow_Storage(
+                        data.modeling_data,
+                        false
+                    )
 
-        this.scenarioService.saveBaseInfo_Storage(scenarioData);
-        this.router.navigate(['/scenario']);
-        this.toastService.info('Scenario data restored.');
+                    // save project,scenario - storage
+                    const scenarioData: ScenarioBaseInfoModel = {
+                        project: {
+                            id: this.project.id,
+                            name: this.project.name ?? '_',
+                            scenarioList: this.project.scenarioList ?? [],
+                        },
+                        scenario: {
+                            id: data.id,
+                            name: data.name,
+                            sDate: data.sDate,
+                            timeStep: 8760,
+                            interval: data.interval,
+                            simulationYear: 2025,
+                        },
+                    };
+
+                    this.scenarioService.saveBaseInfo_Storage(scenarioData);
+                    this.toastService.info('Scenario data restored.');
+                    this.router.navigate(['/scenario']);
+                } else {
+                    this.toastService.error('An error occured while loading scenario data.');
+                }
+            },
+            error: (err) => {
+                this.toastService.error(err);
+            }
+        });
     }
 
-    async onDeleteScenario(scenarioId: number) {
+    async onDeleteScenario(scenarioId: number
+    ) {
         const confirmed = await this.alertService.confirm(
             `Are you sure delete scenario ${this.scenario.name}?`,
             'Delete'

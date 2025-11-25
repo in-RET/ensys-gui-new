@@ -21,7 +21,6 @@ from pydantic import field_validator, BaseModel
 from sqlmodel import Field, SQLModel, Session
 from starlette import status
 
-from ..db import SessionLocal
 from ..project.model import EnProjectDB
 from ..scenario.model import EnScenarioDB
 from ..security import token_secret
@@ -174,8 +173,6 @@ class EnUserDB(SQLModel, table=True):
     :type firstname: str | None
     :ivar lastname: Optional last name (0-64 characters)
     :type lastname: str | None
-    :ivar password_hash: Securely hashed password
-    :type password_hash: str
     :ivar mail: Validated email address
     :type mail: str
     :ivar date_joined: Timestamp of user registration
@@ -223,9 +220,7 @@ class EnUserDB(SQLModel, table=True):
         """
         return jwt.encode({"username": self.username}, token_secret, algorithm="HS256")
 
-    def check_scenario_rights(
-        self, scenario_id: int, db: Session = SessionLocal()
-    ) -> bool:
+    def check_scenario_rights(self, scenario_id: int, db: Session) -> bool:
         """
         Check if the user has access rights to a specific scenario.
 
@@ -247,9 +242,7 @@ class EnUserDB(SQLModel, table=True):
         else:
             return False
 
-    def check_project_rights(
-        self, project_id: int, db: Session = SessionLocal()
-    ) -> bool:
+    def check_project_rights(self, project_id: int, db: Session) -> bool:
         """
         Check if the user has access rights to a specific project.
 
@@ -263,17 +256,20 @@ class EnUserDB(SQLModel, table=True):
         :rtype: bool
         :raises bool: Returns False if user doesn't have access
         """
-        project: EnProjectDB = db.get(EnProjectDB, project_id)
+        project: EnProjectDB | None = db.get(EnProjectDB, project_id)
 
-        if self.is_staff:
+        print(
+            f"Checking project rights for user {self.id} on project {project_id}. The project owner is {project.user_id if project else 'N/A'}"
+        )
+
+        if project and self.is_staff:
             return True
-
-        if project and project.user_id == self.id:
+        elif project and self.id == project.user_id:
             return True
         else:
-            raise False
+            return False
 
-    def check_user_rights(self, scenario_id: int, db: Session = SessionLocal()) -> bool:
+    def check_user_rights(self, scenario_id: int, db: Session) -> bool:
         """
         Check if the user has full access rights to a scenario and its parent project.
 
@@ -296,9 +292,9 @@ class EnUserDB(SQLModel, table=True):
         if project is None:
             raise HTTPException(status_code=404, detail="Project does not exist.")
 
-        return self.check_scenario_rights(scenario_id) and self.check_project_rights(
-            project.id
-        )
+        return self.check_scenario_rights(
+            scenario_id=scenario_id, db=db
+        ) and self.check_project_rights(project_id=project.id, db=db)
 
 
 class EnUserUpdate(BaseModel):

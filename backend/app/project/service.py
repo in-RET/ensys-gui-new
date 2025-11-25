@@ -19,17 +19,12 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnProject, EnProjectDB, EnProjectUpdate
-from ..db import SessionLocal
 from ..scenario.model import EnScenarioDB
 from ..scenario.service import read_scenarios, delete_scenario
 from ..user.model import EnUserDB
 
 
-def create_project(
-    project_data: EnProject,
-    user: EnUserDB,
-    db: Session = SessionLocal(),
-) -> None:
+def create_project(project_data: EnProject, user: EnUserDB, db: Session) -> None:
     """
     Create a new project for a user.
 
@@ -52,10 +47,7 @@ def create_project(
     db.commit()
 
 
-def read_projects(
-    user: EnUserDB,
-    db: Session = SessionLocal(),
-) -> List[dict]:
+def read_projects(user: EnUserDB, db: Session) -> List[dict]:
     """
     Retrieve all projects owned by a user.
 
@@ -71,9 +63,7 @@ def read_projects(
     return [p.model_dump() for p in projects]
 
 
-def read_project(
-    project_id: int, user: EnUserDB, db: Session = SessionLocal()
-) -> EnProjectDB:
+def read_project(project_id: int, user: EnUserDB, db: Session) -> EnProjectDB:
     """
     Retrieve a specific project by ID.
 
@@ -85,7 +75,7 @@ def read_project(
     :rtype: EnProjectDB
     :raises HTTPException: If project not found (404)
     """
-    if not user.check_project_rights(project_id):
+    if not user.check_project_rights(project_id=project_id, db=db):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You do not have permission to access this project.",
@@ -101,10 +91,7 @@ def read_project(
 
 
 def update_project(
-    project_id: int,
-    project_data: EnProjectUpdate,
-    user: EnUserDB,
-    db: Session = SessionLocal(),
+    project_id: int, project_data: EnProjectUpdate, user: EnUserDB, db: Session
 ) -> EnProjectDB:
     """
     Update an existing project.
@@ -124,13 +111,13 @@ def update_project(
     :raises HTTPException: If not authorized (401), project not found (404),
         or database error (409)
     """
-    if not user.check_project_rights(project_id):
+    if not user.check_project_rights(project_id=project_id, db=db):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You do not have permission to update this project.",
         )
     else:
-        project = read_project(project_id, user)
+        project = read_project(project_id, user, db=db)
 
         update_data = project_data.model_dump(exclude_unset=True)
         for key, value in update_data.items():
@@ -152,11 +139,7 @@ def update_project(
         return project
 
 
-def delete_project(
-    project_id: int,
-    user: EnUserDB,
-    db: Session = SessionLocal(),
-) -> None:
+def delete_project(project_id: int, user: EnUserDB, db: Session) -> None:
     """
     Delete a project and all its scenarios.
 
@@ -170,13 +153,13 @@ def delete_project(
     :type db: Session
     :raises HTTPException: If not authorized (401) or project not found (404)
     """
-    if user.check_project_rights(project_id):
-        project = read_project(project_id)
+    if user.check_project_rights(project_id=project_id, db=db):
+        project = read_project(project_id=project_id, user=user, db=db)
 
         # Delete all associated scenarios first
-        scenarios = read_scenarios(project_id=project_id)
+        scenarios = read_scenarios(project_id=project_id, db=db)
         for scenario in scenarios:
-            delete_scenario(scenario.id, user)
+            delete_scenario(scenario_id=scenario.id, user=user, db=db)
 
         # Then delete the project
         db.delete(project)
@@ -188,11 +171,7 @@ def delete_project(
         )
 
 
-def duplicate_project(
-    project_id: int,
-    user: EnUserDB,
-    db: Session = SessionLocal(),
-) -> None:
+def duplicate_project(project_id: int, user: EnUserDB, db: Session) -> None:
     """
     Duplicate a project and all its scenarios.
 
@@ -206,13 +185,13 @@ def duplicate_project(
     :type db: Session
     :raises HTTPException: If not authorized (401) or project not found (404)
     """
-    if not user.check_project_rights(project_id):
+    if not user.check_project_rights(project_id=project_id, db=db):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="You do not have permission to duplicate this project.",
         )
     else:
-        project = read_project(project_id)
+        project = read_project(project_id=project_id, user=user, db=db)
 
         # Create a copy of the project
         new_project_data = project.model_dump()

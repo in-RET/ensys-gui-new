@@ -15,8 +15,12 @@ export class TemplateService {
         return this.baseHttp.get(`${this.baseUrl}`);
     }
 
-    getTemplateScenario(id: number) {
-        return this.baseHttp.get(`${this.baseUrl}/scenario/${id}`);
+    getTemplateScenarios(template_id: number) {
+        return this.baseHttp.get(`${this.baseUrl}/${template_id}`);
+    }
+
+    getTemplateScenario(scenario_id: number){
+        return this.baseHttp.get(`${this.baseUrl}/scenario/${scenario_id}`);
     }
 
     createProjectFromTemplate(id: number) {

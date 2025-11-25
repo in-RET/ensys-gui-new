@@ -1,27 +1,26 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
-import { Tooltip } from 'bootstrap';
+import {CommonModule} from '@angular/common';
+import {Component, inject, Input, ViewChild} from '@angular/core';
+import {Tooltip} from 'bootstrap';
 import Drawflow from 'drawflow';
-import { interval, map, Subscription, switchMap } from 'rxjs';
-import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
-import { ResDataModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { OEPPorts, OEPResponse, Port } from '../models/node.model';
-import { ScenarioBaseInfoModel } from '../models/scenario.model';
-import { EnergyDesignService, Ports } from '../services/energy-design.service';
-import { FlowService } from '../services/flow.service';
-import { ScenarioService } from '../services/scenario.service';
-import { SimulationResModel } from '../simulation/models/simulation.model';
-import { SimulationService } from '../simulation/services/simulation.service';
-import { SimulationListCardComponent } from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
-import { EnergyComponentsComponent } from './energy-components/energy-components.component';
-import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
-import { FormComponent } from './form/form.component';
-import { ModalComponent } from './modal/modal.component';
+import {interval, map, Subscription, switchMap} from 'rxjs';
+import {ContentLayoutService} from '../../../core/layout/services/content-layout.service';
+import {ResDataModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {OEPPorts, OEPResponse, Port} from '../models/node.model';
+import {ScenarioBaseInfoModel} from '../models/scenario.model';
+import {EnergyDesignService, Ports} from '../services/energy-design.service';
+import {FlowService} from '../services/flow.service';
+import {ScenarioService} from '../services/scenario.service';
+import {SimulationResModel} from '../simulation/models/simulation.model';
+import {SimulationService} from '../simulation/services/simulation.service';
 import {
-    OrderItem,
-    OrderListComponent,
-} from './order-list/order-list.component';
+    SimulationListCardComponent
+} from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
+import {EnergyComponentsComponent} from './energy-components/energy-components.component';
+import {EnergyDrawflowComponent} from './energy-drawflow/energy-drawflow.component';
+import {FormComponent} from './form/form.component';
+import {ModalComponent} from './modal/modal.component';
+import {OrderItem, OrderListComponent,} from './order-list/order-list.component';
 
 interface FormNode {
     type: string;
@@ -984,6 +983,8 @@ export class ScenarioEnergyDesignComponent {
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        this.subscriptionSimulation.unsubscribe();
+        if (this.subscriptionSimulation) {
+            this.subscriptionSimulation.unsubscribe();
+        }
     }
 }

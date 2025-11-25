@@ -1,15 +1,12 @@
 import {CommonModule} from '@angular/common';
 import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
 import {Router, RouterLink} from '@angular/router';
-import {map} from 'rxjs';
-import {ResDataModel, ResModel} from '../../../../shared/models/http.model';
+import {catchError, map, Observable, of} from 'rxjs';
 import {AlertService} from '../../../../shared/services/alert.service';
 import {ToastService} from '../../../../shared/services/toast.service';
-import {ScenarioResModel} from '../../../scenario/models/scenario.model';
 import {ScenarioService} from '../../../scenario/services/scenario.service';
 import {ProjectModel} from '../../models/project.model';
 import {ProjectScenarioItemComponent} from '../project-scenario-item/project-scenario-item.component';
-import {NgModel} from '@angular/forms';
 
 @Component({
     selector: 'app-project-item',
@@ -23,6 +20,7 @@ export class ProjectItemComponent implements OnInit {
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
     @Output() duplicateProject: EventEmitter<any> = new EventEmitter<any>();
 
+    scenarios$!: Observable<any[]>;
 
     scenarioService = inject(ScenarioService)
     router = inject(Router)
@@ -30,8 +28,7 @@ export class ProjectItemComponent implements OnInit {
     toastService = inject(ToastService)
 
     ngOnInit() {
-        // joar ist halt irre langsam --> was machen wir denn da?<
-        this.getScenarios(this.project.id);
+        this.loadScenarios();
     }
 
     async delete_modal(id: number) {
@@ -44,7 +41,7 @@ export class ProjectItemComponent implements OnInit {
         );
         if (confirmed) {
             this._deleteProject(id);
-            this.alertService.success(`Removed the project`);
+            await this.alertService.success(`Removed the project`);
         }
     }
 
@@ -63,7 +60,7 @@ export class ProjectItemComponent implements OnInit {
 
         if (confirmed) {
             this._duplicateProject(id);
-            this.alertService.success(`Duplicated the project`);
+            await this.alertService.success(`Duplicated the project`);
         }
     }
 
@@ -71,24 +68,19 @@ export class ProjectItemComponent implements OnInit {
         this.duplicateProject.emit(id);
     }
 
-    getScenarios(projectId: number) {
-        this.scenarioService
-            .getScenarios(projectId)
+    loadScenarios() {
+        this.scenarios$ = this.scenarioService
+            .getScenarios(this.project.id)
             .pipe(
-                map((res: ResModel<ScenarioResModel>) => {
-                    if (res.success) return res.data;
-                    throw new Error('Unknown API error');
-                })
-            )
-            .subscribe({
-                next: (val: ResDataModel<ScenarioResModel>) => {
-                    this.project.scenarioList = val.items;
-                },
-                error: (err) => {
-                    console.error(err);
-                    this.toastService.error(err);
-                },
-            });
+            map((value: any) => {
+                this.project.scenarioList = value.data.items;
+                return value.data.items;
+            }),
+            catchError((error: any) => {
+                this.toastService.error(error);
+                return of([]);
+            })
+        );
     }
 
     newScenario(pId: number, pName: string) {
@@ -111,9 +103,7 @@ export class ProjectItemComponent implements OnInit {
         );
     }
 
-    duplicateScenario(project_id: number) {
-        this.getScenarios(project_id);
+    duplicateScenario($event: any) {
+        this.loadScenarios();
     }
-
-    protected readonly NgModel = NgModel;
 }

@@ -14,6 +14,7 @@ The module handles:
 Configuration is loaded from environment variables through the settings module.
 """
 
+from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session
@@ -33,7 +34,9 @@ engine = create_engine(
 )
 
 # Session factory for dependencies and background tasks
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=Session)
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine, class_=Session
+)
 
 
 def get_db_session():
@@ -51,8 +54,12 @@ def get_db_session():
         The session is automatically closed when the request processing is complete,
         even if an exception occurs during processing.
     """
-    db = SessionLocal()
+    db_session: Session = SessionLocal()
     try:
-        yield db
+        yield db_session
+        # db_session.commit()
+    except Exception as e:
+        db_session.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
     finally:
-        db.close()
+        db_session.close()

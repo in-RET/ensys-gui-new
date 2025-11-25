@@ -30,8 +30,8 @@ export interface ScenarioModel {
     id: number;
     name: string;
     project_id: number;
-    template_id?: number;
     project_name?: string;
+    description?: string;
     sDate: string; // ISO date string (e.g., "2025-01-01")
     interval: number;
     timeStep: number;

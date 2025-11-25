@@ -21,83 +21,56 @@
                     </span>
                 </div>
             </div>
-
-            <div class="actions">
-                <a
-                    class="btn btn--action action"
-                    [routerLink]="['../update/', template.id]"
-                    fragment="update"
-                >
-                    <span class="icon icon-edit" aria-hidden="true"></span>
-                </a>
-
-                <button
-                    id="duplicate_{{ template.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action"
-                    type="button"
-                    value="Delete"
-                    (click)="duplicate_modal(template.id)"
-                >
-                    <span class="icon icon-duplicate" aria-hidden="true"></span>
-                </button>
-
-                <button
-                    id="delete_{{ template.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action"
-                    type="button"
-                    value="Delete"
-                    (click)="delete_modal(template.id)"
-                >
-                    <span class="icon icon-delete" aria-hidden="true"></span>
-                </button>
-            </div>
         </div>
 
         <div class="project__scenarios">
             <div class="toggle d-flex gap-2">
-                <button
-                    class="btn btn--action border p-2"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#scenario_list_' + template.id"
-                    aria-expanded="false"
-                    [attr.aria-controls]="'scenario_list_' + template.id"
-                    *ngIf="template.scenarioList && template.scenarioList.length"
-                >
-                    <span
-                        class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
-                        aria-hidden="true"
+                <ng-container *ngIf="template_scenarios$ | async as scenarios; else loading">
+                    <button
+                        class="btn btn--action border p-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#scenario_list_' + template.id"
+                        aria-expanded="false"
+                        [attr.aria-controls]="'scenario_list_' + template.id"
+                        *ngIf="scenarios.length > 0"
                     >
-                    </span>
+                        <span
+                            class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
+                            aria-hidden="true"
+                        >
+                        </span>
 
-                    <span class="js-toggle-scenario-name">Show scenarios</span>
-                </button>
+                        <span class="js-toggle-scenario-name">Show scenarios</span>
+                    </button>
+                    <button
+                        class="btn btn-success border p-2"
+                        type="button"
+                        (click)="createProjectFromTemplate(template.id)"
+                    >
+                        <span>Create Project from Template</span>
+                    </button>
+                </ng-container>
 
-                <button
-                    class="btn btn--success action border p-2"
-                    type="button"
-                    (click)="newScenario(+template.id, template.name)"
-                >
-                    New Scenario
-                </button>
+                <ng-template #loading>
+                    <span class="text-muted p-2">Loading scenarios...</span>
+                </ng-template>
             </div>
 
             <div
                 class="collapse row"
                 [id]="'scenario_list_' + template.id"
-                *ngIf="template.scenarioList && template.scenarioList.length > 0"
+                *ngIf="(template_scenarios$ | async)?.length as scenarioCount"
             >
-                <div class="card card-body scenario_list col-4">
+                <div class="card card-body scenario_list col-4" *ngIf="scenarioCount > 0">
                     <ul class="list-group border">
                         <li
                             class="list-group-item scenario_item"
-                            *ngFor="let scenario of template.scenarioList"
+                            *ngFor="let scenarios of template.scenarioList"
                         >
                             <app-template-scenario-item
-                                [template]="template"
-                                [scenario]="scenario"
+                                [template]=template
+                                [scenario]=scenarios
                             />
                         </li>
                     </ul>

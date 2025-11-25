@@ -12,20 +12,18 @@ It handles the business logic for user operations including:
 """
 
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException
 from passlib.hash import pbkdf2_sha256
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnUserDB, EnUser, EnUserUpdate
-from ..db import SessionLocal
-from ..security import decode_token, oauth2_scheme
+from ..security import decode_token
 
 
-def _check_username_exists(username: str, db: Session = SessionLocal()) -> bool:
+def _check_username_exists(username: str, db: Session) -> bool:
     """
     Check if a username already exists in the database.
 
@@ -40,7 +38,7 @@ def _check_username_exists(username: str, db: Session = SessionLocal()) -> bool:
     return db.exec(statement).first() is not None
 
 
-def _check_mail_exists(mail: str, db: Session = SessionLocal()) -> bool:
+def _check_mail_exists(mail: str, db: Session) -> bool:
     """
     Check if an email address already exists in the database.
 
@@ -55,7 +53,7 @@ def _check_mail_exists(mail: str, db: Session = SessionLocal()) -> bool:
     return db.exec(statement).first() is not None
 
 
-def create_user(user: EnUser, db: Session = SessionLocal()) -> EnUserDB:
+def create_user(user: EnUser, db: Session) -> EnUserDB:
     """
     Create a new user account in the database.
 
@@ -103,9 +101,7 @@ def create_user(user: EnUser, db: Session = SessionLocal()) -> EnUserDB:
     return db_user
 
 
-def authenticate_user(
-    username: str, password: str, db: Session = SessionLocal()
-) -> EnUserDB:
+def authenticate_user(username: str, password: str, db: Session) -> EnUserDB:
     """
     Authenticate a user by username and password.
 
@@ -160,7 +156,7 @@ def authenticate_user(
 
 def activate_user(
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> bool:
     """
     Activate a user account.
@@ -189,7 +185,7 @@ def activate_user(
         return True
 
 
-def read_user(user_id: int, db: Session = SessionLocal()) -> EnUserDB:
+def read_user(user_id: int, db: Session) -> EnUserDB:
     """
     Retrieve a user by their ID.
 
@@ -212,8 +208,8 @@ def read_user(user_id: int, db: Session = SessionLocal()) -> EnUserDB:
 
 
 def read_user_by_token(
-    token: str = Annotated[str, Depends(oauth2_scheme)],
-    db: Session = SessionLocal(),
+    db: Session,
+    token: str,
 ) -> EnUserDB:
     """
     Retrieve a user by their authentication token.
@@ -242,6 +238,7 @@ def read_user_by_token(
 
         statement = select(EnUserDB).where(EnUserDB.username == username.lower())
         user = db.exec(statement).first()
+        db.close()
 
         if not user:
             raise HTTPException(
@@ -258,7 +255,7 @@ def read_user_by_token(
 def update_user(
     update_data: EnUserUpdate,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> EnUserDB:
     """
     Update user profile information.
@@ -286,11 +283,15 @@ def update_user(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Could not update user."
         ) from exc
+    finally:
+        db.refresh(user_db)
+
+        return user_db
 
 
 def delete_user(
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> None:
     """
     Delete a user account from the database.
@@ -314,5 +315,5 @@ def delete_user(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Could not delete user."
         ) from exc
-
-    return None
+    finally:
+        return None

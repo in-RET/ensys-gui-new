@@ -22,14 +22,13 @@ from starlette import status
 
 from .model import EnSimulationDB, Status
 from ..celery import start_task
-from ..db import SessionLocal
 from ..user.model import EnUserDB
 
 
 def create_simulation(
+    db: Session,
     scenario_id: int,
     simulation_token: str = uuid(),
-    db: Session = SessionLocal(),
 ) -> EnSimulationDB:
     """
     Create a new simulation record for a scenario.
@@ -71,7 +70,7 @@ def create_simulation(
 
 
 def start_simulation(
-    simulation_id: int, user: EnUserDB
+    simulation_id: int, user: EnUserDB, db: Session
 ) -> tuple[int | None, str | None]:
     """
     Start a new simulation for a given scenario.
@@ -87,9 +86,9 @@ def start_simulation(
     :rtype: tuple[int | None, str | None]
     :raises HTTPException: If not authenticated or authorized (401)
     """
-    simulation = read_simulation(simulation_id, user)
+    simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
 
-    if not user.check_user_rights(scenario_id=simulation.scenario_id):
+    if not user.check_user_rights(scenario_id=simulation.scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     stopped_simulations = stop_simulations_for_scenario(
@@ -104,7 +103,7 @@ def start_simulation(
     return simulation.id, task.id
 
 
-def read_simulation_status(simulation_id: int, user: EnUserDB) -> int:
+def read_simulation_status(simulation_id: int, user: EnUserDB, db: Session) -> int:
     """
         Get the status of a specific simulation.
     ®
@@ -119,13 +118,13 @@ def read_simulation_status(simulation_id: int, user: EnUserDB) -> int:
         :raises HTTPException: If simulation not found or not authorized
     """
 
-    return read_simulation(simulation_id, user).status
+    return read_simulation(simulation_id=simulation_id, user=user, db=db).status
 
 
 def read_simulation(
     simulation_id: int,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> EnSimulationDB:
     """
     Get a specific simulation.
@@ -151,7 +150,7 @@ def read_simulation(
             status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found."
         )
 
-    if not user.check_user_rights(scenario_id=simulation.scenario_id):
+    if not user.check_user_rights(scenario_id=simulation.scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
 
     return simulation
@@ -160,7 +159,7 @@ def read_simulation(
 def read_scenario_simulations(
     scenario_id: int,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> List[EnSimulationDB] | None:
     """
     Get all simulations for a scenario.
@@ -177,7 +176,7 @@ def read_scenario_simulations(
     :return: List of simulations or None if not authorized
     :rtype: List[EnSimulationDB] | None
     """
-    if user.check_user_rights(scenario_id):
+    if user.check_user_rights(scenario_id=scenario_id, db=db):
         statement = select(EnSimulationDB).where(
             EnSimulationDB.scenario_id == scenario_id
         )
@@ -190,7 +189,7 @@ def read_scenario_simulations(
 def stop_simulation(
     simulation_id: int,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> EnSimulationDB:
     """
     Stop a specific simulation.
@@ -208,7 +207,7 @@ def stop_simulation(
     :raises HTTPException: If not found (404), not authorized (401),
         or database error (409)
     """
-    simulation = read_simulation(simulation_id, user)
+    simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
 
     revoke(simulation.sim_token, terminate=True)
     simulation.status = Status.STOPPED.value
@@ -229,7 +228,7 @@ def stop_simulation(
 
 
 def stop_simulations_for_scenario(
-    scenario_id: int, user: EnUserDB, db: Session = SessionLocal()
+    scenario_id: int, user: EnUserDB, db: Session
 ) -> List[EnSimulationDB]:
     """
     Stop all running simulations for a scenario.
@@ -247,7 +246,7 @@ def stop_simulations_for_scenario(
     :rtype: List[EnSimulationDB]
     :raises HTTPException: If not authorized (401) or database error (500)
     """
-    simulations = read_scenario_simulations(scenario_id=scenario_id, user=user)
+    simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
 
     for simulation in simulations:
         revoke(simulation.sim_token, terminate=True)
@@ -268,9 +267,7 @@ def stop_simulations_for_scenario(
     return simulations
 
 
-def delete_simulation(
-    simulation_id: int, user: EnUserDB, db: Session = SessionLocal()
-) -> None:
+def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> None:
     """
     Delete a simulation from the database.
 
@@ -285,7 +282,7 @@ def delete_simulation(
     :raises HTTPException: If not found (404), not authorized (401),
         or database error (409)
     """
-    simulation = read_simulation(simulation_id, user)
+    simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
     if simulation:
         db.delete(simulation)
         try:

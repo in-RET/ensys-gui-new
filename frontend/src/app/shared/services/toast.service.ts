@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {Subject} from 'rxjs';
 
 export type ToastPosition =
     | 'top-right'
@@ -38,7 +38,7 @@ export class ToastService {
             text,
             title: opts.title,
             variant: opts.variant ?? 'info',
-            position: opts.position ?? 'top-right',
+            position: opts.position ?? 'bottom-right',
             autoClose: opts.autoClose ?? true,
             delay: opts.delay ?? 3000,
         };

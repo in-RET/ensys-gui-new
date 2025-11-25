@@ -20,14 +20,11 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnScenarioDB, EnScenario, EnScenarioUpdate
-from ..db import SessionLocal
 from ..simulation.service import delete_simulation, read_scenario_simulations
 from ..user.model import EnUserDB
 
 
-def _check_scenario_duplicates(
-    scen_name: str, scen_proj_id: int, db: Session = SessionLocal()
-) -> bool:
+def _check_scenario_duplicates(scen_name: str, scen_proj_id: int, db: Session) -> bool:
     """
     Check for duplicate scenarios within a project.
 
@@ -55,7 +52,7 @@ def _check_scenario_duplicates(
 def create_scenario(
     scenario_data: EnScenario,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
 ) -> EnScenarioDB:
     """
     Create a new scenario for a project.
@@ -75,8 +72,10 @@ def create_scenario(
         exists (409), or database error (409)
     """
 
-    if user.check_project_rights(scenario_data.project_id):
-        if _check_scenario_duplicates(scenario_data.name, scenario_data.project_id):
+    if user.check_project_rights(project_id=scenario_data.project_id, db=db):
+        if _check_scenario_duplicates(
+            scen_name=scenario_data.name, scen_proj_id=scenario_data.project_id, db=db
+        ):
             scenario = EnScenarioDB(**scenario_data.model_dump())
             scenario.user_id = user.id
 
@@ -104,9 +103,7 @@ def create_scenario(
         )
 
 
-def read_scenario(
-    scenario_id: int, user: EnUserDB, db: Session = SessionLocal()
-) -> EnScenarioDB:
+def read_scenario(scenario_id: int, user: EnUserDB, db: Session) -> EnScenarioDB:
     """
     Retrieve a specific scenario by ID.
 
@@ -122,7 +119,7 @@ def read_scenario(
     :rtype: EnScenarioDB
     :raises HTTPException: If scenario not found (404)
     """
-    if user.check_scenario_rights(scenario_id):
+    if user.check_scenario_rights(scenario_id=scenario_id, db=db):
         scenario = db.get(EnScenarioDB, scenario_id)
 
     if scenario is None:
@@ -131,7 +128,7 @@ def read_scenario(
     return scenario
 
 
-def read_scenarios(project_id: int, db: Session = SessionLocal()) -> list[EnScenarioDB]:
+def read_scenarios(project_id: int, db: Session) -> list[EnScenarioDB]:
     """
     Retrieve all scenarios for a specific project.
 
@@ -150,10 +147,7 @@ def read_scenarios(project_id: int, db: Session = SessionLocal()) -> list[EnScen
 
 
 def update_scenario(
-    scenario_id: int,
-    scenario_data: EnScenarioUpdate,
-    user: EnUserDB,
-    db: Session = SessionLocal(),
+    scenario_id: int, scenario_data: EnScenarioUpdate, user: EnUserDB, db: Session
 ) -> EnScenarioDB:
     """
     Update an existing scenario's configuration.
@@ -173,21 +167,22 @@ def update_scenario(
     :rtype: EnScenarioDB
     :raises HTTPException: If user not authorized (401) or database error (409)
     """
-    if not user.check_scenario_rights(scenario_id):
+    if not user.check_scenario_rights(scenario_id=scenario_id, db=db):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized."
         )
     else:
-        scenario = read_scenario(scenario_id=scenario_id, user=user)
+        scenario = read_scenario(scenario_id=scenario_id, user=user, db=db)
 
-        if _check_scenario_duplicates(scenario_data.name, scenario_data.project_id):
-            scenario = scenario.model_copy(
-                update=scenario_data.model_dump(exclude_unset=True)
+        if _check_scenario_duplicates(
+            scen_name=scenario_data.name, scen_proj_id=scenario_data.project_id, db=db
+        ):
+            scenario = scenario.sqlmodel_update(
+                scenario_data.model_dump(exclude_unset=True)
             )
 
-            db.add(scenario)
-
             try:
+                db.add(scenario)
                 db.commit()
             except IntegrityError as exc:
                 db.rollback()
@@ -201,9 +196,7 @@ def update_scenario(
         return scenario
 
 
-def delete_scenario(
-    scenario_id: int, user: EnUserDB, db: Session = SessionLocal()
-) -> None:
+def delete_scenario(scenario_id: int, user: EnUserDB, db: Session) -> None:
     """
     Delete a scenario and its associated simulations.
 
@@ -225,12 +218,14 @@ def delete_scenario(
         - Performs cascade delete of linked simulations
         - Executes in a single transaction
     """
-    scenario = read_scenario(scenario_id=scenario_id, user=user)
+    scenario = read_scenario(scenario_id=scenario_id, user=user, db=db)
 
-    linked_simulations = read_scenario_simulations(scenario_id=scenario_id, user=user)
+    linked_simulations = read_scenario_simulations(
+        scenario_id=scenario_id, user=user, db=db
+    )
 
     for simulation in linked_simulations:
-        delete_simulation(simulation_id=simulation.id, user=user)
+        delete_simulation(simulation_id=simulation.id, user=user, db=db)
 
     db.delete(scenario)
 
@@ -248,7 +243,7 @@ def delete_scenario(
 def duplicate_scenario(
     scenario_id: int,
     user: EnUserDB,
-    db: Session = SessionLocal(),
+    db: Session,
     new_project_id: Optional[int] = None,
 ) -> EnScenarioDB:
     """
@@ -277,7 +272,7 @@ def duplicate_scenario(
         - Can copy across projects if new_project_id provided
         - Automatically generates unique name with " - Copy" suffix
     """
-    db_scenario = read_scenario(scenario_id=scenario_id, user=user)
+    db_scenario = read_scenario(scenario_id=scenario_id, user=user, db=db)
 
     new_scenario_data = db_scenario.model_dump()
 

@@ -20,11 +20,11 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnTemplateDB, EnTemplateScenarioDB
-from ..db import SessionLocal
 from ..project.model import EnProjectDB
+from ..scenario.model import EnScenarioDB
 
 
-def get_all_templates(db: Session = SessionLocal()) -> list[dict]:
+def get_all_templates(db: Session) -> list[dict]:
     """
     Retrieve all available templates from the database.
 
@@ -39,9 +39,7 @@ def get_all_templates(db: Session = SessionLocal()) -> list[dict]:
     return [t.model_dump() for t in templates]
 
 
-def get_template_scenarios(
-    template_id: int, db: Session = SessionLocal()
-) -> list[EnTemplateScenarioDB]:
+def get_template_scenarios(template_id: int, db: Session) -> list[EnTemplateScenarioDB]:
     """
     Retrieve all scenarios associated with a specific template.
 
@@ -65,7 +63,7 @@ def get_template_scenarios(
 
 
 def get_template_scenario(
-    template_scenario_id: int, db: Session = SessionLocal()
+    template_scenario_id: int, db: Session
 ) -> EnTemplateScenarioDB:
     """
     Retrieve a specific template scenario by its ID.
@@ -96,7 +94,7 @@ def get_template_scenario(
 
 
 def clone_template_to_project(
-    template_id: int, user_id: int, db: Session = SessionLocal()
+    template_id: int, user_id: int, db: Session
 ) -> EnProjectDB:
     """
     Generate a new project from a template.
@@ -137,8 +135,8 @@ def clone_template_to_project(
         latitude=template.latitude,
         date_created=datetime.now(),
     )
-
     db.add(new_project)
+
     try:
         db.commit()
         db.refresh(new_project)
@@ -149,10 +147,38 @@ def clone_template_to_project(
             detail="Could not create project; DB constraint violated.",
         )
 
+    linked_scenarios = db.exec(
+        select(EnTemplateScenarioDB).where(
+            EnTemplateScenarioDB.template_id == template_id
+        )
+    ).all()
+
+    for linked_scenario in linked_scenarios:
+        db.add(
+            EnScenarioDB(
+                name=linked_scenario.name,
+                start_date=linked_scenario.start_date,
+                time_steps=linked_scenario.time_steps,
+                interval=linked_scenario.interval,
+                project_id=new_project.id,
+                user_id=user_id,
+                modeling_data=linked_scenario.modeling_data,
+            )
+        )
+
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Could not create scenarios from template; DB constraint violated.",
+        )
+
     return new_project
 
 
-def validate_template_name(name: str, db: Session = SessionLocal()) -> bool:
+def validate_template_name(name: str, db: Session) -> bool:
     """
     Verify template name uniqueness.
 
@@ -170,7 +196,7 @@ def validate_template_name(name: str, db: Session = SessionLocal()) -> bool:
     return existing is None
 
 
-def delete_template(template_id: int, db: Session = SessionLocal()) -> None:
+def delete_template(template_id: int, db: Session) -> None:
     """
     Delete a template from the database.
 
@@ -201,7 +227,7 @@ def delete_template(template_id: int, db: Session = SessionLocal()) -> None:
         )
 
 
-def duplicate_template(template_id: int, db: Session = SessionLocal()) -> EnTemplateDB:
+def duplicate_template(template_id: int, db: Session) -> EnTemplateDB:
     """
     Duplicate an existing template.
 

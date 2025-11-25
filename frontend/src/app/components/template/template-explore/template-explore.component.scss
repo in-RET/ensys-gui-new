@@ -1,22 +1,22 @@
 .templates-empty {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1rem;
-  text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    text-align: center;
 
-  &__img {
-    margin-bottom: 1rem;
+    &__img {
+        margin-bottom: 1rem;
 
-    img {
-      max-width: 200px;
-      width: 100%;
-      height: auto;
-      opacity: 0.85;
+        img {
+            max-width: 200px;
+            width: 100%;
+            height: auto;
+            opacity: 0.85;
+        }
     }
-  }
 
-  &__text {
-    color: var(--text-muted, #6c757d);
-  }
+    &__text {
+        color: var(--text-muted, #6c757d);
+    }
 }

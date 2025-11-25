@@ -57,23 +57,29 @@
 
         <div class="project__scenarios">
             <div class="toggle d-flex gap-2">
-                <button
-                    class="btn btn--action border p-2"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#scenario_list_' + project.id"
-                    aria-expanded="false"
-                    [attr.aria-controls]="'scenario_list_' + project.id"
-                    *ngIf="project.scenarioList && project.scenarioList.length"
-                >
-                    <span
-                        class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
-                        aria-hidden="true"
+                <ng-container *ngIf="scenarios$ | async as scenarios; else loading">
+                    <button
+                        class="btn btn--action border p-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#scenario_list_' + project.id"
+                        aria-expanded="false"
+                        [attr.aria-controls]="'scenario_list_' + project.id"
+                        *ngIf="scenarios.length > 0"
                     >
-                    </span>
+                        <span
+                            class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
+                            aria-hidden="true"
+                        >
+                        </span>
 
-                    <span class="js-toggle-scenario-name">Show scenarios</span>
-                </button>
+                        <span class="js-toggle-scenario-name">Show scenarios</span>
+                    </button>
+                </ng-container>
+
+                <ng-template #loading>
+                    <span class="text-muted p-2">Loading scenarios...</span>
+                </ng-template>
 
                 <button
                     class="btn btn--success action border p-2"
@@ -87,9 +93,9 @@
             <div
                 class="collapse row"
                 [id]="'scenario_list_' + project.id"
-                *ngIf="project.scenarioList && project.scenarioList.length > 0"
+                *ngIf="(scenarios$ | async)?.length as scenarioCount"
             >
-                <div class="card card-body scenario_list col-4">
+                <div class="card card-body scenario_list col-4" *ngIf="scenarioCount > 0">
                     <ul class="list-group border">
                         <li
                             class="list-group-item scenario_item"

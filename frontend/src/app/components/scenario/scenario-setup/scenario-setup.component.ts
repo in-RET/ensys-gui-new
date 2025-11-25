@@ -130,7 +130,7 @@ export class ScenarioSetupComponent implements OnInit {
                     id,
                     name,
                     timeStep,
-                    sDate,
+                    //sDate,
                     simulationYear,
                 });
             } else {
