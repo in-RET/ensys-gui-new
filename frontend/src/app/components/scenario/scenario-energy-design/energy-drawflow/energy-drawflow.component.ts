@@ -981,6 +981,9 @@ export class EnergyDrawflowComponent {
 
     // R-Click event , Touching events
     showConextMenu(x: any, y: any, nodeId: number, node?: any) {
+        this.contextMenuRef.nativeElement.style.left = '';
+        this.contextMenuRef.nativeElement.style.top = '';
+
         let contextWithActionsDirection: 'left' | 'right' = 'left';
         this.contextMenuRef.nativeElement.style.display = 'block';
 
@@ -1145,6 +1148,8 @@ export class EnergyDrawflowComponent {
 
     unShowConextMenu() {
         this.contextMenuRef.nativeElement.style.display = 'none';
+        this.contextMenuRef.nativeElement.style.left = '';
+        this.contextMenuRef.nativeElement.style.top = '';
         this.contextmenu = null;
     }
 
