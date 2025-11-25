@@ -992,11 +992,12 @@ export class EnergyDrawflowComponent {
 
     // R-Click event , Touching events
     showConextMenu(x: any, y: any, nodeId: number, node?: any) {
-        this.contextMenuRef.nativeElement.style.left = '';
-        this.contextMenuRef.nativeElement.style.top = '';
+        this.contextMenuRef.nativeElement.style.left = x + 'px';
+        this.contextMenuRef.nativeElement.style.top = y + 'px';
 
         let contextWithActionsDirection: 'left' | 'right' = 'left';
         this.contextMenuRef.nativeElement.style.display = 'block';
+        this.contextMenuRef.nativeElement.style.visibility = 'hidden';
 
         const currentNode = this.editor.getNodeFromId(nodeId);
         let nodeConnections_in: any[] = [];
@@ -1156,6 +1157,7 @@ export class EnergyDrawflowComponent {
             });
 
             this.contextMenuRef.nativeElement.style.top = y + 'px';
+            this.contextMenuRef.nativeElement.style.visibility = 'visible';
         }, 0);
     }
 
@@ -1444,11 +1446,7 @@ export class EnergyDrawflowComponent {
             `#drawflow .connection.node_out_node-${nodeId} path , #drawflow .connection.node_in_node-${nodeId} path`
         );
 
-        console.log(connections.length);
-
         connections.forEach((connection: Element) => {
-            console.log(connection);
-
             (connection as HTMLElement).style.stroke = color;
         });
     }
