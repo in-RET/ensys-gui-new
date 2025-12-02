@@ -48,12 +48,8 @@
                                 }"
                                 [step]="field.step"
                             />
-                            <label *ngIf="!field.isReq"
-                                >{{ field.label }}
-                            </label>
-                            <label *ngIf="field.isReq"
-                                >{{ field.label }} *</label
-                            >
+                            <label *ngIf="!field.isReq">{{ field.label }}</label>
+                            <label *ngIf="field.isReq">{{ field.label }} *</label>
 
                             <ng-container *ngIf="field.actions">
                                 <a
@@ -113,17 +109,13 @@
                                 </option>
                                 <option
                                     [ngValue]="option.value"
-                                    *ngFor="
-                                        let option of field.selectOptionList
-                                    "
+                                    *ngFor="let option of field.selectOptionList"
                                 >
                                     {{ option.name }}
                                 </option>
                             </select>
 
-                            <label for="floatingSelect">{{
-                                field.placeholder
-                            }}</label>
+                            <label for="floatingSelect">{{ field.placeholder }}</label>
                         </div>
 
                         <!-- checkbox -->
@@ -184,7 +176,7 @@
                                 for="btn-check-outlined"
                             >
                                 {{ field.label }} </label
-                            ><br />
+                            ><br/>
                         </div>
 
                         <!-- uploader -->
@@ -193,12 +185,12 @@
                                 <label
                                     class="card-title text-center"
                                     *ngIf="!field.isReq"
-                                    >{{ field.label }}
+                                >{{ field.label }}
                                 </label>
                                 <label
                                     class="card-title text-center"
                                     *ngIf="field.isReq"
-                                    >{{ field.label }} *</label
+                                >{{ field.label }} *</label
                                 >
                                 <app-file-uploader
                                     [data]="field.value"
@@ -236,7 +228,7 @@
                 "
             >
                 <!-- divider -->
-                <hr class="mt-2 mb-3" [ngClass]="section.class" />
+                <hr class="mt-2 mb-3" [ngClass]="section.class"/>
             </ng-container>
         </div>
     </form>

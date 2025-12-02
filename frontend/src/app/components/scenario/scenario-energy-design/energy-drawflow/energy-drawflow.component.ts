@@ -1,18 +1,11 @@
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Output,
-    Renderer2,
-    ViewChild,
-} from '@angular/core';
-import Drawflow, { DrawflowNode } from 'drawflow';
-import { AlertService } from '../../../../shared/services/alert.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { ScenarioService } from '../../services/scenario.service';
-import { FormComponent } from '../form/form.component';
-import { ModalComponent } from '../modal/modal.component';
+import {CommonModule} from '@angular/common';
+import {Component, ElementRef, EventEmitter, inject, Output, Renderer2, ViewChild,} from '@angular/core';
+import Drawflow, {DrawflowNode} from 'drawflow';
+import {AlertService} from '../../../../shared/services/alert.service';
+import {ToastService} from '../../../../shared/services/toast.service';
+import {ScenarioService} from '../../services/scenario.service';
+import {FormComponent} from '../form/form.component';
+import {ModalComponent} from '../modal/modal.component';
 
 @Component({
     selector: 'app-energy-drawflow',
@@ -55,14 +48,10 @@ export class EnergyDrawflowComponent {
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild('contextMenu') contextMenuRef!: ElementRef<HTMLDivElement>;
 
-    constructor(
-        private scenarioService: ScenarioService,
-        private renderer: Renderer2,
-        private alertService: AlertService,
-        private toastService: ToastService
-    ) {}
-
-    ngOnInit() {}
+    private scenarioService = inject(ScenarioService)
+    private renderer= inject(Renderer2)
+    private alertService= inject(AlertService)
+    private toastService= inject(ToastService)
 
     ngAfterViewInit() {
         setTimeout(() => {

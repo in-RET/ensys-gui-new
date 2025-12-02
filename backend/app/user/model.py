@@ -258,10 +258,6 @@ class EnUserDB(SQLModel, table=True):
         """
         project: EnProjectDB | None = db.get(EnProjectDB, project_id)
 
-        print(
-            f"Checking project rights for user {self.id} on project {project_id}. The project owner is {project.user_id if project else 'N/A'}"
-        )
-
         if project and self.is_staff:
             return True
         elif project and self.id == project.user_id:

@@ -1,6 +1,6 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {AbstractControl} from '@angular/forms';
 
 @Component({
     selector: 'app-file-uploader',
@@ -8,7 +8,7 @@ import { AbstractControl } from '@angular/forms';
     templateUrl: './file-uploader.component.html',
     styleUrl: './file-uploader.component.scss',
 })
-export class FileUploaderComponent {
+export class FileUploaderComponent implements OnInit {
     fileInfo!: { name: string; label: string; data: any } | null;
 
     private _data: any;

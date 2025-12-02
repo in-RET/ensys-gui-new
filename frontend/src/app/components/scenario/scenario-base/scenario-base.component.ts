@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, ViewChild} from '@angular/core';
+import {Component, inject, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {map, Observable, switchMap} from 'rxjs';
 import {ResDataModel, ResModel} from '../../../shared/models/http.model';
@@ -25,7 +25,7 @@ import {ScenarioProgressionComponent} from './scenario-progression/scenario-prog
     templateUrl: './scenario-base.component.html',
     styleUrl: './scenario-base.component.scss',
 })
-export class ScenarioBaseComponent {
+export class ScenarioBaseComponent implements OnInit {
     currentStep: number = 1;
     currentScenario!: ScenarioBaseInfoModel;
     isScenarioNew!: boolean;
@@ -132,7 +132,7 @@ export class ScenarioBaseComponent {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario.timeStep,
-            project_id: scenarioData.project?.id || scenarioData.template?.id,
+            project_id: scenarioData.project?.id,
             interval: 1,
             modeling_data: drawflowData,
         };
@@ -247,7 +247,7 @@ export class ScenarioBaseComponent {
         // has not stored yet
         else {
             const confirmed = await this.alertService.confirm(
-                'The Scenrio has not been stored, you need to save at first.',
+                'The Scenario has not been stored, you need to save at first.',
                 'Save & Play',
                 `Save + Start`,
                 `No`

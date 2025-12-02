@@ -13,7 +13,6 @@ from datetime import datetime
 from typing import List
 
 from celery import uuid
-from celery.worker.control import revoke
 from fastapi import HTTPException
 from oemof.tools import logger
 from sqlalchemy.exc import IntegrityError
@@ -21,15 +20,16 @@ from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnSimulationDB, Status
-from ..celery import start_task
+from ..celery import start_task, celery_app
 from ..user.model import EnUserDB
 
 
-def create_simulation(
+def create_and_start_simulation(
+    user: EnUserDB,
     db: Session,
     scenario_id: int,
     simulation_token: str = uuid(),
-) -> EnSimulationDB:
+) -> tuple[int | None, str | None]:
     """
     Create a new simulation record for a scenario.
 
@@ -46,6 +46,11 @@ def create_simulation(
     :rtype: EnSimulationDB
     :raises HTTPException: If database integrity error occurs (409)
     """
+    if not user.check_user_rights(scenario_id=scenario_id, db=db):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
+
+    stop_simulations_for_scenario(scenario_id=scenario_id, user=user, db=db)
+
     # Create new simulation
     simulation = EnSimulationDB(
         sim_token=simulation_token,
@@ -65,37 +70,6 @@ def create_simulation(
         ) from exc
 
     db.refresh(simulation)
-
-    return simulation
-
-
-def start_simulation(
-    simulation_id: int, user: EnUserDB, db: Session
-) -> tuple[int | None, str | None]:
-    """
-    Start a new simulation for a given scenario.
-
-    Validates user authorization, stops any running simulations for the scenario,
-    and initiates a new simulation task.
-
-    :param simulation_id: The simulation ID to start
-    :type simulation_id: int
-    :param user: Authenticated user starting the simulation
-    :type user: EnUserDB
-    :return: Tuple of (simulation ID, task ID)
-    :rtype: tuple[int | None, str | None]
-    :raises HTTPException: If not authenticated or authorized (401)
-    """
-    simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
-
-    if not user.check_user_rights(scenario_id=simulation.scenario_id, db=db):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    stopped_simulations = stop_simulations_for_scenario(
-        scenario_id=simulation.scenario_id, user=user
-    )
-    # for debugging
-    print(f"stopped_simulations: {stopped_simulations}")
 
     task = start_task(simulation=simulation)
     logger.info("Task UUID:", task.id)
@@ -157,9 +131,7 @@ def read_simulation(
 
 
 def read_scenario_simulations(
-    scenario_id: int,
-    user: EnUserDB,
-    db: Session,
+    scenario_id: int, user: EnUserDB, db: Session
 ) -> List[EnSimulationDB] | None:
     """
     Get all simulations for a scenario.
@@ -209,7 +181,7 @@ def stop_simulation(
     """
     simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
 
-    revoke(simulation.sim_token, terminate=True)
+    celery_app.control.revoke(task_id=simulation.sim_token, terminate=True)
     simulation.status = Status.STOPPED.value
     simulation.status_message = "Simulation was canceled by user request."
     simulation.end_date = datetime.now()
@@ -228,7 +200,7 @@ def stop_simulation(
 
 
 def stop_simulations_for_scenario(
-    scenario_id: int, user: EnUserDB, db: Session
+    scenario_id: int, user: EnUserDB, db: Session, simulation_id: int = None
 ) -> List[EnSimulationDB]:
     """
     Stop all running simulations for a scenario.
@@ -249,10 +221,11 @@ def stop_simulations_for_scenario(
     simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
 
     for simulation in simulations:
-        revoke(simulation.sim_token, terminate=True)
-        simulation.status = Status.STOPPED.value
-        simulation.status_message = "Simulation was canceled by user request."
-        simulation.end_date = datetime.now()
+        if simulation.id != simulation_id or simulation_id is None:
+            celery_app.control.revoke(task_id=simulation.sim_token, terminate=True)
+            simulation.status = Status.STOPPED.value
+            simulation.status_message = "Simulation was canceled by user request."
+            simulation.end_date = datetime.now()
 
         try:
             db.commit()
@@ -267,7 +240,7 @@ def stop_simulations_for_scenario(
     return simulations
 
 
-def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> None:
+def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> bool:
     """
     Delete a simulation from the database.
 
@@ -289,6 +262,6 @@ def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> None:
             db.commit()
         except IntegrityError as exc:
             db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT, detail="Database integrity error."
-            ) from exc
+            return False
+
+    return True

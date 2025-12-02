@@ -1061,6 +1061,7 @@ table.table > :not(caption) > * > * {
 }
 
 .project__scenarios .list-group-item {
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

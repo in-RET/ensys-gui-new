@@ -20,8 +20,7 @@ export class ScenarioService {
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
-
-    constructor(private baseHttp: BaseHttpService) {}
+    baseHttp = inject(BaseHttpService)
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -138,7 +137,7 @@ export class ScenarioService {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario.timeStep,
-            project_id: scenarioData.project?.id || scenarioData.template?.id,
+            project_id: scenarioData.project?.id,
             interval: 1,
             modeling_data: drawflowData,
         };

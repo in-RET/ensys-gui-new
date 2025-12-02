@@ -1,4 +1,4 @@
-<section class="project d-flex p-2 mb-3">
+<section class="project d-flex p-2 mb-3 gap-3">
     <button type="button" class="btn btn--medium" [routerLink]="['../create']" aria-label="Create project">
         <img
             src="static/assets/icons/feather/white/plus.svg"
@@ -8,6 +8,13 @@
             loading="lazy"
         />
         <span>Create project</span>
+    </button>
+    <button
+        type="button"
+        class="btn btn--hollow me-2"
+        [routerLink]="['templates']"
+    >
+        Templates
     </button>
 </section>
 

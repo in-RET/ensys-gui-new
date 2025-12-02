@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { ScenarioBaseInfoModel } from '../../models/scenario.model';
-import { ScenarioService } from '../../services/scenario.service';
+import {CommonModule} from '@angular/common';
+import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
+import {RouterModule} from '@angular/router';
+import {ScenarioBaseInfoModel} from '../../models/scenario.model';
+import {ScenarioService} from '../../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-footer',

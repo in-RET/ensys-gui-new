@@ -55,7 +55,8 @@ export class TemplateItemComponent implements OnInit {
         this.templateService.createProjectFromTemplate(id).subscribe({
             next: (value) => {
                 if (value.success) {
-                    console.log(value);
+                    this.toastService.success('Project created from template.');
+                    this.router.navigate(['/projects/explore']).then();
                 } else this.toastService.error('An error occured.');
             },
             error: (err) => {

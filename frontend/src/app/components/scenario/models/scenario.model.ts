@@ -44,11 +44,6 @@ export interface ScenarioBaseInfoModel {
         name: string;
         scenarioList: ScenarioModel[];
     };
-    template?: {
-        id: number;
-        name: string;
-        scenarioList: ScenarioModel[];
-    };
     scenario?: {
         id?: number;
         name: string;

@@ -1,12 +1,5 @@
-import { CommonModule } from '@angular/common';
-import {
-    Component,
-    ElementRef,
-    EventEmitter,
-    Input,
-    Output,
-    ViewChild,
-} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild,} from '@angular/core';
 
 @Component({
     selector: 'app-modal',
@@ -14,7 +7,7 @@ import {
     templateUrl: './modal.component.html',
     styleUrl: './modal.component.scss',
 })
-export class ModalComponent {
+export class ModalComponent implements OnInit, OnDestroy {
     modal: any;
 
     @ViewChild('modal') modalRef = {} as ElementRef;

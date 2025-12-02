@@ -14,10 +14,9 @@
     >
         <div class="modal-content rounded-4 shadow">
             <div class="modal-body d-flex row gap-3" style="max-height: 100%">
-                <ng-container *ngIf="scenarioCount; else no_data">
+                <ng-container *ngIf="scenarioCount;">
                     <h2 class="fw-bold mb-0 text-center">
                         {{ currentScenario.project?.name }}
-                        {{ currentScenario.template?.name }}
                         /
                         {{ currentScenario.scenario?.name }}
                     </h2>
@@ -26,21 +25,6 @@
                         <app-simulation-list-card [data]="simulationList" />
                     </div>
                 </ng-container>
-
-                <ng-template #no_data>
-                    <h3 class="text-center">No Simulation!</h3>
-                </ng-template>
-
-                <div>
-                    <button
-                        type="button"
-                        class="btn btn-lg btn-primary w-100"
-                        data-bs-dismiss="modal"
-                        [routerLink]="['/scenario']"
-                    >
-                        Back
-                    </button>
-                </div>
             </div>
         </div>
     </div>

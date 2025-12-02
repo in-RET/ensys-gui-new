@@ -63,13 +63,12 @@
                 *ngIf="(template_scenarios$ | async)?.length as scenarioCount"
             >
                 <div class="card card-body scenario_list col-4" *ngIf="scenarioCount > 0">
-                    <ul class="list-group border">
+                    <ul class="list-group border w-100">
                         <li
-                            class="list-group-item scenario_item"
+                            class="list-group-item scenario_item w-100"
                             *ngFor="let scenarios of template.scenarioList"
                         >
                             <app-template-scenario-item
-                                [template]=template
                                 [scenario]=scenarios
                             />
                         </li>

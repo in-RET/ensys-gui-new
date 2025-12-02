@@ -13,13 +13,6 @@
         <ng-container *ngIf="user.is_authenticated">
             <button
                 type="button"
-                class="btn btn--hollow me-2"
-                [routerLink]="['templates']"
-            >
-                Templates
-            </button>
-            <button
-                type="button"
                 class="btn me-2"
                 (click)="logout()"
             >

@@ -1,10 +1,9 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, Input, ViewChild} from '@angular/core';
+import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Tooltip} from 'bootstrap';
 import Drawflow from 'drawflow';
 import {interval, map, Subscription, switchMap} from 'rxjs';
 import {ContentLayoutService} from '../../../core/layout/services/content-layout.service';
-import {ResDataModel} from '../../../shared/models/http.model';
 import {ToastService} from '../../../shared/services/toast.service';
 import {OEPPorts, OEPResponse, Port} from '../models/node.model';
 import {ScenarioBaseInfoModel} from '../models/scenario.model';
@@ -21,6 +20,7 @@ import {EnergyDrawflowComponent} from './energy-drawflow/energy-drawflow.compone
 import {FormComponent} from './form/form.component';
 import {ModalComponent} from './modal/modal.component';
 import {OrderItem, OrderListComponent,} from './order-list/order-list.component';
+import {ResDataModel} from '../../../shared/models/http.model';
 
 interface FormNode {
     type: string;
@@ -61,7 +61,7 @@ class FormModalInfo {
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent {
+export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
     components: any;
     editor!: Drawflow;
 
@@ -931,7 +931,7 @@ export class ScenarioEnergyDesignComponent {
         return this.energyDrawflowComponent.getData();
     }
 
-    openSimulations(scenarioId: number) {
+    openSimulation(scenarioId: number) {
         this.loadSimulations(scenarioId);
     }
 
@@ -972,7 +972,6 @@ export class ScenarioEnergyDesignComponent {
 
     closeSimulationModal() {
         this.showSimulations = false;
-        this.simulationList = [];
         this.subscriptionSimulation.unsubscribe();
     }
 
