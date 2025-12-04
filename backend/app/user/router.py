@@ -217,7 +217,7 @@ def update_user_endpoint(
     :return: Response containing the updated user details in a data response format.
     :rtype: DataResponse
     """
-    user = read_user_by_token(token=token)
+    user = read_user_by_token(token=token, db=db)
 
     updated = update_user(user=user, update_data=data, db=db)
 
