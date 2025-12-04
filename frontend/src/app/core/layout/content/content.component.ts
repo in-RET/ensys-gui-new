@@ -1,8 +1,8 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { ContentLayoutService } from '../services/content-layout.service';
+import {CommonModule} from '@angular/common';
+import {ChangeDetectionStrategy, Component, inject, OnInit} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {NavbarComponent} from '../navbar/navbar.component';
+import {ContentLayoutService} from '../services/content-layout.service';
 import {FooterComponent} from '../footer/footer.component';
 
 @Component({
@@ -13,7 +13,7 @@ import {FooterComponent} from '../footer/footer.component';
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContentComponent {
+export class ContentComponent implements OnInit{
     isFullscreen: boolean | undefined = true;
 
     contentLayoutService = inject(ContentLayoutService);
