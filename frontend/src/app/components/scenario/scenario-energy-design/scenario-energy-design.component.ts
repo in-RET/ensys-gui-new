@@ -1,26 +1,27 @@
-import {CommonModule} from '@angular/common';
-import {AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Tooltip} from 'bootstrap';
+import { CommonModule } from '@angular/common';
+import { Component, inject, Input, ViewChild } from '@angular/core';
+import { Tooltip } from 'bootstrap';
 import Drawflow from 'drawflow';
-import {interval, map, Subscription, switchMap} from 'rxjs';
-import {ContentLayoutService} from '../../../core/layout/services/content-layout.service';
-import {ToastService} from '../../../shared/services/toast.service';
-import {OEPPorts, OEPResponse, Port} from '../models/node.model';
-import {ScenarioBaseInfoModel} from '../models/scenario.model';
-import {EnergyDesignService, Ports} from '../services/energy-design.service';
-import {FlowService} from '../services/flow.service';
-import {ScenarioService} from '../services/scenario.service';
-import {SimulationResModel} from '../simulation/models/simulation.model';
-import {SimulationService} from '../simulation/services/simulation.service';
+import { interval, map, Subscription, switchMap } from 'rxjs';
+import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { ResDataModel } from '../../../shared/models/http.model';
+import { ToastService } from '../../../shared/services/toast.service';
+import { OEPPorts, OEPResponse, Port } from '../models/node.model';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import { EnergyDesignService, Ports } from '../services/energy-design.service';
+import { FlowService } from '../services/flow.service';
+import { ScenarioService } from '../services/scenario.service';
+import { SimulationResModel } from '../simulation/models/simulation.model';
+import { SimulationService } from '../simulation/services/simulation.service';
+import { SimulationListCardComponent } from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
+import { EnergyComponentsComponent } from './energy-components/energy-components.component';
+import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
+import { FormComponent } from './form/form.component';
+import { ModalComponent } from './modal/modal.component';
 import {
-    SimulationListCardComponent
-} from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
-import {EnergyComponentsComponent} from './energy-components/energy-components.component';
-import {EnergyDrawflowComponent} from './energy-drawflow/energy-drawflow.component';
-import {FormComponent} from './form/form.component';
-import {ModalComponent} from './modal/modal.component';
-import {OrderItem, OrderListComponent,} from './order-list/order-list.component';
-import {ResDataModel} from '../../../shared/models/http.model';
+    OrderItem,
+    OrderListComponent,
+} from './order-list/order-list.component';
 
 interface FormNode {
     type: string;
@@ -226,9 +227,9 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         this.formModal_info.preDefData = e.data.preDefData;
 
         let nodeType = e.node?.class ?? '';
-        // if (!e.editMode) {
-        //     nodeType = e.node?.type ?? '';
-        // } else nodeType = e.node?.class ?? '';
+
+        console.log('current fix: ' + e.data?.fix?.[0]);
+
         this.formModal_info.formData =
             await this.energyDesignService.getFormFields_flow(
                 nodeType,
@@ -389,6 +390,21 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
+                            // save in/out data port based on predefined item, to use in flow
+                            this.formModal_info.preDefData = value.ports_data;
+
+                            console.log(value.ports_data);
+
+                            console.log(
+                                value.ports_data.inputs.length &&
+                                    value.ports_data.inputs[0].flow_data
+                                        ?.fix?.[0]
+                                    ? value.ports_data.inputs[0].flow_data
+                                          ?.fix?.[0]
+                                    : value.ports_data.outputs[0].flow_data
+                                          ?.fix?.[0]
+                            );
+
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
                                     ...this.formModal_info.data,
@@ -400,7 +416,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                                 };
                             }
 
-                            // set node's ports name+...props
+                            // set node's ports name + ...props
                             value.ports_data.inputs.forEach((port: Port) => {
                                 if (type != 'transformer') {
                                     this.formComponent.setFieldData(
@@ -420,6 +436,58 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                                         inputItem
                                     );
                                 }
+
+                                this.formModal_info.node?.data?.connections?.inputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.inputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'input_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+
+                                this.formModal_info.data?.connections?.inputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.inputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'input_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
                             });
 
                             value.ports_data.outputs.forEach((port: Port) => {
@@ -441,10 +509,59 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                                         outputItem
                                     );
                                 }
-                            });
 
-                            // save in/out data port based on predefined item, to use in flow
-                            this.formModal_info.preDefData = value.ports_data;
+                                this.formModal_info.node?.data?.connections?.outputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.outputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'output_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+
+                                this.formModal_info.data?.connections?.outputs.forEach(
+                                    (port_a: any, index: number) => {
+                                        // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
+                                        value.ports_data.outputs.forEach(
+                                            (port_b: Port) => {
+                                                for (const key in port_b.flow_data) {
+                                                    if (
+                                                        Object.prototype.hasOwnProperty.call(
+                                                            port_b.flow_data,
+                                                            key
+                                                        )
+                                                    ) {
+                                                        port_a[
+                                                            'output_' +
+                                                                (index + 1)
+                                                        ].formInfo[key] =
+                                                            port_b.flow_data[
+                                                                key
+                                                            ];
+                                                    }
+                                                }
+                                            }
+                                        );
+                                    }
+                                );
+                            });
 
                             // set form fields
                             this.formComponent.enabelControl('oep');
@@ -465,13 +582,13 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                             //     null
                             // );
                             // disable all fields
+
                             this.formComponent.disableControl('inputPort_name');
                             this.formComponent.disableControl(
                                 'outputPort_name'
                             );
                         },
                         error: (err) => {
-                            console.log(err);
                             this.toastService.error(
                                 err.error && err.error.detail
                                     ? err.error.detail
@@ -594,7 +711,6 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                             this.formModal_info.preDefData = value.ports_data;
                         },
                         error: (err) => {
-                            console.log(err);
                             this.toastService.error(
                                 err.error && err.error.detail
                                     ? err.error.detail
@@ -632,11 +748,6 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                 this.formComponent.setFieldData(element.name, null);
                 this.formComponent.disableControl(element.name);
             });
-
-            // this.formComponent.setFieldData('nominal_value', null);
-            // this.formComponent.setFieldData('maximum', null);
-            // this.formComponent.setFieldData('minimum', null);
-            // this.formComponent.setFieldData('ep_costs', null);
         }
     }
 
@@ -773,6 +884,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
 
         let isOepSelected: boolean;
         isOepSelected = findOEPFieldData(this.formModal_info.data) ?? false;
+
         if (this.formModal_info.editMode)
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.data.oep) ?? false;
@@ -780,12 +892,9 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.oep) ?? false;
 
-        //    if (this.formModal_info.type !== 'flow')
-
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData) {
-            // new-node
             if (this.formModal_info.type === 'node') {
                 const isNodeNameDuplicate =
                     this.energyDrawflowComponent.checkNodeDuplication(
@@ -800,7 +909,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                             | { ports: Ports; inp: number; out: number }
                             | false = this.energyDesignService.getNodePorts(
                             this.formModal_info.node.type ??
-                            this.formModal_info.node.class,
+                                this.formModal_info.node.class,
                             {
                                 inputport_name: formData.inputport_name,
                                 outputport_name: formData.outputport_name,
@@ -819,7 +928,9 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                             return false;
                         }
 
-                        formData = {...formData, ...portsInfo};
+                        formData = { ...formData, ...portsInfo };
+
+                        // cause of flow pre-data
                         formData['connections'] = this.formModal_info.data
                             ? this.formModal_info.data['connections']
                             : null;
@@ -858,9 +969,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                 } else {
                     this.setFormError(true, ' * The name is duplicated!');
                 }
-            }
-            // flow
-            else if (this.formModal_info.type === 'flow') {
+            } else if (this.formModal_info.type === 'flow') {
                 // save data of connection fields in both sides
                 this.energyDrawflowComponent.saveConnectionInNodes(
                     this.formModal_info.data.connection,
@@ -931,7 +1040,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         return this.energyDrawflowComponent.getData();
     }
 
-    openSimulationsList(scenarioId: number) {
+    openSimulations(scenarioId: number) {
         this.loadSimulations(scenarioId);
     }
 
@@ -972,6 +1081,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
 
     closeSimulationModal() {
         this.showSimulations = false;
+        this.simulationList = [];
         this.subscriptionSimulation.unsubscribe();
     }
 
@@ -982,8 +1092,6 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        if (this.subscriptionSimulation) {
-            this.subscriptionSimulation.unsubscribe();
-        }
+        if (this.showSimulations) this.subscriptionSimulation.unsubscribe();
     }
 }

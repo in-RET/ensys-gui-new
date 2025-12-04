@@ -7,6 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
 import { FileUploaderComponent } from '../file-uploader/file-uploader.component';
 
 @Component({
@@ -16,6 +17,7 @@ import { FileUploaderComponent } from '../file-uploader/file-uploader.component'
         FormsModule,
         ReactiveFormsModule,
         FileUploaderComponent,
+        NumberOnlyDirective,
     ],
     templateUrl: './form.component.html',
     styleUrl: './form.component.scss',

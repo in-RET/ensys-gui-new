@@ -42,6 +42,11 @@
                             "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
                             "node_modules/plotly.js/dist/plotly.min.js",
                             "src/static/js/main.js"
+                        ],
+                        "allowedCommonJsDependencies": [
+                            "leaflet",
+                            "sweetalert2",
+                            "drawflow"
                         ]
                     },
                     "configurations": {
@@ -49,8 +54,8 @@
                             "budgets": [
                                 {
                                     "type": "initial",
-                                    "maximumWarning": "500kB",
-                                    "maximumError": "6MB"
+                                    "maximumWarning": "6mb",
+                                    "maximumError": "6mb"
                                 },
                                 {
                                     "type": "anyComponentStyle",
@@ -58,6 +63,7 @@
                                     "maximumError": "8kB"
                                 }
                             ],
+                            "optimization": true,
                             "outputHashing": "all"
                         },
                         "development": {

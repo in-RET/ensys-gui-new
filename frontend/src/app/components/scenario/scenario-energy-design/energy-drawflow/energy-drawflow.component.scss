@@ -121,6 +121,10 @@
     &.arrow-right {
         background-image: url("/static/assets/icons/feather/black/arrow-right.svg");
     }
+
+    &.arrow-left {
+        background-image: url("/static/assets/icons/feather/black/arrow-left.svg");
+    }
 }
 
 ::ng-deep .drawflow .connection .main-path {
@@ -133,20 +137,19 @@
     }
 }
 
-.submenu-parent {
+.submenu-parent:not(.color-picker) {
     cursor: pointer;
 }
 
 .nested-menu {
     top: 0;
-    left: 100%;
     display: none;
     min-width: 150px;
     z-index: 1000;
 }
 
 .submenu-parent:hover .nested-menu {
-    display: block;
+    display: flex;
 }
 
 ::ng-deep .magnet-highlight {
@@ -157,7 +160,17 @@
     height: 1rem !important;
 }
 
-.drawflow {
-    width: 95vw;
-    height: 90vh;
+.left-100 {
+    left: 100%;
+    right: unset !important;
+}
+
+.right-100 {
+    right: 100% !important;
+    left: unset !important;
+}
+
+::ng-deep .drawflow .connection .main-path {
+    pointer-events: none !important;
+    // stroke: #d5ab00 !important;
 }

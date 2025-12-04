@@ -33,7 +33,10 @@ export class EnergyDrawflowComponent {
     contextmenu!: {
         nodeId: number;
         nodePorts: { inputs: any; outputs: any };
+        nodeClass: string;
         nodeConnections: { in: any; out: any };
+        direction: 'left' | 'right';
+        nodeFlowsColor: string;
     } | null;
 
     @ViewChild(ModalComponent)
@@ -136,7 +139,8 @@ export class EnergyDrawflowComponent {
                     e.clientY,
                     closestNode
                         ? closestNode.id.split('node-')[1]
-                        : closestEdge.id.split('node-')[1]
+                        : closestEdge.id.split('node-')[1],
+                    closestNode
                 );
             }
         });
@@ -544,7 +548,15 @@ export class EnergyDrawflowComponent {
                 },
             };
             this.editor.import(dataToImport);
+            this.setBusColorFlows(CURRENT_DRAWFLOW);
         }
+    }
+
+    setBusColorFlows(drawflowData: any) {
+        Object.values(drawflowData).forEach((element: any) => {
+            if (element.class == 'bus' && element.data.flowsColor)
+                this.setBusFlowsColor(element.id, element.data.flowsColor);
+        });
     }
 
     saveCurrentDrawflow() {
@@ -666,6 +678,7 @@ export class EnergyDrawflowComponent {
 
         this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.import(this.editor.export());
+        this.setBusColorFlows(this.editor.export().drawflow.Home.data);
     }
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
@@ -872,21 +885,52 @@ export class EnergyDrawflowComponent {
 
                 this.unShowConextMenu();
             } else if (type == 'flow' && connection) {
-                const source_connectionList =
-                    this.editor.drawflow.drawflow.Home.data[
-                        connection.source.node.id
-                    ].data['connections'];
-                const out_connectionList = source_connectionList['outputs'];
-                const outIndex = out_connectionList.findIndex(
-                    (out: any) =>
-                        out.hasOwnProperty(connection.source.port.id) &&
-                        out[connection.source.port.id].baseInfo.input_id ==
-                            connection.destination.node.id &&
-                        out[connection.source.port.id].baseInfo.input_class ==
-                            connection.destination.port.id
+                const _node = this.editor.getNodeFromId(
+                    this.contextmenu.nodeId
                 );
-                const _connectionData: { baseInfo: any; formInfo: any } =
-                    out_connectionList[outIndex][connection.source.port.id];
+                const source_connectionList =
+                    // this.editor.drawflow.drawflow.Home.data[
+                    //     connection.source.node.id
+                    // ].data['connections'];
+                    _node.data['connections'];
+
+                let connectionList;
+                let portIndex;
+                let _connectionData!: { baseInfo: any; formInfo: any };
+
+                if (connection.destination.node.id == _node.id) {
+                    connectionList = source_connectionList['inputs'];
+
+                    portIndex = connectionList.findIndex(
+                        (port: any) =>
+                            port.hasOwnProperty(
+                                connection.destination.port.id
+                            ) &&
+                            port[connection.destination.port.id].baseInfo
+                                .input_id == connection.destination.node.id &&
+                            port[connection.destination.port.id].baseInfo
+                                .input_class == connection.destination.port.id
+                    );
+
+                    _connectionData =
+                        connectionList[portIndex][
+                            connection.destination.port.id
+                        ];
+                } else if (connection.source.node.id == _node.id) {
+                    connectionList = source_connectionList['outputs'];
+
+                    portIndex = connectionList.findIndex(
+                        (port: any) =>
+                            port.hasOwnProperty(connection.source.port.id) &&
+                            port[connection.source.port.id].baseInfo
+                                .output_id == connection.source.node.id &&
+                            port[connection.source.port.id].baseInfo
+                                .output_class == connection.source.port.id
+                    );
+
+                    _connectionData =
+                        connectionList[portIndex][connection.source.port.id];
+                }
 
                 _connectionData.formInfo['connection'] =
                     _connectionData.baseInfo;
@@ -936,139 +980,180 @@ export class EnergyDrawflowComponent {
     }
 
     // R-Click event , Touching events
-    showConextMenu(x: any, y: any, nodeId: number) {
-        this.contextMenuRef.nativeElement.style.display = 'block';
-        this.contextMenuRef.nativeElement.style.left =
-            x <= window.innerWidth - 360 ? x + 'px' : x - 360 + 'px';
-
-        const children =
-            this.contextMenuRef.nativeElement.querySelectorAll('.nested-menu');
-
-        children.forEach((child: Element) => {
-            if (x <= window.innerWidth - 200)
-                (child as HTMLElement).style.right = '100%';
-            else (child as HTMLElement).style.left = '100%';
-        });
-
+    showConextMenu(x: any, y: any, nodeId: number, node?: any) {
+        this.contextMenuRef.nativeElement.style.left = x + 'px';
         this.contextMenuRef.nativeElement.style.top = y + 'px';
 
-        if (nodeId) {
-            const currentNode = this.editor.getNodeFromId(nodeId);
-            let nodeConnections_in: any[] = [];
-            let nodeConnections_out: any[] = [];
+        let contextWithActionsDirection: 'left' | 'right' = 'left';
+        this.contextMenuRef.nativeElement.style.display = 'block';
+        this.contextMenuRef.nativeElement.style.visibility = 'hidden';
 
-            if (currentNode.data.ports.inputs)
-                currentNode.data.ports.inputs.forEach(
-                    (currentNode_input: {
-                        code: string;
-                        id: number;
-                        name: string;
-                    }) => {
-                        if (currentNode.inputs[currentNode_input.code])
-                            currentNode.inputs[
-                                currentNode_input.code
-                            ].connections.forEach(
-                                (input_conn: {
-                                    input: string;
-                                    node: string;
-                                }) => {
-                                    const sourceNode =
-                                        this.editor.getNodeFromId(
-                                            input_conn.node
-                                        );
+        const currentNode = this.editor.getNodeFromId(nodeId);
+        let nodeConnections_in: any[] = [];
+        let nodeConnections_out: any[] = [];
 
-                                    nodeConnections_in.push({
-                                        source: {
-                                            node: {
-                                                id: sourceNode.id,
-                                                name: sourceNode.name,
-                                            },
-                                            port: {
-                                                id: input_conn.input,
-                                                name: sourceNode.data.ports.outputs
-                                                    .filter(
-                                                        (x: any) =>
-                                                            x.code ===
-                                                            input_conn.input
-                                                    )
-                                                    .map((x: any) => x.name)[0],
-                                            },
-                                        },
-                                        destination: {
-                                            node: {
-                                                id: currentNode.id,
-                                                name: currentNode.name,
-                                            },
-                                            port: {
-                                                id: currentNode_input.code,
-                                                name: currentNode_input.name,
-                                            },
-                                        },
-                                    });
-                                }
-                            );
-                    }
-                );
+        // make nodeConnections
+        if (currentNode.data.ports.inputs)
+            currentNode.data.ports.inputs.forEach(
+                (currentNode_input: {
+                    code: string;
+                    id: number;
+                    name: string;
+                }) => {
+                    if (currentNode.inputs[currentNode_input.code])
+                        currentNode.inputs[
+                            currentNode_input.code
+                        ].connections.forEach(
+                            (input_conn: { input: string; node: string }) => {
+                                const sourceNode = this.editor.getNodeFromId(
+                                    input_conn.node
+                                );
 
-            if (currentNode.data.ports.outputs)
-                currentNode.data.ports.outputs.forEach(
-                    (currentNode_output: {
-                        code: string;
-                        id: number;
-                        name: string;
-                    }) => {
-                        if (currentNode.outputs[currentNode_output.code])
-                            currentNode.outputs[
-                                currentNode_output.code
-                            ].connections.forEach((output_conn: any) => {
-                                const destionationNode =
-                                    this.editor.getNodeFromId(output_conn.node);
-
-                                nodeConnections_out.push({
+                                nodeConnections_in.push({
                                     source: {
+                                        node: {
+                                            id: sourceNode.id,
+                                            name: sourceNode.name,
+                                        },
+                                        port: {
+                                            id: input_conn.input,
+                                            name: sourceNode.data.ports.outputs
+                                                .filter(
+                                                    (x: any) =>
+                                                        x.code ===
+                                                        input_conn.input
+                                                )
+                                                .map((x: any) => x.name)[0],
+                                        },
+                                    },
+                                    destination: {
                                         node: {
                                             id: currentNode.id,
                                             name: currentNode.name,
                                         },
                                         port: {
-                                            id: currentNode_output.code,
-                                            name: currentNode_output.name,
-                                        },
-                                    },
-                                    destination: {
-                                        node: {
-                                            id: destionationNode.id,
-                                            name: destionationNode.name,
-                                        },
-                                        port: {
-                                            id: output_conn.output,
-                                            name: destionationNode.data.ports.inputs
-                                                .filter(
-                                                    (x: any) =>
-                                                        x.code ===
-                                                        output_conn.output
-                                                )
-                                                .map((x: any) => x.name)[0],
+                                            id: currentNode_input.code,
+                                            name: currentNode_input.name,
                                         },
                                     },
                                 });
+                            }
+                        );
+                }
+            );
+
+        // make nodeConnections
+        if (currentNode.data.ports.outputs)
+            currentNode.data.ports.outputs.forEach(
+                (currentNode_output: {
+                    code: string;
+                    id: number;
+                    name: string;
+                }) => {
+                    if (currentNode.outputs[currentNode_output.code])
+                        currentNode.outputs[
+                            currentNode_output.code
+                        ].connections.forEach((output_conn: any) => {
+                            const destionationNode = this.editor.getNodeFromId(
+                                output_conn.node
+                            );
+
+                            nodeConnections_out.push({
+                                source: {
+                                    node: {
+                                        id: currentNode.id,
+                                        name: currentNode.name,
+                                    },
+                                    port: {
+                                        id: currentNode_output.code,
+                                        name: currentNode_output.name,
+                                    },
+                                },
+                                destination: {
+                                    node: {
+                                        id: destionationNode.id,
+                                        name: destionationNode.name,
+                                    },
+                                    port: {
+                                        id: output_conn.output,
+                                        name: destionationNode.data.ports.inputs
+                                            .filter(
+                                                (x: any) =>
+                                                    x.code ===
+                                                    output_conn.output
+                                            )
+                                            .map((x: any) => x.name)[0],
+                                    },
+                                },
                             });
-                    }
+                        });
+                }
+            );
+
+        this.contextmenu = {
+            nodeId: nodeId,
+            nodePorts: currentNode.data.ports,
+            nodeClass: currentNode.class,
+            nodeConnections: {
+                in: nodeConnections_in,
+                out: nodeConnections_out,
+            },
+            direction: contextWithActionsDirection,
+            nodeFlowsColor: currentNode.data.flowsColor || '#000000',
+        };
+
+        setTimeout(() => {
+            const contextMenuStyle = {
+                w: this.contextMenuRef.nativeElement.offsetWidth,
+                w_actioons: 150,
+            };
+            const reaminingWidth_contextWithActions =
+                window.innerWidth -
+                (x + contextMenuStyle.w + contextMenuStyle.w_actioons);
+
+            if (reaminingWidth_contextWithActions <= 0) {
+                this.contextMenuRef.nativeElement.style.left =
+                    x - contextMenuStyle.w + 'px';
+                // for actions context menu
+                contextWithActionsDirection = 'left';
+
+                if (this.contextmenu)
+                    this.contextmenu = {
+                        ...this.contextmenu,
+                        direction: contextWithActionsDirection,
+                    };
+            } else {
+                this.contextMenuRef.nativeElement.style.left = x + 'px';
+                // for actions context menu
+                contextWithActionsDirection = 'right';
+
+                if (this.contextmenu)
+                    this.contextmenu = {
+                        ...this.contextmenu,
+                        direction: contextWithActionsDirection,
+                    };
+            }
+
+            const children =
+                this.contextMenuRef.nativeElement.querySelectorAll(
+                    '.nested-menu'
                 );
 
-            this.contextmenu = {
-                nodeId: nodeId,
-                nodePorts: currentNode.data.ports,
-                nodeConnections: {
-                    in: nodeConnections_in,
-                    out: nodeConnections_out,
-                },
-            };
-        }
+            children.forEach((child: Element) => {
+                if (x <= window.innerWidth - 200)
+                    (child as HTMLElement).style.right = '100%';
+                else (child as HTMLElement).style.left = '100%';
+            });
+
+            this.contextMenuRef.nativeElement.style.top = y + 'px';
+            this.contextMenuRef.nativeElement.style.visibility = 'visible';
+        }, 0);
     }
 
     unShowConextMenu() {
         this.contextMenuRef.nativeElement.style.display = 'none';
+        this.contextMenuRef.nativeElement.style.left = '';
+        this.contextMenuRef.nativeElement.style.top = '';
         this.contextmenu = null;
     }
 
@@ -1336,6 +1421,23 @@ export class EnergyDrawflowComponent {
     getData() {
         const drawflowData = this.editor.export().drawflow.Home.data;
         return drawflowData;
+    }
+
+    onChangeBusFlowsColor(e: any) {
+        const currentNode = this.editor.getNodeFromId(this.contextmenu!.nodeId);
+        currentNode.data.flowsColor = e.value;
+        this.updateNode(this.contextmenu!.nodeId, 'bus', currentNode.data);
+        this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
+    }
+
+    setBusFlowsColor(nodeId: number, color: string) {
+        const connections = document.querySelectorAll(
+            `#drawflow .connection.node_out_node-${nodeId} path , #drawflow .connection.node_in_node-${nodeId} path`
+        );
+
+        connections.forEach((connection: Element) => {
+            (connection as HTMLElement).style.stroke = color;
+        });
     }
 }
 
