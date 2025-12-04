@@ -1,5 +1,5 @@
 import {CommonModule} from '@angular/common';
-import {Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {Tooltip} from 'bootstrap';
 import Drawflow from 'drawflow';
 import {interval, map, Subscription, switchMap} from 'rxjs';
@@ -61,7 +61,7 @@ class FormModalInfo {
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
+export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterViewInit {
     components: any;
     editor!: Drawflow;
 
@@ -540,7 +540,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
             this.formComponent.disableControl('nominal_value');
 
             let lsFields_ = [
-                ...[{ name: 'nominal_value' }],
+                ...[{name: 'nominal_value'}],
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
@@ -731,7 +731,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
     }
 
     cleanFormError() {
-        this.formError = { msg: null, isShow: false };
+        this.formError = {msg: null, isShow: false};
     }
 
     setFormCalError(status: boolean, msg: string) {
@@ -800,7 +800,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
                             | { ports: Ports; inp: number; out: number }
                             | false = this.energyDesignService.getNodePorts(
                             this.formModal_info.node.type ??
-                                this.formModal_info.node.class,
+                            this.formModal_info.node.class,
                             {
                                 inputport_name: formData.inputport_name,
                                 outputport_name: formData.outputport_name,
@@ -819,7 +819,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
                             return false;
                         }
 
-                        formData = { ...formData, ...portsInfo };
+                        formData = {...formData, ...portsInfo};
                         formData['connections'] = this.formModal_info.data
                             ? this.formModal_info.data['connections']
                             : null;
@@ -837,7 +837,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
                                     formData,
                                     this.formModal_info.node?.id ?? 0,
                                     this.formModal_info.node.type ??
-                                        this.formModal_info.node.class
+                                    this.formModal_info.node.class
                                 );
                             }
 
@@ -931,7 +931,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy {
         return this.energyDrawflowComponent.getData();
     }
 
-    openSimulation(scenarioId: number) {
+    openSimulationsList(scenarioId: number) {
         this.loadSimulations(scenarioId);
     }
 
