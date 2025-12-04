@@ -68,12 +68,12 @@ def create_user(user: EnUser, db: Session) -> EnUserDB:
     :rtype: EnUserDB
     :raises HTTPException: If username or email already exists (status code 409)
     """
-    if _check_username_exists(user.username):
+    if _check_username_exists(username=user.username, db=db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="User already exists."
         )
 
-    if _check_mail_exists(user.mail):
+    if _check_mail_exists(mail=user.mail, db=db):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Mail already in use."
         )

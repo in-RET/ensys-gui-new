@@ -9,7 +9,8 @@ It handles email notifications and templating.
 """
 
 import os
-from exchangelib import HTMLBody, Account, Configuration, EWSTimeZone, Credentials, Message
+
+from exchangelib import HTMLBody, Account, Configuration, Credentials, Message
 from jinja2 import Template
 
 from .user.model import EnUserDB

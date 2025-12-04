@@ -243,4 +243,4 @@ async def duplicate_scenario_endpoint(
 
     scenario = duplicate_scenario(scenario_id=scenario_id, user=user, db=db)
 
-    return MessageResponse(data="Scenario duplicated.", success=True)
+    return MessageResponse(data=f"Scenario {scenario.name} duplicated.", success=True)
