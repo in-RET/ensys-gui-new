@@ -1,20 +1,44 @@
+"""
+User Router Module
+================
+
+This module provides the API endpoints for user management in the EnSys application.
+It handles user registration, authentication, profile management, and account activation.
+
+The module provides endpoints for:
+    - User login and authentication
+    - New user registration
+    - Email verification and account activation
+    - User profile retrieval and updates
+    - Account deletion
+"""
+
 import asyncio
-from datetime import datetime
+import os
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException
-from jose import jwt
-from passlib.hash import pbkdf2_sha256
-from sqlmodel import Session, select
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi.templating import Jinja2Templates
+from sqlmodel import Session
 from starlette import status
 from starlette.responses import JSONResponse
 
-from .model import EnUser, EnUserDB, EnUserUpdate
-from ..auxillary import send_mail
-from ..data.model import GeneralDataModel
+from .model import EnUser, EnUserUpdate, EnUserDB
+from .service import (
+    authenticate_user,
+    create_user,
+    read_user_by_token,
+    update_user,
+    delete_user,
+    activate_user,
+)
 from ..db import get_db_session
-from ..responses import DataResponse, MessageResponse
-from ..security import decode_token, oauth2_scheme, token_secret
+from ..mail import send_mail
+from ..models.base import GeneralDataModel
+from ..models.response import DataResponse, MessageResponse
+from ..security import oauth2_scheme
+
+templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 users_router = APIRouter(
     prefix="/user",
@@ -23,7 +47,11 @@ users_router = APIRouter(
 
 
 @users_router.post("/auth/login")
-async def user_login(username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db_session)):
+async def login_user_endpoint(
+    username: str = Form(...),
+    password: str = Form(...),
+    db: Session = Depends(get_db_session),
+):
     """
     Authenticates a user and generates an access token upon successful login.
 
@@ -44,36 +72,28 @@ async def user_login(username: str = Form(...), password: str = Form(...), db: S
     :raises HTTPException: Raised with status code 404 if the user does not exist,
         or with status code 401 if the password is incorrect.
     """
-    statement = select(EnUserDB).where(EnUserDB.username == username.lower())
-    user_db = db.exec(statement).first()
-    if user_db is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    elif user_db.is_active:
-        if user_db.verify_password(password):
-            user_db.last_login = datetime.now()
-            db.add(user_db)
-            db.commit()
-            db.refresh(user_db)
+    # Authenticate via service
+    user_db = authenticate_user(username=username, password=password, db=db)
 
-            token = jwt.encode(user_db.get_token_information(), token_secret, algorithm="HS256")
-
-            return JSONResponse(
-                content={
-                    "message": "User login successful.",
-                    "access_token": token,
-                    "token_type": "bearer"
-                },
-                status_code=status.HTTP_200_OK
-            )
-        else:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Password incorrect.")
-    else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="User not activated. Please check your mails.")
+    return JSONResponse(
+        content={
+            "message": "User login successful.",
+            "access_token": user_db.get_token(),
+            "token_type": "bearer",
+        },
+        status_code=status.HTTP_200_OK,
+    )
 
 
-@users_router.post("/auth/register", status_code=status.HTTP_201_CREATED, response_model=MessageResponse)
-async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> MessageResponse:
+@users_router.post(
+    "/auth/register",
+    status_code=status.HTTP_201_CREATED,
+    response_model=MessageResponse,
+)
+async def register_user_endpoint(
+    user: EnUser,
+    db: Session = Depends(get_db_session),
+) -> MessageResponse:
     """
     Registers a new user in the system. The function verifies whether the username
     and email provided by the user are unique before proceeding with the creation
@@ -96,75 +116,56 @@ async def user_register(user: EnUser, db: Session = Depends(get_db_session)) -> 
         - If the email is already in use (HTTP status 409).
         - If user registration fails due to an unknown issue (HTTP status 404).
     """
-    # Test against same username
-    statement = select(EnUserDB).where(EnUserDB.username == user.username.lower())
-    results = db.exec(statement).first()
+    # Use service to create user
+    db_user: EnUserDB = create_user(user=user, db=db)
 
-    if results is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists.")
+    token = db_user.get_token()
 
-    # Test against same mail
-    statement = select(EnUserDB).where(EnUserDB.mail == user.mail)
-    results = db.exec(statement).first()
-
-    if results is not None:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Mail already in use.")
-
-    db_user = EnUserDB(**user.model_dump())
-    db_user.username = user.username.lower()
-    db_user.password = pbkdf2_sha256.hash(user.password)
-    db_user.date_joined = datetime.now()
-
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-
-    token = jwt.encode(db_user.get_token_information(), token_secret, algorithm="HS256")
-    print(f"Token: {token}")
-
-    # TODO: Rework after releasen of 0.1.0
+    # send activation mail asynchronously
     asyncio.create_task(send_mail(token=token, user=db_user))
 
-    if db_user.id is not None:
-        return MessageResponse(
-            data="",
-            success=True
-        )
-    else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User registration failed.")
+    return MessageResponse(data="", success=True)
 
 
 @users_router.get("/auth/activate/{token}")
-async def user_activate(
-    token: str,
-    db: Session = Depends(get_db_session)
+async def activate_user_endpoint(
+    request: Request, token: str, db: Session = Depends(get_db_session)
 ):
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+    """
+    Activate a user account via email verification link.
 
-    token_data = decode_token(token)
+    This endpoint handles user account activation by verifying the token sent
+    via email. Upon successful activation, a success page is rendered.
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
-    user = db.exec(statement).first()
+    :param db: database session for user retrieval and activation
+    :type db: Session
+    :param request: FastAPI request object for template rendering
+    :type request: Request
+    :param token: Account activation token from email
+    :type token: str
+    :return: HTML template response indicating activation status
+    :rtype: TemplateResponse
+    :raises HTTPException: If activation fails or token is invalid (status code 409)
+    """
+    user = read_user_by_token(token=token, db=db)
 
-    if user.is_active:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already activated.")
-
-    user.is_active = True
-
-    db.add(user)
-    db.commit()
-
-    return MessageResponse(
-        data="User successfully activated.",
-        success=True
-    )
+    if activate_user(user=user, db=db):
+        return templates.TemplateResponse(
+            request=request,
+            name="activation_response_200.html",
+            context={"user": user.username},
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Database integrity error on user activation.",
+        )
 
 
 @users_router.get("/", response_model=DataResponse)
-async def user_read(
+async def read_user_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db_session),
 ) -> DataResponse:
     """
     Handles a GET API endpoint to read user information from the database.
@@ -184,30 +185,22 @@ async def user_read(
              and retrieval are successful.
     :rtype: DataResponse
     """
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
-    else:
-        token_data = decode_token(token)
+    user = read_user_by_token(token=token, db=db)
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
-    user = db.exec(statement).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-    else:
-        return DataResponse(
-            data=GeneralDataModel(
-                items=[user.model_dump()],
-                totalCount=1,
-            ),
-            success=True,
-        )
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[user.model_dump()],
+            totalCount=1,
+        ),
+        success=True,
+    )
 
 
 @users_router.patch("/", response_model=DataResponse)
-async def update_user(
-    token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
-    db: Session = Depends(get_db_session)
+def update_user_endpoint(
+    data: EnUserUpdate,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session),
 ) -> DataResponse:
     """
     Updates the user information in the database based on the provided token and
@@ -224,24 +217,13 @@ async def update_user(
     :return: Response containing the updated user details in a data response format.
     :rtype: DataResponse
     """
-    token_data = decode_token(token)
+    user = read_user_by_token(token=token, db=db)
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
-    user_db = db.exec(statement).first()
-
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-    for field, value in user.model_dump(exclude_none=True, exclude_unset=True).items():
-        print(field, ":", value)
-        setattr(user_db, field, value)
-
-    db.commit()
-    db.refresh(user_db)
+    updated = update_user(user=user, update_data=data, db=db)
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[user.model_dump()],
+            items=[updated.model_dump()],
             totalCount=1,
         ),
         success=True,
@@ -249,9 +231,9 @@ async def update_user(
 
 
 @users_router.delete("/", response_model=MessageResponse)
-async def delete_user(
+async def delete_user_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db_session)
+    db: Session = Depends(get_db_session),
 ) -> MessageResponse:
     """
     Deletes a user based on the credentials and token provided. The function
@@ -266,18 +248,8 @@ async def delete_user(
     :rtype: MessageResponse
     :raises HTTPException: If the user is not found, with status code 404.
     """
-    token_data = decode_token(token)
+    user = read_user_by_token(token=token, db=db)
 
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"].lower())
-    user = db.exec(statement).first()
+    delete_user(user=user, db=db)
 
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-    db.delete(user)
-    db.commit()
-
-    return MessageResponse(
-        data=f"User was successfully deleted.",
-        success=True
-    )
+    return MessageResponse(data=f"User was successfully deleted.", success=True)

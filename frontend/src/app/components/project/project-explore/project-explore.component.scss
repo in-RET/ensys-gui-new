@@ -1,19 +1,22 @@
-.project__details {
-    height: 4rem;
-    align-items: center;
+.projects-empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  text-align: center;
 
-    .actions {
-        display: none;
+  &__img {
+    margin-bottom: 1rem;
+
+    img {
+      max-width: 200px;
+      width: 100%;
+      height: auto;
+      opacity: 0.85;
     }
-}
+  }
 
-.project-item {
-    cursor: pointer;
-    &:hover {
-        .project__details .actions {
-            display: flex;
-        }
-
-        background-color: #1f567d12;
-    }
+  &__text {
+    color: var(--text-muted, #6c757d);
+  }
 }

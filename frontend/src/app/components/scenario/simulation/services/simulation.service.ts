@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
-import { BaseHttpService } from '../../../../core/base-http/base-http.service';
-import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
-import { SimulationResModel } from '../models/simulation.model';
+import {Injectable} from '@angular/core';
+import {map, Observable} from 'rxjs';
+import {environment} from '../../../../../environments/environment';
+import {BaseHttpService} from '../../../../core/base-http/base-http.service';
+import {ResDataModel, ResModel} from '../../../../shared/models/http.model';
+import {SimulationResModel} from '../models/simulation.model';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +20,7 @@ export class SimulationService {
         return this.baseHttp.post(`${this.baseUrl}/start/${scenarioId}`);
     }
 
-    stoptSimulation(scenarioId: number) {
+    stopSimulation(scenarioId: number) {
         return this.baseHttp.post(`${this.baseUrl}/stop/${scenarioId}`);
     }
 
@@ -41,7 +41,7 @@ export class SimulationService {
     onStopSimulation(
         scenarioId: number
     ): Observable<ResDataModel<SimulationResModel>> {
-        return this.stoptSimulation(scenarioId).pipe(
+        return this.stopSimulation(scenarioId).pipe(
             map((res: ResModel<SimulationResModel>) => {
                 if (res.success) {
                     return res.data;

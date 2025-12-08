@@ -58,6 +58,6 @@ storage
 .cache
 /.env.dev
 /.env.prod
-/.env.test
+/.env.dev
 /frontend/dist/*
 docs/config/site/*

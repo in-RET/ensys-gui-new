@@ -1,19 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { map } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { ProjectResModel } from '../../project/models/project.model';
-import { ProjectService } from '../../project/services/project.service';
-import { ScenarioBaseInfoModel } from '../models/scenario.model';
-import { ScenarioService } from '../services/scenario.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {map} from 'rxjs';
+import {ResDataModel, ResModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {ProjectResModel} from '../../project/models/project.model';
+import {ProjectService} from '../../project/services/project.service';
+import {ScenarioBaseInfoModel} from '../models/scenario.model';
+import {ScenarioService} from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -136,15 +130,13 @@ export class ScenarioSetupComponent implements OnInit {
                     id,
                     name,
                     timeStep,
-                    sDate,
+                    //sDate,
                     simulationYear,
                 });
             } else {
-                this.name?.setValue(
-                    `Scenario_${
-                        scenarioBaseData.project.scenarioList.length + 1
-                    }`
-                );
+                // Use optional chaining and a safe fallback to avoid using project when it may be undefined
+                const existingScenarios = scenarioBaseData.project?.scenarioList?.length ?? 0;
+                this.name?.setValue(`Scenario_${existingScenarios + 1}`);
             }
         }
     }

@@ -1,21 +1,35 @@
+"""
+Energy System Results Models
+==========================
+
+This module provides data models for representing various types of results
+from energy system simulations and analyses.
+
+The module includes:
+    - Time series data representations
+    - Investment result models
+    - DataFrame-like structures
+    - Comprehensive result data containers
+
+All models use Pydantic for validation and serialization.
+"""
+
 from datetime import datetime
 
 from pydantic import BaseModel
 
-from ..responses import GeneralDataModel
-
 
 class EnTimeSeries(BaseModel):
     """
-    Represents a time series data model with a name and corresponding data points.
+    Time series data model for energy system results.
 
-    This class provides a structure for storing time series data which includes
-    a descriptive name and a list of numerical data points. It can be used for
-    various time-based data analysis and storage requirements.
+    Provides a structure for storing time series data including a descriptive
+    name and corresponding numerical data points. Used for representing temporal
+    data such as power flows, consumption patterns, or generation profiles.
 
-    :ivar name: The name of the time series.
+    :param name: Identifying name for the time series
     :type name: str
-    :ivar data: A list of numerical data points representing the time series.
+    :param data: List of numerical values representing the time series data
     :type data: list[float]
     """
     name: str
@@ -24,35 +38,38 @@ class EnTimeSeries(BaseModel):
 
 class EnInvestResult(BaseModel):
     """
-    Represents an investment result with its details.
+    Investment result model for energy system components.
 
-    This class is used to represent the result of an investment, including the
-    name of the investment, the associated data value, and its corresponding unit.
+    Represents investment-related results including costs, capacities, and
+    their associated units. Used for economic analysis and optimization results.
 
-    :ivar name: The name of the investment.
+    :param name: Identifier of the investment component
     :type name: str
-    :ivar data: The numerical value of the investment result.
-    :type data: float
-    :ivar unit: The unit of measurement for the investment result.
+    :param value: Numerical result of the investment calculation
+    :type value: float
+    :param unit: Unit of measurement (e.g., "EUR", "kW", "kWh")
     :type unit: str
     """
     name: str
     value: float
     unit: str
 
+
 class EnDataFrame(BaseModel):
     """
-    Represents a data model for a DataFrame-like structure with enhanced time series data.
+    DataFrame-like structure for time-indexed energy system data.
 
-    This class is designed to manage and store time series data associated with a specific
-    name and a corresponding index of datetime values.
+    Manages time series data with explicit time indexing and units. Suitable
+    for storing and analyzing temporal data with associated metadata.
 
-    :ivar name: Name of the data frame.
+    :param name: Identifier for the data frame
     :type name: str
-    :ivar index: List of datetime objects representing the index of the data frame.
+    :param index: Time points corresponding to the data values
     :type index: list[datetime]
-    :ivar data: List of EnTimeSeries objects representing the time series data.
-    :type data: list[EnTimeSeries]
+    :param data: Time series values
+    :type data: list[float]
+    :param unit: Unit of measurement for the data
+    :type unit: str
     """
     name: str
     index: list[datetime]

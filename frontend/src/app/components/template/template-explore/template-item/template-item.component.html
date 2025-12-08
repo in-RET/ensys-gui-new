@@ -1,0 +1,80 @@
+<section class="project" id="template-{{ template.id }}">
+    <div class="project-item">
+        <div class="project__top">
+            <a>
+                <h2 class="name">{{ template.name }}</h2>
+            </a>
+
+            <a class="location">
+                <span class="icon-pin" aria-hidden="true"></span>
+                {{ template.country }}
+            </a>
+        </div>
+
+        <div class="project__details">
+            <div class="details">
+                <div class="detail">
+                    <span class="detail__property">Description</span>
+
+                    <span class="detail__value">
+                        {{ template.description || "{not defined}" }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="project__scenarios">
+            <div class="toggle d-flex gap-2">
+                <ng-container *ngIf="template_scenarios$ | async as scenarios; else loading">
+                    <button
+                        class="btn btn--action border p-2"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        [attr.data-bs-target]="'#scenario_list_' + template.id"
+                        aria-expanded="false"
+                        [attr.aria-controls]="'scenario_list_' + template.id"
+                        *ngIf="scenarios.length > 0"
+                    >
+                        <span
+                            class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
+                            aria-hidden="true"
+                        >
+                        </span>
+
+                        <span class="js-toggle-scenario-name">Show scenarios</span>
+                    </button>
+                    <button
+                        class="btn btn-success border p-2"
+                        type="button"
+                        (click)="createProjectFromTemplate(template.id)"
+                    >
+                        <span>Create Project from Template</span>
+                    </button>
+                </ng-container>
+
+                <ng-template #loading>
+                    <span class="text-muted p-2">Loading scenarios...</span>
+                </ng-template>
+            </div>
+
+            <div
+                class="collapse row"
+                [id]="'scenario_list_' + template.id"
+                *ngIf="(template_scenarios$ | async)?.length as scenarioCount"
+            >
+                <div class="card card-body scenario_list col-4" *ngIf="scenarioCount > 0">
+                    <ul class="list-group border w-100">
+                        <li
+                            class="list-group-item scenario_item w-100"
+                            *ngFor="let scenarios of template.scenarioList"
+                        >
+                            <app-template-scenario-item
+                                [scenario]=scenarios
+                            />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

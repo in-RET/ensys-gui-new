@@ -76,6 +76,13 @@ export const routes: Routes = [
                 loadChildren: () =>
                     import('./simulation.routes').then((r) => r.routes),
             },
+
+            {
+                path: 'templates',
+                canActivate: [AuthGuard],
+                loadChildren: () =>
+                    import('./template.routes').then((r) => r.routes),
+            }
         ],
     },
 ];

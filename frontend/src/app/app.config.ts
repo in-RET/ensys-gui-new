@@ -9,7 +9,7 @@ import {
     provideAppInitializer,
     provideZoneChangeDetection,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { PreloadAllModules, provideRouter, withPreloading } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { routes } from './app.routes';
 import { AuthCoreService } from './core/auth/auth.service';
@@ -18,8 +18,8 @@ import { RequestHeaderInterceptor } from './core/interceptors/request-header-int
 function initializeApp() {}
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideZoneChangeDetection({ eventCoalescing: true }),
-        provideRouter(routes),
+        provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }),
+        provideRouter(routes, withPreloading(PreloadAllModules)),
         provideHttpClient(withInterceptorsFromDi()),
         AuthCoreService,
         {

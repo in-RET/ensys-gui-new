@@ -4,27 +4,12 @@ services:
         container_name: ensys-new-db
         env_file: .env.dev
         restart: always
-        ports:
-            - "5432:5432"
         networks:
-            - ensys
+            - backend
+        ports:
+            -   "5432:5432"
         volumes:
             - ./storage/db:/var/lib/postgresql/data
-
-    pgadmin:
-        image: dpage/pgadmin4:latest
-        container_name: ensys-new-pgadmin
-        env_file: .env.dev
-        restart: always
-        networks:
-            - ensys
-        ports:
-            - "${PGADMIN_PORT}:80"
-        volumes:
-            - ./storage/pgadmin:/var/lib/pgadmin
-            - ./misc:/var/lib/pgadmin/storage/admin_hs-nordhausen.de
-        depends_on:
-            - db
 
     frontend:
         build:
@@ -41,9 +26,7 @@ services:
         ports:
             - "${PROXY_PORT}:4200"
         networks:
-            - ensys
-        depends_on:
-            - db
+            - frontend
 
     backend:
         build:
@@ -53,9 +36,7 @@ services:
                 os_version: ${OS_VERSION}
         container_name: ensys-new-backend
         env_file: .env.dev
-        command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --host 0.0.0.0 --port 8001"
-        ports:
-            - "${FASTAPI_PORT}:8001"
+        command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
         restart: no
         volumes:
             - ./backend/app:/backend/app
@@ -63,10 +44,11 @@ services:
             - ./backend/templates:/backend/templates
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
+        ports:
+            - "${FASTAPI_PORT}:8001"
         networks:
-            - ensys
+            - backend
         depends_on:
-            - db
             - flower
             - celery
 
@@ -77,7 +59,7 @@ services:
         env_file: .env.dev
         command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
         networks:
-            - ensys
+            - backend
         volumes:
             - cache:/data
 
@@ -93,11 +75,12 @@ services:
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
+            - ./backend/templates:/backend/templates
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
             - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         networks:
-            - ensys
+            - backend
         depends_on:
             - redis
 
@@ -109,49 +92,24 @@ services:
                 os_version: ${OS_VERSION}
         container_name: ensys-new-flower
         env_file: .env.dev
-        command: celery --app=app.celery.celery_app flower --port=5555
+        command: celery --app=app.celery.celery_app flower --port=8002
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
         ports:
-            - "${FLOWER_PORT}:5555"
+            - "${FLOWER_PORT}:8002"
         networks:
-            - ensys
+            - backend
         depends_on:
             - redis
 
-    grafana:
-        image: grafana/grafana-oss:latest
-        container_name: ensys-new-grafana
-        restart: unless-stopped
-        ports:
-            - "${MONITORING_PORT}:3000"
-        volumes:
-            - "grafana_storage:/var/lib/grafana"
-        networks:
-            - ensys
-
-#  mkdocs:
-#    build:
-#      context: ./docs/config
-#      dockerfile: dockerfile
-#    container_name: documentation
-#    command: "serve --config-file /docs/config/mkdocs.yaml -a 0.0.0.0:8000"
-#    #working_dir: /docs/config
-#    ports:
-#      - "${MKDOCS_PORT}:8000"
-#    volumes:
-#      - ./docs:/docs
-#      - ./backend:/backend
-#      - ./ensys:/ensys
-
 networks:
-    ensys:
+    frontend:
+    backend:
 
 volumes:
     static_volume:
     node_modules:
     cache:
-    grafana_storage:

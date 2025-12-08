@@ -1,4 +1,4 @@
-import { ProjectModel } from '../../project/models/project.model';
+import {ProjectModel} from '../../project/models/project.model';
 
 export interface CurrentScenarioModel {
     project: ProjectModel;
@@ -31,6 +31,7 @@ export interface ScenarioModel {
     name: string;
     project_id: number;
     project_name?: string;
+    description?: string;
     sDate: string; // ISO date string (e.g., "2025-01-01")
     interval: number;
     timeStep: number;
@@ -38,7 +39,7 @@ export interface ScenarioModel {
 }
 
 export interface ScenarioBaseInfoModel {
-    project: {
+    project?: {
         id: number;
         name: string;
         scenarioList: ScenarioModel[];

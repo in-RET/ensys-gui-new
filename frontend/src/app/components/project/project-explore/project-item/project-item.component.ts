@@ -1,14 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
-import { AlertService } from '../../../../shared/services/alert.service';
-import { ToastService } from '../../../../shared/services/toast.service';
-import { ScenarioResModel } from '../../../scenario/models/scenario.model';
-import { ScenarioService } from '../../../scenario/services/scenario.service';
-import { ProjectModel } from '../../models/project.model';
-import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
+import {CommonModule} from '@angular/common';
+import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
+import {Router, RouterLink} from '@angular/router';
+import {catchError, map, Observable, of} from 'rxjs';
+import {AlertService} from '../../../../shared/services/alert.service';
+import {ToastService} from '../../../../shared/services/toast.service';
+import {ScenarioService} from '../../../scenario/services/scenario.service';
+import {ProjectModel} from '../../models/project.model';
+import {ProjectScenarioItemComponent} from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
     selector: 'app-project-item',
@@ -16,20 +14,21 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
 })
-export class ProjectItemComponent {
+export class ProjectItemComponent implements OnInit {
     @Input() project!: ProjectModel;
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
+    @Output() duplicateProject: EventEmitter<any> = new EventEmitter<any>();
 
-    constructor(
-        private scenarioService: ScenarioService,
-        private router: Router,
-        private alertService: AlertService,
-        private toastService: ToastService
-    ) {}
+    scenarios$!: Observable<any[]>;
+
+    scenarioService = inject(ScenarioService)
+    router = inject(Router)
+    alertService = inject(AlertService)
+    toastService = inject(ToastService)
 
     ngOnInit() {
-        this.getScenarios(this.project.id);
+        this.loadScenarios();
     }
 
     async delete_modal(id: number) {
@@ -42,32 +41,46 @@ export class ProjectItemComponent {
         );
         if (confirmed) {
             this._deleteProject(id);
-            this.alertService.success(`Removed the project`);
+            await this.alertService.success(`Removed the project`);
         }
     }
 
-    _deleteProject(id: number) {
+    private _deleteProject(id: number) {
         this.deleteProject.emit(id);
     }
 
-    getScenarios(projectId: number) {
-        this.scenarioService
-            .getScenarios(projectId)
+    async duplicate_modal(id: number) {
+        const confirmed = await this.alertService.confirm(
+            'This will also duplicate all related project data.',
+            undefined,
+            undefined,
+            undefined,
+            'warning'
+        );
+
+        if (confirmed) {
+            this._duplicateProject(id);
+            await this.alertService.success(`Duplicated the project`);
+        }
+    }
+
+    private _duplicateProject(id: number) {
+        this.duplicateProject.emit(id);
+    }
+
+    loadScenarios() {
+        this.scenarios$ = this.scenarioService
+            .getScenarios(this.project.id)
             .pipe(
-                map((res: ResModel<ScenarioResModel>) => {
-                    if (res.success) return res.data;
-                    throw new Error('Unknown API error');
-                })
-            )
-            .subscribe({
-                next: (val: ResDataModel<ScenarioResModel>) => {
-                    this.project.scenarioList = val.items;
-                },
-                error: (err) => {
-                    console.error(err);
-                    this.toastService.error(err);
-                },
-            });
+            map((value: any) => {
+                this.project.scenarioList = value.data.items;
+                return value.data.items;
+            }),
+            catchError((error: any) => {
+                this.toastService.error(error);
+                return of([]);
+            })
+        );
     }
 
     newScenario(pId: number, pName: string) {
@@ -88,5 +101,9 @@ export class ProjectItemComponent {
         this.project.scenarioList = this.project.scenarioList?.filter(
             (x: any) => x.id !== scenarioId
         );
+    }
+
+    duplicateScenario($event: any) {
+        this.loadScenarios();
     }
 }

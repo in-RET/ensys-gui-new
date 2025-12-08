@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href={{ url_for('static', path='/style.css') }}>
+    <title>Welcome to the API</title>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <img src={{ url_for('static', path='/ensys_icon.svg') }} alt="ensys logo">
+    </div>
+    <div class="text">
+        <h1>Welcome to the API</h1>
+        <p>For documentation see '/docs', '/redoc' or <a target="_blank" href="https://in-ret.github.io/ensys-gui-new/">the documentation</a>.<p>
+    </div>
+</div>
+</body>
+</html>

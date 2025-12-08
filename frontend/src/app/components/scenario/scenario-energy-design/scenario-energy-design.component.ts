@@ -1,27 +1,26 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
-import { Tooltip } from 'bootstrap';
+import {CommonModule} from '@angular/common';
+import {AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Tooltip} from 'bootstrap';
 import Drawflow from 'drawflow';
-import { interval, map, Subscription, switchMap } from 'rxjs';
-import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
-import { ResDataModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { OEPPorts, OEPResponse, Port } from '../models/node.model';
-import { ScenarioBaseInfoModel } from '../models/scenario.model';
-import { EnergyDesignService, Ports } from '../services/energy-design.service';
-import { FlowService } from '../services/flow.service';
-import { ScenarioService } from '../services/scenario.service';
-import { SimulationResModel } from '../simulation/models/simulation.model';
-import { SimulationService } from '../simulation/services/simulation.service';
-import { SimulationListCardComponent } from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
-import { EnergyComponentsComponent } from './energy-components/energy-components.component';
-import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
-import { FormComponent } from './form/form.component';
-import { ModalComponent } from './modal/modal.component';
+import {interval, map, Subscription, switchMap} from 'rxjs';
+import {ContentLayoutService} from '../../../core/layout/services/content-layout.service';
+import {ResDataModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {OEPPorts, OEPResponse, Port} from '../models/node.model';
+import {ScenarioBaseInfoModel} from '../models/scenario.model';
+import {EnergyDesignService, Ports} from '../services/energy-design.service';
+import {FlowService} from '../services/flow.service';
+import {ScenarioService} from '../services/scenario.service';
+import {SimulationResModel} from '../simulation/models/simulation.model';
+import {SimulationService} from '../simulation/services/simulation.service';
 import {
-    OrderItem,
-    OrderListComponent,
-} from './order-list/order-list.component';
+    SimulationListCardComponent
+} from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
+import {EnergyComponentsComponent} from './energy-components/energy-components.component';
+import {EnergyDrawflowComponent} from './energy-drawflow/energy-drawflow.component';
+import {FormComponent} from './form/form.component';
+import {ModalComponent} from './modal/modal.component';
+import {OrderItem, OrderListComponent,} from './order-list/order-list.component';
 
 interface FormNode {
     type: string;
@@ -62,7 +61,7 @@ class FormModalInfo {
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent {
+export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterViewInit {
     components: any;
     editor!: Drawflow;
 
@@ -657,7 +656,7 @@ export class ScenarioEnergyDesignComponent {
             this.formComponent.disableControl('nominal_value');
 
             let lsFields_ = [
-                ...[{ name: 'nominal_value' }],
+                ...[{name: 'nominal_value'}],
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
@@ -842,7 +841,7 @@ export class ScenarioEnergyDesignComponent {
     }
 
     cleanFormError() {
-        this.formError = { msg: null, isShow: false };
+        this.formError = {msg: null, isShow: false};
     }
 
     setFormCalError(status: boolean, msg: string) {
@@ -948,7 +947,7 @@ export class ScenarioEnergyDesignComponent {
                                     formData,
                                     this.formModal_info.node?.id ?? 0,
                                     this.formModal_info.node.type ??
-                                        this.formModal_info.node.class
+                                    this.formModal_info.node.class
                                 );
                             }
 
@@ -1040,7 +1039,7 @@ export class ScenarioEnergyDesignComponent {
         return this.energyDrawflowComponent.getData();
     }
 
-    openSimulations(scenarioId: number) {
+    openSimulationsList(scenarioId: number) {
         this.loadSimulations(scenarioId);
     }
 

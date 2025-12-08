@@ -1,176 +1,25 @@
-import os
+"""
+Auxiliary Functions Module
+========================
+
+This module provides supporting functionality for the EnSys application,
+including data conversion and utility functions for various application components.
+
+The module provides:
+    - Energy system data conversion
+    - Model conversion utilities
+    - Database utility functions
+"""
+
 from datetime import datetime
 
-from exchangelib import HTMLBody, Account, Configuration, EWSTimeZone, Credentials, Message
-from fastapi import HTTPException
-from jinja2 import Template
-from sqlmodel import select, Session
+from fastapi import HTTPException, Depends
+from sqlmodel import Session
 from starlette import status
 
 from ensys.components import *
-from .db import db_engine
-from .security import decode_token
-from .project.model import EnProjectDB
-from .scenario.model import EnScenarioDB
+from .db import get_db_session
 from .simulation.model import EnSimulationDB, Status
-from .user.model import EnUserDB
-
-
-async def send_mail(token: str, user: EnUserDB):
-    with open(os.path.abspath(os.path.join(os.getcwd(), "templates", "activation_mail.html"))) as f:
-        mail_template = Template(f.read())
-
-    mail_body = HTMLBody(mail_template.render(
-        name=user.username,
-        link=f"https://ensys.hs-nordhausen.de/api/user/auth/activate/{token}"
-    ))
-
-    tz = EWSTimeZone("Europe/Copenhagen")
-    cred = Credentials(
-        username=os.getenv("EMAIL_HOST_USER"),
-        password=os.getenv("EMAIL_HOST_PASSWORD")
-    )
-    config = Configuration(server=os.getenv("EMAIL_HOST_IP"), credentials=cred)
-
-    account = Account(
-        primary_smtp_address=os.getenv("EMAIL_SENDER"),
-        credentials=cred,
-        autodiscover=False,
-        default_timezone=tz,
-        config=config,
-    )
-
-    msg = Message(
-        account=account,
-        subject="Activate your account.",
-        body=mail_body,
-        to_recipients=[str(user.mail)],
-    )
-
-    msg.send_and_save()
-
-
-def validate_project_owner(project_id: int, token: str, db: Session = Session(db_engine)):
-    """
-    Validates whether the user associated with a given token is the owner of a project
-    identified by the provided project_id. Verifies the token's authenticity, fetches
-    the project from the database, and compares its ownership details to ensure the user
-    has the necessary permissions to access or modify the project.
-
-    :param project_id: ID of the project whose ownership is being validated
-    :type project_id: int
-    :param token: JWT token provided for authentication and identifying the user
-    :type token: str
-    :param db: Database session object used to query project and user information. Dependency injection.
-    :type db: Session
-    :return: Returns True if the token user is the owner of the project, otherwise raises an exception
-    :rtype: bool
-
-    :raises HTTPException: If the project is not found in the database (404)
-    :raises HTTPException: If the user associated with the token does not own the project (403)
-    """
-    # Get Database-Session and token-data
-    token_data = decode_token(token)
-
-    # Get User-data from the Database
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-    token_user = db.exec(statement).first()
-
-    # get the mentioned project-data
-    project = db.get(EnProjectDB, project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    # check if the project_id and the token_id are the same and return the value
-    if token_user.is_staff:
-        return True
-    elif project.user_id == token_user.id:
-        return True
-    else:
-        raise HTTPException(status_code=403, detail="Permission denied")
-
-
-def validate_scenario_owner(scenario_id, token, db: Session = Session(db_engine)) -> (bool, int, str):
-    """
-    Validates whether the owner of a given scenario matches the user from the provided
-    authentication token. This function ensures that the logged-in user has the
-    authorization to access or modify the scenario.
-
-    :param scenario_id: ID of the scenario to validate ownership for.
-    :type scenario_id: Int
-    :param db: Database session for executing queries and retrieving data. Dependency injection.
-    :type db: Session
-    :param token: Authentication token representing the logged-in user.
-    :type token: Str
-    :return: A tuple containing three values:
-             - A boolean indicating whether the user is the owner of the scenario.
-             - An HTTP status code indicating the result of the validation.
-             - A string message explaining the result (empty string if validation
-               is successful).
-    :rtype: Tuple(bool, int, str)
-    """
-    token_data = decode_token(token)
-
-    statement = select(EnUserDB).where(EnUserDB.username == token_data["username"])
-    user = db.exec(statement).first()
-    if not user:
-        return False, status.HTTP_404_NOT_FOUND, "User not found."
-
-    scenario = db.get(EnScenarioDB, scenario_id)
-    if scenario is None:
-        return False, status.HTTP_404_NOT_FOUND, "Scenario not found."
-
-    if user.is_staff:
-        return True, status.HTTP_200_OK, ""
-    elif scenario.user_id == user.id:
-        return True, status.HTTP_200_OK, ""
-    else:
-        return False, status.HTTP_401_UNAUTHORIZED, "User not authorized."
-
-
-def validate_user_rights(token, scenario_id, db: Session = Session(db_engine)) -> bool:
-    """
-    Validates a user's rights to access a specific scenario within a project. The function first
-    validates whether the user is the owner of the given scenario and subsequently verifies ownership of the
-    associated project. Raises appropriate HTTP exceptions if the user is unauthorized or if the specified
-    scenario or project does not exist.
-
-    :param token: Authentication token of the user.
-    :type token: Str
-    :param scenario_id: ID of the scenario to validate access for.
-    :type scenario_id: Int
-    :param db: Database session/connection object used for querying related data. Dependency injection.
-    :type db: Session
-
-    :return: A boolean indicating whether the user is authorized to access the scenario.
-    :rtype: Bool
-
-    :raises HTTPException: If the user is unauthorized or the specified scenario or project is not found.
-    """
-
-    validation_scenario = validate_scenario_owner(
-        token=token,
-        scenario_id=scenario_id
-    )
-    if not validation_scenario:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    scenario = db.get(EnScenarioDB, scenario_id)
-    if not scenario:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
-
-    project = db.get(EnProjectDB, scenario.project_id)
-    if not project:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found.")
-
-    validation_project = validate_project_owner(
-        token=token,
-        project_id=project.id
-    )
-    if not validation_project:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    return True
 
 
 def check_flow_investment(flow_data):
@@ -216,7 +65,7 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
     The function also checks for possible investments in the flows and updates their
     attributes if applicable.
 
-    :param flowchart_data: The dictionary representing the complete flowchart, where each
+    :param flowchart_data: The dictionary represents the complete flowchart, where each
         key is a node ID, and the value is the node's details such as name and connections.
     :type flowchart_data: dict
 
@@ -420,17 +269,26 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
             else:
                 ensys_data["nominal_storage_capacity"] = component_data["nominal_storage_capacity"]
 
-            ensys_data["invest_relation_input_capacity"] = component_data["invest_relation_input_capacity"] if component_data["invest_relation_input_capacity"] else None
-            ensys_data["invest_relation_output_capacity"] = component_data["invest_relation_output_capacity"] if component_data["invest_relation_output_capacity"] else None
-            ensys_data["initial_storage_level"] = component_data["initial_storage_level"] if component_data["initial_storage_level"] else None
+            ensys_data["invest_relation_input_capacity"] = component_data["invest_relation_input_capacity"] if \
+                component_data["invest_relation_input_capacity"] else None
+            ensys_data["invest_relation_output_capacity"] = component_data["invest_relation_output_capacity"] if \
+                component_data["invest_relation_output_capacity"] else None
+            ensys_data["initial_storage_level"] = component_data["initial_storage_level"] if component_data[
+                "initial_storage_level"] else None
             ensys_data["balanced"] = component_data["balanced"] if component_data["balanced"] else None
             ensys_data["loss_rate"] = component_data["loss_rate"] if component_data["loss_rate"] else None
-            ensys_data["fixed_losses_relative"] = component_data["fixed_losses_relative"] if component_data["fixed_losses_relative"] else None
-            ensys_data["fixed_losses_absolute"] = component_data["fixed_losses_absolute"] if component_data["fixed_losses_absolute"] else None
-            ensys_data["inflow_conversion_factor"] = component_data["inflow_conversion_factor"] if component_data["inflow_conversion_factor"] else None
-            ensys_data["outflow_conversion_factor"] = component_data["outflow_conversion_factor"] if component_data["outflow_conversion_factor"] else None
-            ensys_data["min_storage_level"] = component_data["min_storage_level"] if component_data["min_storage_level"] else None
-            ensys_data["max_storage_level"] = component_data["max_storage_level"] if component_data["max_storage_level"] else None
+            ensys_data["fixed_losses_relative"] = component_data["fixed_losses_relative"] if component_data[
+                "fixed_losses_relative"] else None
+            ensys_data["fixed_losses_absolute"] = component_data["fixed_losses_absolute"] if component_data[
+                "fixed_losses_absolute"] else None
+            ensys_data["inflow_conversion_factor"] = component_data["inflow_conversion_factor"] if component_data[
+                "inflow_conversion_factor"] else None
+            ensys_data["outflow_conversion_factor"] = component_data["outflow_conversion_factor"] if component_data[
+                "outflow_conversion_factor"] else None
+            ensys_data["min_storage_level"] = component_data["min_storage_level"] if component_data[
+                "min_storage_level"] else None
+            ensys_data["max_storage_level"] = component_data["max_storage_level"] if component_data[
+                "max_storage_level"] else None
             ensys_data["storage_costs"] = component_data["storage_costs"] if component_data["storage_costs"] else None
 
             ensys_component = EnGenericStorage(**ensys_data)
@@ -446,7 +304,7 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
     return ensys_es
 
 
-def check_container_status(docker_container, simulation_id, db: Session = Session(db_engine)):
+def check_container_status(docker_container, simulation_id, db: Session = Depends(get_db_session())):
     """
     Check the status of a Docker container and update the status of an associated simulation
     in the database accordingly.

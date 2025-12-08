@@ -1,8 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
-import { AuthCoreService } from '../core/auth/auth.service';
-import { BaseHttpService } from '../core/base-http/base-http.service';
-import { ToastContainerComponent } from '../shared/components/toast-container/toast-container.component';
+import {Component, inject, OnInit} from '@angular/core';
+import {Router, RouterOutlet} from '@angular/router';
+import {AuthCoreService} from '../core/auth/auth.service';
+import {ToastContainerComponent} from '../shared/components/toast-container/toast-container.component';
 
 @Component({
     selector: 'app-root',
@@ -15,13 +14,14 @@ export class AppComponent implements OnInit {
 
     authCoreService = inject(AuthCoreService);
     router = inject(Router);
-    httpService = inject(BaseHttpService);
 
     ngOnInit() {
         this.authCoreService.currentToken.subscribe((res) => {
-            res || res === undefined
-                ? false
-                : this.router.navigate(['auth/login']);
+            if (res || res === undefined) {
+                return;
+            } else {
+                this.router.navigate(['auth/login']);
+            }
         });
     }
 }

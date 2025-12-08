@@ -1,15 +1,11 @@
-import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, map, Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { BaseHttpService } from '../../../core/base-http/base-http.service';
-import { ResModel } from '../../../shared/models/http.model';
-import { AlertService } from '../../../shared/services/alert.service';
-import { ToastService } from '../../../shared/services/toast.service';
-import {
-    ScenarioBaseInfoModel,
-    ScenarioReqModel,
-    ScenarioResModel,
-} from '../models/scenario.model';
+import {inject, Injectable} from '@angular/core';
+import {BehaviorSubject, map, Observable} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {BaseHttpService} from '../../../core/base-http/base-http.service';
+import {ResModel} from '../../../shared/models/http.model';
+import {AlertService} from '../../../shared/services/alert.service';
+import {ToastService} from '../../../shared/services/toast.service';
+import {ScenarioBaseInfoModel, ScenarioReqModel, ScenarioResModel,} from '../models/scenario.model';
 
 @Injectable({
     providedIn: 'root',
@@ -24,8 +20,7 @@ export class ScenarioService {
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
-
-    constructor(private baseHttp: BaseHttpService) {}
+    baseHttp = inject(BaseHttpService)
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -41,6 +36,10 @@ export class ScenarioService {
 
     updateScenario(data: any, id: number) {
         return this.baseHttp.patch(`${this.baseUrl}/${id}`, data);
+    }
+
+    duplicateScenario(id: number) {
+        return this.baseHttp.post(`${this.baseUrl}/duplicate/${id}`);
     }
 
     deleteScenario(id: number) {
@@ -134,11 +133,11 @@ export class ScenarioService {
             return;
         }
 
-        let newScenarioData: ScenarioReqModel = {
+        const newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario.timeStep,
-            project_id: scenarioData.project.id,
+            project_id: scenarioData.project?.id,
             interval: 1,
             modeling_data: drawflowData,
         };
@@ -177,12 +176,12 @@ export class ScenarioService {
             return;
         }
 
-        if (!scenarioData.scenario.id) {
+        if (!scenarioData.scenario?.id) {
             this.alertService.warning('Error: Id not found!');
             return;
         }
 
-        let newScenarioData: ScenarioReqModel = {
+        const newScenarioData: ScenarioReqModel = {
             name: scenarioData.scenario?.name,
             start_date: scenarioData.scenario?.sDate,
             time_steps: scenarioData.scenario?.timeStep,

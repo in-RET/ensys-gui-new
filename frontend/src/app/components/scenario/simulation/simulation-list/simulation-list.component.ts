@@ -1,15 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, Input } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { map } from 'rxjs';
-import { ResDataModel } from '../../../../shared/models/http.model';
-import { ScenarioBaseInfoModel } from '../../models/scenario.model';
-import {
-    SimulationResModel,
-    SimulationStatus,
-} from '../models/simulation.model';
-import { SimulationService } from '../services/simulation.service';
-import { SimulationListCardComponent } from './simulation-list-card/simulation-list-card.component';
+import {CommonModule} from '@angular/common';
+import {Component, inject, Input, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {map} from 'rxjs';
+import {ResDataModel} from '../../../../shared/models/http.model';
+import {ScenarioBaseInfoModel} from '../../models/scenario.model';
+import {SimulationResModel, SimulationStatus,} from '../models/simulation.model';
+import {SimulationService} from '../services/simulation.service';
+import {SimulationListCardComponent} from './simulation-list-card/simulation-list-card.component';
 
 @Component({
     selector: 'app-simulation-list',
@@ -17,7 +14,7 @@ import { SimulationListCardComponent } from './simulation-list-card/simulation-l
     templateUrl: './simulation-list.component.html',
     styleUrl: './simulation-list.component.scss',
 })
-export class SimulationListComponent {
+export class SimulationListComponent implements OnInit{
     simulationList!: SimulationResModel[];
     scenarioCount!: number;
     currentScenario!: ScenarioBaseInfoModel;

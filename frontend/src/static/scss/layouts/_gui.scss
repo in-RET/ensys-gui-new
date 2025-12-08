@@ -1,8 +1,7 @@
 @use "../abstracts/variables" as *;
 @use "../abstracts/mixins" as *;
-
-@use "sass:color";
 @use "sass:map";
+@use "sass:color";
 
 .system-design {
     @include flex-row;
