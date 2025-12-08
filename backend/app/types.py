@@ -26,6 +26,7 @@ class oemofBlockTypes(Enum):
         source: Component representing energy generation or supply
         converter: Component for energy conversion between different forms
     """
+
     generic_storage = "generic_storage"
     sink = "sink"
     source = "source"
@@ -106,52 +107,178 @@ class oepTypes(Enum):
 
 oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
     oemofBlockTypes.generic_storage: [
-        {"name": "storage_electricity_generic", "label": "Electricity Storage - Generic"},
-        {"name": "storage_electricity_li_ion", "label": "Electricity Storage - Li-ion"},
-        {"name": "storage_electricity_natrium", "label": "Electricity Storage - Natrium"},
+        {
+            "name": "storage_electricity_generic",
+            "label": "Electricity Storage - Generic",
+            "icon": "electricity_storage_generic",
+        },
+        {
+            "name": "storage_electricity_li_ion",
+            "label": "Electricity Storage - Li-ion",
+            "icon": "electricity_storage_li_ion",
+        },
+        {
+            "name": "storage_electricity_natrium",
+            "label": "Electricity Storage - Natrium",
+            "icon": "electricity_storage_natrium",
+        },
         # {"name": "storage_electricity_pumped_hydro_storage_power_technology",
-        #  "label": "Electricity Storage - Pumped Hydro Storage Power Technology"
+        #  "label": "Electricity Storage - Pumped Hydro Storage Power Technology", "icon": ""
         #  },
-        {"name": "storage_gas", "label": "Gas Storage"},
-        {"name": "storage_heat_district_heating", "label": "Heat Storage - District Heating"},
-        {"name": "storage_heat_seasonal", "label": "Heat Storage - Seasonal"},
-        {"name": "storage_heat_household", "label": "Heat Storage - Household"},
-        {"name": "storage_hydrogen", "label": "Hydrogen Storage"}
+        {"name": "storage_gas", "label": "Gas Storage", "icon": "gas_storage"},
+        {
+            "name": "storage_heat_district_heating",
+            "label": "Heat Storage - District Heating",
+            "icon": "heat_storage_district_heating",
+        },
+        {
+            "name": "storage_heat_seasonal",
+            "label": "Heat Storage - Seasonal",
+            "icon": "heat_storage_seasonal",
+        },
+        {
+            "name": "storage_heat_household",
+            "label": "Heat Storage - Household",
+            "icon": "heat_storage_household",
+        },
+        {
+            "name": "storage_hydrogen",
+            "label": "Hydrogen Storage",
+            "icon": "hydrogen_storage",
+        },
     ],
-
     oemofBlockTypes.sink: [
-        {"name": "electricity_demand_sfh", "label": "Electricity Demand - SFH"},
-        {"name": "electricity_demand_electric_car", "label": "Electricity Demand - Electric Car"},
-        {"name": "electricity_demand_industry", "label": "Electricity Demand - Industry"},
-        {"name": "heat_demand_sfh", "label": "Heat Demand - SFH"},
-        {"name": "heat_demand_industry_room", "label": "Heat Demand - Industry (Room Heating)"},
-        {"name": "heat_demand_industry_process", "label": "Heat Demand - Industry (Process Heat)"},
-        {"name": "demand_g0", "label": "Generic Demand - G0"},
-        {"name": "demand_g3", "label": "Generic Demand - G3"},
-        {"name": "demand_ha4", "label": "Generic Demand - HA4"},
-        {"name": "demand_t24", "label": "Generic Demand - T24"},
+        {
+            "name": "electricity_demand_sfh",
+            "label": "Electricity Demand - SFH",
+            "icon": "electricity_demand_sfh",
+        },
+        {
+            "name": "electricity_demand_electric_car",
+            "label": "Electricity Demand - Electric Car",
+            "icon": "electricity_demand_electric_car",
+        },
+        {
+            "name": "electricity_demand_industry",
+            "label": "Electricity Demand - Industry",
+            "icon": "electricity_demand_industry",
+        },
+        {
+            "name": "heat_demand_sfh",
+            "label": "Heat Demand - SFH",
+            "icon": "heat_demand_sfh",
+        },
+        {
+            "name": "heat_demand_industry_room",
+            "label": "Heat Demand - Industry (Room Heating)",
+            "icon": "heat_demand_industry_room",
+        },
+        {
+            "name": "heat_demand_industry_process",
+            "label": "Heat Demand - Industry (Process Heat)",
+            "icon": "heat_demand_industry_process",
+        },
+        {"name": "demand_g0", "label": "Generic Demand - G0", "icon": "generic_demand"},
+        {"name": "demand_g3", "label": "Generic Demand - G3", "icon": "generic_demand"},
+        {
+            "name": "demand_ha4",
+            "label": "Generic Demand - HA4",
+            "icon": "generic_demand",
+        },
+        {
+            "name": "demand_t24",
+            "label": "Generic Demand - T24",
+            "icon": "generic_demand",
+        },
     ],
-
     oemofBlockTypes.source: [
-        {"name": "run_river_power_plant", "label": "Power Plant - River Run"},
-        {"name": "solar_thermal_power_plant", "label": "Power Plant - Solar Thermal"},
-        {"name": "onshore_wind_power_plant", "label": "Power Plant - Wind Onshore"},
-        {"name": "openfield_photovoltaic_power_plant", "label": "Power Plant - Photovoltaic Openfield"},
-        {"name": "rooftop_photovoltaic_power_plant", "label": "Power Plant - Photovoltaic Rooftop"},
+        {
+            "name": "run_river_power_plant",
+            "label": "Power Plant - River Run",
+            "icon": "power_plant_river_run",
+        },
+        {
+            "name": "solar_thermal_power_plant",
+            "label": "Power Plant - Solar Thermal",
+            "icon": "power_plant_solar_thermal",
+        },
+        {
+            "name": "onshore_wind_power_plant",
+            "label": "Power Plant - Wind Onshore",
+            "icon": "power_plant_wind_onshore",
+        },
+        {
+            "name": "openfield_photovoltaic_power_plant",
+            "label": "Power Plant - Photovoltaic Openfield",
+            "icon": "power_plant_photovoltaic_openfield",
+        },
+        {
+            "name": "rooftop_photovoltaic_power_plant",
+            "label": "Power Plant - Photovoltaic Rooftop",
+            "icon": "power_plant_photovoltaic_rooftop",
+        },
     ],
     oemofBlockTypes.converter: [
-        {"name": "power_to_liquid_system", "label": "Power to Liquid System"},
-        {"name": "biogas_combined_heat_and_power_plant", "label": "Combined Heat and Power Plant - Biogas"},
-        {"name": "biomass_combined_heat_and_power_plant", "label": "Combined Heat and Power Plant - Biomass"},
-        {"name": "biomass_heating_plant", "label": "Heating Plant - Biomass"},
-        {"name": "biomass_power_plant", "label": "Power Plant - Biomass"},
-        {"name": "biomass_to_liquid_system_substrat", "label": "Biomass to Liquid System - Substrat"},
-        {"name": "biomethane_injection_plant", "label": "Biomethane Injection Plant"},
-        {"name": "combined_heat_and_power_generating_unit", "label": "Combined Heat and Power Plant - Fossil"},
-        {"name": "electrical_heater", "label": "Electrical Heater"},
-        {"name": "heat_pump_air_waste_heat", "label": "Heat Pump - Air Waste Heat"},
-        {"name": "heat_pump_air_ambient_heat", "label": "Heat Pump - Air Ambient Heat"},
-        {"name": "heat_pump_ground_river_heat", "label": "Heat Pump - Ground River Heat"},
-        {"name": "methanation", "label": "Methanation"}
-    ]
+        {
+            "name": "power_to_liquid_system",
+            "label": "Power to Liquid System",
+            "icon": "power_to_liquid",
+        },
+        {
+            "name": "biogas_combined_heat_and_power_plant",
+            "label": "Combined Heat and Power Plant - Biogas",
+            "icon": "combined_heat_and_power_plant_biogas",
+        },
+        {
+            "name": "biomass_combined_heat_and_power_plant",
+            "label": "Combined Heat and Power Plant - Biomass",
+            "icon": "combined_heat_and_power_plant_biomass",
+        },
+        {
+            "name": "biomass_heating_plant",
+            "label": "Heating Plant - Biomass",
+            "icon": "heating_plant_biomass",
+        },
+        {
+            "name": "biomass_power_plant",
+            "label": "Power Plant - Biomass",
+            "icon": "power_plant_biomass",
+        },
+        {
+            "name": "biomass_to_liquid_system_substrat",
+            "label": "Biomass to Liquid System - Substrat",
+            "icon": "biomass_to_liquid_system_-_substrat",
+        },
+        {
+            "name": "biomethane_injection_plant",
+            "label": "Biomethane Injection Plant",
+            "icon": "biomethane_injection_plant",
+        },
+        {
+            "name": "combined_heat_and_power_generating_unit",
+            "label": "Combined Heat and Power Plant - Fossil",
+            "icon": "combined_heat_and_power_generating_unit",
+        },
+        {
+            "name": "electrical_heater",
+            "label": "Electrical Heater",
+            "icon": "electrical_heater",
+        },
+        {
+            "name": "heat_pump_air_waste_heat",
+            "label": "Heat Pump - Air Waste Heat",
+            "icon": "heat_pump_air_waste_heat",
+        },
+        {
+            "name": "heat_pump_air_ambient_heat",
+            "label": "Heat Pump - Air Ambient Heat",
+            "icon": "heat_pump_air_ambient_heat",
+        },
+        {
+            "name": "heat_pump_ground_river_heat",
+            "label": "Heat Pump - Ground River Heat",
+            "icon": "heat_pump_ground_river_heat",
+        },
+        {"name": "methanation", "label": "Methanation", "icon": "methanation"},
+    ],
 }
