@@ -1,20 +1,35 @@
-import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
-import {Router, RouterLink} from '@angular/router';
-import {catchError, map, Observable, of} from 'rxjs';
-import {AlertService} from '../../../../shared/services/alert.service';
-import {ToastService} from '../../../../shared/services/toast.service';
-import {ScenarioService} from '../../../scenario/services/scenario.service';
-import {ProjectModel} from '../../models/project.model';
-import {ProjectScenarioItemComponent} from '../project-scenario-item/project-scenario-item.component';
+import { CommonModule } from '@angular/common';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import { catchError, map, Observable, of } from 'rxjs';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { ScenarioService } from '../../../scenario/services/scenario.service';
+import { ProjectModel } from '../../models/project.model';
+import { ProjectScenarioItemComponent } from '../project-scenario-item/project-scenario-item.component';
 
 @Component({
     selector: 'app-project-item',
-    imports: [CommonModule, RouterLink, ProjectScenarioItemComponent],
+    imports: [
+        CommonModule,
+        RouterLink,
+        ProjectScenarioItemComponent,
+        NgbCollapseModule,
+    ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
 })
 export class ProjectItemComponent implements OnInit {
+    isCollapsed = true;
+
     @Input() project!: ProjectModel;
 
     @Output() deleteProject: EventEmitter<any> = new EventEmitter<any>();
@@ -22,10 +37,10 @@ export class ProjectItemComponent implements OnInit {
 
     scenarios$!: Observable<any[]>;
 
-    scenarioService = inject(ScenarioService)
-    router = inject(Router)
-    alertService = inject(AlertService)
-    toastService = inject(ToastService)
+    scenarioService = inject(ScenarioService);
+    router = inject(Router);
+    alertService = inject(AlertService);
+    toastService = inject(ToastService);
 
     ngOnInit() {
         this.loadScenarios();
@@ -72,15 +87,15 @@ export class ProjectItemComponent implements OnInit {
         this.scenarios$ = this.scenarioService
             .getScenarios(this.project.id)
             .pipe(
-            map((value: any) => {
-                this.project.scenarioList = value.data.items;
-                return value.data.items;
-            }),
-            catchError((error: any) => {
-                this.toastService.error(error);
-                return of([]);
-            })
-        );
+                map((value: any) => {
+                    this.project.scenarioList = value.data.items;
+                    return value.data.items;
+                }),
+                catchError((error: any) => {
+                    this.toastService.error(error);
+                    return of([]);
+                })
+            );
     }
 
     newScenario(pId: number, pName: string) {

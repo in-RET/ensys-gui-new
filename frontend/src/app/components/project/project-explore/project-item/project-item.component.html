@@ -57,14 +57,15 @@
 
         <div class="project__scenarios">
             <div class="toggle d-flex gap-2">
-                <ng-container *ngIf="scenarios$ | async as scenarios; else loading">
+                <ng-container
+                    *ngIf="scenarios$ | async as scenarios; else loading"
+                >
                     <button
-                        class="btn btn--action border p-2"
                         type="button"
-                        data-bs-toggle="collapse"
-                        [attr.data-bs-target]="'#scenario_list_' + project.id"
-                        aria-expanded="false"
-                        [attr.aria-controls]="'scenario_list_' + project.id"
+                        class="btn btn-outline-primary"
+                        (click)="isCollapsed = !isCollapsed"
+                        [attr.aria-expanded]="!isCollapsed"
+                        aria-controls="collapseExample"
                         *ngIf="scenarios.length > 0"
                     >
                         <span
@@ -73,7 +74,9 @@
                         >
                         </span>
 
-                        <span class="js-toggle-scenario-name">Show scenarios</span>
+                        <span class="js-toggle-scenario-name">
+                            Show scenarios
+                        </span>
                     </button>
                 </ng-container>
 
@@ -92,10 +95,14 @@
 
             <div
                 class="collapse row"
-                [id]="'scenario_list_' + project.id"
+                #collapse="ngbCollapse"
+                [(ngbCollapse)]="isCollapsed"
                 *ngIf="(scenarios$ | async)?.length as scenarioCount"
             >
-                <div class="card card-body scenario_list col-4" *ngIf="scenarioCount > 0">
+                <div
+                    class="card card-body scenario_list col-4"
+                    *ngIf="scenarioCount > 0"
+                >
                     <ul class="list-group border">
                         <li
                             class="list-group-item scenario_item"

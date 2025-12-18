@@ -8,6 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { map, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
 import { AuthService } from '../services/auth.service';
@@ -42,19 +43,39 @@ export class LoginComponent {
     ) {}
 
     logIn() {
-        this.authService.logIn(this.user?.value, this.pass?.value).subscribe({
-            next: (value: any) => {
-                this.authCoreService.saveTokenToStorage(value.access_token);
-                this.authCoreService.saveToken(value.access_token);
-                this.router.navigate(['/projects']);
-            },
+        this.authService
+            .logIn(this.user?.value, this.pass?.value)
+            .pipe(
+                tap((res: any) => {
+                    this.authCoreService.saveTokenToStorage(res.access_token);
+                    this.authCoreService.saveToken(res.access_token);
+                }),
+                switchMap((logRes: any) =>
+                    this.authService.getCurrentUser().pipe(
+                        tap((userRes: any) => {
+                            this.authCoreService.saveUser(
+                                userRes.data.items[0]
+                            );
+                        }),
+                        map((user: any) => user.data.items[0])
+                    )
+                )
+            )
+            .subscribe({
+                next: (user) => {
+                    this.authCoreService.saveUserInfoInStorage(
+                        JSON.stringify(user)
+                    );
 
-            error: (err) => {
-                console.error(err);
-                this.error = {
-                    messge: err.error.detail,
-                };
-            },
-        });
+                    this.router.navigate(['/projects']);
+                },
+
+                error: (err) => {
+                    console.error(err);
+                    this.error = {
+                        messge: err.error.detail,
+                    };
+                },
+            });
     }
 }

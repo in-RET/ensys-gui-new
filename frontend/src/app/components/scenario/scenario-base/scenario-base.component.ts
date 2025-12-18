@@ -1,17 +1,21 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {map, Observable, switchMap} from 'rxjs';
-import {ResDataModel, ResModel} from '../../../shared/models/http.model';
-import {AlertService} from '../../../shared/services/alert.service';
-import {ToastService} from '../../../shared/services/toast.service';
-import {ScenarioBaseInfoModel, ScenarioReqModel, ScenarioResModel,} from '../models/scenario.model';
-import {ScenarioEnergyDesignComponent} from '../scenario-energy-design/scenario-energy-design.component';
-import {ScenarioSetupComponent} from '../scenario-setup/scenario-setup.component';
-import {ScenarioService} from '../services/scenario.service';
-import {SimulationService} from '../simulation/services/simulation.service';
-import {ScenarioFooterComponent} from './scenario-footer/scenario-footer.component';
-import {ScenarioProgressionComponent} from './scenario-progression/scenario-progression.component';
+import { CommonModule } from '@angular/common';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map, Observable, switchMap } from 'rxjs';
+import { ResDataModel, ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+} from '../models/scenario.model';
+import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
+import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
+import { ScenarioService } from '../services/scenario.service';
+import { SimulationService } from '../simulation/services/simulation.service';
+import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
+import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
 
 @Component({
     selector: 'app-scenario-base',
@@ -220,7 +224,6 @@ export class ScenarioBaseComponent implements OnInit {
                             this.toastService.success(val);
                         },
                         error: (err) => {
-                            debugger;
                             this.alertService.error('Failed');
                         },
                     });

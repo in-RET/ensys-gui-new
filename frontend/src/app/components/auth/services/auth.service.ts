@@ -8,8 +8,7 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl: string = environment.apiUrl + 'user/auth/';
-    // private baseUrl: string = '/api/user/auth/';
+    private baseUrl: string = environment.apiUrl + 'user/';
 
     constructor(
         private baseHttp: BaseHttpService,
@@ -21,8 +20,11 @@ export class AuthService {
         formData.append('username', username);
         formData.append('password', password);
 
-        return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
-        // return this.baseHttp.post(`/login`, formData, {});
+        return this.baseHttp.post(`${this.baseUrl}auth/login`, formData, {});
+    }
+
+    getCurrentUser(): Observable<any> {
+        return this.baseHttp.get(`${this.baseUrl}`);
     }
 
     logOut() {
@@ -39,6 +41,6 @@ export class AuthService {
         mail: string
     ): Observable<any> {
         const data = { username, firstname, lastname, password, mail };
-        return this.baseHttp.post(`${this.baseUrl}register`, data);
+        return this.baseHttp.post(`${this.baseUrl}auth/register`, data);
     }
 }

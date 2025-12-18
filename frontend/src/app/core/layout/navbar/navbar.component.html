@@ -1,4 +1,7 @@
-<header class="py-2 border-bottom d-flex justify-content-between p-3 sticky-top bg-white">
+<header
+    class="py-2 border-bottom d-flex justify-content-between p-3 sticky-top bg-white"
+>
+    <!-- link to projects -->
     <div>
         <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
             <img
@@ -9,15 +12,39 @@
             />
         </a>
     </div>
+
+    <!-- user menu -->
     <div>
         <ng-container *ngIf="user.is_authenticated">
-            <button
-                type="button"
-                class="btn me-2"
-                (click)="logout()"
+            <div
+                ngbDropdown
+                class="d-inline-block"
+                [placement]="'bottom-right'"
             >
-                Log Out
-            </button>
+                <button
+                    type="button"
+                    class="btn btn-outline-primary"
+                    id="dropdownBasic1"
+                    ngbDropdownToggle
+                >
+                    {{ user.info?.firstname }} {{ user.info?.lastname }}
+                </button>
+                <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                    <ng-container *ngFor="let item of navLinks">
+                        <button ngbDropdownItem>
+                            <a
+                                [href]="[item.href]"
+                                [target]="item._blank ? '_blank' : ''"
+                            >
+                                {{ item.title }}
+                            </a>
+                        </button>
+                    </ng-container>
+
+                    <div class="dropdown-divider"></div>
+                    <button (click)="logout()" ngbDropdownItem>Log Out</button>
+                </div>
+            </div>
         </ng-container>
 
         <ng-container *ngIf="!user.is_authenticated">
