@@ -163,6 +163,7 @@
     </ng-template>
 </app-modal>
 
+<!-- form modal simulation -->
 <app-modal
     *ngIf="showSimulations"
     title="Simulations"
@@ -175,4 +176,139 @@
             [data]=simulationList
         />
     </div>
+</app-modal>
+
+<!-- form modal time_series -->
+<app-modal
+    *ngIf="timeSeriesModal.show"
+    [title]="timeSeriesModal.title"
+    (closeModal)="closeModal_TimeSeries()"
+>
+    <div modal-form>
+        <div class="container" style="max-height: 70vh">
+            <!-- Button Group Row -->
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="btn-group w-100" role="group">
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="selectMode"
+                            id="opt1"
+                            autocomplete="off"
+                            (click)="timeSeriesModal.selectedType = 'list'"
+                        />
+                        <label class="btn btn-outline-primary" for="opt1">
+                            Options
+                        </label>
+
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="selectMode"
+                            id="opt2"
+                            autocomplete="off"
+                            (click)="timeSeriesModal.selectedType = 'file'"
+                            checked
+                        />
+                        <label class="btn btn-outline-primary" for="opt2">
+                            CSV File
+                        </label>
+
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="selectMode"
+                            id="opt3"
+                            autocomplete="off"
+                            (click)="timeSeriesModal.selectedType = 'number'"
+                        />
+                        <label class="btn btn-outline-primary" for="opt3">
+                            Single Value
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div class="row mb-3">
+                <div class="col">
+                    <!-- Dropdown -->
+                    <div *ngIf="timeSeriesModal.selectedType === 'list'">
+                        <select class="form-select">
+                            <option selected>Select option</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                        </select>
+                    </div>
+
+                    <!-- File -->
+                    <div *ngIf="timeSeriesModal.selectedType === 'file'">
+                        <input
+                            type="file"
+                            class="form-control"
+                            (change)="onSelectFile_TimeSeries($event)"
+                            accept=".csv"
+                        />
+                    </div>
+
+                    <!-- Text -->
+                    <div *ngIf="timeSeriesModal.selectedType === 'number'">
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter text"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- data-table of csv file -->
+            <div class="frame" *ngIf="tableData.length">
+                <div class="column-selector">
+                    <label *ngFor="let col of columns; let i = index">
+                        <input
+                            type="radio"
+                            (change)="checkEmptyRows(i)"
+                            [id]="col.name"
+                            name="selectedCol"
+                        />
+                        {{ col.name }}
+                    </label>
+                </div>
+
+                <p class="text-danger" *ngIf="emptyRows.length > 0">
+                    <b> Error: {{ emptyRows.length }} Row(s) are Null/Empty!</b>
+                </p>
+
+                <hot-table
+                    [data]="tableData"
+                    [settings]="timeSeries_gridSettings"
+                    (afterChange)="onTableEdit()"
+                >
+                </hot-table>
+            </div>
+
+            <!-- time-series chart -->
+            <div
+                id="plot_timeSeries"
+                style="min-height: 400px"
+                *ngIf="false"
+            ></div>
+        </div>
+    </div>
+
+    <div modal-actions>
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="closeModal_TimeSeries()"
+        >
+            <span>{{ timeSeriesModal.action.label }}</span>
+        </button>
+    </div>
+    >
 </app-modal>

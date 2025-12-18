@@ -1,26 +1,42 @@
-import {CommonModule} from '@angular/common';
-import {AfterViewInit, Component, inject, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {Tooltip} from 'bootstrap';
-import Drawflow from 'drawflow';
-import {interval, map, Subscription, switchMap} from 'rxjs';
-import {ContentLayoutService} from '../../../core/layout/services/content-layout.service';
-import {ResDataModel} from '../../../shared/models/http.model';
-import {ToastService} from '../../../shared/services/toast.service';
-import {OEPPorts, OEPResponse, Port} from '../models/node.model';
-import {ScenarioBaseInfoModel} from '../models/scenario.model';
-import {EnergyDesignService, Ports} from '../services/energy-design.service';
-import {FlowService} from '../services/flow.service';
-import {ScenarioService} from '../services/scenario.service';
-import {SimulationResModel} from '../simulation/models/simulation.model';
-import {SimulationService} from '../simulation/services/simulation.service';
+import { CommonModule } from '@angular/common';
 import {
-    SimulationListCardComponent
-} from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
-import {EnergyComponentsComponent} from './energy-components/energy-components.component';
-import {EnergyDrawflowComponent} from './energy-drawflow/energy-drawflow.component';
-import {FormComponent} from './form/form.component';
-import {ModalComponent} from './modal/modal.component';
-import {OrderItem, OrderListComponent,} from './order-list/order-list.component';
+    AfterViewInit,
+    Component,
+    ElementRef,
+    inject,
+    Input,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HotTableModule } from '@handsontable/angular';
+import { Tooltip } from 'bootstrap';
+import * as d3 from 'd3';
+import Drawflow from 'drawflow';
+import { GridSettings } from 'handsontable/settings';
+import Papa from 'papaparse';
+import * as Plotly from 'plotly.js-dist-min';
+import { interval, map, Subscription, switchMap } from 'rxjs';
+import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { ResDataModel } from '../../../shared/models/http.model';
+import { ToastService } from '../../../shared/services/toast.service';
+import { OEPPorts, OEPResponse, Port } from '../models/node.model';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import { EnergyDesignService, Ports } from '../services/energy-design.service';
+import { FlowService } from '../services/flow.service';
+import { ScenarioService } from '../services/scenario.service';
+import { SimulationResModel } from '../simulation/models/simulation.model';
+import { SimulationService } from '../simulation/services/simulation.service';
+import { SimulationListCardComponent } from '../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
+import { EnergyComponentsComponent } from './energy-components/energy-components.component';
+import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
+import { FormComponent } from './form/form.component';
+import { ModalComponent } from './modal/modal.component';
+import {
+    OrderItem,
+    OrderListComponent,
+} from './order-list/order-list.component';
 
 interface FormNode {
     type: string;
@@ -51,17 +67,21 @@ class FormModalInfo {
     selector: 'app-scenario-energy-design',
     imports: [
         CommonModule,
+        FormsModule,
         ModalComponent,
         FormComponent,
         EnergyComponentsComponent,
         EnergyDrawflowComponent,
         OrderListComponent,
         SimulationListCardComponent,
+        HotTableModule,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
 })
-export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterViewInit {
+export class ScenarioEnergyDesignComponent
+    implements OnInit, OnDestroy, AfterViewInit
+{
     components: any;
     editor!: Drawflow;
 
@@ -84,10 +104,24 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
     formModal_calculator: any = {
         show: false,
         title: 'EP Costs Calculator',
+        action: {
+            label: undefined,
+            fn: undefined,
+        },
     };
 
     simulationList!: SimulationResModel[];
     private subscriptionSimulation!: Subscription;
+
+    timeSeriesModal: any = {
+        show: false,
+        title: 'Time Series Data',
+        action: {
+            label: 'Import',
+            fn: undefined,
+        },
+        selectedType: 'file', // types: list , file, number
+    };
 
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
@@ -115,8 +149,14 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
 
+    @ViewChild('plotDiv', { static: true }) plotDiv!: ElementRef;
+
     ngOnInit() {
         this.loadEnergyComponents();
+
+        setTimeout(() => {
+            this.openModal_TimeSeries();
+        }, 0);
     }
 
     ngAfterViewInit() {
@@ -268,19 +308,6 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         this.formModal_info.show = true;
     }
 
-    showEpCostsCalModal() {
-        this.formModal_calculator.action = {
-            label: 'ƒ',
-            fn: 'calculateEpCosts',
-        };
-        this.formModal_calculator.formData =
-            this.energyDesignService.getFormFieldsEpCosts();
-
-        this.modalComponent.hideModal();
-        this.formModal_info.hide = true;
-        this.formModal_calculator.show = true;
-    }
-
     defineCallbackFlowForm() {
         let callbackList: any = [];
         callbackList['toggleInvestFields'] = this.toggleInvestFields.bind(this);
@@ -290,8 +317,8 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         callbackList['toggleVisibilitySection'] =
             this.toggleVisibilitySection.bind(this);
 
-        callbackList['showEpCostsCalModal'] =
-            this.showEpCostsCalModal.bind(this);
+        callbackList['showModalEpCostsCalculator'] =
+            this.showModalEpCostsCalculator.bind(this);
 
         callbackList['onChangePreDefined'] = this.onChangePreDefined.bind(this);
 
@@ -358,6 +385,19 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         this.cleanFormData();
     }
 
+    showModalEpCostsCalculator() {
+        this.formModal_calculator.action = {
+            label: 'ƒ',
+            fn: 'calculateEpCosts',
+        };
+        this.formModal_calculator.formData =
+            this.energyDesignService.getFormFieldsEpCosts();
+
+        this.modalComponent.hideModal();
+        this.formModal_info.hide = true;
+        this.formModal_calculator.show = true;
+    }
+
     closeModalEpCostsCalculator() {
         this.formModal_calculator.show = false;
         this.formModal_info.hide = false;
@@ -391,18 +431,6 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                         next: (value: OEPResponse) => {
                             // save in/out data port based on predefined item, to use in flow
                             this.formModal_info.preDefData = value.ports_data;
-
-                            console.log(value.ports_data);
-
-                            console.log(
-                                value.ports_data.inputs.length &&
-                                    value.ports_data.inputs[0].flow_data
-                                        ?.fix?.[0]
-                                    ? value.ports_data.inputs[0].flow_data
-                                          ?.fix?.[0]
-                                    : value.ports_data.outputs[0].flow_data
-                                          ?.fix?.[0]
-                            );
 
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
@@ -586,6 +614,9 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                             this.formComponent.disableControl(
                                 'outputPort_name'
                             );
+
+                            // set icon name for node's icon, based on predefined item
+                            this.formModal_info.data.icon_name = option;
                         },
                         error: (err) => {
                             this.toastService.error(
@@ -656,7 +687,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
             this.formComponent.disableControl('nominal_value');
 
             let lsFields_ = [
-                ...[{name: 'nominal_value'}],
+                ...[{ name: 'nominal_value' }],
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
@@ -831,7 +862,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
         }
     }
 
-    // ============================
+    // ============================ form handling ============================
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
@@ -841,7 +872,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
     }
 
     cleanFormError() {
-        this.formError = {msg: null, isShow: false};
+        this.formError = { msg: null, isShow: false };
     }
 
     setFormCalError(status: boolean, msg: string) {
@@ -947,7 +978,7 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
                                     formData,
                                     this.formModal_info.node?.id ?? 0,
                                     this.formModal_info.node.type ??
-                                    this.formModal_info.node.class
+                                        this.formModal_info.node.class
                                 );
                             }
 
@@ -1026,6 +1057,8 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
     }
 
     updateNode(data: any, nodeId: number, nodeType: string) {
+        console.log(data.icon_name);
+
         this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
         this.toastService.success('Node edited.');
     }
@@ -1086,6 +1119,179 @@ export class ScenarioEnergyDesignComponent implements OnInit, OnDestroy, AfterVi
 
     openInfoUrl(url: string | undefined) {
         if (url) window.open(url, '_blank')?.focus();
+    }
+
+    openModal_TimeSeries() {
+        this.timeSeriesModal.show = true;
+
+        // setTimeout(() => {
+        //     this.chart_timeSeries_initial_fromCSV();
+        // }, 0);
+    }
+
+    closeModal_TimeSeries() {
+        this.timeSeriesModal.show = false;
+    }
+
+    chart_timeSeries_initial() {
+        const timeSeriesData: any = {
+            x: [
+                '2024-01-01',
+                '2024-01-02',
+                '2024-01-03',
+                '2024-01-04',
+                '2024-01-05',
+                '2024-01-06',
+            ],
+            y: [10, 15, 13, 18, 14, 22],
+            type: 'scatter',
+            mode: 'lines',
+            fill: 'tozeroy',
+            line: { color: '#1f77b4' },
+            fillcolor: 'rgba(31, 119, 180, 0.3)',
+        };
+
+        const layout: any = {
+            title: 'Time Series (Filled Area)',
+            xaxis: {
+                type: 'date',
+                title: 'Date',
+            },
+            yaxis: {
+                title: 'Value',
+            },
+            margin: { t: 50, l: 50, r: 20, b: 50 },
+            responsive: true,
+        };
+
+        const config = {
+            displayModeBar: false,
+            responsive: true,
+        };
+
+        Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config);
+    }
+
+    chart_timeSeries_initial_fromCSV() {
+        d3.csv(
+            'https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv'
+        ).then((rows) => {
+            function unpack(rows: any, key: any) {
+                return rows.map((row: any) => {
+                    return row[key];
+                });
+            }
+
+            var trace1 = {
+                type: 'scatter',
+                mode: 'lines',
+                name: 'AAPL High',
+                x: unpack(rows, 'Date'),
+                y: unpack(rows, 'AAPL.High'),
+                fillcolor: '#1F77B4',
+                fill: 'tozeroy',
+            };
+
+            const layout: any = {
+                title: 'Time Series Chart',
+                xaxis: { type: 'date' },
+                yaxis: { title: 'Value' },
+            };
+
+            var data: any = [trace1];
+
+            Plotly.newPlot('plot_timeSeries', data, layout);
+        });
+    }
+
+    tableData: any[] = [];
+    columns: any[] = [];
+    columns_list: string[] = [];
+    emptyRows: number[] = [];
+
+    readonly timeSeries_gridSettings: GridSettings = {
+        rowHeaders: true,
+        colHeaders: true,
+        autoWrapRow: true,
+        autoWrapCol: true,
+        licenseKey: 'non-commercial-and-evaluation',
+        dropdownMenu: true,
+        hiddenColumns: {
+            indicators: true,
+        },
+        contextMenu: [
+            'cut',
+            'copy',
+            '---------',
+            'row_above',
+            'row_below',
+            'remove_row',
+            '---------',
+            'alignment',
+            'make_read_only',
+            'clear_column',
+        ],
+        imeFastEdit: true,
+        width: '100%',
+        height: 'auto',
+    };
+
+    onSelectFile_TimeSeries(e: any) {
+        // const file = e.target.files[0];
+        // if (!file) return;
+        // Papa.parse(file, {
+        //     header: true, // treat first row as header
+        //     dynamicTyping: true, // convert strings to numbers/booleans when possible
+        //     complete: (results: any) => {
+        //         console.log(results);
+        //         const data = results.data; // array of objects: {col1: '...', col2: '...' }
+        //         // now filter/select:
+        //         const filtered = data
+        //             .filter((row: any) => row.age > 25) // row filter
+        //             .map((row: any) => ({ name: row.name, city: row.city })); // select columns
+        //         console.log(filtered);
+        //     },
+        // });
+
+        const file = e.target.files[0];
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: false,
+            complete: (result: any) => {
+                this.tableData = result.data;
+
+                // Initialize column selector
+                this.columns = result.meta.fields.map((field: string) => ({
+                    name: field,
+                    selected: false,
+                }));
+                this.columns_list = this.columns.map((c) => c.name);
+            },
+        });
+
+        this.emptyRows = [];
+    }
+
+    checkEmptyRows(colIndex: number) {
+        const selectedCols = this.columns[colIndex].name;
+        this.emptyRows = [];
+
+        if (selectedCols.length === 0) return;
+
+        this.tableData.forEach((row, index) => {
+            for (let col of selectedCols) {
+                const value = row[col];
+                if (value === null || value === undefined || value === '') {
+                    this.emptyRows.push(index);
+                    break;
+                }
+            }
+        });
+    }
+
+    onTableEdit() {
+        // this.checkEmptyRows();
     }
 
     ngOnDestroy() {

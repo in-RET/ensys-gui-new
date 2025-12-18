@@ -152,7 +152,7 @@ export class EnergyDesignService {
                         label: '',
                         icon: 'calculator',
                         onClick: () => {
-                            callback['showEpCostsCalModal']();
+                            callback['showModalEpCostsCalculator']();
                         },
                     },
                 ],
@@ -264,7 +264,7 @@ export class EnergyDesignService {
                         label: '',
                         icon: 'calculator',
                         onClick: () => {
-                            callback['showEpCostsCalModal']();
+                            callback['showModalEpCostsCalculator']();
                         },
                     },
                 ],
