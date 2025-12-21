@@ -40,8 +40,7 @@
                         ],
                         "scripts": [
                             "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
-                            "node_modules/plotly.js/dist/plotly.min.js",
-                            "src/static/js/main.js"
+                            "node_modules/plotly.js/dist/plotly.min.js"
                         ],
                         "allowedCommonJsDependencies": [
                             "leaflet",
