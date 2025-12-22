@@ -1,24 +1,22 @@
 <header
-    class="py-2 border-bottom d-flex justify-content-between p-3 sticky-top bg-white"
+    class="py-2 px-3 border-bottom d-flex justify-content-between sticky-top bg-white"
 >
-    <!-- link to projects -->
-    <div>
-        <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
-            <img
-                class="bi me-2"
-                style="height: 3rem"
-                src="/static/assets/logos/ensys_logo_full.svg"
-                alt="ensys_logo_full"
-            />
-        </a>
-    </div>
+    <!-- main icon + link to projects -->
+    <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
+        <img
+            class="bi"
+            style="height: 100%"
+            src="/static/assets/logos/ensys_logo_full.svg"
+            alt="ensys_logo_full"
+        />
+    </a>
 
-    <!-- user menu -->
-    <div>
+    <!-- log[in-out] / user menu -->
+    <div class="d-flex justify-content-between align-items-center h-100">
         <ng-container *ngIf="user.is_authenticated">
             <div
                 ngbDropdown
-                class="d-inline-block"
+                class="d-inline-block h-100"
                 [placement]="'bottom-right'"
             >
                 <button
@@ -48,17 +46,14 @@
         </ng-container>
 
         <ng-container *ngIf="!user.is_authenticated">
-            <div class="text-end">
-                <button
-                    type="button"
-                    class="btn me-2"
-                    [routerLink]="['auth/login']"
-                >
+            <div class="text-end d-flex gap-2 h-100">
+                <button type="button" class="btn" [routerLink]="['auth/login']">
                     Login
                 </button>
+
                 <button
                     type="button"
-                    class="btn btn--hollow me-2"
+                    class="btn btn--hollow"
                     [routerLink]="['auth/signup']"
                 >
                     Sign Up

@@ -1,5 +1,9 @@
-<section>
+<div class="content-component">
     <app-navbar [user]="user" />
-    <router-outlet />
+
+    <div class="__main-content">
+        <router-outlet />
+    </div>
+
     <app-footer [user]="user" />
-</section>
+</div>
