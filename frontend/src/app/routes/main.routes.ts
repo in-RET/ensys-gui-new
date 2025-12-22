@@ -60,6 +60,7 @@ export const routes: Routes = [
 
             {
                 path: 'scenario',
+                canActivate: [AuthGuard],
                 loadComponent: () =>
                     import(
                         '../components/scenario/scenario-base/scenario-base.component'
@@ -82,7 +83,7 @@ export const routes: Routes = [
                 canActivate: [AuthGuard],
                 loadChildren: () =>
                     import('./template.routes').then((r) => r.routes),
-            }
+            },
         ],
     },
 ];
