@@ -1,13 +1,19 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router} from '@angular/router';
-import {AuthService} from '../services/auth.service';
-import {ValidateService} from '../services/validate.service';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { ValidateService } from '../services/validate.service';
 
 @Component({
     selector: 'app-signup',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
     templateUrl: './signup.component.html',
     styleUrl: './signup.component.scss',
 })
@@ -21,7 +27,10 @@ export class SignupComponent {
             lName: new FormControl(null, Validators.required),
             user: new FormControl(null, Validators.required),
             pass: new FormControl(null, Validators.required),
-            confirmPass: new FormControl(null, Validators.compose([Validators.required])),
+            confirmPass: new FormControl(
+                null,
+                Validators.compose([Validators.required])
+            ),
             consentOpt: new FormControl(false, Validators.required),
         },
         this.validateService.passwordMatch('pass', 'confirmPass')
