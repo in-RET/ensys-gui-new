@@ -13,7 +13,6 @@ import { map, Observable } from 'rxjs';
 import { RegionService } from '../../../shared/services/region.service';
 import { ProjectService } from '../services/project.service';
 
-
 @Component({
     selector: 'app-project-create',
     imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
@@ -21,25 +20,43 @@ import { ProjectService } from '../services/project.service';
     styleUrl: './project-create.component.scss',
 })
 export class ProjectCreateComponent implements OnInit {
+    defaultMapAddress: { lat: number; lng: number } = {
+        lat: 51.495258,
+        lng: 10.808557,
+    };
+
     form: FormGroup = new FormGroup({
         id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
         country: new FormControl('', [Validators.required]),
         description: new FormControl(null, [Validators.required]),
-        latitude: new FormControl(null, [Validators.required]),
-        longitude: new FormControl(null, [Validators.required]),
-        currency: new FormControl({
-            value: 'EUR',
-            disabled: true,
-        }, [Validators.required]),
-        unit_energy: new FormControl({
-            value: 'MW/MWh',
-            disabled: true,
-        }, [Validators.required]),
-        unit_co2: new FormControl({
-            value: 't CO2',
-            disabled: true
-        }, [Validators.required]),
+        latitude: new FormControl(this.defaultMapAddress.lat, [
+            Validators.required,
+        ]),
+        longitude: new FormControl(this.defaultMapAddress.lng, [
+            Validators.required,
+        ]),
+        currency: new FormControl(
+            {
+                value: 'EUR',
+                disabled: true,
+            },
+            [Validators.required]
+        ),
+        unit_energy: new FormControl(
+            {
+                value: 'MW/MWh',
+                disabled: true,
+            },
+            [Validators.required]
+        ),
+        unit_co2: new FormControl(
+            {
+                value: 't CO2',
+                disabled: true,
+            },
+            [Validators.required]
+        ),
     });
 
     get name() {
@@ -113,7 +130,7 @@ export class ProjectCreateComponent implements OnInit {
 
                 this.loadProject(this.route.snapshot.params['id']);
             }
-        } else this.initMap(49.45, 13.89);
+        } else this.initMap(51.495258, 10.808557);
     }
 
     getRegions() {
@@ -130,18 +147,20 @@ export class ProjectCreateComponent implements OnInit {
     }
 
     initMap(lat: any, lang: any) {
-        const baseMapURl =
-            'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
-        this.map = L.map('mapFrame').setView([lat, lang], 5);
+        const accessToken =
+            'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw';
+        const baseMapURl = `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${accessToken}`;
+
+        this.map = L.map('mapFrame').setView([lat, lang], 50);
 
         L.tileLayer(baseMapURl, {
             maxZoom: 18,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
-            // accessToken:
-            //     'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
+
+        this.marker = L.marker([lat, lang], this.markerIcon).addTo(this.map);
 
         // this.map.invalidateSize();
 

@@ -1,3 +1,4 @@
+<!-- <section class="project" id="project-{{ project.id }}"> -->
 <section class="project" id="project-{{ project.id }}">
     <div class="project-item">
         <div class="project__top">
@@ -74,9 +75,7 @@
                         >
                         </span>
 
-                        <span class="js-toggle-scenario-name">
-                            Show scenarios
-                        </span>
+                        <span class="js-toggle-scenario-name"> Scenarios </span>
                     </button>
                 </ng-container>
 
@@ -89,7 +88,14 @@
                     type="button"
                     (click)="newScenario(+project.id, project.name)"
                 >
-                    New Scenario
+                    <img
+                        src="static/assets/icons/feather/white/plus.svg"
+                        alt=""
+                        height="20"
+                        width="20"
+                        loading="lazy"
+                    />
+                    <span>Scenario</span>
                 </button>
             </div>
 

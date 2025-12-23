@@ -1,43 +1,67 @@
-<section class="project d-flex p-2 mb-3 gap-3">
-    <button type="button" class="btn btn--medium" [routerLink]="['../create']" aria-label="Create project">
-        <img
-            src="static/assets/icons/feather/white/plus.svg"
-            alt=""
-            height="20"
-            width="20"
-            loading="lazy"
-        />
-        <span>Create project</span>
-    </button>
-    <button type="button" class="btn btn--hollow me-2" [routerLink]="['../../templates']"
-            aria-label="Browse templates">
-        Templates
-    </button>
-</section>
+<div
+    style="
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    "
+>
+    <section class="project d-flex p-2 mt-3 mb-3 gap-3">
+        <button
+            type="button"
+            class="btn btn--medium"
+            [routerLink]="['../create']"
+            aria-label="Create project"
+        >
+            <img
+                src="static/assets/icons/feather/white/plus.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span>Create project</span>
+        </button>
 
-<ng-container *ngIf="projects$ | async as projects; else emptyState">
-    <app-project-item
-        *ngFor="let project of projects; trackBy: trackByProjectId"
-        [project]="project"
-        (deleteProject)="deleteProject($event)"
-        (duplicateProject)="duplicateProject($event)"
-    />
-</ng-container>
-
-<ng-template #emptyState>
-    <section class="projects-empty" role="status" aria-live="polite">
-        <div>
-            <div class="projects-empty__img">
-                <img
-                    src="static/assets/illustrations/empty_folder.svg"
-                    alt="Empty folder"
-                    width="160"
-                    height="120"
-                    loading="lazy"
-                />
-            </div>
-
-            <div class="projects-empty__text">There are no projects yet</div>
-        </div>
+        <button
+            type="button"
+            class="btn btn--hollow me-2"
+            [routerLink]="['../../templates']"
+            aria-label="Browse templates"
+        >
+            Templates
+        </button>
     </section>
-</ng-template>
+
+    <ng-container *ngIf="projects$ | async as projects; else emptyState">
+        <div class="row" style="overflow-x: hidden; overflow-y: scroll">
+            <app-project-item
+                class="col-auto"
+                *ngFor="let project of projects; trackBy: trackByProjectId"
+                [project]="project"
+                (deleteProject)="deleteProject($event)"
+                (duplicateProject)="duplicateProject($event)"
+            />
+        </div>
+    </ng-container>
+
+    <ng-template #emptyState>
+        <section class="projects-empty" role="status" aria-live="polite">
+            <div>
+                <div class="projects-empty__img">
+                    <img
+                        src="static/assets/illustrations/empty_folder.svg"
+                        alt="Empty folder"
+                        width="160"
+                        height="120"
+                        loading="lazy"
+                    />
+                </div>
+
+                <div class="projects-empty__text">
+                    There are no projects yet
+                </div>
+            </div>
+        </section>
+    </ng-template>
+</div>
