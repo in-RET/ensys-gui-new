@@ -1,3 +1,5 @@
+@use "../../../../static/scss/abstracts/variables" as *;
+
 .projects-empty {
     display: flex;
     justify-content: center;
@@ -18,5 +20,20 @@
 
     &__text {
         color: var(--text-muted, #6c757d);
+    }
+}
+
+::ng-deep .project {
+    background-color: #908bfa24 !important;
+
+    &__details {
+        padding: 1rem 1rem 0rem 1rem;
+    }
+
+    &__scenarios {
+        .action {
+            font-weight: 700;
+            width: 100%;
+        }
     }
 }

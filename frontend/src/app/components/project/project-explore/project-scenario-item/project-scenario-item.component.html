@@ -1,12 +1,12 @@
-<div class="details">
-    <a class="form-check-label" (click)="openScenario(scenario.id)">
+<div class="d-flex justify-content-between align-items-center">
+    <span class="form-check-label" (click)="openScenario(scenario.id)">
         {{ scenario.name }}
-    </a>
+    </span>
 
-    <div class="actions">
+    <div class="d-flex">
         <button
             id="duplicate_{{ scenario.id }}"
-            style="margin-top: 0.25rem;"
+            style="margin-top: 0.25rem"
             class="btn btn--action action"
             type="button"
             value="Duplicate"
@@ -25,6 +25,5 @@
         >
             <span class="icon icon-delete" aria-hidden="true"></span>
         </button>
-
     </div>
 </div>

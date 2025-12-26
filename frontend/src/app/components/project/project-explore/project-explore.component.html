@@ -6,7 +6,7 @@
         flex-direction: column;
     "
 >
-    <section class="project d-flex p-2 mt-3 mb-3 gap-3">
+    <section class="d-flex mt-3 mb-3 gap-1 justify-content-center p-3">
         <button
             type="button"
             class="btn btn--medium"
@@ -25,7 +25,7 @@
 
         <button
             type="button"
-            class="btn btn--hollow me-2"
+            class="btn btn--hollow"
             [routerLink]="['../../templates']"
             aria-label="Browse templates"
         >
@@ -34,14 +34,16 @@
     </section>
 
     <ng-container *ngIf="projects$ | async as projects; else emptyState">
-        <div class="row" style="overflow-x: hidden; overflow-y: scroll">
-            <app-project-item
-                class="col-auto"
-                *ngFor="let project of projects; trackBy: trackByProjectId"
-                [project]="project"
-                (deleteProject)="deleteProject($event)"
-                (duplicateProject)="duplicateProject($event)"
-            />
+        <div class="p-3">
+            <div class="row" style="overflow-x: hidden; overflow-y: auto">
+                <app-project-item
+                    class="col-4 mb-3"
+                    *ngFor="let project of projects; trackBy: trackByProjectId"
+                    [project]="project"
+                    (deleteProject)="deleteProject($event)"
+                    (duplicateProject)="duplicateProject($event)"
+                />
+            </div>
         </div>
     </ng-container>
 

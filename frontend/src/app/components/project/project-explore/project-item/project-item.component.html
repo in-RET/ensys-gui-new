@@ -1,129 +1,124 @@
-<!-- <section class="project" id="project-{{ project.id }}"> -->
-<section class="project" id="project-{{ project.id }}">
-    <div class="project-item">
-        <div class="project__top">
-            <a>
-                <h2 class="name">{{ project.name }}</h2>
-            </a>
+<section
+    class="project border border-secondary-subtle rounded-3"
+    id="project-{{ project.id }}"
+>
+    <div class="project__details">
+        <h2 class="name text-break">{{ project.name }}</h2>
 
-            <a class="location">
-                <span class="icon-pin" aria-hidden="true"></span>
-                {{ project.country }}
-            </a>
+        <div class="details mb-1">
+            <!-- <span class="detail__property">Created</span> -->
+
+            <span class="icon-pin" aria-hidden="true"></span>
+            {{ project.country }} <br />
+
+            <span class="detail__value">
+                {{ project.date_created || "{not defined}" | date }}
+            </span>
         </div>
 
-        <div class="project__details">
-            <div class="details">
-                <div class="detail">
-                    <span class="detail__property">Created</span>
-
-                    <span class="detail__value">
-                        {{ project.date_created || "{not defined}" | date }}
-                    </span>
-                </div>
-            </div>
-
-            <div class="actions">
-                <a
-                    class="btn btn--action action"
-                    [routerLink]="['../update/', project.id]"
-                    fragment="update"
-                >
-                    <span class="icon icon-edit" aria-hidden="true"></span>
-                </a>
-
-                <button
-                    id="duplicate_{{ project.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action"
-                    type="button"
-                    value="Delete"
-                    (click)="duplicate_modal(project.id)"
-                >
-                    <span class="icon icon-duplicate" aria-hidden="true"></span>
-                </button>
-
-                <button
-                    id="delete_{{ project.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action"
-                    type="button"
-                    value="Delete"
-                    (click)="delete_modal(project.id)"
-                >
-                    <span class="icon icon-delete" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-
-        <div class="project__scenarios">
-            <div class="toggle d-flex gap-2">
-                <ng-container
-                    *ngIf="scenarios$ | async as scenarios; else loading"
-                >
-                    <button
-                        type="button"
-                        class="btn btn-outline-primary"
-                        (click)="isCollapsed = !isCollapsed"
-                        [attr.aria-expanded]="!isCollapsed"
-                        aria-controls="collapseExample"
-                        *ngIf="scenarios.length > 0"
-                    >
-                        <span
-                            class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
-                            aria-hidden="true"
-                        >
-                        </span>
-
-                        <span class="js-toggle-scenario-name"> Scenarios </span>
-                    </button>
-                </ng-container>
-
-                <ng-template #loading>
-                    <span class="text-muted p-2">Loading scenarios...</span>
-                </ng-template>
-
-                <button
-                    class="btn btn--success action border p-2"
-                    type="button"
-                    (click)="newScenario(+project.id, project.name)"
-                >
-                    <img
-                        src="static/assets/icons/feather/white/plus.svg"
-                        alt=""
-                        height="20"
-                        width="20"
-                        loading="lazy"
-                    />
-                    <span>Scenario</span>
-                </button>
-            </div>
-
-            <div
-                class="collapse row"
-                #collapse="ngbCollapse"
-                [(ngbCollapse)]="isCollapsed"
-                *ngIf="(scenarios$ | async)?.length as scenarioCount"
+        <div class="actions" *ngIf="false">
+            <a
+                class="btn btn--action action"
+                [routerLink]="['../update/', project.id]"
+                fragment="update"
             >
-                <div
-                    class="card card-body scenario_list col-4"
-                    *ngIf="scenarioCount > 0"
+                <span class="icon icon-edit" aria-hidden="true"></span>
+            </a>
+
+            <button
+                id="duplicate_{{ project.id }}"
+                style="margin-top: 0.25rem"
+                class="btn btn--action action"
+                type="button"
+                value="Delete"
+                (click)="duplicate_modal(project.id)"
+            >
+                <span class="icon icon-duplicate" aria-hidden="true"></span>
+            </button>
+
+            <button
+                id="delete_{{ project.id }}"
+                style="margin-top: 0.25rem"
+                class="btn btn--action action"
+                type="button"
+                value="Delete"
+                (click)="delete_modal(project.id)"
+            >
+                <span class="icon icon-delete" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="project__scenarios">
+        <!-- Scenario List -->
+        <div
+            class="collapse"
+            #collapse="ngbCollapse"
+            [(ngbCollapse)]="isCollapsed"
+            *ngIf="(scenarios$ | async)?.length as scenarioCount"
+        >
+            <ng-container *ngIf="scenarioCount > 0">
+                <ul class="list-group rounded-0">
+                    <li
+                        class="list-group-item scenario_item"
+                        *ngFor="let scenario of project.scenarioList"
+                    >
+                        <app-project-scenario-item
+                            [project]="project"
+                            [scenario]="scenario"
+                            (deleteScenario)="deleteScenario($event)"
+                            (duplicateScenario)="duplicateScenario($event)"
+                        />
+                    </li>
+                </ul>
+            </ng-container>
+        </div>
+
+        <div class="d-flex mt-1 scenario-actions">
+            <!-- show Scenarios -->
+            <ng-container *ngIf="scenarios$ | async as scenarios; else loading">
+                <button
+                    type="button"
+                    class="btn btn-outline-primary action"
+                    (click)="isCollapsed = !isCollapsed"
+                    [attr.aria-expanded]="!isCollapsed"
+                    aria-controls="collapseExample"
+                    *ngIf="scenarios.length > 0"
                 >
-                    <ul class="list-group border">
-                        <li
-                            class="list-group-item scenario_item"
-                            *ngFor="let scenario of project.scenarioList"
-                        >
-                            <app-project-scenario-item
-                                [project]="project"
-                                [scenario]="scenario"
-                                (deleteScenario)="deleteScenario($event)"
-                                (duplicateScenario)="duplicateScenario($event)"
-                            />
-                        </li>
-                    </ul>
-                </div>
-            </div>
+                    <span
+                        class="icon icon--small js-toggle-scenario-icon"
+                        aria-hidden="true"
+                        [ngClass]="{
+                            'icon-i_arrow_down': isCollapsed,
+                            'icon-i_arrow_up': !isCollapsed
+                        }"
+                    >
+                    </span>
+
+                    <span class="js-toggle-scenario-name"> Scenarios </span>
+                </button>
+            </ng-container>
+
+            <ng-template #loading>
+                <span class="text-muted p-2">Loading scenarios...</span>
+            </ng-template>
+
+            <!-- new Scenario -->
+            <button
+                class="btn btn--success action"
+                type="button"
+                *ngIf="scenarios$ | async as scenarios"
+                (click)="newScenario(+project.id, project.name)"
+            >
+                <img
+                    src="static/assets/icons/feather/white/plus.svg"
+                    alt=""
+                    height="20"
+                    width="20"
+                    loading="lazy"
+                />
+                <span>Scenario</span>
+            </button>
         </div>
     </div>
 </section>

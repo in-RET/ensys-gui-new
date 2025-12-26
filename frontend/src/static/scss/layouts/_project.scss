@@ -2,10 +2,6 @@
 @use "../abstracts/mixins" as *;
 
 .project {
-    @include flex-row-justify-center;
-    padding-right: 0.5rem;
-    padding-left: 1rem;
-
     & > div {
         @include section-width;
         position: relative;
@@ -233,18 +229,5 @@
         .project__description {
             max-width: 40rem;
         }
-    }
-}
-
-.projects-new {
-    padding-bottom: 4rem;
-    text-align: center;
-
-    button::before {
-        background-image: url("/static/assets/icons/i_add.svg");
-    }
-
-    button::after {
-        display: none;
     }
 }

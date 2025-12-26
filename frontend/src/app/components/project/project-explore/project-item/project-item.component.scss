@@ -1,0 +1,18 @@
+.scenario-actions {
+    .btn {
+        border-radius: 0; // reset
+        border: unset;
+    }
+
+    .btn:first-child:not(:only-child) {
+        border-radius: 0 0 0 7px;
+    }
+
+    .btn:last-child:not(:only-child) {
+        border-radius: 0 0 7px 0;
+    }
+
+    .btn:only-child {
+        border-radius: 0 0 7px 5px;
+    }
+}
