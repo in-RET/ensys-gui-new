@@ -1,6 +1,7 @@
 /* You can add global styles to this file, and also import other style files */
 
 @use "static/scss/main.scss" as *;
+@use "static/scss/abstracts/mixins" as *;
 
 @import "handsontable/styles/handsontable.min.css";
 @import "handsontable/styles/ht-theme-main.min.css";
@@ -60,11 +61,10 @@ h2,
 h3,
 h4,
 h5,
-h6 {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+h6,
+img,
+div {
+    @include user-select-none;
 }
 
 /*  ============================ custom styles ============================     */
