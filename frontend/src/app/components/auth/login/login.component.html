@@ -81,9 +81,16 @@
             class="btn btn--large"
             type="submit"
             (click)="logIn()"
-            [disabled]="!form.valid"
+            [disabled]="!form.valid || loading"
         >
             Login
+            <div
+                class="spinner-border spinner-border-sm"
+                role="status"
+                [hidden]="!loading"
+            >
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </button>
 
         <div class="mt-1 text-danger" *ngIf="error && error.messge">

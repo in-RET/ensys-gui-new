@@ -8,6 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { ValidateService } from '../services/validate.service';
 
@@ -65,11 +66,14 @@ export class SignupComponent {
     }
 
     errorList: string[] = [];
+    loading: boolean = false;
 
     authService = inject(AuthService);
     router = inject(Router);
 
     signup() {
+        this.loading = true;
+
         this.authService
             .signup(
                 this.user?.value,
@@ -78,6 +82,7 @@ export class SignupComponent {
                 this.pass?.value,
                 this.email?.value
             )
+            .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: () => {
                     this.goLogin();

@@ -8,7 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { map, switchMap, tap } from 'rxjs';
+import { finalize, map, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
 import { AuthService } from '../services/auth.service';
@@ -35,6 +35,7 @@ export class LoginComponent {
     }
 
     error!: { messge: string };
+    loading: boolean = false;
 
     constructor(
         private authService: AuthService,
@@ -43,6 +44,8 @@ export class LoginComponent {
     ) {}
 
     logIn() {
+        this.loading = true;
+
         this.authService
             .logIn(this.user?.value, this.pass?.value)
             .pipe(
@@ -59,7 +62,8 @@ export class LoginComponent {
                         }),
                         map((user: any) => user.data.items[0])
                     )
-                )
+                ),
+                finalize(() => (this.loading = false))
             )
             .subscribe({
                 next: (user) => {

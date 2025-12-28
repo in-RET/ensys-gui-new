@@ -323,9 +323,16 @@
             class="btn btn--large"
             type="submit"
             (click)="signup()"
-            [disabled]="!form.valid || !consentOpt?.value"
+            [disabled]="!form.valid || !consentOpt?.value || loading"
         >
             Sign up
+            <div
+                class="spinner-border spinner-border-sm"
+                role="status"
+                [hidden]="!loading"
+            >
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </button>
         <div class="mt-1 text-danger" *ngIf="errorList">
             <p *ngFor="let error of errorList">{{ error }}</p>
