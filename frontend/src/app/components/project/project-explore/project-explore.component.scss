@@ -61,8 +61,19 @@
 
         transition: opacity 0.2s ease, transform 0.2s ease;
 
-        .btn .icon {
-            padding: 5px;
+        .btn {
+            .icon {
+                padding: 5px;
+            }
+
+            &.action:hover {
+                color: #fff !important;
+                background: unset !important;
+
+                ::before {
+                    color: #fff !important;
+                }
+            }
         }
     }
 
