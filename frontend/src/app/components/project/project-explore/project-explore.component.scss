@@ -24,10 +24,16 @@
 }
 
 ::ng-deep .project {
-    background-color: #908bfa24 !important;
+    background-color: #00999312 !important;
+    position: relative;
+    border-radius: 7px 7px 0 0;
 
-    &__details {
-        padding: 1rem 1rem 0rem 1rem;
+    .details {
+        padding: 1rem 1rem 0.5rem 1rem;
+
+        .property {
+            font-weight: 300;
+        }
     }
 
     &__scenarios {
@@ -35,5 +41,34 @@
             font-weight: 700;
             width: 100%;
         }
+    }
+
+    .actions {
+        border-radius: 0 7px 0 0;
+        background: #009993;
+        height: 100%;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        right: 0;
+
+        display: flex;
+        flex-direction: column;
+
+        opacity: 0;
+        transform: translateY(px);
+        pointer-events: none;
+
+        transition: opacity 0.2s ease, transform 0.2s ease;
+
+        .btn .icon {
+            padding: 5px;
+        }
+    }
+
+    &:hover .actions {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
     }
 }

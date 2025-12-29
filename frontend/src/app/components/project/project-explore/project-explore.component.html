@@ -5,7 +5,9 @@
         display: flex;
         flex-direction: column;
     "
+    [hidden]="loading.projects"
 >
+    <!-- action btns -->
     <section class="d-flex mt-3 mb-3 gap-1 justify-content-center p-3">
         <button
             type="button"
@@ -33,7 +35,7 @@
         </button>
     </section>
 
-    <ng-container *ngIf="projects$ | async as projects; else emptyState">
+    <ng-container *ngIf="projects$ | async as projects">
         <div class="p-3">
             <div class="row" style="overflow-x: hidden; overflow-y: auto">
                 <app-project-item
@@ -45,10 +47,13 @@
                 />
             </div>
         </div>
-    </ng-container>
 
-    <ng-template #emptyState>
-        <section class="projects-empty" role="status" aria-live="polite">
+        <section
+            class="projects-empty"
+            role="status"
+            aria-live="polite"
+            *ngIf="projects.length === 0"
+        >
             <div>
                 <div class="projects-empty__img">
                     <img
@@ -65,5 +70,78 @@
                 </div>
             </div>
         </section>
-    </ng-template>
+    </ng-container>
+</div>
+
+<!-- placeholders while loading -->
+<div class="row mt-3 mb-3 justify-content-center p-3" *ngIf="loading.projects">
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
 </div>
