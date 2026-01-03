@@ -24,24 +24,8 @@
 }
 
 ::ng-deep .project {
-    background-color: #00999312 !important;
     position: relative;
     border-radius: 7px 7px 0 0;
-
-    .details {
-        padding: 1rem 1rem 0.5rem 1rem;
-
-        .property {
-            font-weight: 300;
-        }
-    }
-
-    &__scenarios {
-        .action {
-            font-weight: 700;
-            width: 100%;
-        }
-    }
 
     .actions {
         border-radius: 0 7px 0 0;
@@ -56,7 +40,7 @@
         flex-direction: column;
 
         opacity: 0;
-        transform: translateY(px);
+        transform: translateY(0px);
         pointer-events: none;
 
         transition: opacity 0.2s ease, transform 0.2s ease;
@@ -77,9 +61,27 @@
         }
     }
 
-    &:hover .actions {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
+    .details {
+        background-color: #00999312 !important;
+        padding: 1rem 1rem 0.5rem 1rem;
+
+        .property {
+            font-weight: 300;
+        }
+
+        &:hover {
+            .actions {
+                opacity: 1;
+                transform: translateY(0);
+                pointer-events: auto;
+            }
+        }
+    }
+
+    &__scenarios {
+        .action {
+            font-weight: 700;
+            width: 100%;
+        }
     }
 }
