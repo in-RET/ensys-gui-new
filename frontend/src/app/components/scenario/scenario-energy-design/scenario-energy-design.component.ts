@@ -10,13 +10,8 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HotTableModule } from '@handsontable/angular';
 import { Tooltip } from 'bootstrap';
-import * as d3 from 'd3';
 import Drawflow from 'drawflow';
-import { GridSettings } from 'handsontable/settings';
-import Papa from 'papaparse';
-import * as Plotly from 'plotly.js-dist-min';
 import { interval, map, Subscription, switchMap } from 'rxjs';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ResDataModel } from '../../../shared/models/http.model';
@@ -37,6 +32,7 @@ import {
     OrderItem,
     OrderListComponent,
 } from './order-list/order-list.component';
+import { TimeSeriesComponent } from './time-series/time-series.component';
 
 interface FormNode {
     type: string;
@@ -74,7 +70,7 @@ class FormModalInfo {
         EnergyDrawflowComponent,
         OrderListComponent,
         SimulationListCardComponent,
-        HotTableModule,
+        TimeSeriesComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -120,7 +116,7 @@ export class ScenarioEnergyDesignComponent
             label: 'Import',
             fn: undefined,
         },
-        selectedType: 'file', // types: list , file, number
+        data: [],
     };
 
     @ViewChild(EnergyDrawflowComponent)
@@ -1123,175 +1119,10 @@ export class ScenarioEnergyDesignComponent
 
     openModal_TimeSeries() {
         this.timeSeriesModal.show = true;
-
-        // setTimeout(() => {
-        //     this.chart_timeSeries_initial_fromCSV();
-        // }, 0);
     }
 
     closeModal_TimeSeries() {
         this.timeSeriesModal.show = false;
-    }
-
-    chart_timeSeries_initial() {
-        const timeSeriesData: any = {
-            x: [
-                '2024-01-01',
-                '2024-01-02',
-                '2024-01-03',
-                '2024-01-04',
-                '2024-01-05',
-                '2024-01-06',
-            ],
-            y: [10, 15, 13, 18, 14, 22],
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tozeroy',
-            line: { color: '#1f77b4' },
-            fillcolor: 'rgba(31, 119, 180, 0.3)',
-        };
-
-        const layout: any = {
-            title: 'Time Series (Filled Area)',
-            xaxis: {
-                type: 'date',
-                title: 'Date',
-            },
-            yaxis: {
-                title: 'Value',
-            },
-            margin: { t: 50, l: 50, r: 20, b: 50 },
-            responsive: true,
-        };
-
-        const config = {
-            displayModeBar: false,
-            responsive: true,
-        };
-
-        Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config);
-    }
-
-    chart_timeSeries_initial_fromCSV() {
-        d3.csv(
-            'https://raw.githubusercontent.com/plotly/datasets/master/finance-charts-apple.csv'
-        ).then((rows) => {
-            function unpack(rows: any, key: any) {
-                return rows.map((row: any) => {
-                    return row[key];
-                });
-            }
-
-            var trace1 = {
-                type: 'scatter',
-                mode: 'lines',
-                name: 'AAPL High',
-                x: unpack(rows, 'Date'),
-                y: unpack(rows, 'AAPL.High'),
-                fillcolor: '#1F77B4',
-                fill: 'tozeroy',
-            };
-
-            const layout: any = {
-                title: 'Time Series Chart',
-                xaxis: { type: 'date' },
-                yaxis: { title: 'Value' },
-            };
-
-            var data: any = [trace1];
-
-            Plotly.newPlot('plot_timeSeries', data, layout);
-        });
-    }
-
-    tableData: any[] = [];
-    columns: any[] = [];
-    columns_list: string[] = [];
-    emptyRows: number[] = [];
-
-    readonly timeSeries_gridSettings: GridSettings = {
-        rowHeaders: true,
-        colHeaders: true,
-        autoWrapRow: true,
-        autoWrapCol: true,
-        licenseKey: 'non-commercial-and-evaluation',
-        dropdownMenu: true,
-        hiddenColumns: {
-            indicators: true,
-        },
-        contextMenu: [
-            'cut',
-            'copy',
-            '---------',
-            'row_above',
-            'row_below',
-            'remove_row',
-            '---------',
-            'alignment',
-            'make_read_only',
-            'clear_column',
-        ],
-        imeFastEdit: true,
-        width: '100%',
-        height: 'auto',
-    };
-
-    onSelectFile_TimeSeries(e: any) {
-        // const file = e.target.files[0];
-        // if (!file) return;
-        // Papa.parse(file, {
-        //     header: true, // treat first row as header
-        //     dynamicTyping: true, // convert strings to numbers/booleans when possible
-        //     complete: (results: any) => {
-        //         console.log(results);
-        //         const data = results.data; // array of objects: {col1: '...', col2: '...' }
-        //         // now filter/select:
-        //         const filtered = data
-        //             .filter((row: any) => row.age > 25) // row filter
-        //             .map((row: any) => ({ name: row.name, city: row.city })); // select columns
-        //         console.log(filtered);
-        //     },
-        // });
-
-        const file = e.target.files[0];
-
-        Papa.parse(file, {
-            header: true,
-            skipEmptyLines: false,
-            complete: (result: any) => {
-                this.tableData = result.data;
-
-                // Initialize column selector
-                this.columns = result.meta.fields.map((field: string) => ({
-                    name: field,
-                    selected: false,
-                }));
-                this.columns_list = this.columns.map((c) => c.name);
-            },
-        });
-
-        this.emptyRows = [];
-    }
-
-    checkEmptyRows(colIndex: number) {
-        const selectedCols = this.columns[colIndex].name;
-        this.emptyRows = [];
-
-        if (selectedCols.length === 0) return;
-
-        this.tableData.forEach((row, index) => {
-            for (let col of selectedCols) {
-                const value = row[col];
-                if (value === null || value === undefined || value === '') {
-                    this.emptyRows.push(index);
-                    break;
-                }
-            }
-        });
-    }
-
-    onTableEdit() {
-        // this.checkEmptyRows();
     }
 
     ngOnDestroy() {

@@ -1,0 +1,232 @@
+<app-modal [title]="timeSeriesModal.title" (closeModal)="closeModal()">
+    <div modal-form>
+        <div class="container d-flex flex-column time_series_modal">
+            <!-- Button Group Row -->
+            <div class="mb-3">
+                <div class="btn-group w-100" role="group">
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="selectMode"
+                        id="opt1"
+                        autocomplete="off"
+                        (click)="changeMode('list')"
+                    />
+                    <label class="btn btn-outline-primary" for="opt1">
+                        Options
+                    </label>
+
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="selectMode"
+                        id="opt2"
+                        autocomplete="off"
+                        (click)="changeMode('file')"
+                        checked
+                    />
+                    <label class="btn btn-outline-primary" for="opt2">
+                        CSV File
+                    </label>
+
+                    <input
+                        type="radio"
+                        class="btn-check"
+                        name="selectMode"
+                        id="opt3"
+                        autocomplete="off"
+                        (click)="changeMode('number')"
+                    />
+                    <label class="btn btn-outline-primary" for="opt3">
+                        Single Value
+                    </label>
+                </div>
+            </div>
+
+            <!-- Inputs -->
+            <div class="row mb-3">
+                <div class="col">
+                    <!-- Dropdown -->
+                    <div *ngIf="timeSeriesModal.selectedType === 'list'">
+                        <select class="form-select" #optionInput>
+                            <option selected>Select option</option>
+                            <option value="1">Option 1</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                            <option value="2">Option 2</option>
+                        </select>
+                    </div>
+
+                    <!-- File -->
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                        *ngIf="timeSeriesModal.selectedType === 'file'"
+                    >
+                        <input
+                            type="file"
+                            class="form-control"
+                            (change)="onSelectFile_TimeSeries($event)"
+                            accept=".csv"
+                            style="width: 20rem"
+                            #fileInput
+                        />
+
+                        <div class="d-flex justify-content-between gap-1">
+                            <button
+                                class="btn btn--success btn--medium"
+                                [disabled]="
+                                    timeSeries_table.selectedData.length == 0 ||
+                                    timeSeries_table.selectedCol == -1 ||
+                                    timeSeries_table.emptyRows.length > 0
+                                "
+                                *ngIf="!timeSeriesModal.showPlot"
+                                (click)="setDataAndShowPlot()"
+                            >
+                                Show Plot
+                            </button>
+
+                            <button
+                                class="btn btn--success btn--medium"
+                                [disabled]="
+                                    timeSeries_table.selectedData.length == 0 ||
+                                    timeSeries_table.selectedCol == -1 ||
+                                    timeSeries_table.emptyRows.length > 0
+                                "
+                                *ngIf="timeSeriesModal.showPlot"
+                                (click)="resetData(); resetFileInput()"
+                            >
+                                Upload Again!
+                            </button>
+
+                            <button
+                                class="btn btn--success btn--medium"
+                                [disabled]="
+                                    timeSeries_table.selectedData.length == 0 ||
+                                    timeSeries_table.selectedCol == -1 ||
+                                    timeSeries_table.emptyRows.length > 0
+                                "
+                                *ngIf="!timeSeriesModal.showPlot"
+                                (click)="generateRandomData()"
+                            >
+                                Generate Random Data
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Text -->
+                    <div *ngIf="timeSeriesModal.selectedType === 'number'">
+                        <input
+                            type="text"
+                            class="form-control"
+                            placeholder="Enter text"
+                            #numInput
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <!-- data-table of csv file -->
+            <div
+                class="frame"
+                *ngIf="
+                    timeSeriesModal.selectedType === 'file' &&
+                    timeSeries_table.data.length &&
+                    !timeSeries_table.loading &&
+                    !timeSeriesModal.showPlot
+                "
+            >
+                <!-- <p>Total records: {{ timeSeries_table.data.length }}</p> -->
+                <div>
+                    <h4>Select a col by click on its col.</h4>
+                    <b
+                        class="text-danger"
+                        *ngIf="timeSeries_table.emptyRows.length > 0"
+                    >
+                        Error:
+                        {{ timeSeries_table.emptyRows.length }} Row(s) are
+                        Null/Empty!
+                    </b>
+                </div>
+
+                <div class="table-responsive m-0">
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead class="table-primary sticky-top">
+                            <tr>
+                                <th>#</th>
+                                <th
+                                    class="text-center"
+                                    *ngFor="
+                                        let col of timeSeries_table.columns_list;
+                                        index as i
+                                    "
+                                    (click)="selectCol(i)"
+                                    role="button"
+                                    [class.highlight-col]="
+                                        timeSeries_table.selectedCol === i
+                                    "
+                                >
+                                    {{ col }}
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr
+                                *ngFor="
+                                    let row of timeSeries_table.data;
+                                    index as rIndex
+                                "
+                            >
+                                <td>{{ rIndex + 1 }}</td>
+                                <td
+                                    *ngFor="
+                                        let col of timeSeries_table.columns_list;
+                                        index as cIndex
+                                    "
+                                    [class.highlight-col]="
+                                        timeSeries_table.selectedCol === cIndex
+                                    "
+                                    [class.emptyCell]="
+                                        timeSeries_table.selectedCol ===
+                                            cIndex && row[cIndex] === ''
+                                    "
+                                >
+                                    {{ row[cIndex] }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- plot graph -->
+            <div>
+                <div
+                    id="plot_timeSeries"
+                    class="plot_timeSeries"
+                    *ngIf="timeSeriesModal.showPlot"
+                ></div>
+            </div>
+
+            <!-- loading -->
+            <div class="text-center" *ngIf="timeSeries_table.loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div modal-actions>
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="closeModal()"
+            [disabled]="timeSeriesModal.data.length == 0"
+        >
+            <span>{{ timeSeriesModal.action.label }}</span>
+        </button>
+    </div>
+    >
+</app-modal>
