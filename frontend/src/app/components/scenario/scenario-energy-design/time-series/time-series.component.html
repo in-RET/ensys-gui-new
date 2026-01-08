@@ -11,6 +11,7 @@
                         id="opt1"
                         autocomplete="off"
                         (click)="changeMode('list')"
+                        [checked]="timeSeriesModal.selectedType === 'list'"
                     />
                     <label class="btn btn-outline-primary" for="opt1">
                         Options
@@ -23,7 +24,7 @@
                         id="opt2"
                         autocomplete="off"
                         (click)="changeMode('file')"
-                        checked
+                        [checked]="timeSeriesModal.selectedType === 'file'"
                     />
                     <label class="btn btn-outline-primary" for="opt2">
                         CSV File
@@ -36,6 +37,7 @@
                         id="opt3"
                         autocomplete="off"
                         (click)="changeMode('number')"
+                        [checked]="timeSeriesModal.selectedType === 'number'"
                     />
                     <label class="btn btn-outline-primary" for="opt3">
                         Single Value
@@ -47,15 +49,42 @@
             <div class="row mb-3">
                 <div class="col">
                     <!-- Dropdown -->
-                    <div *ngIf="timeSeriesModal.selectedType === 'list'">
-                        <select class="form-select" #optionInput>
+                    <div
+                        class="d-flex justify-content-center align-items-center gap-2"
+                        *ngIf="timeSeriesModal.selectedType === 'list'"
+                    >
+                        <select class="form-select" #optionInput disabled>
                             <option selected>Select option</option>
-                            <option value="1">Option 1</option>
-                            <option value="2">Option 2</option>
-                            <option value="2">Option 2</option>
-                            <option value="2">Option 2</option>
-                            <option value="2">Option 2</option>
                         </select>
+
+                        <div
+                            class="d-flex justify-content-center gap-1"
+                            *ngIf="timeSeries_table.data"
+                        >
+                            <button
+                                class="btn btn--success btn--medium"
+                                [disabled]="
+                                    timeSeries_table.selectedData.length == 0 ||
+                                    timeSeries_table.selectedCol == -1 ||
+                                    timeSeries_table.emptyRows.length > 0
+                                "
+                                (click)="setDataAndShowPlot()"
+                            >
+                                Show Plot
+                            </button>
+
+                            <button
+                                class="btn btn--success btn--medium"
+                                [disabled]="
+                                    timeSeries_table.selectedData.length == 0 ||
+                                    timeSeries_table.selectedCol == -1 ||
+                                    timeSeries_table.emptyRows.length > 0
+                                "
+                                (click)="generateRandomData()"
+                            >
+                                Generate Random Data
+                            </button>
+                        </div>
                     </div>
 
                     <!-- File -->
@@ -143,13 +172,26 @@
                     </div>
 
                     <!-- Text -->
-                    <div *ngIf="timeSeriesModal.selectedType === 'number'">
+                    <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                        *ngIf="timeSeriesModal.selectedType === 'number'"
+                    >
                         <input
                             type="text"
                             class="form-control"
-                            placeholder="Enter text"
+                            placeholder="Value"
                             #numInput
+                            style="max-width: 10rem"
                         />
+
+                        <div class="d-flex justify-content-center gap-1">
+                            <button
+                                class="btn btn--success"
+                                (click)="setDataAndShowPlot()"
+                            >
+                                Show Plot
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

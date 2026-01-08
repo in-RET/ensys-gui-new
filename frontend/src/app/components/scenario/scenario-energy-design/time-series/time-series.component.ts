@@ -30,7 +30,7 @@ export class TimeSeriesComponent {
             label: 'Import',
             fn: undefined,
         },
-        selectedType: 'file', // types: list , file, number
+        selectedType: 'number', // types: list , file, number
         data: [],
     };
     timeSeries_table: {
@@ -200,15 +200,32 @@ export class TimeSeriesComponent {
         if (scenarioData && scenarioData.scenario) {
             const curentScenario = scenarioData.scenario;
             const xVal = generateHourlyList(curentScenario.simulationYear);
-            this.chart_timeSeries_initial(
-                xVal,
-                this.timeSeries_table.selectedData
-            );
+
+            const yVal: number[] = [];
+
+            switch (this.timeSeriesModal.selectedType) {
+                case 'list':
+                    break;
+
+                case 'file':
+                    yVal.push(...this.timeSeries_table.selectedData);
+                    break;
+
+                case 'number':
+                    const numValue = parseFloat(
+                        this.numInput.nativeElement.value
+                    );
+                    for (let i = 0; i < xVal.length; i++) {
+                        yVal.push(numValue);
+                    }
+                    break;
+            }
+
+            this.chart_timeSeries_initial(xVal, yVal);
         }
     }
 
     chart_timeSeries_initial(xVal: any, yVal: any) {
-        this.timeSeries_table.loading = true;
         this.timeSeriesModal.showPlot = true;
 
         const timeSeriesData: any = {
