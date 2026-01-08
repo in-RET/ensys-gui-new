@@ -5,6 +5,7 @@ import {
     ElementRef,
     EventEmitter,
     inject,
+    Input,
     Output,
     ViewChild,
 } from '@angular/core';
@@ -32,20 +33,33 @@ export class TimeSeriesComponent {
         selectedType: 'file', // types: list , file, number
         data: [],
     };
-    timeSeries_table: any = {
-        data: [],
+    timeSeries_table: {
+        data: undefined | null | any[];
+        columns: { name: string; selected: boolean }[];
+        columns_list: string[];
+        emptyRows: number[];
+        loading: boolean;
+        selectedCol: number;
+        selectedData: number[];
+        noRecordsCnt: number;
+        hasHeader?: boolean;
+    } = {
+        data: undefined,
         columns: [],
         columns_list: [],
         emptyRows: [],
         loading: false,
         selectedCol: -1,
         selectedData: [],
+        noRecordsCnt: 0,
+        hasHeader: true,
     };
     isCollapsed_timeSeriesTable: boolean = false;
     isCollapsed_timeSeriesPlot: boolean = true;
 
-    @Output() closeModal_TimeSeries: EventEmitter<any> =
-        new EventEmitter<any>();
+    @Input() maxRecords_TimeSeries: number = 8760;
+    @Output()
+    closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
 
     @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
     @ViewChild('optionInput') optionInput!: ElementRef<HTMLInputElement>;
@@ -56,6 +70,9 @@ export class TimeSeriesComponent {
     constructor(private cdr: ChangeDetectorRef) {}
 
     onSelectFile_TimeSeries(event: Event): void {
+        // check any file selected before
+        if (this.timeSeries_table.selectedCol !== -1) this.resetData();
+
         this.timeSeries_table.loading = true;
         const input = event.target as HTMLInputElement;
 
@@ -77,9 +94,21 @@ export class TimeSeriesComponent {
         reader.onload = () => {
             const csvText = reader.result as string;
             const rows = csvText.split('\n').map((r) => r.split(','));
-            const headers = rows[0];
+            let headers: string[] = [];
 
-            const data = rows.slice(1).map((row) => {
+            if (this.timeSeries_table.hasHeader) headers = rows[0];
+            else {
+                // Generate default headers if none exist
+                const colCount = rows[0].length;
+                headers = Array.from(
+                    { length: colCount },
+                    (_, i) => `Column ${i + 1}`
+                );
+            }
+
+            if (this.timeSeries_table.hasHeader) rows.shift(); // Remove header row if present
+
+            const data = rows.slice(0).map((row) => {
                 const rowData: any = {};
 
                 headers.forEach((header, index) => {
@@ -91,7 +120,7 @@ export class TimeSeriesComponent {
             });
 
             this.timeSeries_table.data = data;
-            this.timeSeries_table.columns = headers.map((header) => ({
+            this.timeSeries_table.columns = headers.map((header: string) => ({
                 name: header,
                 selected: false,
             }));
@@ -110,25 +139,38 @@ export class TimeSeriesComponent {
 
     selectCol(colIndex: number) {
         this.timeSeries_table.selectedCol = colIndex;
+        this.checkNoRecordsCnt(colIndex);
         this.checkEmptyRows(colIndex);
 
-        this.timeSeries_table.selectedData = this.timeSeries_table.data.map(
-            (row: any) => {
-                return row[colIndex];
-            }
-        );
+        if (this.timeSeries_table.data)
+            this.timeSeries_table.selectedData = this.timeSeries_table.data.map(
+                (row: any) => {
+                    return row[colIndex];
+                }
+            );
+    }
+
+    checkNoRecordsCnt(colIndex: number) {
+        if (this.timeSeries_table.data) {
+            this.timeSeries_table.noRecordsCnt = 0;
+            this.timeSeries_table.noRecordsCnt =
+                this.maxRecords_TimeSeries -
+                this.timeSeries_table.data.map((row: any) => row[colIndex])
+                    .length;
+        }
     }
 
     checkEmptyRows(colIndex: number) {
         this.timeSeries_table.emptyRows = [];
 
-        this.timeSeries_table.data.forEach((row: any, index: number) => {
-            const value = row[colIndex];
+        if (this.timeSeries_table.data)
+            this.timeSeries_table.data.forEach((row: any, index: number) => {
+                const value = row[colIndex];
 
-            if (value === null || value === undefined || value === '') {
-                this.timeSeries_table.emptyRows.push(index);
-            }
-        });
+                if (value === null || value === undefined || value === '') {
+                    this.timeSeries_table.emptyRows.push(index);
+                }
+            });
     }
 
     setDataAndShowPlot() {
@@ -166,6 +208,9 @@ export class TimeSeriesComponent {
     }
 
     chart_timeSeries_initial(xVal: any, yVal: any) {
+        this.timeSeries_table.loading = true;
+        this.timeSeriesModal.showPlot = true;
+
         const timeSeriesData: any = {
             x: xVal, // 8760 time: 2025-01-01 to 2025-12-31
             y: yVal, // 8760 values
@@ -194,12 +239,14 @@ export class TimeSeriesComponent {
             responsive: true,
         };
 
-        this.timeSeriesModal.showPlot = true;
-
         setTimeout(() => {
-            Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config);
-            // this.collapsePlot(true);
-            this.timeSeriesModal.showPlot = true;
+            Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config)
+                .then(() => {
+                    // this.collapsePlot(true);
+                })
+                .catch((error) => {
+                    console.error('Error creating plot:', error);
+                });
         }, 0);
     }
 
@@ -231,23 +278,24 @@ export class TimeSeriesComponent {
 
     resetData() {
         this.timeSeries_table = {
-            data: [],
+            data: null,
             columns: [],
             columns_list: [],
             emptyRows: [],
             loading: false,
             selectedCol: -1,
             selectedData: [],
+            noRecordsCnt: 0,
         };
+        this.timeSeries_table.hasHeader = true;
         this.timeSeriesModal.showPlot = false;
+    }
 
-        const resetFileInput = () => {
-            this.fileInput.nativeElement.value = '';
-        };
-    }
-    resetFileInput() {
-        this.fileInput.nativeElement.value = '';
-    }
+    // resetFileInput() {
+    //     this.fileInput.nativeElement.value = '';
+    // }
+
+    toggleHasHeader() {}
 
     closeModal() {
         this.closeModal_TimeSeries.emit();

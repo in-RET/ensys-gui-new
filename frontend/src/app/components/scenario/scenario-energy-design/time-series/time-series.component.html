@@ -63,16 +63,59 @@
                         class="d-flex justify-content-between align-items-center mb-1"
                         *ngIf="timeSeriesModal.selectedType === 'file'"
                     >
-                        <input
-                            type="file"
-                            class="form-control"
-                            (change)="onSelectFile_TimeSeries($event)"
-                            accept=".csv"
-                            style="width: 20rem"
-                            #fileInput
-                        />
+                        <!-- input file -->
+                        <div
+                            class="d-flex justify-content-center align-items-center gap-2"
+                        >
+                            <ng-container *ngIf="timeSeries_table.data">
+                                <button
+                                    class="btn btn--success btn--medium"
+                                    (click)="resetData()"
+                                >
+                                    Upload Again!
+                                </button>
+                            </ng-container>
 
-                        <div class="d-flex justify-content-between gap-1">
+                            <ng-container
+                                *ngIf="
+                                    timeSeries_table.data == undefined ||
+                                    timeSeries_table.data == null
+                                "
+                            >
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    (change)="onSelectFile_TimeSeries($event)"
+                                    accept=".csv"
+                                    style="width: 20rem"
+                                    #fileInput
+                                />
+                                <div class="form-check form-switch">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        role="switch"
+                                        id="header-check"
+                                        (change)="
+                                            timeSeries_table.hasHeader =
+                                                !timeSeries_table.hasHeader
+                                        "
+                                        [checked]="timeSeries_table.hasHeader"
+                                    />
+                                    <label
+                                        class="form-check-label"
+                                        for="header-check"
+                                    >
+                                        With HEADERS
+                                    </label>
+                                </div>
+                            </ng-container>
+                        </div>
+
+                        <div
+                            class="d-flex justify-content-center gap-1"
+                            *ngIf="timeSeries_table.data"
+                        >
                             <button
                                 class="btn btn--success btn--medium"
                                 [disabled]="
@@ -80,7 +123,6 @@
                                     timeSeries_table.selectedCol == -1 ||
                                     timeSeries_table.emptyRows.length > 0
                                 "
-                                *ngIf="!timeSeriesModal.showPlot"
                                 (click)="setDataAndShowPlot()"
                             >
                                 Show Plot
@@ -93,20 +135,6 @@
                                     timeSeries_table.selectedCol == -1 ||
                                     timeSeries_table.emptyRows.length > 0
                                 "
-                                *ngIf="timeSeriesModal.showPlot"
-                                (click)="resetData(); resetFileInput()"
-                            >
-                                Upload Again!
-                            </button>
-
-                            <button
-                                class="btn btn--success btn--medium"
-                                [disabled]="
-                                    timeSeries_table.selectedData.length == 0 ||
-                                    timeSeries_table.selectedCol == -1 ||
-                                    timeSeries_table.emptyRows.length > 0
-                                "
-                                *ngIf="!timeSeriesModal.showPlot"
                                 (click)="generateRandomData()"
                             >
                                 Generate Random Data
@@ -131,21 +159,40 @@
                 class="frame"
                 *ngIf="
                     timeSeriesModal.selectedType === 'file' &&
+                    timeSeries_table.data &&
                     timeSeries_table.data.length &&
                     !timeSeries_table.loading &&
                     !timeSeriesModal.showPlot
                 "
             >
-                <!-- <p>Total records: {{ timeSeries_table.data.length }}</p> -->
-                <div>
-                    <h4>Select a col by click on its col.</h4>
-                    <b
-                        class="text-danger"
-                        *ngIf="timeSeries_table.emptyRows.length > 0"
-                    >
+                <h4>Select a col by click on its col.</h4>
+                <div
+                    *ngIf="
+                        timeSeries_table.selectedCol > -1 ||
+                        timeSeries_table.noRecordsCnt > 0
+                    "
+                >
+                    <b *ngIf="timeSeries_table.emptyRows.length > 0">
                         Error:
-                        {{ timeSeries_table.emptyRows.length }} Row(s) are
-                        Null/Empty!
+
+                        <span class="text-danger">
+                            {{ timeSeries_table.emptyRows.length }}
+                        </span>
+
+                        Row(s) are Null/Empty!
+                    </b>
+                    <br />
+                    <b *ngIf="timeSeries_table.noRecordsCnt > 0">
+                        Error:
+                        <span class="text-danger">
+                            {{ timeSeries_table.noRecordsCnt }}
+                        </span>
+
+                        Row(s) are missing to reach
+                        <span class="text-danger">
+                            {{ maxRecords_TimeSeries }}
+                        </span>
+                        records.
                     </b>
                 </div>
 
