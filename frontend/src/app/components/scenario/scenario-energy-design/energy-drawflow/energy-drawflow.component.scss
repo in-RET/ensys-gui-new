@@ -41,11 +41,11 @@
 }
 
 ::ng-deep #contextmenu {
-    display: none;
-    align-items: center;
-    position: absolute;
-    z-index: 10;
-    min-width: 10rem;
+    // display: none;
+    // align-items: center;
+    // position: absolute;
+    // z-index: 10;
+    // min-width: 10rem;
 }
 
 #drawflow {
@@ -173,4 +173,33 @@
 ::ng-deep .drawflow .connection .main-path {
     pointer-events: none !important;
     // stroke: #d5ab00 !important;
+}
+
+// AI
+.context-menu {
+    z-index: 1000;
+    width: 160px;
+}
+
+.submenu-parent {
+    position: relative;
+}
+
+.nested-menu {
+    position: absolute;
+    top: 0;
+    display: none;
+    min-width: 180px;
+}
+
+.submenu-parent:hover .nested-menu {
+    // display: block;
+}
+
+.open-right {
+    left: 100%;
+}
+
+.open-left {
+    right: 100%;
 }

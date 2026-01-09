@@ -1,11 +1,34 @@
-import {CommonModule} from '@angular/common';
-import {Component, ElementRef, EventEmitter, inject, Output, Renderer2, ViewChild,} from '@angular/core';
-import Drawflow, {DrawflowNode} from 'drawflow';
-import {AlertService} from '../../../../shared/services/alert.service';
-import {ToastService} from '../../../../shared/services/toast.service';
-import {ScenarioService} from '../../services/scenario.service';
-import {FormComponent} from '../form/form.component';
-import {ModalComponent} from '../modal/modal.component';
+import { CommonModule } from '@angular/common';
+import {
+    ChangeDetectorRef,
+    Component,
+    EventEmitter,
+    inject,
+    Output,
+    Renderer2,
+    ViewChild,
+} from '@angular/core';
+import Drawflow, { DrawflowNode } from 'drawflow';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { ScenarioService } from '../../services/scenario.service';
+import { FormComponent } from '../form/form.component';
+import { ModalComponent } from '../modal/modal.component';
+
+interface ContextMenuState {
+    show: boolean;
+    x: number;
+    y: number;
+    direction: 'left' | 'right';
+    nodeId: number;
+    nodeClass: string;
+    nodePorts: any;
+    nodeConnections: {
+        in: any[];
+        out: any[];
+    };
+    nodeFlowsColor: string;
+}
 
 @Component({
     selector: 'app-energy-drawflow',
@@ -23,21 +46,14 @@ export class EnergyDrawflowComponent {
         msg: '',
         isShow: false,
     };
-    seelctedConnection: any = {title: ''};
+    seelctedConnection: any = { title: '' };
     ASSET_TYPE_NAME: string = 'asset_type_name';
 
     selected_nodeId: any;
     selected_flowId: any;
     touchTimer: any;
 
-    contextmenu!: {
-        nodeId: number;
-        nodePorts: { inputs: any; outputs: any };
-        nodeClass: string;
-        nodeConnections: { in: any; out: any };
-        direction: 'left' | 'right';
-        nodeFlowsColor: string;
-    } | null;
+    contextmenu: ContextMenuState | null = null;
 
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
@@ -49,12 +65,17 @@ export class EnergyDrawflowComponent {
     @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
-    @ViewChild('contextMenu') contextMenuRef!: ElementRef<HTMLDivElement>;
 
-    private scenarioService = inject(ScenarioService)
-    private renderer = inject(Renderer2)
-    private alertService = inject(AlertService)
-    private toastService = inject(ToastService)
+    private scenarioService = inject(ScenarioService);
+    private renderer = inject(Renderer2);
+    private alertService = inject(AlertService);
+    private toastService = inject(ToastService);
+    private cdr = inject(ChangeDetectorRef);
+
+    // @HostListener('document:mousedown   ', ['$event'])
+    // onMouseDown(e: MouseEvent): void {
+    //     this.unShowConextMenu();
+    // }
 
     ngAfterViewInit() {
         setTimeout(() => {
@@ -130,6 +151,8 @@ export class EnergyDrawflowComponent {
             this.unShowConextMenu();
 
             e.preventDefault;
+            e.stopPropagation;
+
             const closestNode = e.target.closest('.drawflow-node');
             const closestEdge = e.target.closest('.main-path');
 
@@ -139,14 +162,13 @@ export class EnergyDrawflowComponent {
                     e.clientY,
                     closestNode
                         ? closestNode.id.split('node-')[1]
-                        : closestEdge.id.split('node-')[1],
-                    closestNode
+                        : closestEdge.id.split('node-')[1]
                 );
             }
         });
 
         this.editor.on('click', (event: any) => {
-            this.unShowConextMenu();
+            // this.unShowConextMenu();
         });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
@@ -160,7 +182,9 @@ export class EnergyDrawflowComponent {
         this.renderer.listen('window', 'click', (e: any) => {
             if (
                 e.target &&
-                !this.contextMenuRef.nativeElement.contains(e.target)
+                // !this.contextMenuRef.nativeElement.contains(e.target)
+                !e.target.closest('#contextmenu') &&
+                this.contextmenu
             ) {
                 this.unShowConextMenu();
             }
@@ -525,7 +549,7 @@ export class EnergyDrawflowComponent {
 
         this.showFormModal_node.emit({
             title: `${nodeName}`,
-            action: {fn: 'submitFormData', label: 'Save'},
+            action: { fn: 'submitFormData', label: 'Save' },
             editMode: false,
             node: {
                 type: nodeType,
@@ -570,22 +594,22 @@ export class EnergyDrawflowComponent {
         if (type == 'x')
             return (
                 position *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth *
-                        this.editor.zoom)) -
+                    (this.editor.precanvas.clientWidth /
+                        (this.editor.precanvas.clientWidth *
+                            this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().x *
-                (this.editor.precanvas.clientWidth /
-                    (this.editor.precanvas.clientWidth * this.editor.zoom))
+                    (this.editor.precanvas.clientWidth /
+                        (this.editor.precanvas.clientWidth * this.editor.zoom))
             );
         else if (type == 'y')
             return (
                 position *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight *
-                        this.editor.zoom)) -
+                    (this.editor.precanvas.clientHeight /
+                        (this.editor.precanvas.clientHeight *
+                            this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().y *
-                (this.editor.precanvas.clientHeight /
-                    (this.editor.precanvas.clientHeight * this.editor.zoom))
+                    (this.editor.precanvas.clientHeight /
+                        (this.editor.precanvas.clientHeight * this.editor.zoom))
             );
         else return false;
     }
@@ -675,7 +699,7 @@ export class EnergyDrawflowComponent {
 
         if (nodeType === 'transformer') {
             // remove/reorder port if it changed
-            this.updatePortsAfterEdit({...currentNode}, data);
+            this.updatePortsAfterEdit({ ...currentNode }, data);
         }
 
         this.editor.dispatch('nodeDataChanged', nodeId);
@@ -685,10 +709,10 @@ export class EnergyDrawflowComponent {
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
         currentNode.inputs = Object.entries(currentNode.inputs).map(
-            ([name]) => ({name})
+            ([name]) => ({ name })
         );
         currentNode.outputs = Object.entries(currentNode.outputs).map(
-            ([name]) => ({name})
+            ([name]) => ({ name })
         );
 
         const syncPorts = (original: any, modified: any, isInput: boolean) => {
@@ -755,7 +779,7 @@ export class EnergyDrawflowComponent {
             this.showFormModal_flow.emit({
                 id: node.class.toLocaleLowerCase(),
                 title: `Flow(${nodeOut.name}:${nodeIn.name})`,
-                action: {fn: 'submitFormData', label: 'save'},
+                action: { fn: 'submitFormData', label: 'save' },
                 editMode: false,
                 data: {
                     connection: connection,
@@ -842,8 +866,7 @@ export class EnergyDrawflowComponent {
         );
     }
 
-    investFieldsToggleVisible() {
-    }
+    investFieldsToggleVisible() {}
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
@@ -880,7 +903,7 @@ export class EnergyDrawflowComponent {
                         id: node.class.toLocaleLowerCase(),
                         node: node,
                         title: `Edit: ${node.name}`,
-                        action: {fn: 'submitFormData', label: 'Update'},
+                        action: { fn: 'submitFormData', label: 'Update' },
                         editMode: true,
                         data: node.data,
                         _id: this.contextmenu.nodeId,
@@ -918,21 +941,21 @@ export class EnergyDrawflowComponent {
                     _connectionData =
                         connectionList[portIndex][
                             connection.destination.port.id
-                            ];
+                        ];
                 } else if (connection.source.node.id == _node.id) {
                     connectionList = source_connectionList['outputs'];
 
                     portIndex = connectionList.findIndex(
                         (port: any) =>
-                            port.hasOwnProperty(connection.source.port.id) &&
-                            port[connection.source.port.id].baseInfo
+                            port.hasOwnProperty(connection.source.port.code) &&
+                            port[connection.source.port.code].baseInfo
                                 .output_id == connection.source.node.id &&
-                            port[connection.source.port.id].baseInfo
-                                .output_class == connection.source.port.id
+                            port[connection.source.port.code].baseInfo
+                                .output_class == connection.source.port.code
                     );
 
                     _connectionData =
-                        connectionList[portIndex][connection.source.port.id];
+                        connectionList[portIndex][connection.source.port.code];
                 }
 
                 _connectionData.formInfo['connection'] =
@@ -952,7 +975,7 @@ export class EnergyDrawflowComponent {
                 this.showFormModal_flow.emit({
                     id: node.class.toLocaleLowerCase(),
                     title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
-                    action: {fn: 'submitFormData', label: 'save'},
+                    action: { fn: 'submitFormData', label: 'save' },
                     editMode: true,
                     data: _connectionData.formInfo,
                     node: node,
@@ -983,181 +1006,91 @@ export class EnergyDrawflowComponent {
     }
 
     // R-Click event , Touching events
-    showConextMenu(x: any, y: any, nodeId: number, node?: any) {
-        this.contextMenuRef.nativeElement.style.left = x + 'px';
-        this.contextMenuRef.nativeElement.style.top = y + 'px';
+    private buildInputConnections(node: any): any[] {
+        const result: any[] = [];
 
-        let contextWithActionsDirection: 'left' | 'right' = 'left';
-        this.contextMenuRef.nativeElement.style.display = 'block';
-        this.contextMenuRef.nativeElement.style.visibility = 'hidden';
+        node.data.ports.inputs?.forEach((input: any) => {
+            node.inputs[input.code]?.connections.forEach((conn: any) => {
+                const source = this.editor.getNodeFromId(conn.node);
+
+                result.push({
+                    source: {
+                        node: source,
+                        port: source.data.ports.outputs.find(
+                            (p: any) => p.code === conn.input
+                        ),
+                    },
+                    destination: {
+                        node,
+                        port: input,
+                    },
+                });
+            });
+        });
+
+        return result;
+    }
+
+    private buildOutputConnections(node: any): any[] {
+        const result: any[] = [];
+
+        node.data.ports.outputs?.forEach((output: any) => {
+            node.outputs[output.code]?.connections.forEach((conn: any) => {
+                const dest = this.editor.getNodeFromId(conn.node);
+
+                result.push({
+                    source: {
+                        node,
+                        port: output,
+                    },
+                    destination: {
+                        node: dest,
+                        port: dest.data.ports.inputs.find(
+                            (p: any) => p.code === conn.output
+                        ),
+                    },
+                });
+            });
+        });
+
+        return result;
+    }
+
+    showConextMenu(x: any, y: any, nodeId: number) {
+        const MENU_WIDTH = 160;
+        const ACTIONS_WIDTH = 180;
+
+        const direction: 'left' | 'right' =
+            x + MENU_WIDTH + ACTIONS_WIDTH > window.innerWidth
+                ? 'left'
+                : 'right';
 
         const currentNode = this.editor.getNodeFromId(nodeId);
-        let nodeConnections_in: any[] = [];
-        let nodeConnections_out: any[] = [];
 
-        // make nodeConnections
-        if (currentNode.data.ports.inputs)
-            currentNode.data.ports.inputs.forEach(
-                (currentNode_input: {
-                    code: string;
-                    id: number;
-                    name: string;
-                }) => {
-                    if (currentNode.inputs[currentNode_input.code])
-                        currentNode.inputs[
-                            currentNode_input.code
-                            ].connections.forEach(
-                            (input_conn: { input: string; node: string }) => {
-                                const sourceNode = this.editor.getNodeFromId(
-                                    input_conn.node
-                                );
-
-                                nodeConnections_in.push({
-                                    source: {
-                                        node: {
-                                            id: sourceNode.id,
-                                            name: sourceNode.name,
-                                        },
-                                        port: {
-                                            id: input_conn.input,
-                                            name: sourceNode.data.ports.outputs
-                                                .filter(
-                                                    (x: any) =>
-                                                        x.code ===
-                                                        input_conn.input
-                                                )
-                                                .map((x: any) => x.name)[0],
-                                        },
-                                    },
-                                    destination: {
-                                        node: {
-                                            id: currentNode.id,
-                                            name: currentNode.name,
-                                        },
-                                        port: {
-                                            id: currentNode_input.code,
-                                            name: currentNode_input.name,
-                                        },
-                                    },
-                                });
-                            }
-                        );
-                }
-            );
-
-        // make nodeConnections
-        if (currentNode.data.ports.outputs)
-            currentNode.data.ports.outputs.forEach(
-                (currentNode_output: {
-                    code: string;
-                    id: number;
-                    name: string;
-                }) => {
-                    if (currentNode.outputs[currentNode_output.code])
-                        currentNode.outputs[
-                            currentNode_output.code
-                            ].connections.forEach((output_conn: any) => {
-                            const destionationNode = this.editor.getNodeFromId(
-                                output_conn.node
-                            );
-
-                            nodeConnections_out.push({
-                                source: {
-                                    node: {
-                                        id: currentNode.id,
-                                        name: currentNode.name,
-                                    },
-                                    port: {
-                                        id: currentNode_output.code,
-                                        name: currentNode_output.name,
-                                    },
-                                },
-                                destination: {
-                                    node: {
-                                        id: destionationNode.id,
-                                        name: destionationNode.name,
-                                    },
-                                    port: {
-                                        id: output_conn.output,
-                                        name: destionationNode.data.ports.inputs
-                                            .filter(
-                                                (x: any) =>
-                                                    x.code ===
-                                                    output_conn.output
-                                            )
-                                            .map((x: any) => x.name)[0],
-                                    },
-                                },
-                            });
-                        });
-                }
-            );
+        const nodeConnections_in = this.buildInputConnections(currentNode);
+        const nodeConnections_out = this.buildOutputConnections(currentNode);
 
         this.contextmenu = {
-            nodeId: nodeId,
-            nodePorts: currentNode.data.ports,
+            show: true,
+            x: direction === 'left' ? x - MENU_WIDTH : x,
+            y,
+            direction,
+            nodeId,
             nodeClass: currentNode.class,
+            nodePorts: currentNode.data.ports,
             nodeConnections: {
                 in: nodeConnections_in,
                 out: nodeConnections_out,
             },
-            direction: contextWithActionsDirection,
-            nodeFlowsColor: currentNode.data.flowsColor || '#000000',
+            nodeFlowsColor: currentNode.data.flowsColor ?? '#000000',
         };
 
-        setTimeout(() => {
-            const contextMenuStyle = {
-                w: this.contextMenuRef.nativeElement.offsetWidth,
-                w_actioons: 150,
-            };
-            const reaminingWidth_contextWithActions =
-                window.innerWidth -
-                (x + contextMenuStyle.w + contextMenuStyle.w_actioons);
-
-            if (reaminingWidth_contextWithActions <= 0) {
-                this.contextMenuRef.nativeElement.style.left =
-                    x - contextMenuStyle.w + 'px';
-                // for actions context menu
-                contextWithActionsDirection = 'left';
-
-                if (this.contextmenu)
-                    this.contextmenu = {
-                        ...this.contextmenu,
-                        direction: contextWithActionsDirection,
-                    };
-            } else {
-                this.contextMenuRef.nativeElement.style.left = x + 'px';
-                // for actions context menu
-                contextWithActionsDirection = 'right';
-
-                if (this.contextmenu)
-                    this.contextmenu = {
-                        ...this.contextmenu,
-                        direction: contextWithActionsDirection,
-                    };
-            }
-
-            const children =
-                this.contextMenuRef.nativeElement.querySelectorAll(
-                    '.nested-menu'
-                );
-
-            children.forEach((child: Element) => {
-                if (x <= window.innerWidth - 200)
-                    (child as HTMLElement).style.right = '100%';
-                else (child as HTMLElement).style.left = '100%';
-            });
-
-            this.contextMenuRef.nativeElement.style.top = y + 'px';
-            this.contextMenuRef.nativeElement.style.visibility = 'visible';
-        }, 0);
+        this.cdr.detectChanges();
     }
 
     unShowConextMenu() {
-        this.contextMenuRef.nativeElement.style.display = 'none';
-        this.contextMenuRef.nativeElement.style.left = '';
-        this.contextMenuRef.nativeElement.style.top = '';
         this.contextmenu = null;
+        this.cdr.detectChanges();
     }
 
     listenNodeDBClick() {
@@ -1237,15 +1170,15 @@ export class EnergyDrawflowComponent {
         const out_connections =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-                ];
+            ];
 
         if (!out_connections) {
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
                 {
                     ...this.editor.drawflow.drawflow.Home.data[
                         connection.output_id
-                        ].data,
-                    connections: {outputs: [], inputs: []},
+                    ].data,
+                    connections: { outputs: [], inputs: [] },
                 };
         } else if (!out_connections['outputs']) {
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data =
@@ -1259,7 +1192,7 @@ export class EnergyDrawflowComponent {
         const CurrentConnections_Out: any[] =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-                ]['outputs'];
+            ]['outputs'];
 
         if (!editMode) {
             CurrentConnections_Out.push({
@@ -1273,36 +1206,36 @@ export class EnergyDrawflowComponent {
                 (out: any) =>
                     out.hasOwnProperty(connection.output_class) &&
                     out[connection.output_class].baseInfo.input_id ==
-                    connection.input_id
+                        connection.input_id
             );
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-                ]['outputs'][outIndex][connection.output_class].formInfo = data;
+            ]['outputs'][outIndex][connection.output_class].formInfo = data;
         }
 
         this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
             'connections'
-            ]['outputs'] = CurrentConnections_Out;
+        ]['outputs'] = CurrentConnections_Out;
 
         // --------------------In------------------------
         if (
             !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-                ]
+            ]
         ) {
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
                 {
                     ...this.editor.drawflow.drawflow.Home.data[
                         connection.input_id
-                        ].data,
-                    connections: {outputs: [], inputs: []},
+                    ].data,
+                    connections: { outputs: [], inputs: [] },
                 };
         }
 
         if (
             !this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-                ]['inputs']
+            ]['inputs']
         ) {
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data =
                 {
@@ -1314,7 +1247,7 @@ export class EnergyDrawflowComponent {
         const CurrentConnections_In: any[] =
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-                ]['inputs'];
+            ]['inputs'];
 
         if (!editMode) {
             CurrentConnections_In.push({
@@ -1328,16 +1261,16 @@ export class EnergyDrawflowComponent {
                 (inp: any) =>
                     inp.hasOwnProperty(connection.input_class) &&
                     inp[connection.input_class].baseInfo.output_id ==
-                    connection.output_id
+                        connection.output_id
             );
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-                ]['inputs'][inIndex][connection.input_class].formInfo = data;
+            ]['inputs'][inIndex][connection.input_class].formInfo = data;
         }
 
         this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
             'connections'
-            ]['inputs'] = CurrentConnections_In;
+        ]['inputs'] = CurrentConnections_In;
 
         this.saveCurrentDrawflow();
     }
@@ -1390,35 +1323,35 @@ export class EnergyDrawflowComponent {
         const in_connectionList =
             this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
                 'connections'
-                ];
+            ];
         const in_connectionsList: any[] = in_connectionList['inputs'];
         const inIndex = in_connectionsList.findIndex(
             (inp: any) =>
                 inp.hasOwnProperty(connection.input_class) &&
                 inp[connection.input_class].baseInfo.output_id ==
-                connection.output_id
+                    connection.output_id
         );
 
         this.editor.drawflow.drawflow.Home.data[connection.input_id].data[
             'connections'
-            ]['inputs'].splice(inIndex, 1);
+        ]['inputs'].splice(inIndex, 1);
 
         //----------------------- outputs -----------------------
         const out_connectionList =
             this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
                 'connections'
-                ];
+            ];
         const out_connectionsList: any[] = out_connectionList['outputs'];
         const outIndex = out_connectionsList.findIndex(
             (out: any) =>
                 out.hasOwnProperty(connection.output_class) &&
                 out[connection.output_class].baseInfo.input_id ==
-                connection.input_id
+                    connection.input_id
         );
 
         this.editor.drawflow.drawflow.Home.data[connection.output_id].data[
             'connections'
-            ]['outputs'].splice(outIndex, 1);
+        ]['outputs'].splice(outIndex, 1);
     }
 
     getData() {
@@ -1445,8 +1378,7 @@ export class EnergyDrawflowComponent {
 }
 
 class Drawflowoverride extends Drawflow {
-    removeConnection(e: any) {
-    }
+    removeConnection(e: any) {}
 }
 
 //  onTouchEnd(nodeId: number, nodeName: string, nodeGroup: string, pos: any) {

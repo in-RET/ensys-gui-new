@@ -259,8 +259,6 @@ export class ScenarioEnergyDesignComponent
 
         let nodeType = e.node?.class ?? '';
 
-        console.log('current fix: ' + e.data?.fix?.[0]);
-
         this.formModal_info.formData =
             await this.energyDesignService.getFormFields_flow(
                 nodeType,
@@ -1049,8 +1047,6 @@ export class ScenarioEnergyDesignComponent
     }
 
     updateNode(data: any, nodeId: number, nodeType: string) {
-        console.log(data.icon_name);
-
         this.energyDrawflowComponent.updateNode(nodeId, nodeType, data);
         this.toastService.success('Node edited.');
     }

@@ -32,9 +32,11 @@
 
 <!-- Context Menu -->
 <div
-    #contextMenu
+    *ngIf="contextmenu"
+    class="context-menu position-fixed bg-white border rounded"
+    [style.left.px]="contextmenu.x"
+    [style.top.px]="contextmenu.y"
     id="contextmenu"
-    class="border border-2 rounded position-absolute bg-white"
 >
     <div class="list-group list-group-flush rounded">
         <div
@@ -43,7 +45,7 @@
             <span *ngIf="contextmenu?.direction === 'left'">
                 <i class="arrow-left"></i>
             </span>
-            <span> Node </span>
+            <span> Node</span>
             <span *ngIf="contextmenu?.direction === 'right'">
                 <i class="arrow-right"> </i>
             </span>
@@ -94,7 +96,6 @@
         >
             <!-- color picker for bus -->
             <span> Flows Color &nbsp;</span>
-
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded p-1"
                 [ngClass]="{
@@ -171,7 +172,6 @@
                 <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
                     (click)="deleteFlow(item.source, item.destination)"
-                    *ngIf="contextmenu"
                 >
                     <i
                         class="trash"
@@ -232,7 +232,6 @@
                 <div
                     class="list-group-item list-group-item-action d-flex justify-content-between"
                     (click)="deleteFlow(item.source, item.destination)"
-                    *ngIf="contextmenu"
                 >
                     <i
                         class="trash"
