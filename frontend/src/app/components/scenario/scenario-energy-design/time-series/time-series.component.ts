@@ -30,7 +30,7 @@ export class TimeSeriesComponent {
             label: 'Import',
             fn: undefined,
         },
-        selectedType: 'number', // types: list , file, number
+        selectedType: undefined, // types: list , file, number
         data: [],
     };
     timeSeries_table: {
@@ -215,13 +215,19 @@ export class TimeSeriesComponent {
                     const numValue = parseFloat(
                         this.numInput.nativeElement.value
                     );
-                    for (let i = 0; i < xVal.length; i++) {
-                        yVal.push(numValue);
-                    }
+
+                    if (numValue)
+                        for (let i = 0; i < xVal.length; i++) {
+                            yVal.push(numValue);
+                        }
                     break;
             }
 
-            this.chart_timeSeries_initial(xVal, yVal);
+            if (
+                yVal.length > 0 &&
+                (yVal.length === xVal.length || yVal.length === xVal.length + 1)
+            )
+                this.chart_timeSeries_initial(xVal, yVal);
         }
     }
 
@@ -279,14 +285,6 @@ export class TimeSeriesComponent {
         this.isCollapsed_timeSeriesPlot = val;
     }
 
-    generateRandomData() {
-        const data = [];
-        for (let i = 0; i < 190; i++) {
-            data.push(Math.random() * 100);
-        }
-        this.timeSeries_table.selectedData = data;
-    }
-
     changeMode(type: 'list' | 'file' | 'number') {
         if (this.timeSeriesModal.selectedType) this.resetData();
 
@@ -313,6 +311,11 @@ export class TimeSeriesComponent {
     // }
 
     toggleHasHeader() {}
+
+    submitData() {
+        // show notif of import success
+        this.closeModal();
+    }
 
     closeModal() {
         this.closeModal_TimeSeries.emit();

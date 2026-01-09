@@ -63,6 +63,10 @@
                         >
                             <button
                                 class="btn btn--success btn--medium"
+                                *ngIf="
+                                    timeSeries_table.data &&
+                                    !timeSeriesModal.showPlot
+                                "
                                 [disabled]="
                                     timeSeries_table.selectedData.length == 0 ||
                                     timeSeries_table.selectedCol == -1 ||
@@ -71,18 +75,6 @@
                                 (click)="setDataAndShowPlot()"
                             >
                                 Show Plot
-                            </button>
-
-                            <button
-                                class="btn btn--success btn--medium"
-                                [disabled]="
-                                    timeSeries_table.selectedData.length == 0 ||
-                                    timeSeries_table.selectedCol == -1 ||
-                                    timeSeries_table.emptyRows.length > 0
-                                "
-                                (click)="generateRandomData()"
-                            >
-                                Generate Random Data
                             </button>
                         </div>
                     </div>
@@ -141,34 +133,21 @@
                             </ng-container>
                         </div>
 
-                        <div
-                            class="d-flex justify-content-center gap-1"
-                            *ngIf="timeSeries_table.data"
+                        <button
+                            class="btn btn--success btn--medium"
+                            *ngIf="
+                                timeSeries_table.data &&
+                                !timeSeriesModal.showPlot
+                            "
+                            [disabled]="
+                                timeSeries_table.selectedData.length == 0 ||
+                                timeSeries_table.selectedCol == -1 ||
+                                timeSeries_table.emptyRows.length > 0
+                            "
+                            (click)="setDataAndShowPlot()"
                         >
-                            <button
-                                class="btn btn--success btn--medium"
-                                [disabled]="
-                                    timeSeries_table.selectedData.length == 0 ||
-                                    timeSeries_table.selectedCol == -1 ||
-                                    timeSeries_table.emptyRows.length > 0
-                                "
-                                (click)="setDataAndShowPlot()"
-                            >
-                                Show Plot
-                            </button>
-
-                            <button
-                                class="btn btn--success btn--medium"
-                                [disabled]="
-                                    timeSeries_table.selectedData.length == 0 ||
-                                    timeSeries_table.selectedCol == -1 ||
-                                    timeSeries_table.emptyRows.length > 0
-                                "
-                                (click)="generateRandomData()"
-                            >
-                                Generate Random Data
-                            </button>
-                        </div>
+                            Show Plot
+                        </button>
                     </div>
 
                     <!-- Text -->
@@ -177,21 +156,19 @@
                         *ngIf="timeSeriesModal.selectedType === 'number'"
                     >
                         <input
-                            type="text"
+                            type="number"
                             class="form-control"
                             placeholder="Value"
                             #numInput
                             style="max-width: 10rem"
                         />
 
-                        <div class="d-flex justify-content-center gap-1">
-                            <button
-                                class="btn btn--success"
-                                (click)="setDataAndShowPlot()"
-                            >
-                                Show Plot
-                            </button>
-                        </div>
+                        <button
+                            class="btn btn--success"
+                            (click)="setDataAndShowPlot()"
+                        >
+                            Show Plot
+                        </button>
                     </div>
                 </div>
             </div>
@@ -311,8 +288,10 @@
         <button
             type="submit"
             class="btn btn--success btn--medium"
-            (click)="closeModal()"
-            [disabled]="timeSeriesModal.data.length == 0"
+            (click)="submitData()"
+            [disabled]="
+                timeSeriesModal.data.length == 0 && !timeSeriesModal.showPlot
+            "
         >
             <span>{{ timeSeriesModal.action.label }}</span>
         </button>

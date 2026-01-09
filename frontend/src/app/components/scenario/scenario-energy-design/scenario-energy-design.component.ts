@@ -149,10 +149,6 @@ export class ScenarioEnergyDesignComponent
 
     ngOnInit() {
         this.loadEnergyComponents();
-
-        setTimeout(() => {
-            this.openModal_TimeSeries();
-        }, 0);
     }
 
     ngAfterViewInit() {
