@@ -1,6 +1,7 @@
 <div
     class="border border-primary-subtle rounded-3 border-opacity-25 p-2"
     style="max-height: 100%; overflow-y: auto"
+    *ngIf="(data && data.length > 0) || loading"
 >
     <div class="d-flex justify-content-center" *ngIf="loading">
         <div
@@ -77,9 +78,12 @@
                 class="action stop"
                 *ngIf="item.status === SimulationStatus.STARTED"
                 title="stop"
+                (click)="stopSimulation(item.id)"
             />
         </li>
     </ul>
-
-    <h3 class="text-center" *ngIf="!data || data.length == 0">No Simulations found!</h3>
 </div>
+
+<h3 class="text-center" *ngIf="(!data || data.length == 0) && !loading">
+    No Simulations found!
+</h3>

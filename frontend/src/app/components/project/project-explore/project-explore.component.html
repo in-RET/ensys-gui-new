@@ -35,12 +35,16 @@
         </button>
     </section>
 
-    <ng-container *ngIf="projects$ | async as projects">
-        <div class="p-3">
+    <!-- <ng-container *ngIf="projects$ | async as projects"> -->
+    <ng-container *ngIf="project_list && project_list.length >= 0">
+        <div class="p-3 overflow-y-auto">
             <div class="row" style="overflow-x: hidden; overflow-y: auto">
                 <app-project-item
                     class="col-4 mb-3"
-                    *ngFor="let project of projects; trackBy: trackByProjectId"
+                    *ngFor="
+                        let project of project_list;
+                        trackBy: trackByProjectId
+                    "
                     [project]="project"
                     (deleteProject)="deleteProject($event)"
                     (duplicateProject)="duplicateProject($event)"
@@ -52,7 +56,7 @@
             class="projects-empty"
             role="status"
             aria-live="polite"
-            *ngIf="projects.length === 0"
+            *ngIf="project_list.length === 0"
         >
             <div>
                 <div class="projects-empty__img">

@@ -15,13 +15,11 @@ import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.compone
 import { ScenarioService } from '../services/scenario.service';
 import { SimulationService } from '../simulation/services/simulation.service';
 import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
-import { ScenarioProgressionComponent } from './scenario-progression/scenario-progression.component';
 
 @Component({
     selector: 'app-scenario-base',
     imports: [
         CommonModule,
-        ScenarioProgressionComponent,
         ScenarioFooterComponent,
         ScenarioSetupComponent,
         ScenarioEnergyDesignComponent,

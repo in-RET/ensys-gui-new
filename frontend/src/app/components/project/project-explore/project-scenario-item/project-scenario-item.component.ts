@@ -1,11 +1,14 @@
-import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
-import {AlertService} from '../../../../shared/services/alert.service';
-import {ToastService} from '../../../../shared/services/toast.service';
-import {ScenarioBaseInfoModel, ScenarioModel,} from '../../../scenario/models/scenario.model';
-import {ScenarioService} from '../../../scenario/services/scenario.service';
-import {ProjectModel} from '../../models/project.model';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { ToastService } from '../../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioModel,
+} from '../../../scenario/models/scenario.model';
+import { ScenarioService } from '../../../scenario/services/scenario.service';
+import { ProjectModel } from '../../models/project.model';
 
 @Component({
     selector: 'app-project-scenario-item',
@@ -13,7 +16,6 @@ import {ProjectModel} from '../../models/project.model';
     imports: [CommonModule, RouterModule],
     templateUrl: './project-scenario-item.component.html',
     styleUrl: './project-scenario-item.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProjectScenarioItemComponent {
     @Input() project!: ProjectModel;
@@ -24,8 +26,8 @@ export class ProjectScenarioItemComponent {
 
     toastService = inject(ToastService);
     alertService = inject(AlertService);
-    scenarioService = inject(ScenarioService)
-    router = inject(Router)
+    scenarioService = inject(ScenarioService);
+    router = inject(Router);
 
     openScenario(scenario_id: number) {
         this.scenarioService.getScenario(scenario_id).subscribe({
@@ -36,7 +38,7 @@ export class ProjectScenarioItemComponent {
                     this.scenarioService.saveDrawflow_Storage(
                         data.modeling_data,
                         false
-                    )
+                    );
 
                     // save project,scenario - storage
                     const scenarioData: ScenarioBaseInfoModel = {
@@ -59,17 +61,18 @@ export class ProjectScenarioItemComponent {
                     this.toastService.info('Scenario data restored.');
                     this.router.navigate(['/scenario']);
                 } else {
-                    this.toastService.error('An error occured while loading scenario data.');
+                    this.toastService.error(
+                        'An error occured while loading scenario data.'
+                    );
                 }
             },
             error: (err) => {
                 this.toastService.error(err);
-            }
+            },
         });
     }
 
-    async onDeleteScenario(scenarioId: number
-    ) {
+    async onDeleteScenario(scenarioId: number) {
         const confirmed = await this.alertService.confirm(
             `Are you sure delete scenario ${this.scenario.name}?`,
             'Delete'

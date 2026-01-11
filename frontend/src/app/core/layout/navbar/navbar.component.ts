@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    Component,
-    inject,
-    Input,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../../components/auth/services/auth.service';
@@ -15,7 +9,6 @@ import { AuthService } from '../../../components/auth/services/auth.service';
     imports: [CommonModule, RouterModule, NgbDropdownModule],
     templateUrl: './navbar.component.html',
     styleUrl: './navbar.component.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavbarComponent {
     is_creation_scenario_mode: boolean = false;

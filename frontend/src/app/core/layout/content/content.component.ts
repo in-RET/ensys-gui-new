@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectionStrategy,
-    Component,
-    inject,
-    OnInit,
-} from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { switchMap } from 'rxjs';
 import { AuthService } from '../../../components/auth/services/auth.service';
@@ -19,7 +14,6 @@ import { ContentLayoutService } from '../services/content-layout.service';
     templateUrl: './content.component.html',
     styleUrl: './content.component.scss',
     standalone: true,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContentComponent implements OnInit {
     isFullscreen: boolean | undefined = true;

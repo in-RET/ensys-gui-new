@@ -4,12 +4,7 @@
 @use "sass:color";
 
 .system-design {
-    @include flex-row;
-    // height: calc(
-    //     100vh - #{$top-nav-height} - #{$wizard-height +1} - #{$footer-scenario-height +1}
-    // );
     height: 100%;
-    border-top: $gray-border;
 
     .components {
         width: 22rem;

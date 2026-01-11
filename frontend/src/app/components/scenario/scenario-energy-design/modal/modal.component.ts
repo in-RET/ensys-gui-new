@@ -1,5 +1,14 @@
-import {CommonModule} from '@angular/common';
-import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild,} from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+    Component,
+    ElementRef,
+    EventEmitter,
+    Input,
+    OnDestroy,
+    OnInit,
+    Output,
+    ViewChild,
+} from '@angular/core';
 
 @Component({
     selector: 'app-modal',
@@ -15,6 +24,7 @@ export class ModalComponent implements OnInit, OnDestroy {
     @Input() title!: string;
     @Input() formData!: any;
     @Input() size: 'sm' | '' | 'lg' | 'xl' = 'xl'; // sm, md, lg, xl, full
+    @Input() hasActions: boolean = true;
 
     @Output() closeModal: EventEmitter<any> = new EventEmitter<any>();
 

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import {
     AfterViewInit,
+    ChangeDetectorRef,
     Component,
     ElementRef,
     inject,
@@ -144,6 +145,7 @@ export class ScenarioEnergyDesignComponent
     flowService = inject(FlowService);
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
+    cdr = inject(ChangeDetectorRef);
 
     @ViewChild('plotDiv', { static: true }) plotDiv!: ElementRef;
 
@@ -1073,9 +1075,9 @@ export class ScenarioEnergyDesignComponent
             next: (value: ResDataModel<SimulationResModel>) => {
                 this.simulationList = value.items;
                 this.loadSimulationsLoading = false;
+                this.cdr.detectChanges();
 
                 this.subscriptionSimulation = interval(1000) // every 1 second
-                    // timer(1000)
                     .pipe(
                         switchMap(() => {
                             return this.simulationService.loadSimulations(

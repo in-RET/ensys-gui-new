@@ -1,8 +1,13 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject, Input, OnInit} from '@angular/core';
-import {Router, RouterModule} from '@angular/router';
-import {ScenarioBaseInfoModel} from '../../../models/scenario.model';
-import {SimulationResModel, SimulationStatus,} from '../../models/simulation.model';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { ResDataModel } from '../../../../../shared/models/http.model';
+import { ScenarioBaseInfoModel } from '../../../models/scenario.model';
+import {
+    SimulationResModel,
+    SimulationStatus,
+} from '../../models/simulation.model';
+import { SimulationService } from '../../services/simulation.service';
 
 @Component({
     selector: 'app-simulation-list-card',
@@ -10,7 +15,7 @@ import {SimulationResModel, SimulationStatus,} from '../../models/simulation.mod
     templateUrl: './simulation-list-card.component.html',
     styleUrl: './simulation-list-card.component.scss',
 })
-export class SimulationListCardComponent implements OnInit {
+export class SimulationListCardComponent {
     currentScenario!: ScenarioBaseInfoModel;
     SimulationStatus = SimulationStatus;
 
@@ -18,11 +23,8 @@ export class SimulationListCardComponent implements OnInit {
     @Input() loading!: boolean;
 
     router = inject(Router);
-
-    ngOnInit() {
-        // Initialization logic if needed
-        console.log("Data:" + this.data);
-    }
+    simulationService = inject(SimulationService);
+    cdr = inject(ChangeDetectorRef);
 
     identify(index: any, item: any) {
         return item.name;
@@ -33,5 +35,20 @@ export class SimulationListCardComponent implements OnInit {
             this.router.createUrlTree(['/simulation', simId])
         );
         window.open(url, '_blank');
+    }
+
+    stopSimulation(scenarioId: number) {
+        this.simulationService.onStopSimulation(scenarioId).subscribe({
+            next: (value: ResDataModel<SimulationResModel>) => {
+                this.data[
+                    this.data.findIndex((sim) => sim.id === scenarioId)
+                ].status = SimulationStatus.STOPPED;
+                this.cdr.detectChanges();
+            },
+            error: (err) => {
+                console.error(err);
+            },
+        });
+        console.log('stopped');
     }
 }

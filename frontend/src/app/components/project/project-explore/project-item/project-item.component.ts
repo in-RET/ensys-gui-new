@@ -83,7 +83,6 @@ export class ProjectItemComponent implements OnInit {
         );
         if (confirmed) {
             this._deleteProject(id);
-            await this.alertService.success(`Removed the project`);
         }
     }
 

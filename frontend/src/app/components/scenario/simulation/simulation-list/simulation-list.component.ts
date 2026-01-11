@@ -43,6 +43,7 @@ export class SimulationListComponent implements OnInit {
             next: (value: ResDataModel<SimulationResModel>) => {
                 this.scenarioCount = value.totalCount;
                 this.simulationList = value.items;
+                console.log(this.scenarioCount);
             },
             error: (err) => {
                 console.error(err);

@@ -6,7 +6,7 @@
     />
 
     <app-energy-drawflow
-        class="w-100 h-100 border"
+        class="w-100 h-100"
         (showFormModal_node)="showFormModal_node($event)"
         (showFormModal_flow)="showFormModal_flow($event)"
         (toggleFullScreen)="toggleFullScreen()"
@@ -166,9 +166,13 @@
     (closeModal)="closeSimulationModal()"
     [hidden]="false"
     [size]="''"
+    [hasActions]="false"
 >
     <div modal-body>
-        <app-simulation-list-card [data]="simulationList" />
+        <app-simulation-list-card
+            [data]="simulationList"
+            [loading]="loadSimulationsLoading"
+        />
     </div>
 </app-modal>
 

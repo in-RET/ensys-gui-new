@@ -1,24 +1,26 @@
-import {CommonModule} from '@angular/common';
-import {ChangeDetectionStrategy, Component, EventEmitter, inject, Input, OnInit, Output} from '@angular/core';
-import {Router} from '@angular/router';
-import {catchError, map, Observable, of} from 'rxjs';
-import {ToastService} from '../../../../shared/services/toast.service';
-import {TemplateModel, TemplateResModel} from '../../models/template.model';
-import {TemplateScenarioItemComponent} from '../template-scenario-item/template-scenario-item.component';
-import {TemplateService} from '../../services/template.service';
+import { CommonModule } from '@angular/common';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    OnInit,
+    Output,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, map, Observable, of } from 'rxjs';
+import { ToastService } from '../../../../shared/services/toast.service';
+import { TemplateModel, TemplateResModel } from '../../models/template.model';
+import { TemplateService } from '../../services/template.service';
+import { TemplateScenarioItemComponent } from '../template-scenario-item/template-scenario-item.component';
 
 @Component({
     selector: 'app-template-item',
     standalone: true,
     templateUrl: './template-item.component.html',
-    imports: [
-        CommonModule,
-        TemplateScenarioItemComponent
-    ],
+    imports: [CommonModule, TemplateScenarioItemComponent],
     styleUrls: ['./template-item.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class TemplateItemComponent implements OnInit {
     @Input() template!: TemplateModel;
 
@@ -28,8 +30,8 @@ export class TemplateItemComponent implements OnInit {
     template_scenarios$!: Observable<TemplateResModel[]>;
 
     templateService = inject(TemplateService);
-    router = inject(Router)
-    toastService = inject(ToastService)
+    router = inject(Router);
+    toastService = inject(ToastService);
 
     ngOnInit() {
         this.loadTemplateScenarios();
@@ -64,6 +66,4 @@ export class TemplateItemComponent implements OnInit {
             },
         });
     }
-
 }
-
