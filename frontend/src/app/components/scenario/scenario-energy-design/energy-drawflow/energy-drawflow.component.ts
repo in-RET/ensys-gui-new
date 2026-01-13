@@ -930,17 +930,17 @@ export class EnergyDrawflowComponent {
                     portIndex = connectionList.findIndex(
                         (port: any) =>
                             port.hasOwnProperty(
-                                connection.destination.port.id
+                                connection.destination.port.code
                             ) &&
-                            port[connection.destination.port.id].baseInfo
+                            port[connection.destination.port.code].baseInfo
                                 .input_id == connection.destination.node.id &&
-                            port[connection.destination.port.id].baseInfo
-                                .input_class == connection.destination.port.id
+                            port[connection.destination.port.code].baseInfo
+                                .input_class == connection.destination.port.code
                     );
 
                     _connectionData =
                         connectionList[portIndex][
-                            connection.destination.port.id
+                            connection.destination.port.code
                         ];
                 } else if (connection.source.node.id == _node.id) {
                     connectionList = source_connectionList['outputs'];
