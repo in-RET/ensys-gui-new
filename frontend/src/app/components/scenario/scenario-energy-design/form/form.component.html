@@ -135,13 +135,17 @@
                                 </option>
                                 <option
                                     [ngValue]="option.value"
-                                    *ngFor="let option of field.selectOptionList"
+                                    *ngFor="
+                                        let option of field.selectOptionList
+                                    "
                                 >
                                     {{ option.name }}
                                 </option>
                             </select>
 
-                            <label for="floatingSelect">{{ field.placeholder }}</label>
+                            <label for="floatingSelect">{{
+                                field.placeholder
+                            }}</label>
                         </div>
 
                         <!-- checkbox -->
@@ -202,7 +206,7 @@
                                 for="btn-check-outlined"
                             >
                                 {{ field.label }} </label
-                            ><br/>
+                            ><br />
                         </div>
 
                         <!-- uploader -->
@@ -211,12 +215,12 @@
                                 <label
                                     class="card-title text-center"
                                     *ngIf="!field.isReq"
-                                >{{ field.label }}
+                                    >{{ field.label }}
                                 </label>
                                 <label
                                     class="card-title text-center"
                                     *ngIf="field.isReq"
-                                >{{ field.label }} *</label
+                                    >{{ field.label }} *</label
                                 >
                                 <app-file-uploader
                                     [data]="field.value"
@@ -241,6 +245,73 @@
                                     [numberOnly]="true"
                                     [numbersArray]="true"
                                 />
+                            </div>
+                        </div>
+                        <!-- uploader -->
+
+                        <!-- time-series -->
+                        <div
+                            *ngIf="field.type == 'time-series'"
+                            class="card mb-3"
+                        >
+                            <div class="card-body range-component">
+                                <label
+                                    class="card-title text-center"
+                                    *ngIf="!field.isReq"
+                                    >{{ field.label }}
+                                </label>
+                                <label
+                                    class="card-title text-center"
+                                    *ngIf="field.isReq"
+                                >
+                                    {{ field.label }} *
+                                </label>
+
+                                <button
+                                    type="button"
+                                    class="time-series border border-success rounded"
+                                    *ngIf="field.action"
+                                    [disabled]="
+                                        form.controls[field.name].disabled
+                                    "
+                                    [ngClass]="{
+                                        disabled:
+                                            form.controls[field.name].disabled
+                                    }"
+                                    (click)="field.action.onClick()"
+                                >
+                                    <img
+                                        class="img"
+                                        src="/static/assets/icons/feather/black/upload-cloud.svg"
+                                        alt="upload"
+                                    />
+                                </button>
+
+                                <div
+                                    class="d-flex justify-content-ceneter align-items-center gap-1"
+                                >
+                                    <input
+                                        class="form-control"
+                                        placeholder="value"
+                                        readonly
+                                        [formControlName]="field.name"
+                                    />
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        aria-label="Close"
+                                        *ngIf="
+                                            form.get(field.name)?.value &&
+                                            form.get(field.name)?.value.length >
+                                                0 &&
+                                            !form.controls[field.name].disabled
+                                        "
+                                        (click)="
+                                            form.get(field.name)?.setValue('')
+                                        "
+                                        title="Clear data"
+                                    ></button>
+                                </div>
                             </div>
                         </div>
                         <!-- uploader -->

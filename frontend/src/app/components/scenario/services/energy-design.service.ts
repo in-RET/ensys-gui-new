@@ -349,56 +349,121 @@ export class EnergyDesignService {
         });
     }
 
-    getDefaultFields_flow(oep: boolean, data?: any, preDefData?: any) {
+    getDefaultFields_flow(
+        oep: boolean,
+        data?: any,
+        preDefData?: any,
+        callback?: any
+    ) {
         return [
             {
                 name: 'variable_costs',
                 placeholder: 'variable_costs',
                 label: 'variable_costs',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries']('variable_costs');
+                    },
+                },
             },
             {
                 name: 'max',
                 placeholder: 'max',
                 label: 'max',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries']('max');
+                    },
+                },
             },
             {
                 name: 'min',
                 placeholder: 'min',
                 label: 'min',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries']('min');
+                    },
+                },
             },
             {
                 name: 'fix',
                 placeholder: 'fix',
                 label: 'fix',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries']('fix');
+                    },
+                },
             },
             {
                 name: 'positive_gradient_limit',
                 placeholder: 'positive_gradient_limit',
                 label: 'positive_gradient_limit',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries'](
+                            'positive_gradient_limit'
+                        );
+                    },
+                },
             },
             {
                 name: 'negative_gradient_limit',
                 placeholder: 'negative_gradient_limit',
                 label: 'negative_gradient_limit',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries'](
+                            'negative_gradient_limit'
+                        );
+                    },
+                },
             },
             {
                 name: 'fixed_costs',
                 placeholder: 'fixed_costs',
                 label: 'fixed_costs',
-                type: 'range',
+                type: 'time-series',
                 span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['openModal_TimeSeries']('fixed_costs');
+                    },
+                },
             },
 
             {
@@ -1263,7 +1328,8 @@ export class EnergyDesignService {
                                 fields: this.getDefaultFields_flow(
                                     oep,
                                     data,
-                                    data.preDefData
+                                    data.preDefData,
+                                    callback
                                 ),
                             },
                         ],
@@ -1396,7 +1462,8 @@ export class EnergyDesignService {
                                 fields: this.getDefaultFields_flow(
                                     oep,
                                     data,
-                                    data.preDefData
+                                    data.preDefData,
+                                    callback
                                 ),
                             },
                         ],

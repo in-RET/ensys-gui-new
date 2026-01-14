@@ -111,6 +111,7 @@ export class ScenarioEnergyDesignComponent
     private subscriptionSimulation!: Subscription;
 
     timeSeriesModal: any = {
+        id: '',
         show: false,
         title: 'Time Series Data',
         action: {
@@ -315,6 +316,9 @@ export class ScenarioEnergyDesignComponent
         callbackList['onChangePreDefined'] = this.onChangePreDefined.bind(this);
 
         callbackList['toggleOEP'] = this.toggleOEP.bind(this);
+
+        callbackList['openModal_TimeSeries'] =
+            this.openModal_TimeSeries.bind(this);
 
         return callbackList;
     }
@@ -1111,12 +1115,19 @@ export class ScenarioEnergyDesignComponent
         if (url) window.open(url, '_blank')?.focus();
     }
 
-    openModal_TimeSeries() {
+    openModal_TimeSeries(controlName: string) {
+        this.timeSeriesModal.id = controlName;
+        this.modalComponent.hideModal();
+        this.formModal_info.hide = true;
         this.timeSeriesModal.show = true;
     }
 
-    closeModal_TimeSeries() {
+    closeModal_TimeSeries(data: any) {
+        this.formComponent.setFieldData(this.timeSeriesModal.id, data);
+
         this.timeSeriesModal.show = false;
+        this.formModal_info.hide = false;
+        this.modalComponent.showModal();
     }
 
     ngOnDestroy() {

@@ -926,7 +926,7 @@ export class EnergyDrawflowComponent {
 
                 if (connection.destination.node.id == _node.id) {
                     connectionList = source_connectionList['inputs'];
-
+                    //
                     portIndex = connectionList.findIndex(
                         (port: any) =>
                             port.hasOwnProperty(
@@ -935,7 +935,12 @@ export class EnergyDrawflowComponent {
                             port[connection.destination.port.code].baseInfo
                                 .input_id == connection.destination.node.id &&
                             port[connection.destination.port.code].baseInfo
-                                .input_class == connection.destination.port.code
+                                .input_class ==
+                                connection.destination.port.code &&
+                            port[connection.destination.port.code].baseInfo
+                                .output_id == connection.source.node.id &&
+                            port[connection.destination.port.code].baseInfo
+                                .output_class == connection.source.port.code
                     );
 
                     _connectionData =
@@ -951,9 +956,12 @@ export class EnergyDrawflowComponent {
                             port[connection.source.port.code].baseInfo
                                 .output_id == connection.source.node.id &&
                             port[connection.source.port.code].baseInfo
-                                .output_class == connection.source.port.code
+                                .output_class == connection.source.port.code &&
+                            port[connection.source.port.code].baseInfo
+                                .input_id == connection.destination.node.id &&
+                            port[connection.source.port.code].baseInfo
+                                .input_class == connection.destination.port.code
                     );
-
                     _connectionData =
                         connectionList[portIndex][connection.source.port.code];
                 }

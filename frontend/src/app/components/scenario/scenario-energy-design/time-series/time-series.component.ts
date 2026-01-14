@@ -265,7 +265,7 @@ export class TimeSeriesComponent {
         setTimeout(() => {
             Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config)
                 .then(() => {
-                    // this.collapsePlot(true);
+                    this.timeSeriesModal.data = yVal;
                 })
                 .catch((error) => {
                     console.error('Error creating plot:', error);
@@ -314,10 +314,10 @@ export class TimeSeriesComponent {
 
     submitData() {
         // show notif of import success
-        this.closeModal();
+        this.closeModal(this.timeSeriesModal.data);
     }
 
-    closeModal() {
-        this.closeModal_TimeSeries.emit();
+    closeModal(data?: any) {
+        this.closeModal_TimeSeries.emit(data);
     }
 }

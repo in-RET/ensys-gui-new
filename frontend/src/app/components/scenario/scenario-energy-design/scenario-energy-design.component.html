@@ -176,9 +176,8 @@
     </div>
 </app-modal>
 
-<!-- form modal time_series -->
 <app-time-series
     *ngIf="timeSeriesModal.show"
     [maxRecords_TimeSeries]="8760"
-    (closeModal_TimeSeries)="closeModal_TimeSeries()"
+    (closeModal_TimeSeries)="closeModal_TimeSeries($event)"
 />
