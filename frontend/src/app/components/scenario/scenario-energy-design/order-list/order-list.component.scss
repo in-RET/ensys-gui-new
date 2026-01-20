@@ -16,6 +16,14 @@
         &.active {
             background-color: #a4adfb52;
         }
+
+        .__val {
+            width: 100%;
+            overflow: hidden;
+            display: inline-block;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
     }
 
     .order-actions {
@@ -35,4 +43,10 @@
     align-items: center;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+button.btn-close {
+    //set color red
+    filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(297deg)
+        brightness(90%) contrast(85%);
 }

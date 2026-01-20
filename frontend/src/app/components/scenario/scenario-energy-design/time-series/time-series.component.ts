@@ -58,6 +58,12 @@ export class TimeSeriesComponent {
     isCollapsed_timeSeriesPlot: boolean = true;
 
     @Input() maxRecords_TimeSeries: number = 8760;
+    @Input() modes: { value: 'list' | 'file' | 'number'; label: string }[] = [
+        { value: 'list', label: 'Options' },
+        { value: 'file', label: 'CSV File' },
+        { value: 'number', label: 'Single Value' },
+    ];
+
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
 
@@ -102,7 +108,7 @@ export class TimeSeriesComponent {
                 const colCount = rows[0].length;
                 headers = Array.from(
                     { length: colCount },
-                    (_, i) => `Column ${i + 1}`
+                    (_, i) => `Column ${i + 1}`,
                 );
             }
 
@@ -125,7 +131,7 @@ export class TimeSeriesComponent {
                 selected: false,
             }));
             this.timeSeries_table.columns_list = headers.map(
-                (header) => (header = header.trim())
+                (header) => (header = header.trim()),
             );
             this.timeSeries_table.emptyRows = [];
             this.timeSeries_table.loading = false;
@@ -146,7 +152,7 @@ export class TimeSeriesComponent {
             this.timeSeries_table.selectedData = this.timeSeries_table.data.map(
                 (row: any) => {
                     return row[colIndex];
-                }
+                },
             );
     }
 
@@ -213,7 +219,7 @@ export class TimeSeriesComponent {
 
                 case 'number':
                     const numValue = parseFloat(
-                        this.numInput.nativeElement.value
+                        this.numInput.nativeElement.value,
                     );
 
                     if (numValue)

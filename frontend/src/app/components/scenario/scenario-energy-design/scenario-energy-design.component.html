@@ -66,8 +66,13 @@
                     label="Inputs"
                     [data]="formModal_info.data.ports.inputs"
                     [acceptDuplicate]="false"
-                    [fields]="['name', 'num']"
+                    [fields]="['name', 'timeSeries']"
                     [editable]="formModal_info.data.ports?.editable"
+                    [options]="{
+                        id: 'inputs',
+                        group: 'transformer'
+                    }"
+                    (openModal_TimeSeries)="openModal_TimeSeries($event)"
                     #transform_inputs
                 />
             </div>
@@ -75,14 +80,15 @@
             <div class="col-6">
                 <app-order-list
                     label="Outputs"
-                    [data]="
-                        formModal_info.data
-                            ? formModal_info.data.ports.outputs
-                            : null
-                    "
+                    [data]="formModal_info.data.ports.outputs"
                     [acceptDuplicate]="false"
-                    [fields]="['name', 'num']"
+                    [fields]="['name', 'timeSeries']"
                     [editable]="formModal_info.data.ports?.editable"
+                    [options]="{
+                        id: 'outputs',
+                        group: 'transformer'
+                    }"
+                    (openModal_TimeSeries)="openModal_TimeSeries($event)"
                     #transform_outputs
                 />
             </div>
@@ -179,5 +185,6 @@
 <app-time-series
     *ngIf="timeSeriesModal.show"
     [maxRecords_TimeSeries]="8760"
+    [modes]="timeSeriesModal.modes"
     (closeModal_TimeSeries)="closeModal_TimeSeries($event)"
 />

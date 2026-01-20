@@ -4,7 +4,7 @@
             <!-- Button Group Row -->
             <div class="mb-3">
                 <div class="btn-group w-100" role="group">
-                    <input
+                    <!--   <input
                         type="radio"
                         class="btn-check"
                         name="selectMode"
@@ -41,7 +41,27 @@
                     />
                     <label class="btn btn-outline-primary" for="opt3">
                         Single Value
-                    </label>
+                    </label> -->
+
+                    <ng-container *ngFor="let opt of modes">
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="selectMode"
+                            [id]="opt.value"
+                            autocomplete="off"
+                            (click)="changeMode(opt.value)"
+                            [checked]="
+                                timeSeriesModal.selectedType === opt.value
+                            "
+                        />
+                        <label
+                            class="btn btn-outline-primary"
+                            [for]="opt.value"
+                        >
+                            {{ opt.label }}
+                        </label>
+                    </ng-container>
                 </div>
             </div>
 

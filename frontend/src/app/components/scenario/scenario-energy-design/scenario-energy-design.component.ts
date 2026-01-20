@@ -112,6 +112,7 @@ export class ScenarioEnergyDesignComponent
 
     timeSeriesModal: any = {
         id: '',
+        gtoup: {},
         show: false,
         title: 'Time Series Data',
         action: {
@@ -119,6 +120,7 @@ export class ScenarioEnergyDesignComponent
             fn: undefined,
         },
         data: [],
+        modes: [],
     };
 
     @ViewChild(EnergyDrawflowComponent)
@@ -270,34 +272,10 @@ export class ScenarioEnergyDesignComponent
                 e.data,
                 this.defineCallbackFlowForm()
             );
+
         this.formModal_info.data = e.data;
         this.formModal_info.editMode = e.editMode;
-
-        if (e.node?.name == 'transformer' && false) {
-            if (e.editMode) {
-                this.formModal_info.data.ports = {
-                    ...this.formModal_info.data.ports,
-                    editable: this.formModal_info.data.oep
-                        ? !this.formModal_info.data.oep
-                        : true,
-                };
-            } else {
-                // a new node
-                this.formModal_info.data = {
-                    ...this.formModal_info.data,
-                    ports: {
-                        inputs: [],
-                        outputs: [],
-                        editable: this.formModal_info.data.oep
-                            ? !this.formModal_info.data.oep
-                            : true,
-                    },
-                };
-            }
-        }
-
         this.formModal_info.url = this.getEntityInfoUrl('flow');
-        // appear Modal
         this.formModal_info.show = true;
     }
 
@@ -1115,15 +1093,52 @@ export class ScenarioEnergyDesignComponent
         if (url) window.open(url, '_blank')?.focus();
     }
 
-    openModal_TimeSeries(controlName: string) {
-        this.timeSeriesModal.id = controlName;
+    /**
+     *
+     * @param controlName
+     * @param options { component: string, groupName: string // for like transform , modes: Array<{value: string, label: string}> , ...  }
+     */
+    openModal_TimeSeries(e: {
+        controlName: string;
+        options?: {
+            id: string;
+            group: string;
+        };
+    }) {
+        if (e.options) {
+            this.timeSeriesModal.group = e.options.group;
+            this.timeSeriesModal.id = e.options.id;
+
+            if (e.options.group === 'transformer') {
+                this.timeSeriesModal.modes = [
+                    { value: 'file', label: 'CSV File' },
+                    { value: 'number', label: 'Single Value' },
+                ];
+            }
+        } else {
+            this.timeSeriesModal.id = e.controlName;
+        }
+
         this.modalComponent.hideModal();
         this.formModal_info.hide = true;
         this.timeSeriesModal.show = true;
     }
 
     closeModal_TimeSeries(data: any) {
-        this.formComponent.setFieldData(this.timeSeriesModal.id, data);
+        console.log(this.timeSeriesModal.id, data);
+
+        if (this.timeSeriesModal.group === 'transformer') {
+            if (this.timeSeriesModal.id == 'inputs')
+                this.transform_inputs.submitTimeSeriesData(data);
+            else if (this.timeSeriesModal.id == 'outputs')
+                this.transform_outputs.submitTimeSeriesData(data);
+        } else {
+            // if (this.timeSeriesModal.id == 'timeSeries')
+            //     this.transform_inputs.submitTimeSeriesData(data);
+            // else
+
+            this.formComponent.setFieldData(this.timeSeriesModal.id, data);
+        }
 
         this.timeSeriesModal.show = false;
         this.formModal_info.hide = false;
