@@ -139,8 +139,8 @@ def calc_annuity(capex, wacc, n, u=None):
     )
 
 
-@oep_router.get("/local_data/{oep_name}/{simulation_year}")
-async def get_local_oep_data(
+@oep_router.get("/local_data/{oep_name}/{simulation_year}/node_data")
+async def get_local_oep_data_node(
     token: Annotated[str, Depends(oauth2_scheme)],
     oep_name: Annotated[
         str,
@@ -178,6 +178,260 @@ async def get_local_oep_data(
     :raises HTTPException: If the token is invalid, the simulation year is unsupported, or any required file is missing.
     """
 
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
+        )
+
+    if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year."
+        )
+
+    for type in oepTypesData.keys():
+        item_list = oepTypesData[type]
+
+        for item in item_list:
+            if item["name"] == oep_name:
+                oep_type = type.value
+                break
+
+    root_path = os.path.abspath(
+        os.path.join(os.getcwd(), "data", "oep", oep_type.lower())
+    )
+
+    port_data_path = os.path.join(root_path, "ports", f"{oep_name.lower()}.csv")
+    # Einlesen der Portdaten
+    if not os.path.isfile(port_data_path):
+        raise HTTPException(
+            status_code=404, detail="File with port specification not found."
+        )
+    else:
+        with open(port_data_path, "r") as f:
+            ports_data = pd.read_csv(
+                f, index_col=0, decimal=",", delimiter=";"
+            ).to_dict(orient="records")
+
+    timeseries_data_path = os.path.join(
+        root_path, "timeseries", f"{oep_name.lower()}.csv"
+    )
+    # Einlesen der Zeitreihe#
+    if oep_type.lower() == "sink" or oep_type.lower() == "source":
+        # print(f"timeseries_data_path: {timeseries_data_path}")
+        if not os.path.isfile(timeseries_data_path):
+            raise HTTPException(
+                status_code=404, detail="File with timeseries not found."
+            )
+        else:
+            with open(timeseries_data_path, "r") as f:
+                timeseries_df = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+
+                timeseries_data = list(timeseries_df[str(simulation_year)])
+    else:
+        timeseries_data = None
+
+    if oep_name.lower() == "storage_electricity_pumped_hydro_storage_power_technology":
+        parameter_node_data_path = os.path.join(
+            root_path, "parameter", f"{oep_name.lower()}_node.csv"
+        )
+        parameter_flow_data_path = os.path.join(
+            root_path, "parameter", f"{oep_name.lower()}_flow.csv"
+        )
+        # Einlesen der Parameter
+        if not os.path.isfile(parameter_flow_data_path) and not os.path.isfile(
+            parameter_node_data_path
+        ):
+            raise HTTPException(
+                status_code=404, detail="File with parameter data not found."
+            )
+        else:
+            with open(parameter_flow_data_path, "r") as f:
+                parameter_data = pd.read_csv(
+                    f, index_col=0, decimal=",", delimiter=";"
+                ).to_dict(orient="index")
+
+            with open(parameter_node_data_path, "r") as f:
+                parameter_node_data = pd.read_csv(
+                    f, index_col=0, decimal=",", delimiter=";"
+                ).to_dict(orient="index")
+
+    else:
+        parameter_data_path = os.path.join(
+            root_path, "parameter", f"{oep_name.lower()}.csv"
+        )
+        # Einlesen der Parameter
+        if not os.path.isfile(parameter_data_path):
+            raise HTTPException(
+                status_code=404, detail="File with parameter data not found."
+            )
+        else:
+            with open(parameter_data_path, "r") as f:
+                parameter_data = pd.read_csv(
+                    f, index_col=0, decimal=",", delimiter=";"
+                ).to_dict(orient="index")
+
+    parameter_year_select: dict = parameter_data[simulation_year]
+    print(f"parameter_year_select: {parameter_year_select}")
+
+    # Hier hat man die Parameter für das ausgewählte Jahr eingelesen
+    # ep_costs berechnen für den Flow
+    if (
+        "investment_costs" in parameter_year_select.keys()
+        and "interest_rate" in parameter_year_select.keys()
+        and "operating_costs" in parameter_year_select.keys()
+        and "lifetime" in parameter_year_select.keys()
+    ):
+        # Calculate EPC costs for flow
+        capex = parameter_year_select["investment_costs"]
+        opex = parameter_year_select["investment_costs"] * (
+            parameter_year_select["operating_costs"] / 100
+        )
+        interest_rate = parameter_year_select["interest_rate"] / 100
+
+        annuity = calc_annuity(
+            capex=capex, wacc=interest_rate, n=parameter_year_select["lifetime"]
+        )
+        flow_ep_costs = annuity + opex
+    else:
+        flow_ep_costs = None
+
+    for port in ports_data:
+        del port["investment"]
+        del port["controlled_flow"]
+
+        if (
+            "efficiency_el" in parameter_year_select.keys()
+            and port["name"] == "electricity"
+            and port["type"] == "output"
+        ):
+            port["efficiency"] = parameter_year_select["efficiency_el"] / 100
+            # del parameter_year_select["efficiency_el"]
+
+        if (
+            "efficiency_th" in parameter_year_select.keys()
+            and port["name"] == "heat"
+            and port["type"] == "output"
+        ):
+            port["efficiency"] = parameter_year_select["efficiency_th"] / 100
+            # del parameter_year_select["efficiency_th"]
+
+        if "efficiency" in parameter_year_select.keys() and port["type"] == "output":
+            port["efficiency"] = parameter_year_select["efficiency"] / 100
+            # del parameter_year_select["efficiency"]
+
+    if "efficiency_in" in parameter_year_select.keys():
+        parameter_year_select["inflow_conversion_factor"] = (
+            parameter_year_select["efficiency_in"] / 100
+        )
+        del parameter_year_select["efficiency_in"]
+
+    if "efficiency_out" in parameter_year_select.keys():
+        parameter_year_select["outflow_conversion_factor"] = (
+            parameter_year_select["efficiency_out"] / 100
+        )
+        del parameter_year_select["efficiency_out"]
+
+    if "inverse_c_rate" in parameter_year_select.keys():
+        inverse_c_rate = parameter_year_select["inverse_c_rate"]
+
+        # TODO: check if this is correct
+        parameter_year_select["invest_relation_input_capacity"] = inverse_c_rate
+        parameter_year_select["invest_relation_output_capacity"] = inverse_c_rate
+        parameter_year_select["invest_input_output"] = 1 / inverse_c_rate
+
+        del parameter_year_select["inverse_c_rate"]
+
+    if oep_type.lower() == "generic_storage":
+        if (
+            oep_name.lower()
+            == "storage_electricity_pumped_hydro_storage_power_technology"
+        ):
+            # ep_costs berechnen für den Flow
+            parameter_node_year_selected = parameter_node_data[simulation_year]
+            print(f"parameter_node_year_selected: {parameter_node_year_selected}")
+
+            if (
+                "investment_costs" in parameter_node_data.keys()
+                and "interest_rate" in parameter_node_data.keys()
+                and "operating_costs" in parameter_node_data.keys()
+                and "lifetime" in parameter_node_data.keys()
+            ):
+                # Calculate EPC costs for flow
+                capex = parameter_node_year_selected["investment_costs"]
+                opex = parameter_node_year_selected["investment_costs"] * (
+                    parameter_node_year_selected["operating_costs"] / 100
+                )
+                interest_rate = parameter_node_year_selected["interest_rate"] / 100
+
+                annuity = calc_annuity(
+                    capex=capex,
+                    wacc=interest_rate,
+                    n=parameter_node_year_selected["lifetime"],
+                )
+                node_ep_costs = annuity + opex
+            else:
+                node_ep_costs = None
+
+            print(f"node_ep_costs: {node_ep_costs}")
+            if node_ep_costs is not None:
+                parameter_year_select["investment"] = True
+                parameter_year_select["ep_costs"] = flow_ep_costs
+                parameter_year_select["calculation"] = {
+                    "capex": parameter_year_select["investment_costs"],
+                    "opex": parameter_year_select["operating_costs"] / 100,
+                    "lifetime": parameter_year_select["lifetime"],
+                    "interest_rate": parameter_year_select["interest_rate"] / 100,
+                }
+
+    # Löschen der nicht relevanten Einträge
+    for key in [
+        "investment_costs",
+        "operating_costs",
+        "lifetime",
+        "interest_rate",
+        "efficiency_el",
+        "efficiency_th",
+    ]:
+        if key in parameter_year_select.keys():
+            del parameter_year_select[key]
+
+    # Ab hier starten die Sonderwünsche
+    sorted_port_data = {"inputs": [], "outputs": []}
+
+    for item in ports_data:
+        tmp_type = item["type"]
+        del item["type"]
+
+        if tmp_type == "input":
+            sorted_port_data["inputs"].append(item)
+        elif tmp_type == "output":
+            sorted_port_data["outputs"].append(item)
+
+    return_data = [{"node_data": parameter_year_select, "ports_data": sorted_port_data}]
+
+    return DataResponse(
+        data=GeneralDataModel(items=return_data, totalCount=len(return_data)),
+        success=True,
+    )
+
+
+@oep_router.get("/local_data/{oep_name}/{simulation_year}/ports_data")
+async def get_local_oep_data_ports(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    oep_name: Annotated[
+        str,
+        Path(
+            enum=list(oepTypes), description="Selected parameter set for the OEP data."
+        ),
+    ],
+    simulation_year: Annotated[
+        int,
+        Path(
+            enum=[2025, 2030, 2035, 2040, 2045, 2050],
+            description="Simulation year from the scenario.",
+        ),
+    ],
+) -> DataResponse:
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
@@ -455,9 +709,9 @@ async def get_local_oep_data(
         elif tmp_type == "output":
             sorted_port_data["outputs"].append(item)
 
-    return_data = [{"node_data": parameter_year_select, "ports_data": sorted_port_data}]
-
     return DataResponse(
-        data=GeneralDataModel(items=return_data, totalCount=len(return_data)),
+        data=GeneralDataModel(
+            items=[sorted_port_data], totalCount=len([sorted_port_data])
+        ),
         success=True,
     )
