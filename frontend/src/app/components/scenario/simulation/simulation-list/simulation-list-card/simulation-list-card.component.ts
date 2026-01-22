@@ -32,7 +32,7 @@ export class SimulationListCardComponent {
 
     openSimulation(simId: number) {
         const url = this.router.serializeUrl(
-            this.router.createUrlTree(['/simulation', simId])
+            this.router.createUrlTree(['/simulation', simId]),
         );
         window.open(url, '_blank');
     }
@@ -49,6 +49,5 @@ export class SimulationListCardComponent {
                 console.error(err);
             },
         });
-        console.log('stopped');
     }
 }

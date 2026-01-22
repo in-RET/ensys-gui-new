@@ -25,7 +25,6 @@ export class SimulationComponent implements OnInit {
     ngOnInit() {
         this.loading = true;
         const simulationId = +this.route.snapshot.params['id'];
-        console.log(simulationId);
 
         if (simulationId) this.loadSimulation(simulationId);
     }

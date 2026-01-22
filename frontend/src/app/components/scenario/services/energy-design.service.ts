@@ -363,7 +363,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']('variable_costs');
+                        callback['openModal_TimeSeries']({
+                            controlName: 'variable_costs',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -378,7 +384,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']('max');
+                        callback['openModal_TimeSeries']({
+                            controlName: 'max',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -393,7 +405,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']('min');
+                        callback['openModal_TimeSeries']({
+                            controlName: 'min',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -423,9 +441,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries'](
-                            'positive_gradient_limit',
-                        );
+                        callback['openModal_TimeSeries']({
+                            controlName: 'positive_gradient_limit',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -440,9 +462,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries'](
-                            'negative_gradient_limit',
-                        );
+                        callback['openModal_TimeSeries']({
+                            controlName: 'negative_gradient_limit',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -457,7 +483,13 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']('fixed_costs');
+                        callback['openModal_TimeSeries']({
+                            controlName: 'fixed_costs',
+                            modes: [
+                                { value: 'time_series', label: 'Time Series' },
+                                { value: 'fixed', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -698,18 +730,6 @@ export class EnergyDesignService {
             data?: any,
             callback?: any,
         ) => {
-            console.log(
-                this.getFieldData(
-                    name,
-                    {
-                        mode: editMode,
-                        data,
-                    },
-                    'user_defined',
-                ),
-            );
-            console.log(data);
-
             return [
                 this.getField(
                     'oep',
@@ -906,7 +926,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'inputPort_name',
                                         'Name',
-                                        'Port(In)',
+                                        'Port Name(In)',
                                         true,
                                         'text',
                                         '',
@@ -1117,7 +1137,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'inputPort_name',
                                         'Name',
-                                        'Port(In)',
+                                        'Port Name(In)',
                                         true,
                                         'text',
                                         '',
@@ -1167,7 +1187,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'inputPort_name',
                                         'Name',
-                                        'Port(In)',
+                                        'Port Name(In)',
                                         true,
                                         'text',
                                         '',
@@ -1194,7 +1214,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'outputPort_name',
                                         'Name',
-                                        'Port(Out)',
+                                        'Port Name(Out)',
                                         true,
                                         'text',
                                         '',

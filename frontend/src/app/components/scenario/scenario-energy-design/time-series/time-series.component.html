@@ -4,45 +4,6 @@
             <!-- Button Group Row -->
             <div class="mb-3">
                 <div class="btn-group w-100" role="group">
-                    <!--   <input
-                        type="radio"
-                        class="btn-check"
-                        name="selectMode"
-                        id="opt1"
-                        autocomplete="off"
-                        (click)="changeMode('list')"
-                        [checked]="timeSeriesModal.selectedType === 'list'"
-                    />
-                    <label class="btn btn-outline-primary" for="opt1">
-                        Options
-                    </label>
-
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="selectMode"
-                        id="opt2"
-                        autocomplete="off"
-                        (click)="changeMode('file')"
-                        [checked]="timeSeriesModal.selectedType === 'file'"
-                    />
-                    <label class="btn btn-outline-primary" for="opt2">
-                        CSV File
-                    </label>
-
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="selectMode"
-                        id="opt3"
-                        autocomplete="off"
-                        (click)="changeMode('number')"
-                        [checked]="timeSeriesModal.selectedType === 'number'"
-                    />
-                    <label class="btn btn-outline-primary" for="opt3">
-                        Single Value
-                    </label> -->
-
                     <ng-container *ngFor="let opt of modes">
                         <input
                             type="radio"

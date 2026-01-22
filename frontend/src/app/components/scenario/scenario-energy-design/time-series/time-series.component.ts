@@ -63,11 +63,6 @@ export class TimeSeriesComponent {
     isCollapsed_timeSeriesPlot: boolean = true;
 
     @Input() maxRecords_TimeSeries: number = 8760;
-    // @Input() modes: { value: 'list' | 'file' | 'number'; label: string }[] = [
-    //     { value: 'list', label: 'Options' },
-    //     { value: 'file', label: 'CSV File' },
-    //     { value: 'number', label: 'Single Value' },
-    // ];
     private readonly defaultModes: ModeOption[] = [
         { value: 'list', label: 'Options' },
         { value: 'file', label: 'CSV File' },
@@ -76,9 +71,8 @@ export class TimeSeriesComponent {
 
     @Input()
     set modes(value: ModeOption[] | null | undefined) {
-        this._modes = value?.length ? value : [...this.defaultModes];
+        this._modes = value && value?.length ? value : [...this.defaultModes];
     }
-
     get modes() {
         return this._modes;
     }

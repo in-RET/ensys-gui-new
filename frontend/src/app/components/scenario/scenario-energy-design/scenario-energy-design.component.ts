@@ -119,7 +119,7 @@ export class ScenarioEnergyDesignComponent
 
     timeSeriesModal: any = {
         id: '',
-        gtoup: {},
+        group: {},
         show: false,
         title: 'Time Series Data',
         action: {
@@ -255,7 +255,6 @@ export class ScenarioEnergyDesignComponent
             );
         // appear Modal
         this.formModal_info.show = true;
-        console.log(this.formModal_info);
     }
 
     async showFormModal_flow(e: any) {
@@ -1167,7 +1166,17 @@ export class ScenarioEnergyDesignComponent
             id: string;
             group: string;
         };
+        modes?: Array<{ value: string; label: string }>;
     }) {
+        // clear previous data
+        this.timeSeriesModal = {
+            id: '',
+            group: '',
+            data: [],
+            modes: [],
+            show: false,
+        };
+
         if (e.options) {
             this.timeSeriesModal.group = e.options.group;
             this.timeSeriesModal.id = e.options.id;
@@ -1183,25 +1192,33 @@ export class ScenarioEnergyDesignComponent
             else this.timeSeriesModal.id = e;
         }
 
+        if (!e.modes) {
+            if (
+                this.formModal_info.node?.class !== 'source' &&
+                this.formModal_info.node?.class !== 'sink'
+            )
+                this.timeSeriesModal.modes = [
+                    { value: 'time_series', label: 'Time Series' },
+                    { value: 'fixed', label: 'Fixed Value' },
+                ];
+        } else this.timeSeriesModal.modes = e.modes;
+
         this.modalComponent.hideModal();
         this.formModal_info.hide = true;
         this.timeSeriesModal.show = true;
     }
 
     closeModal_TimeSeries(data: any) {
-        if (this.timeSeriesModal.group === 'transformer') {
-            if (this.timeSeriesModal.id == 'inputs')
-                this.transform_inputs.submitTimeSeriesData(data);
-            else if (this.timeSeriesModal.id == 'outputs')
-                this.transform_outputs.submitTimeSeriesData(data);
-        } else {
-            // if (this.timeSeriesModal.id == 'timeSeries')
-            //     this.transform_inputs.submitTimeSeriesData(data);
-            // else
-
-            this.formComponent.setFieldData(this.timeSeriesModal.id, data);
+        if (data) {
+            if (this.timeSeriesModal.group === 'transformer') {
+                if (this.timeSeriesModal.id == 'inputs')
+                    this.transform_inputs.submitTimeSeriesData(data);
+                else if (this.timeSeriesModal.id == 'outputs')
+                    this.transform_outputs.submitTimeSeriesData(data);
+            } else {
+                this.formComponent.setFieldData(this.timeSeriesModal.id, data);
+            }
         }
-
         this.timeSeriesModal.show = false;
         this.formModal_info.hide = false;
         this.modalComponent.showModal();
