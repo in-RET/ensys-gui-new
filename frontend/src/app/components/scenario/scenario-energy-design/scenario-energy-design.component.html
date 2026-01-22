@@ -36,7 +36,8 @@
                 class="text-center p-2 border border-warning rounded-4 shadow"
                 *ngIf="
                     formModal_info.type == 'flow' &&
-                    (formModal_info.data.oep || formModal_info.node?.data?.oep)
+                    formModal_info.node &&
+                    formModal_info.node.data.oep
                 "
             >
                 The <b>OEP </b> field is enabled at the node level, so please
@@ -70,7 +71,7 @@
                     [editable]="formModal_info.data.ports?.editable"
                     [options]="{
                         id: 'inputs',
-                        group: 'transformer'
+                        group: 'transformer',
                     }"
                     (openModal_TimeSeries)="openModal_TimeSeries($event)"
                     #transform_inputs
@@ -86,7 +87,7 @@
                     [editable]="formModal_info.data.ports?.editable"
                     [options]="{
                         id: 'outputs',
-                        group: 'transformer'
+                        group: 'transformer',
                     }"
                     (openModal_TimeSeries)="openModal_TimeSeries($event)"
                     #transform_outputs

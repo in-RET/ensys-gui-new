@@ -11,7 +11,7 @@ import {
 export interface OrderItem {
     id: number;
     name?: string;
-    number?: number;
+    number?: number | null;
     type?: OrderType;
     timeSeries?: number[];
 }
@@ -20,6 +20,8 @@ class OrderType {
     id: number = -1;
     name: string = '';
 }
+
+export type FieldName = 'name' | 'num' | 'typ' | 'timeSeries';
 
 @Component({
     selector: 'app-order-list',
@@ -46,7 +48,27 @@ export class OrderListComponent {
         return this.form.controls['timeSeries'];
     }
 
-    @Input() fields!: ('name' | 'num' | 'typ' | 'timeSeries')[];
+    // @Input() fields!: ('name' | 'num' | 'typ' | 'timeSeries')[];
+    @Input()
+    set fields(value: FieldName[] | null | undefined) {
+        this._fields = value?.length ? value : [];
+        // initForm
+        this.form = new FormGroup({});
+
+        this._fields.forEach((field) => {
+            this.form.addControl(
+                field,
+                new FormControl(null, Validators.required),
+            );
+        });
+    }
+
+    get fields(): FieldName[] {
+        return this._fields;
+    }
+
+    private _fields: FieldName[] = [];
+
     @Input() label!: string;
     @Input() editable: boolean = true;
 
@@ -65,10 +87,7 @@ export class OrderListComponent {
         this.form?.reset();
 
         if (value) {
-            console.log(value);
-
             this._data = value;
-            console.log(value);
         } else {
             this._data = [];
         }
@@ -81,20 +100,6 @@ export class OrderListComponent {
         controlName: string | 'timeSeries';
         options: any;
     }>();
-
-    ngOnInit() {
-        this.initialForm();
-    }
-
-    initialForm() {
-        this.form = new FormGroup({});
-        this.fields.forEach((element) => {
-            this.form.addControl(
-                element,
-                new FormControl(null, [Validators.required]),
-            );
-        });
-    }
 
     addItem() {
         if (this.form.valid) {
@@ -202,6 +207,11 @@ export class OrderListComponent {
 
         if (this.fields.includes('typ')) this.typ.setValue(this.data[i].type);
 
+        if (this.fields.includes('timeSeries')) {
+            if (this.data[i].number)
+                this.timeSeries.patchValue(this.data[i].number);
+            else this.timeSeries.setValue(this.data[i].timeSeries);
+        }
         this.editableMode = true;
     }
 
@@ -236,6 +246,11 @@ export class OrderListComponent {
                     if (this.fields.includes('typ'))
                         this.data[i].type = this.typ.value;
 
+                    if (this.fields.includes('timeSeries')) {
+                        this.data[i].number = null;
+                        this.data[i].timeSeries = this.timeSeries.value;
+                    }
+
                     this.clearEditMode();
                     this.clearForms();
                     this.clearMessage();
@@ -254,6 +269,11 @@ export class OrderListComponent {
 
                         if (this.fields.includes('typ'))
                             this.data[i].type = this.typ.value;
+
+                        if (this.fields.includes('timeSeries')) {
+                            this.data[i].number = null;
+                            this.data[i].timeSeries = this.timeSeries.value;
+                        }
 
                         this.clearEditMode();
                         this.clearForms();

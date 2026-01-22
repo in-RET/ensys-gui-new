@@ -16,6 +16,11 @@ import { ScenarioBaseInfoModel } from '../../models/scenario.model';
 import { ScenarioService } from '../../services/scenario.service';
 import { ModalComponent } from '../modal/modal.component';
 
+export interface ModeOption {
+    value: 'list' | 'file' | 'number';
+    label: string;
+}
+
 @Component({
     selector: 'app-time-series',
     imports: [CommonModule, FormsModule, ModalComponent, NgbCollapseModule],
@@ -58,11 +63,26 @@ export class TimeSeriesComponent {
     isCollapsed_timeSeriesPlot: boolean = true;
 
     @Input() maxRecords_TimeSeries: number = 8760;
-    @Input() modes: { value: 'list' | 'file' | 'number'; label: string }[] = [
+    // @Input() modes: { value: 'list' | 'file' | 'number'; label: string }[] = [
+    //     { value: 'list', label: 'Options' },
+    //     { value: 'file', label: 'CSV File' },
+    //     { value: 'number', label: 'Single Value' },
+    // ];
+    private readonly defaultModes: ModeOption[] = [
         { value: 'list', label: 'Options' },
         { value: 'file', label: 'CSV File' },
         { value: 'number', label: 'Single Value' },
-    ];
+    ] as const;
+
+    @Input()
+    set modes(value: ModeOption[] | null | undefined) {
+        this._modes = value?.length ? value : [...this.defaultModes];
+    }
+
+    get modes() {
+        return this._modes;
+    }
+    private _modes!: ModeOption[];
 
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();

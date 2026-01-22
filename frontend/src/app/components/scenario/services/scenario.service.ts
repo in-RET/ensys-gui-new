@@ -1,11 +1,15 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, map, Observable} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {BaseHttpService} from '../../../core/base-http/base-http.service';
-import {ResModel} from '../../../shared/models/http.model';
-import {AlertService} from '../../../shared/services/alert.service';
-import {ToastService} from '../../../shared/services/toast.service';
-import {ScenarioBaseInfoModel, ScenarioReqModel, ScenarioResModel,} from '../models/scenario.model';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, map, Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { BaseHttpService } from '../../../core/base-http/base-http.service';
+import { ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+} from '../models/scenario.model';
 
 @Injectable({
     providedIn: 'root',
@@ -20,7 +24,7 @@ export class ScenarioService {
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
-    baseHttp = inject(BaseHttpService)
+    baseHttp = inject(BaseHttpService);
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -50,7 +54,7 @@ export class ScenarioService {
     saveBaseInfo_Storage(data: ScenarioBaseInfoModel) {
         localStorage.setItem(
             this.scenario_localstorage_name,
-            JSON.stringify(data)
+            JSON.stringify(data),
         );
     }
 
@@ -60,7 +64,7 @@ export class ScenarioService {
 
     restoreBaseInfo_Storage(): ScenarioBaseInfoModel | null {
         const BaseInfoData: string | null = localStorage.getItem(
-            this.scenario_localstorage_name
+            this.scenario_localstorage_name,
         );
 
         if (BaseInfoData && BaseInfoData.trim() != '')
@@ -72,7 +76,7 @@ export class ScenarioService {
     updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
         localStorage.setItem(
             `${this.scenario_localstorage_name}`,
-            JSON.stringify(d)
+            JSON.stringify(d),
         );
     }
 
@@ -80,7 +84,7 @@ export class ScenarioService {
     saveDrawflow_Storage(data: any, needStringify = true) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
-            needStringify ? JSON.stringify(data) : data
+            needStringify ? JSON.stringify(data) : data,
         );
 
         this._isDrawflowEmpty$.next(false);
@@ -88,7 +92,7 @@ export class ScenarioService {
 
     restoreDrawflow_Storage(mustResultString = false): string | false | any {
         const DrawflowData: string | null = localStorage.getItem(
-            this.scenario_drawflow_localstorage_name
+            this.scenario_drawflow_localstorage_name,
         );
 
         if (DrawflowData && DrawflowData.trim() != '') {
@@ -106,13 +110,21 @@ export class ScenarioService {
 
     getPreDefinedList(type: string) {
         return this.baseHttp.get(
-            environment.apiUrl + `oep/local_schemas/${type}`
+            environment.apiUrl + `oep/local_schemas/${type}`,
         );
     }
 
-    getPreDefinedData(option: string, simulationYear: number) {
+    getPreDefinedData_node(option: string, simulationYear: number) {
         return this.baseHttp.get(
-            environment.apiUrl + `oep/local_data/${option}/${simulationYear}`
+            environment.apiUrl +
+                `oep/local_data/${option}/${simulationYear}/node_data`,
+        );
+    }
+
+    getPreDefinedData_ports(option: string, simulationYear: number) {
+        return this.baseHttp.get(
+            environment.apiUrl +
+                `oep/local_data/${option}/${simulationYear}/ports_data`,
         );
     }
 
@@ -163,7 +175,7 @@ export class ScenarioService {
                 //             } else
                 // this.alertService.error(err.message || 'Save failed');
                 throw new Error('Unknown API error');
-            })
+            }),
         );
     }
 
@@ -198,14 +210,14 @@ export class ScenarioService {
 
         return this.updateScenario(
             newScenarioData,
-            scenarioData.scenario.id
+            scenarioData.scenario.id,
         ).pipe(
             map((res: ResModel<ScenarioResModel>) => {
                 if (res.success) {
                     return res.data.items[0];
                 }
                 throw new Error('Unknown API error');
-            })
+            }),
         );
     }
 }

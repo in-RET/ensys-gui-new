@@ -1,7 +1,7 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, map, Observable} from 'rxjs';
-import {GeneralService} from '../../../shared/services/general.service';
-import {ScenarioService} from './scenario.service';
+import { inject, Injectable } from '@angular/core';
+import { BehaviorSubject, firstValueFrom, map, Observable } from 'rxjs';
+import { GeneralService } from '../../../shared/services/general.service';
+import { ScenarioService } from './scenario.service';
 
 @Injectable({
     providedIn: 'root',
@@ -19,9 +19,8 @@ export class FlowService {
         ],
     };
 
-    private scenarioService = inject(ScenarioService)
-    private generalService = inject(GeneralService)
-
+    private scenarioService = inject(ScenarioService);
+    private generalService = inject(GeneralService);
 
     private getPreDefinedList(name: string): Observable<any[]> {
         return this.scenarioService.getPreDefinedList(name).pipe(
@@ -30,8 +29,8 @@ export class FlowService {
                 items.map((res: { name: string; label: string | null }) => ({
                     name: res.label ?? res.name,
                     value: res.name,
-                }))
-            )
+                })),
+            ),
         );
     }
 
@@ -42,7 +41,7 @@ export class FlowService {
                 const userDefined_option = 'user_defined';
                 res.push({
                     name: this.generalService.convertText_uppercaseAt0(
-                        userDefined_option
+                        userDefined_option,
                     ),
                     value: userDefined_option,
                 });
@@ -81,9 +80,20 @@ export class FlowService {
         }
     }
 
-    getPreDefinedValue(option: string, simulationYear: number) {
+    getPreDefinedValue_node(option: string, simulationYear: number) {
         return this.scenarioService
-            .getPreDefinedData(option, simulationYear)
+            .getPreDefinedData_node(option, simulationYear)
             .pipe(map((res: any) => (res.success ? res.data : {})));
+    }
+
+    async getPreDefinedValue_ports(option: string, simulationYear: number) {
+        const res: any = await firstValueFrom(
+            this.scenarioService.getPreDefinedData_ports(
+                option,
+                simulationYear,
+            ),
+        );
+
+        return res?.success ? res.data.items[0] : {};
     }
 }

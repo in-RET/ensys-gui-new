@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { GeneralService } from '../../../shared/services/general.service';
-import { FlowData, OEPPorts } from '../models/node.model';
+import { FlowData } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { FlowService } from './flow.service';
 import { ScenarioService } from './scenario.service';
@@ -14,7 +14,7 @@ interface EPCostParams {
 
 interface Port extends OrderItem {
     code: string;
-    preDefData?: FlowData;
+    // preDefData?: FlowData;
 }
 
 export interface Ports {
@@ -29,7 +29,7 @@ export class EnergyDesignService {
     constructor(
         private flowService: FlowService,
         private generalService: GeneralService,
-        private scenarioService: ScenarioService
+        private scenarioService: ScenarioService,
     ) {}
 
     dividerSec() {
@@ -42,7 +42,7 @@ export class EnergyDesignService {
     private getFieldData(
         fName: string,
         editData: { mode: boolean; data?: any },
-        dValue?: any
+        dValue?: any,
     ) {
         if (editData.mode) {
             return editData.data[fName.toLocaleLowerCase()];
@@ -64,7 +64,7 @@ export class EnergyDesignService {
         callback?: any,
         options?: any[],
         disabled?: boolean,
-        defaultVal?: any
+        defaultVal?: any,
     ) {
         const _field = {
             name: name,
@@ -74,7 +74,7 @@ export class EnergyDesignService {
             value: this.getFieldData(
                 name,
                 { mode: editMode, data },
-                defaultVal
+                defaultVal,
             ),
             type: type,
             span: space,
@@ -90,7 +90,7 @@ export class EnergyDesignService {
     private getNonInvestmentFields(
         data?: any,
         name?: any,
-        preDefData?: FlowData
+        preDefData?: FlowData,
     ) {
         return [
             {
@@ -115,7 +115,7 @@ export class EnergyDesignService {
             } else item['disabled'] = data.oep;
 
             item['label'] = this.generalService.convertText_uppercaseAt0(
-                item['label']
+                item['label'],
             );
 
             return item;
@@ -213,13 +213,9 @@ export class EnergyDesignService {
                 span: 'auto',
             },
         ].map((item: any) => {
-            // if (item.name === 'ep_costs') debugger;
             if (data && !data.oep && !preDefData) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
-                // item['value'] = preDefData['investment']
-                //     ? preDefData['investment'][item.name.toLocaleLowerCase()]
-                //     : null;
                 item['value'] = preDefData[item.name.toLocaleLowerCase()];
             } else {
                 item['value'] = null;
@@ -227,7 +223,7 @@ export class EnergyDesignService {
 
             if (data) item['disabled'] = data.oep;
             item['label'] = this.generalService.convertText_uppercaseAt0(
-                item['label']
+                item['label'],
             );
 
             return item;
@@ -342,7 +338,7 @@ export class EnergyDesignService {
             } else item['disabled'] = true;
 
             item['label'] = this.generalService.convertText_uppercaseAt0(
-                item['label']
+                item['label'],
             );
 
             return item;
@@ -353,7 +349,7 @@ export class EnergyDesignService {
         oep: boolean,
         data?: any,
         preDefData?: any,
-        callback?: any
+        callback?: any,
     ) {
         return [
             {
@@ -428,7 +424,7 @@ export class EnergyDesignService {
                     icon: '',
                     onClick: () => {
                         callback['openModal_TimeSeries'](
-                            'positive_gradient_limit'
+                            'positive_gradient_limit',
                         );
                     },
                 },
@@ -445,7 +441,7 @@ export class EnergyDesignService {
                     icon: '',
                     onClick: () => {
                         callback['openModal_TimeSeries'](
-                            'negative_gradient_limit'
+                            'negative_gradient_limit',
                         );
                     },
                 },
@@ -528,7 +524,7 @@ export class EnergyDesignService {
                 .map(
                     (word: string) =>
                         word.charAt(0).toUpperCase() +
-                        word.slice(1).toLocaleLowerCase()
+                        word.slice(1).toLocaleLowerCase(),
                 )
                 .join(' ')
                 .trim();
@@ -538,7 +534,7 @@ export class EnergyDesignService {
                 .map(
                     (word: string) =>
                         word.charAt(0).toUpperCase() +
-                        word.slice(1).toLocaleLowerCase()
+                        word.slice(1).toLocaleLowerCase(),
                 )
                 .join(' ')
                 .trim();
@@ -669,7 +665,7 @@ export class EnergyDesignService {
                 .map(
                     (word: string) =>
                         word.charAt(0).toUpperCase() +
-                        word.slice(1).toLocaleLowerCase()
+                        word.slice(1).toLocaleLowerCase(),
                 )
                 .join(' ')
                 .trim();
@@ -681,7 +677,7 @@ export class EnergyDesignService {
                         mode: true,
                         data: data,
                     },
-                    false
+                    false,
                 );
 
             return item;
@@ -692,7 +688,7 @@ export class EnergyDesignService {
         name: string,
         editMode: boolean,
         data?: any,
-        callback?: any
+        callback?: any,
     ) {
         let preDefinedList: string[];
 
@@ -700,8 +696,20 @@ export class EnergyDesignService {
             name: string,
             editMode: boolean,
             data?: any,
-            callback?: any
+            callback?: any,
         ) => {
+            console.log(
+                this.getFieldData(
+                    name,
+                    {
+                        mode: editMode,
+                        data,
+                    },
+                    'user_defined',
+                ),
+            );
+            console.log(data);
+
             return [
                 this.getField(
                     'oep',
@@ -723,11 +731,11 @@ export class EnergyDesignService {
                             mode: editMode,
                             data,
                         },
-                        'user_defined'
+                        'user_defined',
                     ) == 'user_defined'
                         ? true
                         : false,
-                    false
+                    false,
                 ),
                 this.getField(
                     name,
@@ -747,7 +755,7 @@ export class EnergyDesignService {
                     },
                     preDefinedList,
                     false,
-                    'user_defined'
+                    'user_defined',
                 ),
             ];
         };
@@ -768,7 +776,7 @@ export class EnergyDesignService {
                                     name,
                                     editMode,
                                     data,
-                                    callback
+                                    callback,
                                 ),
                             },
 
@@ -791,7 +799,7 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.takeNewNodeName(name)
+                                        this.takeNewNodeName(name),
                                     ),
                                     this.getField(
                                         'outputPort_name',
@@ -811,8 +819,8 @@ export class EnergyDesignService {
                                                 mode: editMode,
                                                 data,
                                             },
-                                            undefined
-                                        )
+                                            undefined,
+                                        ),
                                     ),
                                 ],
                             },
@@ -824,7 +832,7 @@ export class EnergyDesignService {
                 case 'transformer':
                     preDefinedList =
                         await this.flowService.getPreDefinedsByName(
-                            'converter'
+                            'converter',
                         );
 
                     fields = {
@@ -837,7 +845,7 @@ export class EnergyDesignService {
                                     name,
                                     editMode,
                                     data,
-                                    callback
+                                    callback,
                                 ),
                             },
 
@@ -860,7 +868,7 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.takeNewNodeName(name)
+                                        this.takeNewNodeName(name),
                                     ),
                                 ],
                             },
@@ -871,7 +879,7 @@ export class EnergyDesignService {
                 case 'genericstorage':
                     preDefinedList =
                         await this.flowService.getPreDefinedsByName(
-                            'generic_storage'
+                            'generic_storage',
                         );
 
                     fields = {
@@ -884,7 +892,7 @@ export class EnergyDesignService {
                                     name,
                                     editMode,
                                     data,
-                                    callback
+                                    callback,
                                 ),
                             },
 
@@ -903,7 +911,7 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
                                     ),
 
                                     this.getField(
@@ -919,7 +927,7 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.takeNewNodeName(name)
+                                        this.takeNewNodeName(name),
                                     ),
 
                                     this.getField(
@@ -930,7 +938,7 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
                                     ),
                                 ],
                             },
@@ -956,18 +964,18 @@ export class EnergyDesignService {
                                         () => {
                                             const InvestmentFields =
                                                 this.getInvestmentFields_storage(
-                                                    data
+                                                    data,
                                                 ).map((elm: any) => elm.name);
 
                                             callback['toggleInvestFields'](
-                                                InvestmentFields
+                                                InvestmentFields,
                                             );
                                         },
                                         undefined,
                                         this.getFieldData('oep', {
                                             mode: editMode,
                                             data,
-                                        })
+                                        }),
                                     ),
                                 ],
                             },
@@ -996,7 +1004,7 @@ export class EnergyDesignService {
                                             this.getFieldData('oep', {
                                                 mode: editMode,
                                                 data,
-                                            })
+                                            }),
                                     ),
                                 ],
                             },
@@ -1010,7 +1018,7 @@ export class EnergyDesignService {
                                 fields: [
                                     ...this.getInvestmentFields_storage(
                                         data,
-                                        callback
+                                        callback,
                                     ).map((elm: any) => {
                                         // if (elm.actions) {
                                         //     elm.actions.forEach(
@@ -1070,11 +1078,11 @@ export class EnergyDesignService {
                                                 mode: editMode,
                                                 data,
                                             },
-                                            'user_defined'
+                                            'user_defined',
                                         ) == 'user_defined'
                                             ? true
                                             : false,
-                                        false
+                                        false,
                                     ),
 
                                     this.getField(
@@ -1095,7 +1103,7 @@ export class EnergyDesignService {
                                         },
                                         preDefinedList,
                                         false,
-                                        'user_defined'
+                                        'user_defined',
                                     ),
                                 ],
                             },
@@ -1124,8 +1132,8 @@ export class EnergyDesignService {
                                                 mode: editMode,
                                                 data,
                                             },
-                                            undefined
-                                        )
+                                            undefined,
+                                        ),
                                     ),
                                     this.getField(
                                         'name',
@@ -1140,7 +1148,7 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.takeNewNodeName(name)
+                                        this.takeNewNodeName(name),
                                     ),
                                 ],
                             },
@@ -1164,7 +1172,7 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
                                     ),
 
                                     this.getField(
@@ -1180,7 +1188,7 @@ export class EnergyDesignService {
                                         undefined,
                                         undefined,
                                         undefined,
-                                        this.takeNewNodeName(name)
+                                        this.takeNewNodeName(name),
                                     ),
 
                                     this.getField(
@@ -1191,7 +1199,7 @@ export class EnergyDesignService {
                                         'text',
                                         '',
                                         editMode,
-                                        data
+                                        data,
                                     ),
                                 ],
                             },
@@ -1211,7 +1219,8 @@ export class EnergyDesignService {
         editMode: boolean,
         oep: boolean,
         data?: any,
-        callback?: any
+        callback?: any,
+        preDefData?: any,
     ) {
         const getFields = async () => {
             switch (name) {
@@ -1235,15 +1244,15 @@ export class EnergyDesignService {
                                         () => {
                                             const InvestmentFields =
                                                 this.getInvestmentFields(
-                                                    data
+                                                    data,
                                                 ).map((elm: any) => elm.name);
 
                                             callback['toggleInvestFields'](
-                                                InvestmentFields
+                                                InvestmentFields,
                                             );
                                         },
                                         undefined,
-                                        oep
+                                        oep,
                                     ),
                                 ],
                             },
@@ -1269,7 +1278,7 @@ export class EnergyDesignService {
                                                   mode: editMode,
                                                   data,
                                               })
-                                            : oep
+                                            : oep,
                                     ),
                                 ],
                             },
@@ -1284,7 +1293,7 @@ export class EnergyDesignService {
                                     ...this.getInvestmentFields(
                                         data,
                                         callback,
-                                        data.preDefData
+                                        data.preDefData,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {
@@ -1301,7 +1310,7 @@ export class EnergyDesignService {
                                                 (element: any) => {
                                                     element['disabled'] =
                                                         !isInvSelected;
-                                                }
+                                                },
                                             );
                                         }
 
@@ -1329,7 +1338,7 @@ export class EnergyDesignService {
                                     oep,
                                     data,
                                     data.preDefData,
-                                    callback
+                                    callback,
                                 ),
                             },
                         ],
@@ -1357,16 +1366,16 @@ export class EnergyDesignService {
                                             const InvestmentFields =
                                                 this.getInvestmentFields(
                                                     data,
-                                                    callback
+                                                    callback,
                                                 ).map((elm: any) => elm.name);
 
                                             callback['toggleInvestFields'](
-                                                InvestmentFields
+                                                InvestmentFields,
                                             );
                                         },
                                         undefined,
                                         oep,
-                                        data.preDefData?.investment
+                                        preDefData?.investment,
                                     ),
                                 ],
                             },
@@ -1379,7 +1388,7 @@ export class EnergyDesignService {
                                     ...this.getNonInvestmentFields(
                                         data,
                                         name,
-                                        data.preDefData
+                                        preDefData,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {
@@ -1400,7 +1409,7 @@ export class EnergyDesignService {
                                                 (element: any) => {
                                                     element['disabled'] =
                                                         !isInvSelected;
-                                                }
+                                                },
                                             );
                                         }
                                         return elm;
@@ -1418,7 +1427,7 @@ export class EnergyDesignService {
                                     ...this.getInvestmentFields(
                                         data,
                                         callback,
-                                        data.preDefData
+                                        preDefData,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {
@@ -1435,7 +1444,7 @@ export class EnergyDesignService {
                                                 (element: any) => {
                                                     element['disabled'] =
                                                         !isInvSelected;
-                                                }
+                                                },
                                             );
                                         }
 
@@ -1462,8 +1471,8 @@ export class EnergyDesignService {
                                 fields: this.getDefaultFields_flow(
                                     oep,
                                     data,
-                                    data.preDefData,
-                                    callback
+                                    preDefData,
+                                    callback,
                                 ),
                             },
                         ],
@@ -1533,7 +1542,6 @@ export class EnergyDesignService {
             transform_inputs?: OrderItem[];
             transform_outputs?: OrderItem[];
         },
-        preDefData?: OEPPorts
     ): { ports: Ports; inp: number; out: number } | false {
         const makePorts = (): Ports | false => {
             let ports: Ports;
@@ -1551,7 +1559,7 @@ export class EnergyDesignService {
                     ports = this.getTransformPorts(
                         infoData.transform_inputs,
                         infoData.transform_outputs,
-                        preDefData
+                        // preDefData,
                     );
                     return ports;
                 } else return false;
@@ -1563,7 +1571,7 @@ export class EnergyDesignService {
                         id: 0,
                         name: infoData.inputport_name,
                         code: 'input_1',
-                        preDefData: preDefData?.inputs[0].flow_data,
+                        // preDefData: preDefData?.inputs[0].flow_data,
                     });
                 }
 
@@ -1572,7 +1580,7 @@ export class EnergyDesignService {
                         id: 0,
                         name: infoData.outputport_name,
                         code: 'output_1',
-                        preDefData: preDefData?.outputs[0].flow_data,
+                        // preDefData: preDefData?.outputs[0].flow_data,
                     });
                 }
 
@@ -1662,7 +1670,7 @@ export class EnergyDesignService {
     getTransformPorts(
         inputList: OrderItem[],
         outputList: OrderItem[],
-        preDefData?: OEPPorts
+        // preDefData?: OEPPorts,
     ): Ports {
         const ports: Ports = {
             inputs: [],
@@ -1673,12 +1681,12 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `input_${i + 1}`,
-                preDefData:
-                    preDefData &&
-                    preDefData.inputs[i] &&
-                    preDefData.inputs[i].flow_data
-                        ? preDefData.inputs[i].flow_data
-                        : undefined,
+                // preDefData:
+                //     preDefData &&
+                //     preDefData.inputs[i] &&
+                //     preDefData.inputs[i].flow_data
+                //         ? preDefData.inputs[i].flow_data
+                //         : undefined,
             };
             ports.inputs.push(newElm);
         });
@@ -1687,12 +1695,12 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `output_${i + 1}`,
-                preDefData:
-                    preDefData &&
-                    preDefData.outputs[i] &&
-                    preDefData.outputs[i].flow_data
-                        ? preDefData.outputs[i].flow_data
-                        : undefined,
+                // preDefData:
+                //     preDefData &&
+                //     preDefData.outputs[i] &&
+                //     preDefData.outputs[i].flow_data
+                //         ? preDefData.outputs[i].flow_data
+                //         : undefined,
             };
             ports.outputs.push(newElm);
         });
