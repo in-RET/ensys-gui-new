@@ -1,26 +1,26 @@
 // Colors
-$primary-color-1: #1F567D;
-$primary-color-1-dark: #17405C;
+$primary-color-1: #1f567d;
+$primary-color-1-dark: #17405c;
 $primary-color-2: #343434;
 $primary-color-2-light: #8c8c8c;
 
-$primary-gray-color-1: #F4F7F9;
-$primary-gray-color-2: #E3EAEE;
-$primary-gray-color-3: #A8B5C0;
+$primary-gray-color-1: #f4f7f9;
+$primary-gray-color-2: #e3eaee;
+$primary-gray-color-3: #a8b5c0;
 $primary-gray-color-4: #495965;
 
 $white: #fff;
 $black: #000;
-$secondary-gray-color-1: #E4E4E4;
-$secondary-gray-color-2: #D6D6D6;
+$secondary-gray-color-1: #e4e4e4;
+$secondary-gray-color-2: #d6d6d6;
 
-$error-color: #9A031E;
-$success-color: #09BC8A;
-$pending-color: #EC9A29;
+$error-color: #9a031e;
+$success-color: #09bc8a;
+$pending-color: #ec9a29;
 $disabled-color: $primary-gray-color-3;
 
-$dashboard-profitable-value: #20A10B;
-$dashboard-inadequate-value: #A10B0B;
+$dashboard-profitable-value: #20a10b;
+$dashboard-inadequate-value: #a10b0b;
 
 // Text
 $text-color-main: $primary-color-2;
@@ -77,13 +77,16 @@ $button-border-radius: 8px;
 $gray-border: 2px solid $primary-gray-color-1;
 
 // Anchors
-$anchor-hover-transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out; // from Bootstrap
+$anchor-hover-transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out; // from Bootstrap
 $anchor-pseudo-classes: "&:link, &:hover, &:focus, &:visited, &:active";
 $anchor-pseudo-classes-active-state: "&:hover, &:focus, &:active";
-$anchor-pseudo-classes-active-states: ":hover, :focus, :active";
+$anchor-pseudo-classes-active-states: (":hover", ":focus", ":active");
 $anchor-pseudo-classes-inactive-state: "&:link, &:visited";
-$anchors-states-list: '', ':link', ':hover', ':active', ':visited';
-$anchors-items-dark: '.project a', '.dropdown-item', 'footer a', '.nav-link';
+$anchors-states-list: "", ":link", ":hover", ":active", ":visited";
+$anchors-items-dark: ".project a", ".dropdown-item", "footer a", ".nav-link";
 
 // Layout
 $section-max-width: 82rem;
@@ -104,52 +107,52 @@ $space-between-project-elements-small: 0.5rem;
 
 // GUI
 $gui-component-radius: 8px;
-$component-border-color--providers: #A4ADFB;
-$component-border-color--production: #FFEF9F;
-$component-border-color--conversion: #7BF1A8;
-$component-border-color--storage: #90F1EF;
-$component-border-color--demand: #FFD6E0;
-$component-border-color--bus: #F4CC9E;
+$component-border-color--providers: #a4adfb;
+$component-border-color--production: #ffef9f;
+$component-border-color--conversion: #7bf1a8;
+$component-border-color--storage: #90f1ef;
+$component-border-color--demand: #ffd6e0;
+$component-border-color--bus: #f4cc9e;
 $component-categories: (
-        'providers': $component-border-color--providers,
-        'production': $component-border-color--production,
-        'conversion': $component-border-color--conversion,
-        'storage': $component-border-color--storage,
-        'demand': $component-border-color--demand,
-        'bus': $component-border-color--bus
+    "providers": $component-border-color--providers,
+    "production": $component-border-color--production,
+    "conversion": $component-border-color--conversion,
+    "storage": $component-border-color--storage,
+    "demand": $component-border-color--demand,
+    "bus": $component-border-color--bus,
 );
 
 $component-categories-mapping: (
-        "dso": "providers",
-        "gas_dso": "providers",
-        "h2_dso": "providers",
-        "heat_dso": "providers",
-        "pv_plant": "production",
-        "wind_plant": "production",
-        "biogas_plant": "production",
-        "geothermal_conversion": "production",
-        "solar_thermal_plant": "production",
-        "transformer_station_in": "conversion",
-        "transformer_station_out": "conversion",
-        "storage_charge_controller_in": "conversion",
-        "storage_charge_controller_out": "conversion",
-        "solar_inverter": "conversion",
-        "diesel_generator": "conversion",
-        "fuel_cell": "conversion",
-        "gas_boiler": "conversion",
-        "electrolyzer": "conversion",
-        "heat_pump": "conversion",
-        "chp": "conversion",
-        "chp_fixed_ratio": "conversion",
-        "bess": "storage",
-        "gess": "storage",
-        "h2ess": "storage",
-        "hess": "storage",
-        "demand": "demand",
-        "gas_demand": "demand",
-        "h2_demand": "demand",
-        "heat_demand": "demand",
-        "bus": "bus",
+    "dso": "providers",
+    "gas_dso": "providers",
+    "h2_dso": "providers",
+    "heat_dso": "providers",
+    "pv_plant": "production",
+    "wind_plant": "production",
+    "biogas_plant": "production",
+    "geothermal_conversion": "production",
+    "solar_thermal_plant": "production",
+    "transformer_station_in": "conversion",
+    "transformer_station_out": "conversion",
+    "storage_charge_controller_in": "conversion",
+    "storage_charge_controller_out": "conversion",
+    "solar_inverter": "conversion",
+    "diesel_generator": "conversion",
+    "fuel_cell": "conversion",
+    "gas_boiler": "conversion",
+    "electrolyzer": "conversion",
+    "heat_pump": "conversion",
+    "chp": "conversion",
+    "chp_fixed_ratio": "conversion",
+    "bess": "storage",
+    "gess": "storage",
+    "h2ess": "storage",
+    "hess": "storage",
+    "demand": "demand",
+    "gas_demand": "demand",
+    "h2_demand": "demand",
+    "heat_demand": "demand",
+    "bus": "bus",
 );
 $gui-component-bg-size: 4.5rem;
 $gui-component-img-size: 3rem;
@@ -166,7 +169,9 @@ $dashboard-table-cell-padding: 0.75rem 1rem;
 $simulation-error-padding: 4rem;
 
 // Forms
-$form-control-placeholders: '::placeholder', '::-webkit-input-placeholder', '::-moz-placeholder', ':-ms-input-placeholder', ':-moz-placeholder';
+$form-control-placeholders:
+    "::placeholder", "::-webkit-input-placeholder", "::-moz-placeholder",
+    ":-ms-input-placeholder", ":-moz-placeholder";
 
 // Z-index
 $z-index-nav: 9;
