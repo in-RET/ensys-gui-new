@@ -33,23 +33,15 @@ export class TemplateExploreComponent implements OnInit {
             this.toastService.error('Failed to load templates.');
             return of([] as TemplateModel[]);
         }),
-        shareReplay({ bufferSize: 1, refCount: true })
+        shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     ngOnInit() {
-        // Initialize storage cleanup on enter
-        this.clearScenarioDataStorage();
         // Prime local list cache
         this.templates$.subscribe(
-            (items: TemplateModel[]) => (this.templateList = items)
+            (items: TemplateModel[]) => (this.templateList = items),
         );
     }
 
     trackByTemplateId = (_: number, item: TemplateModel) => item.id;
-
-    clearScenarioDataStorage() {
-        this.scenarioService.removeBaseInfo_Storage();
-        this.scenarioService.removeDrawflow_Storage();
-        this.toastService.info('Storage cleared.');
-    }
 }

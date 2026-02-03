@@ -72,7 +72,9 @@
         &:hover,
         &:focus,
         &:active {
-            background-color: $white !important;
+            background-color: $primary-gray-color-1 !important;
+            color: $primary-color-1-dark !important;
+            border-color: $primary-color-1;
         }
     }
 
