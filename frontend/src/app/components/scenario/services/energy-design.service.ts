@@ -824,7 +824,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'outputPort_name',
                                         'Name',
-                                        'Port(Out)',
+                                        'Port Name(Out)',
                                         true,
                                         'text',
                                         '',
@@ -953,7 +953,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'outputPort_name',
                                         'Name',
-                                        'Port(Out)',
+                                        'Port Name(Out)',
                                         true,
                                         'text',
                                         '',

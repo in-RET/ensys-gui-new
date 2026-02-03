@@ -98,6 +98,26 @@ export class EnergyDrawflowComponent {
                 drawFlowHtmlElement as HTMLElement,
             );
 
+            const container = document.getElementById('drawflow');
+            const _this = this;
+
+            if (container) {
+                container.addEventListener('dblclick', function (e: any) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const closestNode = e.target.closest('.drawflow-node');
+
+                    if (closestNode) {
+                        const nodeId = closestNode.id.split('node-')[1];
+                        _this.showModalEdit(
+                            'node',
+                            undefined,
+                            _this.editor.getNodeFromId(nodeId),
+                        );
+                    }
+                });
+            }
             this.editor.reroute = false;
             this.editor.curvature = 1;
             this.editor.force_first_input = true;
@@ -159,10 +179,6 @@ export class EnergyDrawflowComponent {
                         : closestEdge.id.split('node-')[1],
                 );
             }
-        });
-
-        this.editor.on('click', (event: any) => {
-            // this.unShowConextMenu();
         });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
@@ -863,6 +879,7 @@ export class EnergyDrawflowComponent {
             source: { node: any; port: any };
             destination: { node: any; port: any };
         },
+        node?: DrawflowNode,
     ) {
         if (this.contextmenu != null) {
             const node = this.editor.getNodeFromId(this.contextmenu.nodeId);
@@ -959,6 +976,16 @@ export class EnergyDrawflowComponent {
 
                 this.unShowConextMenu();
             }
+        } else if (type == 'node' && node) {
+            this.showFormModal_node.emit({
+                id: node.class.toLocaleLowerCase(),
+                node: node,
+                title: `Edit: ${node.name}`,
+                action: { fn: 'submitFormData', label: 'Update' },
+                editMode: true,
+                data: node.data,
+                _id: node.id,
+            });
         }
     }
 
