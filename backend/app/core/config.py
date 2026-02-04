@@ -163,4 +163,12 @@ def get_settings() -> Settings:
     :return: Cached Settings instance
     :rtype: Settings
     """
-    return Settings(cors_origins=["*"])
+    origins = [
+        "https://ensys.hs-nordhausen.de",
+        "http:10.1.7.31:20005",
+        "http://localhost:20005",
+        "http:10.1.7.:31:9004",
+        "http://localhost:9004",
+    ]
+
+    return Settings(cors_origins=origins)
