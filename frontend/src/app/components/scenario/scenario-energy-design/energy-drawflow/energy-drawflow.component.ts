@@ -128,11 +128,45 @@ export class EnergyDrawflowComponent {
         }
     }
 
+    private updateInputPorts() {
+        const module = this.editor.module;
+        const nodes = this.editor.drawflow.drawflow[module].data;
+
+        Object.values(nodes).forEach((node) => {
+            const nodeElement = document.getElementById('node-' + node.id);
+            if (!nodeElement) return;
+
+            Object.keys(node.inputs).forEach((inputName) => {
+                const input = node.inputs[inputName];
+
+                const portEl = nodeElement.querySelector(`.input.${inputName}`);
+                if (!portEl) return;
+
+                // DEFAULT STATE
+                if (input.connections.length === 0) {
+                    portEl.classList.add('disabled');
+                } else {
+                    portEl.classList.remove('disabled');
+                }
+            });
+        });
+    }
+
     private addEditorEvents() {
+        this.editor.on('import', (data: any) => {
+            setTimeout(() => this.updateInputPorts(), 0);
+        });
+
+        this.editor.on('moduleChanged', () => {
+            setTimeout(() => this.updateInputPorts(), 0);
+        });
+
         this.editor.on('nodeCreated', (data: any) => {
             console.log('Drawflow event: nodeCreated');
             this.toastService.info('Drawflow event: nodeCreated');
             this.saveCurrentDrawflow();
+
+            setTimeout(() => this.updateInputPorts(), 0);
         });
 
         this.editor.on('nodeDataChanged', (data: any) => {
@@ -157,12 +191,16 @@ export class EnergyDrawflowComponent {
                 output_port: connection.output_class,
             };
             this.connectionCreated(connection);
+
+            this.updateInputPorts();
         });
 
         this.editor.on('connectionRemoved', (connection: any) => {
             console.log('Drawflow event: connectionRemoved');
             this.toastService.info('Drawflow event: connectionRemoved');
             this.saveCurrentDrawflow();
+
+            setTimeout(() => this.updateInputPorts(), 0);
         });
 
         this.editor.on('connectionSelected', (connection: any) => {});

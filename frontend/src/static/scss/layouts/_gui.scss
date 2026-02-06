@@ -140,17 +140,6 @@
         }
 
         &__empty-text {
-            // display: inline-block;
-            // position: absolute;
-            // top: 50%;
-            // transform: translateY(-50%);
-            // transform: translateX(-50%);
-            // left: 50%;
-
-            // span {
-            //     color: $primary-color-2;
-            //     font-weight: 300;
-            // }
         }
     }
 
@@ -163,20 +152,6 @@
     }
 
     .parent-node .drawflow-delete {
-        // content: "X";
-        // position: absolute;
-        // top: 0;
-        // right: 0;
-        // background-color: $white;
-        // color: black;
-        // width: 1.15rem;
-        // height: 1.15rem;
-        // font-weight: 700;
-        // line-height: 1rem;
-        // padding-left: 0.25rem;
-        // border: 1px solid $primary-gray-color-4;
-        // border-radius: 100%;
-        // cursor: pointer;
         display: none;
     }
 
@@ -235,13 +210,20 @@
                 height: $gui-component-node-size;
                 border-radius: 100%;
                 margin: 0.25rem 0;
-                border: 1px solid $white;
+                border: 1px solid $black;
                 cursor: pointer;
             }
 
             .input {
-                background-color: #4ec4c4;
                 left: -22px;
+                background-color: #4ec4c4;
+
+                &.disabled {
+                    background-color: #797d7d !important;
+                    cursor: not-allowed !important;
+                    border: 1px solid #ababab;
+                    pointer-events: visible;
+                }
             }
 
             .output {
@@ -323,20 +305,6 @@
 }
 
 .system-design .parent-node .drawflow-delete {
-    // content: "X";
-    // position: absolute;
-    // top: 0;
-    // right: 0;
-    // background-color: #fff;
-    // color: black;
-    // width: 1.15rem;
-    // height: 1.15rem;
-    // font-weight: 700;
-    // line-height: 1rem;
-    // padding-left: 0.25rem;
-    // border: 1px solid #495965;
-    // border-radius: 100%;
-    // cursor: pointer;
     display: none;
 }
 
@@ -391,23 +359,23 @@
     top: 0.4rem;
 }
 
-.system-design .drawflow .drawflow-node .inputs .input,
-.system-design .drawflow .drawflow-node .inputs .output,
-.system-design .drawflow .drawflow-node .outputs .input,
-.system-design .drawflow .drawflow-node .outputs .output {
-    width: 0.75rem;
-    height: 0.75rem;
-    border-radius: 100%;
-    margin: 0.25rem 0;
-    border: 1px solid #fff;
-    cursor: pointer;
-}
+// .system-design .drawflow .drawflow-node .inputs .input,
+// .system-design .drawflow .drawflow-node .inputs .output,
+// .system-design .drawflow .drawflow-node .outputs .input,
+// .system-design .drawflow .drawflow-node .outputs .output {
+//     width: 0.75rem;
+//     height: 0.75rem;
+//     border-radius: 100%;
+//     margin: 0.25rem 0;
+//     border: 1px solid #fff;
+//     cursor: pointer;
+// }
 
-.system-design .drawflow .drawflow-node .inputs .input,
-.system-design .drawflow .drawflow-node .outputs .input {
-    background-color: #4ec4c4;
-    left: -22px;
-}
+// .system-design .drawflow .drawflow-node .inputs .input,
+// .system-design .drawflow .drawflow-node .outputs .input {
+//     background-color: #4ec4c4;
+//     left: -22px;
+// }
 
 .system-design .drawflow .drawflow-node .inputs .input.mirrored,
 .system-design .drawflow .drawflow-node .outputs .input.mirrored {
