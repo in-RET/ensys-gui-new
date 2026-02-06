@@ -61,6 +61,7 @@ class FormModalInfo {
         | {
               name: string;
               simulationYear: number;
+              hasChanged: boolean;
           }
         | undefined;
     flowData: { inputs: FlowData[]; outputs: FlowData[] } | undefined;
@@ -214,11 +215,6 @@ export class ScenarioEnergyDesignComponent
         if (e.editMode && e.data && e.data.preDefData)
             this.formModal_info.preDefData = e.data.preDefData;
 
-        // on edit
-        // if (e.editMode && this.formModal_info.node) {
-        //     e.data['name'] = this.formModal_info.node.name;
-        // }
-
         let nodeType = '';
         if (!e.editMode) nodeType = e.node?.type ?? '';
         else nodeType = e.node?.class ?? '';
@@ -253,29 +249,37 @@ export class ScenarioEnergyDesignComponent
             this.formModal_info.url = this.getEntityInfoUrl(
                 this.formModal_info.node.type,
             );
+
         // appear Modal
         this.formModal_info.show = true;
     }
 
     async showFormModal_flow(e: any) {
+        console.log(e);
+
         this.formModal_info = new FormModalInfo();
+
         // load flow data from server
-        if (e.node?.data?.preDefData) {
+        if (e.node?.data?.preDefData && e.node?.data?.preDefData.hasChanged) {
             const pData = e.node.data.preDefData;
-            const data = await this.flowService.getPreDefinedValue_ports(
-                pData.name,
-                pData.simulationYear,
-            );
+
+            const PreDefinedData =
+                await this.flowService.getPreDefinedValue_ports(
+                    pData.name,
+                    pData.simulationYear,
+                );
             this.formModal_info.preDefData = {
                 name: pData.name,
                 simulationYear: pData.simulationYear,
+                hasChanged: pData.hasChanged,
             };
-            this.formModal_info.flowData = data;
-            this.formModal_info.data = {
-                ...e.data,
-                connection: e.connection,
-            };
-        } else this.formModal_info.data = e.data;
+            this.formModal_info.flowData = PreDefinedData;
+        }
+
+        this.formModal_info.data = {
+            ...e.data,
+            connection: e.connection,
+        };
 
         this.formModal_info.type = 'flow';
         this.formModal_info.title = e.title;
@@ -297,10 +301,10 @@ export class ScenarioEnergyDesignComponent
                 const fData = this.formModal_info.flowData;
 
                 if (key.split('_')[0] === 'input') {
-                    currentPortNum = +connections['input_class'].split('_')[1];
+                    currentPortNum = +connections['input_port'].split('_')[1];
                     flowData = fData.inputs[currentPortNum - 1]['flow_data'];
                 } else {
-                    currentPortNum = +connections['output_class'].split('_')[1];
+                    currentPortNum = +connections['output_port'].split('_')[1];
                     flowData = fData.outputs[currentPortNum - 1]['flow_data'];
                 }
             }
@@ -445,9 +449,6 @@ export class ScenarioEnergyDesignComponent
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
                         next: (value: OEPResponse) => {
-                            // save in/out data port based on predefined item, to use in flow
-                            // this.formModal_info.preDefData = value.ports_data;
-
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
                                     ...this.formModal_info.data,
@@ -479,58 +480,6 @@ export class ScenarioEnergyDesignComponent
                                         inputItem,
                                     );
                                 }
-
-                                // this.formModal_info.node?.data?.connections?.inputs.forEach(
-                                //     (port_a: any, index: number) => {
-                                //         // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
-                                //         value.ports_data.inputs.forEach(
-                                //             (port_b: Port) => {
-                                //                 for (const key in port_b.flow_data) {
-                                //                     if (
-                                //                         Object.prototype.hasOwnProperty.call(
-                                //                             port_b.flow_data,
-                                //                             key,
-                                //                         )
-                                //                     ) {
-                                //                         port_a[
-                                //                             'input_' +
-                                //                                 (index + 1)
-                                //                         ].formInfo[key] =
-                                //                             port_b.flow_data[
-                                //                                 key
-                                //                             ];
-                                //                     }
-                                //                 }
-                                //             },
-                                //         );
-                                //     },
-                                // );
-
-                                // this.formModal_info.data?.connections?.inputs.forEach(
-                                //     (port_a: any, index: number) => {
-                                //         // port_a == {'input_X': {baseInfo:..., formInfo:...}  }
-                                //         value.ports_data.inputs.forEach(
-                                //             (port_b: Port) => {
-                                //                 for (const key in port_b.flow_data) {
-                                //                     if (
-                                //                         Object.prototype.hasOwnProperty.call(
-                                //                             port_b.flow_data,
-                                //                             key,
-                                //                         )
-                                //                     ) {
-                                //                         port_a[
-                                //                             'input_' +
-                                //                                 (index + 1)
-                                //                         ].formInfo[key] =
-                                //                             port_b.flow_data[
-                                //                                 key
-                                //                             ];
-                                //                     }
-                                //                 }
-                                //             },
-                                //         );
-                                //     },
-                                // );
                             });
 
                             // set node's ports name + ...props
@@ -553,78 +502,13 @@ export class ScenarioEnergyDesignComponent
                                         outputItem,
                                     );
                                 }
-
-                                // this.formModal_info.node?.data?.connections?.outputs.forEach(
-                                //     (port_a: any, index: number) => {
-                                //         // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
-                                //         value.ports_data.outputs.forEach(
-                                //             (port_b: Port) => {
-                                //                 for (const key in port_b.flow_data) {
-                                //                     if (
-                                //                         Object.prototype.hasOwnProperty.call(
-                                //                             port_b.flow_data,
-                                //                             key,
-                                //                         )
-                                //                     ) {
-                                //                         port_a[
-                                //                             'output_' +
-                                //                                 (index + 1)
-                                //                         ].formInfo[key] =
-                                //                             port_b.flow_data[
-                                //                                 key
-                                //                             ];
-                                //                     }
-                                //                 }
-                                //             },
-                                //         );
-                                //     },
-                                // );
-
-                                // this.formModal_info.data?.connections?.outputs.forEach(
-                                //     (port_a: any, index: number) => {
-                                //         // port_a == {'output_X': {baseInfo:..., formInfo:...}  }
-                                //         value.ports_data.outputs.forEach(
-                                //             (port_b: Port) => {
-                                //                 for (const key in port_b.flow_data) {
-                                //                     if (
-                                //                         Object.prototype.hasOwnProperty.call(
-                                //                             port_b.flow_data,
-                                //                             key,
-                                //                         )
-                                //                     ) {
-                                //                         port_a[
-                                //                             'output_' +
-                                //                                 (index + 1)
-                                //                         ].formInfo[key] =
-                                //                             port_b.flow_data[
-                                //                                 key
-                                //                             ];
-                                //                     }
-                                //                 }
-                                //             },
-                                //         );
-                                //     },
-                                // );
                             });
 
                             // set form fields
                             this.formComponent.setFieldData('oep', true);
-                            // this.formModal_info.data
-                            //     ? (this.formModal_info.data.oep = true)
-                            //     : null;
                             this.formModal_info.node
                                 ? (this.formModal_info.node.oep = true)
                                 : null;
-
-                            // this.formComponent.setFieldData(
-                            //     'inputPort_name',
-                            //     null
-                            // );
-                            // this.formComponent.setFieldData(
-                            //     'outputPort_name',
-                            //     null
-                            // );
-                            // disable all fields
 
                             this.formComponent.enabelControl('oep');
                             this.formComponent.disableControl('inputPort_name');
@@ -632,15 +516,13 @@ export class ScenarioEnergyDesignComponent
                                 'outputPort_name',
                             );
 
-                            // set icon name for node's icon, based on predefined item
-                            // this.formModal_info.data.icon_name = option;
-
                             if (scenarioBaseData && scenarioBaseData.scenario)
                                 this.formModal_info.preDefData = {
                                     name: option,
                                     simulationYear:
                                         scenarioBaseData.scenario
                                             .simulationYear,
+                                    hasChanged: true,
                                 };
                         },
                         error: (err) => {
@@ -771,6 +653,7 @@ export class ScenarioEnergyDesignComponent
                                     simulationYear:
                                         scenarioBaseData.scenario
                                             .simulationYear,
+                                    hasChanged: true,
                                 };
                         },
                         error: (err) => {
@@ -924,7 +807,9 @@ export class ScenarioEnergyDesignComponent
             const isOepSelected =
                 this.formModal_info.node?.oep ??
                 this.formModal_info.node?.data.oep;
+
             let formData = this.formComponent.submit(!isOepSelected);
+
             // save data of connection fields in both sides
             this.energyDrawflowComponent.saveConnectionInNode(
                 this.formModal_info.data.connection,
@@ -951,6 +836,7 @@ export class ScenarioEnergyDesignComponent
         if (this.formModal_info.editMode)
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.data.oep) ?? false;
+
         if (isOepSelected === undefined)
             isOepSelected =
                 findOEPFieldData(this.formModal_info.node?.oep) ?? false;
@@ -989,22 +875,18 @@ export class ScenarioEnergyDesignComponent
                             return false;
                         }
 
-                        // formData = { ...formData, ...portsInfo };
+                        // add connections if node is bus
+                        if (this.formModal_info.node.type == 'bus')
+                            formData['connections'] = {
+                                inputs: [],
+                                outputs: [],
+                            };
+
                         formData = {
                             ...formData,
                             ...portsInfo,
                             preDefData: this.formModal_info.preDefData,
                         };
-
-                        // cause of flow pre-data
-                        // formData['connections'] = this.formModal_info.data
-                        //     ? this.formModal_info.data['connections']
-                        //     : null;
-
-                        // set preDefData
-                        // if (this.formModal_info.preDefData)
-                        //     formData['preDefData'] =
-                        //         this.formModal_info.preDefData;
 
                         if (formData) {
                             if (!this.formModal_info.editMode)

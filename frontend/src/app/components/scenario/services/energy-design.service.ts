@@ -14,7 +14,6 @@ interface EPCostParams {
 
 interface Port extends OrderItem {
     code: string;
-    // preDefData?: FlowData;
 }
 
 export interface Ports {
@@ -101,7 +100,7 @@ export class EnergyDesignService {
                 span: 'auto',
             },
         ].map((item: any) => {
-            if (data && !data.oep && !preDefData) {
+            if (data && !data.oep) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
             } else if (preDefData) {
                 item['value'] = preDefData[item.name.toLocaleLowerCase()];
@@ -366,8 +365,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'variable_costs',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -387,8 +386,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'max',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -408,8 +407,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'min',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -444,8 +443,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'positive_gradient_limit',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -465,8 +464,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'negative_gradient_limit',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -486,8 +485,8 @@ export class EnergyDesignService {
                         callback['openModal_TimeSeries']({
                             controlName: 'fixed_costs',
                             modes: [
-                                { value: 'time_series', label: 'Time Series' },
-                                { value: 'fixed', label: 'Fixed Value' },
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
                             ],
                         });
                     },
@@ -1395,7 +1394,9 @@ export class EnergyDesignService {
                                         },
                                         undefined,
                                         oep,
-                                        preDefData?.investment,
+                                        preDefData
+                                            ? preDefData.investment
+                                            : null,
                                     ),
                                 ],
                             },
@@ -1411,10 +1412,16 @@ export class EnergyDesignService {
                                         preDefData,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
-                                            this.getFieldData('investment', {
-                                                mode: editMode,
-                                                data,
-                                            });
+                                            this.getFieldData(
+                                                'investment',
+                                                {
+                                                    mode: editMode,
+                                                    data,
+                                                },
+                                                preDefData
+                                                    ? preDefData.investment
+                                                    : null,
+                                            );
 
                                         if (!oep)
                                             elm['disabled'] = isInvSelected;
@@ -1450,10 +1457,16 @@ export class EnergyDesignService {
                                         preDefData,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
-                                            this.getFieldData('investment', {
-                                                mode: editMode,
-                                                data,
-                                            });
+                                            this.getFieldData(
+                                                'investment',
+                                                {
+                                                    mode: editMode,
+                                                    data,
+                                                },
+                                                preDefData
+                                                    ? preDefData.investment
+                                                    : null,
+                                            );
 
                                         if (!oep)
                                             elm['disabled'] = !isInvSelected;
@@ -1579,7 +1592,6 @@ export class EnergyDesignService {
                     ports = this.getTransformPorts(
                         infoData.transform_inputs,
                         infoData.transform_outputs,
-                        // preDefData,
                     );
                     return ports;
                 } else return false;
@@ -1591,7 +1603,6 @@ export class EnergyDesignService {
                         id: 0,
                         name: infoData.inputport_name,
                         code: 'input_1',
-                        // preDefData: preDefData?.inputs[0].flow_data,
                     });
                 }
 
@@ -1600,7 +1611,6 @@ export class EnergyDesignService {
                         id: 0,
                         name: infoData.outputport_name,
                         code: 'output_1',
-                        // preDefData: preDefData?.outputs[0].flow_data,
                     });
                 }
 
@@ -1687,11 +1697,7 @@ export class EnergyDesignService {
         ];
     }
 
-    getTransformPorts(
-        inputList: OrderItem[],
-        outputList: OrderItem[],
-        // preDefData?: OEPPorts,
-    ): Ports {
+    getTransformPorts(inputList: OrderItem[], outputList: OrderItem[]): Ports {
         const ports: Ports = {
             inputs: [],
             outputs: [],
@@ -1701,12 +1707,6 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `input_${i + 1}`,
-                // preDefData:
-                //     preDefData &&
-                //     preDefData.inputs[i] &&
-                //     preDefData.inputs[i].flow_data
-                //         ? preDefData.inputs[i].flow_data
-                //         : undefined,
             };
             ports.inputs.push(newElm);
         });
@@ -1715,12 +1715,6 @@ export class EnergyDesignService {
             const newElm: Port = {
                 ...element,
                 code: `output_${i + 1}`,
-                // preDefData:
-                //     preDefData &&
-                //     preDefData.outputs[i] &&
-                //     preDefData.outputs[i].flow_data
-                //         ? preDefData.outputs[i].flow_data
-                //         : undefined,
             };
             ports.outputs.push(newElm);
         });
