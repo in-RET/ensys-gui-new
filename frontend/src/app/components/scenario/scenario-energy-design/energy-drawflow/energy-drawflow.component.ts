@@ -1275,6 +1275,19 @@ export class EnergyDrawflowComponent {
                 baseInfo: connection,
                 formInfo: data,
             });
+
+            // clear predefined change on node to prevent reset data on flow open again until predefined change again by node
+            if (
+                this.editor.drawflow.drawflow.Home.data[connection.output_node]
+                    .class !== 'bus'
+            )
+                this.editor.drawflow.drawflow.Home.data[
+                    connection.output_node
+                ].data.preDefData.hasChanged = false;
+            else
+                this.editor.drawflow.drawflow.Home.data[
+                    connection.input_node
+                ].data.preDefData.hasChanged = false;
         } else {
             const index = connections.findIndex(
                 (conn: any) =>
@@ -1322,6 +1335,7 @@ export class EnergyDrawflowComponent {
             undefined,
             'warning',
         );
+
         if (confirmed) {
             this.editor.removeSingleConnection(
                 node_source.node.id,
@@ -1336,6 +1350,7 @@ export class EnergyDrawflowComponent {
                 input_node: node_destination.node.id,
                 input_port: node_destination.port.code,
             };
+
             this.deleteConnectionData(currentConnection);
             this.saveCurrentDrawflow();
         }
@@ -1402,7 +1417,8 @@ export class EnergyDrawflowComponent {
             index = connectionList['inputs'].findIndex(
                 (conn: any) =>
                     conn.baseInfo.input_node == busNode.id &&
-                    conn.baseInfo.output_node == connection.output_node,
+                    conn.baseInfo.output_node == connection.output_node &&
+                    conn.baseInfo.output_port == connection.output_port,
             );
 
             connectionList['inputs'].splice(index, 1);
@@ -1410,7 +1426,8 @@ export class EnergyDrawflowComponent {
             index = connectionList['outputs'].findIndex(
                 (conn: any) =>
                     conn.baseInfo.output_node == busNode.id &&
-                    conn.baseInfo.input_node == connection.output_node,
+                    conn.baseInfo.input_node == connection.input_node &&
+                    conn.baseInfo.input_port == connection.input_port,
             );
             connectionList['outputs'].splice(index, 1);
         }
