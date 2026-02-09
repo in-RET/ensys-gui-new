@@ -37,7 +37,7 @@ export class ProjectScenarioItemComponent {
 
                     this.scenarioService.saveDrawflow_Storage(
                         data.modeling_data,
-                        false
+                        false,
                     );
 
                     // save project,scenario - storage
@@ -62,7 +62,7 @@ export class ProjectScenarioItemComponent {
                     this.router.navigate(['/scenario']);
                 } else {
                     this.toastService.error(
-                        'An error occured while loading scenario data.'
+                        'An error occured while loading scenario data.',
                     );
                 }
             },
@@ -75,7 +75,7 @@ export class ProjectScenarioItemComponent {
     async onDeleteScenario(scenarioId: number) {
         const confirmed = await this.alertService.confirm(
             `Are you sure delete scenario ${this.scenario.name}?`,
-            'Delete'
+            'Delete',
         );
 
         if (confirmed) {
@@ -83,7 +83,7 @@ export class ProjectScenarioItemComponent {
                 next: (value) => {
                     if (value.success) {
                         this.toastService.success(
-                            `Scenario ${this.scenario.name} deleted.`
+                            `Scenario ${this.scenario.name} deleted.`,
                         );
                         this.deleteScenario.emit(scenarioId);
                     } else this.toastService.error('An error occured.');
@@ -98,7 +98,7 @@ export class ProjectScenarioItemComponent {
     async onDuplicateScenario(scenarioId: number) {
         const confirmed = await this.alertService.confirm(
             `Are you sure duplicate scenario ${this.scenario.name}?`,
-            'Duplicate'
+            'Duplicate',
         );
 
         if (confirmed) {
@@ -106,9 +106,13 @@ export class ProjectScenarioItemComponent {
                 next: (value) => {
                     if (value.success) {
                         this.toastService.success(
-                            `Scenario ${this.scenario.name} duplicated.`
+                            `Scenario ${this.scenario.name} duplicated.`,
                         );
-                        this.duplicateScenario.emit(this.scenario.project_id);
+                        this.duplicateScenario.emit({
+                            projectId: this.scenario.project_id,
+                            scenarioId: scenarioId,
+                            newScenario: value.data,
+                        });
                     } else this.toastService.error('An error occured.');
                 },
                 error: (err) => {

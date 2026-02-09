@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, of } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -34,15 +34,14 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
 })
 export class ProjectItemComponent implements OnInit {
     isCollapsed = true;
-    scenarios$!: Observable<any[]>;
 
     // @Input() project!: ProjectModel;
     private _project!: ProjectModel;
-
     @Input() set project(val: ProjectModel) {
         this._project = val;
 
-        this.scenarios$ = this.scenarioService
+        // this.scenarios$ =
+        this.scenarioService
             .getScenarios(this._project.id)
             .pipe(
                 map((res: ResModel<ScenarioResModel>) => {
@@ -56,8 +55,9 @@ export class ProjectItemComponent implements OnInit {
                     console.error(err);
                     this.toastService.error('Failed to load scenarios.');
                     return of([] as ScenarioModel[]);
-                })
-            );
+                }),
+            )
+            .subscribe((data) => (this._project.scenarioList = data));
     }
     get project(): ProjectModel {
         return this._project;
@@ -79,7 +79,7 @@ export class ProjectItemComponent implements OnInit {
             undefined,
             undefined,
             undefined,
-            'warning'
+            'warning',
         );
         if (confirmed) {
             this._deleteProject(id);
@@ -96,7 +96,7 @@ export class ProjectItemComponent implements OnInit {
             undefined,
             undefined,
             undefined,
-            'warning'
+            'warning',
         );
 
         if (confirmed) {
@@ -125,11 +125,19 @@ export class ProjectItemComponent implements OnInit {
 
     deleteScenario(scenarioId: number) {
         this.project.scenarioList = this.project.scenarioList?.filter(
-            (x: any) => x.id !== scenarioId
+            (x: any) => x.id !== scenarioId,
         );
     }
 
-    duplicateScenario($event: any) {
-        // this.loadScenarios();
+    duplicateScenario(e: {
+        projectId: number;
+        scenarioId: number;
+        newScenario: string;
+    }) {
+        // const baseScenario = this.project.scenarioList?.find(
+        //     (x: ScenarioModel) => x.id === e.scenarioId,
+        // );
+        // baseScenario?.name
+        // this.project.scendarioList?.push(e.newScenario);
     }
 }

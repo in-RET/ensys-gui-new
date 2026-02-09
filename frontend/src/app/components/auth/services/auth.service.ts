@@ -12,7 +12,7 @@ export class AuthService {
 
     constructor(
         private baseHttp: BaseHttpService,
-        private authCoreService: AuthCoreService
+        private authCoreService: AuthCoreService,
     ) {}
 
     logIn(username: string, password: string): Observable<any> {
@@ -38,7 +38,7 @@ export class AuthService {
         firstname: string,
         lastname: string,
         password: string,
-        mail: string
+        mail: string,
     ): Observable<any> {
         const data = { username, firstname, lastname, password, mail };
         return this.baseHttp.post(`${this.baseUrl}auth/register`, data);

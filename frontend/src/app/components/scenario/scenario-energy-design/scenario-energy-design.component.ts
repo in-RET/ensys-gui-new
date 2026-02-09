@@ -1090,8 +1090,8 @@ export class ScenarioEnergyDesignComponent
                 this.formModal_info.node?.class !== 'sink'
             )
                 this.timeSeriesModal.modes = [
-                    { value: 'time_series', label: 'Time Series' },
-                    { value: 'fixed', label: 'Fixed Value' },
+                    { value: 'file', label: 'CSV File' },
+                    { value: 'number', label: 'Single Value' },
                 ];
         } else this.timeSeriesModal.modes = e.modes;
 

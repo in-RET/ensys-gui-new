@@ -47,9 +47,9 @@
     </div>
 
     <div class="project__scenarios text-center">
-        <ng-container *ngIf="scenarios$ | async as scenarios; else loading">
+        <ng-container *ngIf="project.scenarioList; else loading">
             <!-- Scenario List -->
-            <ng-container *ngIf="scenarios.length > 0">
+            <ng-container *ngIf="project.scenarioList.length > 0">
                 <div
                     class="collapse"
                     #collapse="ngbCollapse"
@@ -58,7 +58,7 @@
                     <ul class="list-group rounded-0">
                         <li
                             class="list-group-item scenario_item"
-                            *ngFor="let scenario of scenarios"
+                            *ngFor="let scenario of project.scenarioList"
                         >
                             <app-project-scenario-item
                                 [project]="project"
@@ -81,14 +81,14 @@
                     (click)="isCollapsed = !isCollapsed"
                     [attr.aria-expanded]="!isCollapsed"
                     aria-controls="collapseExample"
-                    *ngIf="scenarios.length > 0"
+                    *ngIf="project.scenarioList.length > 0"
                 >
                     <span
                         class="icon icon--small js-toggle-scenario-icon"
                         aria-hidden="true"
                         [ngClass]="{
                             'icon-i_arrow_down': isCollapsed,
-                            'icon-i_arrow_up': !isCollapsed
+                            'icon-i_arrow_up': !isCollapsed,
                         }"
                     >
                     </span>
