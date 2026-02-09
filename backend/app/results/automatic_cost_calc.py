@@ -3,19 +3,15 @@ import pandas as pd
 from oemof import solph
 
 
-
 def __cost_calculation(energysystem, results) -> pd.DataFrame:
-    dict_costs = {"investment costs": {},
-                  "variable costs": {},
-                  "profits": {}
-                  }
+    dict_costs = {"investment costs": {}, "variable costs": {}, "profits": {}}
 
     # % FIXME: Es liegt ein Problem damit vor, das es abhängig von der Berechnung des Systems ist.
     NODE_LIST = energysystem.node
 
     # print(NODE_LIST)
     tmp_node_list = []
-    if type(NODE_LIST) == dict:
+    if isinstance(NODE_LIST, dict):
         for label, node in NODE_LIST.items():
             tmp_node_list.append(node)
 
@@ -23,26 +19,32 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
 
     for x in range(0, len(NODE_LIST)):
         for item in NODE_LIST[x].outputs.data.values():
-            if type(NODE_LIST[x]) is not solph.components._generic_storage.GenericStorage:
+            if not isinstance(
+                NODE_LIST[x], solph.components._generic_storage.GenericStorage
+            ):
                 if item.investment:
                     # Speicher wird zweimal aufgeführt, weil invest nicht im Flow() steht
                     # jetzt nur noch einmal
                     print(f"Investment {item.investment}")
-                    inst_leistung = solph.views.node(results, item.input)["scalars"].iloc[0]
+                    inst_leistung = solph.views.node(results, item.input)[
+                        "scalars"
+                    ].iloc[0]
 
                     ep_costs = item.investment.ep_costs[0]
 
                     if item.investment.offset is not None:
                         offset = item.investment.offset[0]
 
-                    investcosts = (ep_costs * inst_leistung + offset)
+                    investcosts = ep_costs * inst_leistung + offset
 
-                    if type(item.input) is solph.buses.Bus:
+                    if isinstance(item.input, solph.buses.Bus):
                         dict_costs["investment costs"].update(
-                            {str(item.input): investcosts})
-                    elif type(item.output) is solph.buses.Bus:
+                            {str(item.input): investcosts}
+                        )
+                    elif isinstance(item.output, solph.buses.Bus):
                         dict_costs["investment costs"].update(
-                            {str(item.output): investcosts})
+                            {str(item.output): investcosts}
+                        )
                     else:
                         print(f"Error")
                     # sum_investcosts += investcosts
@@ -52,17 +54,21 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                     if all(val <= 0 for val in item.variable_costs):
                         erloese = np.multiply(
                             np.array(
-                                solph.views.node(results, item.output)["sequences"][(item.input, item.output), 'flow'][
-                                    :8759]),
-                            np.array(pd.Series(item.variable_costs)[:8759])
+                                solph.views.node(results, item.output)["sequences"][
+                                    (item.input, item.output), "flow"
+                                ][:8759]
+                            ),
+                            np.array(pd.Series(item.variable_costs)[:8759]),
                         )
 
-                        if type(item.input) is solph.buses.Bus:
+                        if isinstance(item.input, solph.buses.Bus):
                             dict_costs["profits"].update(
-                                {str(item.output): sum(erloese)})
-                        elif type(item.output) is solph.buses.Bus:
+                                {str(item.output): sum(erloese)}
+                            )
+                        elif isinstance(item.output, solph.buses.Bus):
                             dict_costs["profits"].update(
-                                {str(item.input): sum(erloese)})
+                                {str(item.input): sum(erloese)}
+                            )
                         else:
                             print(f"Error")
                         # sum_erloese += sum(erloese)
@@ -70,17 +76,21 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                     else:
                         line = np.multiply(
                             np.array(
-                                solph.views.node(results, item.output)["sequences"][(item.input, item.output), 'flow'][
-                                    :8759]),
-                            np.array(pd.Series(item.variable_costs)[:8759])
+                                solph.views.node(results, item.output)["sequences"][
+                                    (item.input, item.output), "flow"
+                                ][:8759]
+                            ),
+                            np.array(pd.Series(item.variable_costs)[:8759]),
                         )
 
-                        if type(item.input) is solph.buses.Bus:
+                        if isinstance(item.input, solph.buses.Bus):
                             dict_costs["variable costs"].update(
-                                {str(item.output): sum(line)})
-                        elif type(item.output) is solph.buses.Bus:
+                                {str(item.output): sum(line)}
+                            )
+                        elif isinstance(item.output, solph.buses.Bus):
                             dict_costs["variable costs"].update(
-                                {str(item.input): sum(line)})
+                                {str(item.input): sum(line)}
+                            )
                         else:
                             print(f"Error")
 

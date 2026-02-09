@@ -165,9 +165,10 @@ def get_settings() -> Settings:
     """
     origins = [
         "https://ensys.hs-nordhausen.de",
-        "http:10.1.7.31:20005",
+        "https://ensys.hs-nordhausen.de/dev",
+        "http://10.1.7.31:20005",
         "http://localhost:20005",
-        "http:10.1.7.:31:9004",
+        "http://10.1.7.31:9004",
         "http://localhost:9004",
     ]
 

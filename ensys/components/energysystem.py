@@ -33,43 +33,39 @@ class EnEnergysystem(EnBaseModel):
     :ivar constraints: List of all constraints associated with the energy system.
     :type constraints: list[EnConstraints]
     """
+
     busses: list[EnBus] = Field(
-        default=[],
-        title='Busses',
-        description='List of all busses.'
+        default=[], title="Busses", description="List of all busses."
     )
 
     sinks: list[EnSink] = Field(
-        default=[],
-        title='Sinks',
-        description='List of all sinks.'
+        default=[], title="Sinks", description="List of all sinks."
     )
 
     sources: list[EnSource] = Field(
-        default=[],
-        title='Sources',
-        description='List of all sources.'
+        default=[], title="Sources", description="List of all sources."
     )
 
     converters: list[EnConverter] = Field(
-        default=[],
-        title='Converters',
-        description='List of all converters.'
+        default=[], title="Converters", description="List of all converters."
     )
 
     generic_storages: list[EnGenericStorage] = Field(
         default=[],
-        title='Generic Storages',
-        description='List of all generic storages.'
+        title="Generic Storages",
+        description="List of all generic storages.",
     )
 
     constraints: list[EnConstraints] = Field(
-        default=[],
-        title='Constraints',
-        description='List of all constraints.'
+        default=[], title="Constraints", description="List of all constraints."
     )
 
-    def add(self, elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints):
+    def add(
+        self,
+        elem: (
+            EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints
+        ),
+    ):
         """
         Adds an element to the corresponding list based on its type. Determines
         the type of the given element and appends it to its respective
@@ -82,17 +78,17 @@ class EnEnergysystem(EnBaseModel):
         :type elem: EnSink | EnSource | EnBus | EnGenericStorage | EnConverter | EnConstraints
         :return: None
         """
-        if type(elem) is EnSink:
+        if isinstance(elem, EnSink):
             self.sinks.append(elem)
-        elif type(elem) is EnSource:
+        elif isinstance(elem, EnSource):
             self.sources.append(elem)
-        elif type(elem) is EnBus:
+        elif isinstance(elem, EnBus):
             self.busses.append(elem)
         elif type(elem) in [EnGenericStorage]:
             self.generic_storages.append(elem)
-        elif type(elem) is EnConverter:
+        elif isinstance(elem, EnConverter):
             self.converters.append(elem)
-        elif type(elem) is EnConstraints:
+        elif isinstance(elem, EnConstraints):
             self.constraints.append(elem)
         else:
             raise Exception("Unknown Type given!")
