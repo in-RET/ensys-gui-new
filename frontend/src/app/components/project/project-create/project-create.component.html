@@ -23,7 +23,7 @@
                                     [ngClass]="{
                                         'is-invalid':
                                             name!.invalid &&
-                                            (name!.dirty || name!.touched)
+                                            (name!.dirty || name!.touched),
                                     }"
                                 />
                                 <label>Name</label>
@@ -38,7 +38,8 @@
                                     [ngClass]="{
                                         'is-invalid':
                                             country!.invalid &&
-                                            (country!.dirty || country!.touched)
+                                            (country!.dirty ||
+                                                country!.touched),
                                     }"
                                 >
                                     <option selected disabled value="">
@@ -66,7 +67,8 @@
                             [ngClass]="{
                                 'is-invalid':
                                     description!.invalid &&
-                                    (description!.dirty || description!.touched)
+                                    (description!.dirty ||
+                                        description!.touched),
                             }"
                         ></textarea>
                         <label>Description</label>
@@ -86,7 +88,7 @@
                                         'is-invalid':
                                             latitude!.invalid &&
                                             (latitude!.dirty ||
-                                                latitude!.touched)
+                                                latitude!.touched),
                                     }"
                                 />
                                 <label>Latitude</label>
@@ -106,7 +108,7 @@
                                         'is-invalid':
                                             longitude!.invalid &&
                                             (longitude!.dirty ||
-                                                longitude!.touched)
+                                                longitude!.touched),
                                     }"
                                 />
                                 <label>Longitude</label>
@@ -124,7 +126,7 @@
                                         'is-invalid':
                                             currency!.invalid &&
                                             (currency!.dirty ||
-                                                currency!.touched)
+                                                currency!.touched),
                                     }"
                                 >
                                     <option selected disabled value="">
@@ -145,12 +147,13 @@
                                         'is-invalid':
                                             unit_energy!.invalid &&
                                             (unit_energy!.dirty ||
-                                                unit_energy!.touched)
+                                                unit_energy!.touched),
                                     }"
                                 >
                                     <option selected disabled value="">
                                         Choose...
                                     </option>
+                                    <option value="KW/KWh">KW/KWh</option>
                                     <option value="MW/MWh">MW/MWh</option>
                                 </select>
                                 <label>Unit for Energy</label>
@@ -166,7 +169,7 @@
                                         'is-invalid':
                                             unit_co2!.invalid &&
                                             (unit_co2!.dirty ||
-                                                unit_co2!.touched)
+                                                unit_co2!.touched),
                                     }"
                                 >
                                     <option selected disabled value="">

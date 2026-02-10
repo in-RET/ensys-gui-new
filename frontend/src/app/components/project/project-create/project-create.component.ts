@@ -41,21 +41,21 @@ export class ProjectCreateComponent implements OnInit {
                 value: 'EUR',
                 disabled: true,
             },
-            [Validators.required]
+            [Validators.required],
         ),
         unit_energy: new FormControl(
             {
                 value: 'MW/MWh',
-                disabled: true,
+                disabled: false,
             },
-            [Validators.required]
+            [Validators.required],
         ),
         unit_co2: new FormControl(
             {
                 value: 't CO2',
                 disabled: true,
             },
-            [Validators.required]
+            [Validators.required],
         ),
     });
 
@@ -115,7 +115,7 @@ export class ProjectCreateComponent implements OnInit {
         private projectService: ProjectService,
         private route: ActivatedRoute,
         private regionService: RegionService,
-        private router: Router
+        private router: Router,
     ) {}
 
     ngOnInit() {
@@ -138,7 +138,7 @@ export class ProjectCreateComponent implements OnInit {
             .pipe(
                 map((res: any) => {
                     return res.regionList;
-                })
+                }),
             )
             .subscribe((res: any) => {
                 this.regionList = [];
@@ -169,7 +169,7 @@ export class ProjectCreateComponent implements OnInit {
 
             this.marker = L.marker(
                 [e.latlng.lat, e.latlng.lng],
-                this.markerIcon
+                this.markerIcon,
             ).addTo(this.map);
 
             this.form.patchValue({
@@ -190,7 +190,7 @@ export class ProjectCreateComponent implements OnInit {
                 .pipe(
                     map((res: any) => {
                         if (res.success) return res.data;
-                    })
+                    }),
                 )
 
                 .subscribe({
@@ -210,7 +210,7 @@ export class ProjectCreateComponent implements OnInit {
                 .pipe(
                     map((res: any) => {
                         if (res.success) return res.data;
-                    })
+                    }),
                 )
 
                 .subscribe({
@@ -230,8 +230,8 @@ export class ProjectCreateComponent implements OnInit {
             .getProject(id)
             .pipe(
                 map((res: any) =>
-                    res && res.data.items ? (res = res.data.items[0]) : false
-                )
+                    res && res.data.items ? (res = res.data.items[0]) : false,
+                ),
             );
     }
 
@@ -243,7 +243,7 @@ export class ProjectCreateComponent implements OnInit {
                     this.initMap(res.latitude, res.longitude);
                     this.setMapMarker(res.latitude, res.longitude);
                     return res;
-                })
+                }),
             )
             .subscribe();
     }
