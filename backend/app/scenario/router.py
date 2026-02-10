@@ -198,6 +198,8 @@ async def delete_scenario_endpoint(
 
     Permanently removes a scenario and all its associated data from the system.
 
+    :param db:
+    :type db: Session
     :param scenario_id: ID of the scenario to delete
     :type scenario_id: int
     :param token: Authentication token
@@ -219,28 +221,35 @@ async def delete_scenario_endpoint(
         return MessageResponse(data="Scenario deleted.", success=True)
 
 
-@scenario_router.post("/duplicate/{scenario_id}", response_model=MessageResponse)
+@scenario_router.post("/duplicate/{scenario_id}")
 async def duplicate_scenario_endpoint(
     scenario_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
-) -> MessageResponse:
+) -> DataResponse:
     """
     Duplicate an existing scenario.
 
     Creates a copy of the specified scenario with all its configuration data
     and energy system settings.
 
+    :param db:
+    :type db: Session
     :param scenario_id: ID of the scenario to duplicate
     :type scenario_id: int
     :param token: Authentication token
     :type token: str
-    :return: Response confirming successful duplication
-    :rtype: MessageResponse
+    :return: Response containing the new scenario data
+    :rtype: DataResponse
     :raises HTTPException: If user not authorized to access scenario (401)
     """
     user = read_user_by_token(token=token, db=db)
-
     scenario = duplicate_scenario(scenario_id=scenario_id, user=user, db=db)
 
-    return MessageResponse(data=f"Scenario {scenario.name} duplicated.", success=True)
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[scenario.model_dump(exclude={"modeling_data"})],
+            totalCount=1,
+        ),
+        success=True,
+    )

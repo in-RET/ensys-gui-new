@@ -51,7 +51,7 @@ async def login_user_endpoint(
     username: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db_session),
-):
+) -> JSONResponse:
     """
     Authenticates a user and generates an access token upon successful login.
 
@@ -83,6 +83,13 @@ async def login_user_endpoint(
         },
         status_code=status.HTTP_200_OK,
     )
+
+    # return DataResponse(
+    #     data=GeneralDataModel(
+    #         items=[user_db.model_dump_json(exclude={"password"})], totalCount=1
+    #     ),
+    #     success=True,
+    # )
 
 
 @users_router.post(

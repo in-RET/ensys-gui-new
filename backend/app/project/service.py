@@ -171,7 +171,7 @@ def delete_project(project_id: int, user: EnUserDB, db: Session) -> None:
         )
 
 
-def duplicate_project(project_id: int, user: EnUserDB, db: Session) -> None:
+def duplicate_project(project_id: int, user: EnUserDB, db: Session) -> EnProjectDB:
     """
     Duplicate a project and all its scenarios.
 
@@ -221,6 +221,9 @@ def duplicate_project(project_id: int, user: EnUserDB, db: Session) -> None:
             db.add(new_scenario)
         try:
             db.commit()
+            db.refresh(new_project)
+
+            return new_project
         except IntegrityError as exc:
             db.rollback()
             raise HTTPException(

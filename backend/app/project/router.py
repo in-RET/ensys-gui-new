@@ -199,7 +199,7 @@ async def duplicate_project_endpoint(
     project_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
-) -> MessageResponse:
+) -> DataResponse:
     """
     Duplicate a project and its scenarios for the owner or a specified user.
 
@@ -216,10 +216,11 @@ async def duplicate_project_endpoint(
     """
     user = read_user_by_token(token=token, db=db)
     if user.check_project_rights(project_id=project_id, db=db):
-        duplicate_project(project_id=project_id, user=user, db=db)
+        new_proj = duplicate_project(project_id=project_id, user=user, db=db)
 
-        return MessageResponse(
-            data="Project and all scenarios duplicated.", success=True
+        return DataResponse(
+            data=GeneralDataModel(items=[new_proj.model_dump_json()], totalCount=0),
+            success=True,
         )
     else:
         raise HTTPException(

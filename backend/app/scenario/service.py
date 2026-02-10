@@ -302,6 +302,9 @@ def duplicate_scenario(
 
     try:
         db.commit()
+        db.refresh(new_scenario)
+
+        return new_scenario
     except IntegrityError as exc:
         db.rollback()
         # Generic handling; DB should ideally have unique constraints and proper messages
@@ -309,7 +312,3 @@ def duplicate_scenario(
             status_code=status.HTTP_409_CONFLICT,
             detail="Database integrity error at duplicate scenario.",
         ) from exc
-
-    db.refresh(new_scenario)
-
-    return new_scenario
