@@ -83,7 +83,7 @@ class Settings(BaseSettings):
         default="development",
         description="Runtime environment (development|production|test)",
     )
-    root_path: str = Field(default="/api", description="Base path for API endpoints")
+    root_path: str = Field(default="/dev", description="Base path for API endpoints")
     log_level: str = Field(default="INFO", description="Logging level")
 
     # CORS Settings
