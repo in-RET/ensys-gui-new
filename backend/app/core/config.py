@@ -170,6 +170,7 @@ def get_settings() -> Settings:
         "http://localhost:20005",
         "http://10.1.7.31:9004",
         "http://localhost:9004",
+        "http://localhost:4200",
     ]
 
     return Settings(cors_origins=origins)
