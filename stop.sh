@@ -1,1 +1,1 @@
-docker compose --file=docker-compose.prod.yaml --env-file=.env.prod down
+docker compose --file=docker-compose.dev.yaml --env-file=.env down
