@@ -20,22 +20,28 @@ from .simulation.model import EnSimulationDB, Status
 
 celery_app = Celery(
     "Sellerie",
-    broker=f"redis://redis-prod:{os.getenv("REDIS_PORT")}",
-    backend=f"redis://redis-prod:{os.getenv("REDIS_PORT")}",
+    broker=f"redis://redis-prod:{os.getenv("REDIS_PORT_PROD")}",
+    backend=f"redis://redis-prod:{os.getenv("REDIS_PORT_PROD")}",
 )
 
-task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
-task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
+task_counter = Counter("celery_tasks_total", "Total number of Celery tasks")
+task_in_progress = Gauge(
+    "celery_tasks_in_progress", "Number of Celery tasks in progress"
+)
 
 logger = logging.getLogger(__name__)
 
 
 @after_setup_logger.connect
 def setup_loggers(logger, *args, **kwargs):
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
 
     # add filehandler
-    fh = logging.FileHandler(os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), "celery.log")))
+    fh = logging.FileHandler(
+        os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), "celery.log"))
+    )
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(formatter)
     logger.addHandler(fh)
@@ -84,11 +90,10 @@ def simulation_task(scenario_id: int, simulation_id: int):
         os.makedirs(dump_path, exist_ok=True)
         os.makedirs(log_path, exist_ok=True)
 
-        simulation_folder = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), sim_token))
-        os.makedirs(
-            name=simulation_folder,
-            exist_ok=True
+        simulation_folder = os.path.abspath(
+            os.path.join(os.getenv("LOCAL_DATADIR"), sim_token)
         )
+        os.makedirs(name=simulation_folder, exist_ok=True)
 
         # Logger initialisieren
         logger = get_task_logger(__name__)
@@ -99,7 +104,9 @@ def simulation_task(scenario_id: int, simulation_id: int):
         # Datei-Handler zu Logger hinzufügen
         file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
 
@@ -114,9 +121,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         # Create Energysystem to be stored
         logger.info("create energysystem to be stored")
-        simulation_model = EnModel(
-            energysystem=converted_energy_system
-        )
+        simulation_model = EnModel(energysystem=converted_energy_system)
 
         with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:
             f.write(simulation_model.model_dump_json(indent=4))
@@ -134,8 +139,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         )
 
         oemof_es: solph.EnergySystem = solph.EnergySystem(
-            timeindex=timeindex,
-            infer_last_interval=False
+            timeindex=timeindex, infer_last_interval=False
         )
 
         oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
@@ -159,8 +163,8 @@ def simulation_task(scenario_id: int, simulation_id: int):
             cmdline_opts={
                 "LogFile": gurobi_logfile,
                 "LogToConsole": 0,
-                "OutputFlag": 1
-            }
+                "OutputFlag": 1,
+            },
         )
 
         logger.info("simulation finished")
@@ -168,7 +172,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info("write lp file")
         oemof_model.write(
             filename=os.path.join(dump_path, "oemof_model.lp"),
-            io_options={"symbolic_solver_labels": True}
+            io_options={"symbolic_solver_labels": True},
         )
 
         logger.info("collect results")
@@ -176,10 +180,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         oemof_es.results["meta"] = solph.processing.meta_results(oemof_model)
 
         logger.info("dump results")
-        oemof_es.dump(
-            dpath=dump_path,
-            filename="oemof_es.dump"
-        )
+        oemof_es.dump(dpath=dump_path, filename="oemof_es.dump")
 
         logger.info("update database")
         simulation.status = Status.FINISHED.value
