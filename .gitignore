@@ -56,8 +56,8 @@ node_modules/
 storage
 /data
 .cache
-/.env.dev
+/.env
 /.env.prod
-/.env.dev
+/.env
 /frontend/dist/*
 docs/config/site/*

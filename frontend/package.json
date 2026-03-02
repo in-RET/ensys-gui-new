@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --configuration=development --host 0.0.0.0",
-    "serve": "ng serve --configuration=development --host 0.0.0.0",
-    "build:prod": "ng build --configuration=production",
-    "build:prod-test": "ng build --configuration=production-test",
-    "watch": "ng build --watch --configuration=development",
+    "start": "ng serve --configuration=local --host 0.0.0.0",
+    "serve": "ng serve --configuration=local --host 0.0.0.0",
+    "build:production": "ng build --configuration=production",
+    "build:development": "ng build --configuration=development",
+    "watch": "ng build --watch --configuration=local",
     "test": "ng test",
     "lint": "ng lint"
   },

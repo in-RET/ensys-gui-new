@@ -17,6 +17,7 @@ Configuration is loaded from environment variables with sensible defaults
 where appropriate.
 """
 
+import os
 # Standard Library
 from functools import lru_cache
 from typing import List, Optional
@@ -83,7 +84,9 @@ class Settings(BaseSettings):
         default="development",
         description="Runtime environment (development|production|test)",
     )
-    root_path: str = Field(default="/api", description="Base path for API endpoints")
+    root_path: str = Field(
+        default="/dev/api", description="Base path for API endpoints"
+    )
     log_level: str = Field(default="INFO", description="Logging level")
 
     # CORS Settings
@@ -173,4 +176,4 @@ def get_settings() -> Settings:
         "http://localhost:4200",
     ]
 
-    return Settings(cors_origins=origins)
+    return Settings(cors_origins=origins, redis_host=os.getenv("REDIS_HOST"))

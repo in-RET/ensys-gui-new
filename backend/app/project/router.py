@@ -33,7 +33,7 @@ projects_router = APIRouter(
 )
 
 
-@projects_router.post("/", response_model=MessageResponse)
+@projects_router.post("", response_model=MessageResponse)
 async def create_project_endpoint(
     project_data: EnProject,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -60,7 +60,7 @@ async def create_project_endpoint(
     return MessageResponse(data="Project created.", success=True)
 
 
-@projects_router.get("s/", response_model=DataResponse)
+@projects_router.get("s", response_model=DataResponse)
 async def read_projects_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),

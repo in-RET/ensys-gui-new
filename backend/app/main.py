@@ -113,7 +113,7 @@ for router in routers:
     fastapi_app.include_router(router=router)
 
 
-@fastapi_app.get("/")
+@fastapi_app.get("")
 async def root(request: Request):
     """
     Handles the root endpoint of the FastAPI application, which responds with an HTML page

@@ -169,7 +169,7 @@ async def activate_user_endpoint(
         )
 
 
-@users_router.get("/", response_model=DataResponse)
+@users_router.get("", response_model=DataResponse)
 async def read_user_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
@@ -203,7 +203,7 @@ async def read_user_endpoint(
     )
 
 
-@users_router.patch("/", response_model=DataResponse)
+@users_router.patch("", response_model=DataResponse)
 def update_user_endpoint(
     data: EnUserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -237,7 +237,7 @@ def update_user_endpoint(
     )
 
 
-@users_router.delete("/", response_model=MessageResponse)
+@users_router.delete("", response_model=MessageResponse)
 async def delete_user_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),

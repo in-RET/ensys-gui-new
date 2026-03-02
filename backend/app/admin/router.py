@@ -8,7 +8,7 @@ admin_router = APIRouter(
 )
 
 
-@admin_router.get("/")
+@admin_router.get("")
 async def root():
     """
     Handles the root route of the admin router.

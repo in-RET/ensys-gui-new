@@ -41,7 +41,7 @@ scenario_router = APIRouter(
 )
 
 
-@scenario_router.post("/")
+@scenario_router.post("")
 async def create_scenario_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     scenario_data: EnScenario,

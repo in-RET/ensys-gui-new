@@ -1,42 +1,25 @@
 services:
-    db:
-        image: postgres:17-alpine
-        container_name: ensys-new-db
-        env_file: .env.dev
-        restart: always
-        networks:
-            - backend
-        ports:
-            -   "5432:5432"
-        volumes:
-            - ./storage/db:/var/lib/postgresql/data
-
-    frontend:
+    frontend-dev:
         build:
             context: ./frontend
             dockerfile: docker/dockerfile.dev
-        container_name: ensys-new-frontend
-        env_file: .env.dev
-        command: sh -c "npm start"
-        working_dir: /app
+        container_name: ensys-dev-frontend
+        env_file: .env
         restart: no
-        volumes:
-            - ./frontend:/app
-            - node_modules:/app/node_modules/
-        ports:
-            - "${PROXY_PORT}:4200"
         networks:
-            - frontend
+            - ensys-dev
 
-    backend:
+    backend-dev:
         build:
             context: backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-backend
-        env_file: .env.dev
-        command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
+        container_name: ensys-dev-backend
+        env_file: .env
+        environment:
+            - "POSTGRES_HOST=host.docker.internal"
+        command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --proxy-headers --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
         restart: no
         volumes:
             - ./backend/app:/backend/app
@@ -44,33 +27,31 @@ services:
             - ./backend/templates:/backend/templates
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
-        ports:
-            - "${FASTAPI_PORT}:8001"
         networks:
-            - backend
+            - ensys-dev
         depends_on:
-            - flower
-            - celery
+            - flower-dev
+            - celery-dev
 
-    redis:
+    redis-dev:
         image: redis:alpine
-        container_name: ensys-new-redis
+        container_name: ensys-dev-redis
         restart: always
-        env_file: .env.dev
-        command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
+        env_file: .env
+        command: [ "redis-server", "--bind", "redis-dev"]
         networks:
-            - backend
+            - ensys-dev
         volumes:
-            - cache:/data
+            - cache_dev:/data
 
-    celery:
+    celery-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-celery
-        env_file: .env.dev
+        container_name: ensys-dev-celery
+        env_file: .env
         command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
         volumes:
             - ./backend/app:/backend/app
@@ -80,18 +61,18 @@ services:
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
             - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         networks:
-            - backend
+            - ensys-dev
         depends_on:
-            - redis
+            - redis-dev
 
-    flower:
+    flower-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-flower
-        env_file: .env.dev
+        container_name: ensys-dev-flower
+        env_file: .env
         command: celery --app=app.celery.celery_app flower --port=8002
         volumes:
             - ./backend/app:/backend/app
@@ -99,17 +80,31 @@ services:
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
         ports:
-            - "${FLOWER_PORT}:8002"
+            - "${FLOWER_PORT_DEV}:8002"
         networks:
-            - backend
+            - ensys-dev
         depends_on:
-            - redis
+            - redis-dev
+
+    proxy-dev:
+        build:
+            context: ./proxy/dev
+            dockerfile: dockerfile
+        container_name: ensys-dev-proxy
+        restart: always
+        ports:
+            - "${PROXY_PORT_DEV}:80"
+        networks:
+            - ensys-dev
+            - ensys-network
+        depends_on:
+            - frontend-dev
+            - backend-dev
 
 networks:
-    frontend:
-    backend:
+    ensys-network:
+        external: true
+    ensys-dev:
 
 volumes:
-    static_volume:
-    node_modules:
-    cache:
+    cache_dev:

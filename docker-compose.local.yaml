@@ -1,21 +1,42 @@
 services:
-    frontend-prod:
+    db-dev:
+        image: postgres:17-alpine
+        container_name: ensys-dev-db
+        env_file: .env
+        restart: always
+        networks:
+            - local
+        ports:
+            - "5432:5432"
+        volumes:
+            - ./storage/db:/var/lib/postgresql/data
+
+    frontend-dev:
         build:
             context: ./frontend
-            dockerfile: docker/dockerfile.prod
-        container_name: ensys-prod-frontend
+            dockerfile: docker/dockerfile.local
+        container_name: ensys-dev-frontend
         env_file: .env
+        command: sh -c "npm start"
+        working_dir: /app
         restart: no
+        volumes:
+            - ./frontend:/app
+            - node_modules:/app/node_modules/
+        ports:
+            - "${PROXY_PORT_PROD}:4200"
         networks:
-            - ensys-prod
+            - local
+        depends_on:
+            - db-dev
 
-    backend-prod:
+    backend-dev:
         build:
             context: backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-prod-backend
+        container_name: ensys-dev-backend
         env_file: .env
         command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
         restart: no
@@ -25,30 +46,33 @@ services:
             - ./backend/templates:/backend/templates
             - ./ensys:/backend/ensys
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
+        ports:
+            - "${FASTAPI_PORT_PROD}:8001"
         networks:
-            - ensys-prod
+            - local
         depends_on:
-            - flower-prod
-            - celery-prod
+            - db-dev
+            - flower-dev
+            - celery-dev
 
-    redis-prod:
+    redis-dev:
         image: redis:alpine
-        container_name: ensys-prod-redis
+        container_name: ensys-dev-redis
         restart: always
         env_file: .env
-        command: [ "redis-server", "--bind", "redis-prod"]
+        command: [ "redis-server", "--bind", "redis-dev"]
         networks:
-            - ensys-prod
+            - local
         volumes:
-            - cache_prod:/data
+            - cache:/data
 
-    celery-prod:
+    celery-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-prod-celery
+        container_name: ensys-dev-celery
         env_file: .env
         command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
         volumes:
@@ -59,17 +83,17 @@ services:
             - ${HOST_DATADIR}:${LOCAL_DATADIR}
             - ${GUROBI_LICENSE_FILE_PATH}:/backend/gurobi.lic
         networks:
-            - ensys-prod
+            - local
         depends_on:
-            - redis-prod
+            - redis-dev
 
-    flower-prod:
+    flower-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-prod-flower
+        container_name: ensys-dev-flower
         env_file: .env
         command: celery --app=app.celery.celery_app flower --port=8002
         volumes:
@@ -80,29 +104,16 @@ services:
         ports:
             - "${FLOWER_PORT_PROD}:8002"
         networks:
-            - ensys-prod
+            - local
         depends_on:
-            - redis-prod
-
-    proxy-prod:
-        build:
-            context: ./proxy/prod
-            dockerfile: dockerfile
-        container_name: ensys-prod-proxy
-        restart: always
-        ports:
-            - "${PROXY_PORT_PROD}:80"
-        networks:
-            - ensys-prod
-            - ensys-network
-        depends_on:
-            - frontend-prod
-            - backend-prod
+            - redis-dev
 
 networks:
-    ensys-network:
-        external: true
-    ensys-prod:
+    local:
 
 volumes:
-    cache_prod:
+    static_volume:
+    node_modules:
+    cache:
+    grafana_storage:
+
