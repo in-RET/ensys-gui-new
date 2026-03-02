@@ -1,16 +1,10 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { environment } from '../../../../environments/environment';
-import { AuthCoreService } from '../../../core/auth/auth.service';
-import { AuthService } from '../services/auth.service';
+import {CommonModule} from '@angular/common';
+import {Component} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {environment} from '../../../../environments/environment';
+import {AuthCoreService} from '../../../core/auth/auth.service';
+import {AuthService} from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -39,7 +33,8 @@ export class LoginComponent {
         private authService: AuthService,
         private authCoreService: AuthCoreService,
         private router: Router
-    ) {}
+    ) {
+    }
 
     logIn() {
         this.authService.logIn(this.user?.value, this.pass?.value).subscribe({

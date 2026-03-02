@@ -1,19 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { map } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { ProjectResModel } from '../../project/models/project.model';
-import { ProjectService } from '../../project/services/project.service';
-import { ScenarioBaseInfoModel } from '../models/scenario.model';
-import { ScenarioService } from '../services/scenario.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {map} from 'rxjs';
+import {ResDataModel, ResModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {ProjectResModel} from '../../project/models/project.model';
+import {ProjectService} from '../../project/services/project.service';
+import {ScenarioBaseInfoModel} from '../models/scenario.model';
+import {ScenarioService} from '../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-setup',
@@ -29,12 +23,12 @@ export class ScenarioSetupComponent implements OnInit {
         }),
         id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
-        simulationPeriod: new FormControl({ value: 8760, disabled: true }),
+        simulationPeriod: new FormControl({value: 8760, disabled: true}),
         sDate: new FormControl({
             value: new Date('2025').getTime() / 1000,
             disabled: true,
         }),
-        timeStep: new FormControl({ value: 8760, disabled: true }),
+        timeStep: new FormControl({value: 8760, disabled: true}),
         simulationYear: new FormControl(2025, [Validators.required]),
     });
 
@@ -129,7 +123,7 @@ export class ScenarioSetupComponent implements OnInit {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                const { id, name, timeStep, sDate, simulationYear } =
+                const {id, name, timeStep, sDate, simulationYear} =
                     scenarioBaseData.scenario;
 
                 this.form.patchValue({

@@ -4,7 +4,6 @@ import os
 import pathlib
 from datetime import datetime
 
-from celery import Celery
 from celery.signals import after_setup_logger
 from celery.utils.log import get_task_logger
 from fastapi import HTTPException
@@ -13,6 +12,7 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy import create_engine
 from sqlmodel import Session
 
+from celery import Celery
 from ensys.components import EnModel
 from .auxillary import convert_gui_json_to_ensys
 from .scenario.model import EnScenarioDB
@@ -20,14 +20,15 @@ from .simulation.model import EnSimulationDB, Status
 
 celery_app = Celery(
     "Sellerie",
-    broker=f"redis://redis:{os.getenv("REDIS_PORT")}",
-    backend=f"redis://redis:{os.getenv("REDIS_PORT")}",
+    broker=f"redis://redis-prod:{os.getenv("REDIS_PORT")}",
+    backend=f"redis://redis-prod:{os.getenv("REDIS_PORT")}",
 )
 
 task_counter = Counter('celery_tasks_total', 'Total number of Celery tasks')
 task_in_progress = Gauge('celery_tasks_in_progress', 'Number of Celery tasks in progress')
 
 logger = logging.getLogger(__name__)
+
 
 @after_setup_logger.connect
 def setup_loggers(logger, *args, **kwargs):
@@ -154,7 +155,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         logger.info("solve optimization model")
         oemof_model.solve(
             solver=str(simulation_model.solver.value),
-            #solve_kwargs={"tee": True},
+            # solve_kwargs={"tee": True},
             cmdline_opts={
                 "LogFile": gurobi_logfile,
                 "LogToConsole": 0,

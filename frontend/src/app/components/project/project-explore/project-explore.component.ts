@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { map } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../shared/models/http.model';
-import { ToastService } from '../../../shared/services/toast.service';
-import { ScenarioService } from '../../scenario/services/scenario.service';
-import { ProjectModel, ProjectResModel } from '../models/project.model';
-import { ProjectService } from '../services/project.service';
-import { ProjectItemComponent } from './project-item/project-item.component';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {RouterLink} from '@angular/router';
+import {map} from 'rxjs';
+import {ResDataModel, ResModel} from '../../../shared/models/http.model';
+import {ToastService} from '../../../shared/services/toast.service';
+import {ScenarioService} from '../../scenario/services/scenario.service';
+import {ProjectModel, ProjectResModel} from '../models/project.model';
+import {ProjectService} from '../services/project.service';
+import {ProjectItemComponent} from './project-item/project-item.component';
 import {FooterComponent} from '../../../core/layout/footer/footer.component';
 
 @Component({
@@ -24,11 +24,11 @@ export class ProjectExploreComponent implements OnInit {
     scenarioService = inject(ScenarioService)
 
     ngOnInit() {
-        this.getProjects();
+        this.getProjectsLocal();
         this.clearScenarioDataStorage();
     }
 
-    getProjects() {
+    getProjectsLocal() {
         this.projectService
             .getProjects()
             .pipe(
@@ -58,7 +58,8 @@ export class ProjectExploreComponent implements OnInit {
                     );
                 }
             },
-            error(err) {},
+            error(err) {
+            },
         });
     }
 
@@ -72,7 +73,7 @@ export class ProjectExploreComponent implements OnInit {
         this.projectService.duplicateProject(id).subscribe({
             next: (value) => {
                 if (value.success) {
-                    this.getProjects();
+                    this.getProjectsLocal();
                 } else this.toastService.error('An error occured.');
             },
             error: (err) => {

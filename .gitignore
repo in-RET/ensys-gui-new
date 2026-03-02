@@ -61,3 +61,4 @@ storage
 /.env.test
 /frontend/dist/*
 docs/config/site/*
+/.env

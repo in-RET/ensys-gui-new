@@ -2,8 +2,8 @@ import os
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.responses import HTMLResponse
 
 from .admin.router import admin_router
@@ -60,12 +60,11 @@ fastapi_app = FastAPI(
         "identifier": "aGPL",
     },
     openapi_tags=tags_metadata,
-    servers=[
-        {"url": "http://localhost:20002", "description": "Development environment"},
-        {"url": "http://localhost:9004", "description": "Production Test environment"},
-        {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
-    ],
-    root_path_in_servers=False
+    # servers=[
+    #     {"url": "/api/", "description": "Production environment"},
+    #     # {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
+    # ],
+    root_path_in_servers=True
 )
 
 fastapi_app.mount("/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static")
@@ -75,9 +74,7 @@ origins = [
     "http://localhost:9004",
     "http://localhost:20001",
     "http://localhost:20002",
-    "https://ensys.hs-nordhausen.de",
-    "http://surak.hs-nordhausen.de:9004",
-    "http://surak.hs-nordhausen.de:20001",
+    "https://ensys.hs-nordhausen.de"
 ]
 
 fastapi_app.add_middleware(
@@ -95,7 +92,7 @@ for router in routers:
     )
 
 
-@fastapi_app.get("/")
+@fastapi_app.get("")
 async def root(request: Request):
     """
     Handles the root endpoint of the FastAPI application, which responds with an HTML page

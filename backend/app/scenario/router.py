@@ -19,7 +19,7 @@ scenario_router = APIRouter(
 )
 
 
-@scenario_router.post("/")
+@scenario_router.post("")
 async def create_scenario(
     token: Annotated[str, Depends(oauth2_scheme)], scenario_data: EnScenario,
     db: Session = Depends(get_db_session)
@@ -303,7 +303,6 @@ def __duplicate_scenario__(scenario_id: int, db, new_project_id: int | None = No
     db_scenario = db.get(EnScenarioDB, scenario_id)
     if not db_scenario:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Scenario not found.")
-
 
     new_scenario_data = db_scenario.model_dump()
 

@@ -171,7 +171,7 @@ async def user_activate(
     )
 
 
-@users_router.get("/", response_model=DataResponse)
+@users_router.get("", response_model=DataResponse)
 async def user_read(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session)
@@ -214,7 +214,7 @@ async def user_read(
         )
 
 
-@users_router.patch("/", response_model=DataResponse)
+@users_router.patch("", response_model=DataResponse)
 async def update_user(
     token: Annotated[str, Depends(oauth2_scheme)], user: EnUserUpdate,
     db: Session = Depends(get_db_session)
@@ -258,7 +258,7 @@ async def update_user(
     )
 
 
-@users_router.delete("/", response_model=MessageResponse)
+@users_router.delete("", response_model=MessageResponse)
 async def delete_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session)

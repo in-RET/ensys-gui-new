@@ -11,7 +11,7 @@ from ..data.model import GeneralDataModel
 from ..db import get_db_session
 from ..responses import DataResponse, MessageResponse
 from ..scenario.model import EnScenarioDB
-from ..scenario.router import delete_scenario, duplicate_scenario, __duplicate_scenario__
+from ..scenario.router import delete_scenario, __duplicate_scenario__
 from ..security import decode_token, oauth2_scheme
 from ..user.model import EnUserDB
 
@@ -21,7 +21,7 @@ projects_router = APIRouter(
 )
 
 
-@projects_router.post("/", response_model=MessageResponse)
+@projects_router.post("", response_model=MessageResponse)
 async def create_project(
     token: Annotated[str, Depends(oauth2_scheme)], project_data: EnProject,
     db: Session = Depends(get_db_session)
@@ -67,7 +67,7 @@ async def create_project(
     )
 
 
-@projects_router.get("s/", response_model=DataResponse)
+@projects_router.get("s", response_model=DataResponse)
 async def read_projects(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session)
@@ -242,8 +242,10 @@ async def delete_project(
         success=True
     )
 
+
 @projects_router.post("/duplicate/{project_id}")
-async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int, db: Session = Depends(get_db_session)) -> MessageResponse:
+async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], project_id: int,
+                            db: Session = Depends(get_db_session)) -> MessageResponse:
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
 
@@ -278,7 +280,6 @@ async def duplicate_project(token: Annotated[str, Depends(oauth2_scheme)], proje
         data="Project and all scenarios duplicated.",
         success=True
     )
-
 
 #
 # @projects_router.post("/share", status_code=status.HTTP_501_NOT_IMPLEMENTED)

@@ -1,17 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import {CommonModule} from '@angular/common';
+import {Component, OnInit} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
 import * as L from 'leaflet';
-import { map, Observable } from 'rxjs';
-import { RegionService } from '../../../shared/services/region.service';
-import { ProjectService } from '../services/project.service';
+import {map, Observable} from 'rxjs';
+import {RegionService} from '../../../shared/services/region.service';
+import {ProjectService} from '../services/project.service';
 
 
 @Component({
@@ -99,7 +93,8 @@ export class ProjectCreateComponent implements OnInit {
         private route: ActivatedRoute,
         private regionService: RegionService,
         private router: Router
-    ) {}
+    ) {
+    }
 
     ngOnInit() {
         this.getRegions();
