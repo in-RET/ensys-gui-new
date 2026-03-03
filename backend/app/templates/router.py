@@ -11,10 +11,9 @@ The module provides endpoints for:
     - Template access control
 """
 
-from typing import Annotated
-
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
+from typing import Annotated
 
 from .service import (
     get_all_templates,
@@ -33,7 +32,7 @@ from ..user.service import read_user_by_token
 templates_router = APIRouter(prefix="/templates", tags=["templates"])
 
 
-@templates_router.get("/")
+@templates_router.get("")
 async def get_templates_endpoint(db: Session = Depends(get_db_session)) -> DataResponse:
     """
     Retrieve all available templates.
