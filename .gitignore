@@ -58,6 +58,6 @@ storage
 .cache
 /.env
 /.env.prod
-/.env
 /frontend/dist/*
 docs/config/site/*
+*.pem

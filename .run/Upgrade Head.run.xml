@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Upgrade Head" type="PythonConfigurationType" factoryName="Python">
-    <module name="ensys-gui-new" />
+    <module name="ensys-dev" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />

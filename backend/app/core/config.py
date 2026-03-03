@@ -21,11 +21,11 @@ import os
 
 # Standard Library
 from functools import lru_cache
-from typing import List, Optional
 
 # Third Party
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
+from typing import List, Optional
 
 
 class Settings(BaseSettings):
@@ -177,4 +177,8 @@ def get_settings() -> Settings:
         "http://localhost:4200",
     ]
 
-    return Settings(cors_origins=origins, redis_host=os.getenv("REDIS_HOST"))
+    return Settings(
+        cors_origins=origins,
+        redis_host=os.getenv("REDIS_HOST"),
+        redis_port=int(os.getenv("REDIS_PORT_DEV")),
+    )
