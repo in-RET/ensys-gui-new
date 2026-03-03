@@ -93,7 +93,7 @@ services:
         container_name: ensys-dev-proxy
         restart: always
         ports:
-            - "${PROXY_PORT_DEV}:443"
+            - "${PROXY_PORT_DEV}:80"
         networks:
             - ensys-dev
         depends_on:
