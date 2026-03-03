@@ -1,4 +1,4 @@
-import {Injectable} from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {environment} from '../../../../environments/environment';
 import {AuthCoreService} from '../../../core/auth/auth.service';
@@ -8,19 +8,16 @@ import {BaseHttpService} from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl: string = environment.apiUrl + 'user/';
-
-    constructor(
-        private baseHttp: BaseHttpService,
-        private authCoreService: AuthCoreService,
-    ) {}
+    private baseUrl: string = environment.apiUrl + 'user';
+    private baseHttp: BaseHttpService = inject(BaseHttpService);
+    private authCoreService: AuthCoreService = inject(AuthCoreService);
 
     logIn(username: string, password: string): Observable<any> {
         const formData: FormData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
 
-        return this.baseHttp.post(`${this.baseUrl}auth/login`, formData, {});
+        return this.baseHttp.post(`${this.baseUrl}/auth/login`, formData, {});
     }
 
     getCurrentUser(): Observable<any> {
@@ -41,6 +38,6 @@ export class AuthService {
         mail: string,
     ): Observable<any> {
         const data = { username, firstname, lastname, password, mail };
-        return this.baseHttp.post(`${this.baseUrl}auth/register`, data);
+        return this.baseHttp.post(`${this.baseUrl}/auth/register`, data);
     }
 }

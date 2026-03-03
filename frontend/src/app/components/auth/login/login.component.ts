@@ -1,17 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { finalize, map, switchMap, tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AuthCoreService } from '../../../core/auth/auth.service';
-import { AuthService } from '../services/auth.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {finalize, map, switchMap, tap} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {AuthCoreService} from '../../../core/auth/auth.service';
+import {AuthService} from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -34,14 +28,12 @@ export class LoginComponent {
         return this.form.get('pass');
     }
 
-    error!: { messge: string };
-    loading: boolean = false;
+    error!: { message: string };
+    loading = false;
 
-    constructor(
-        private authService: AuthService,
-        private authCoreService: AuthCoreService,
-        private router: Router
-    ) {}
+    private authService = inject(AuthService);
+    private authCoreService = inject(AuthCoreService);
+    private router = inject(Router);
 
     logIn() {
         this.loading = true;
@@ -53,7 +45,7 @@ export class LoginComponent {
                     this.authCoreService.saveTokenToStorage(res.access_token);
                     this.authCoreService.saveToken(res.access_token);
                 }),
-                switchMap((logRes: any) =>
+                switchMap(() =>
                     this.authService.getCurrentUser().pipe(
                         tap((userRes: any) => {
                             this.authCoreService.saveUser(
@@ -77,7 +69,7 @@ export class LoginComponent {
                 error: (err) => {
                     console.error(err);
                     this.error = {
-                        messge: err.error.detail,
+                        message: err.error.detail,
                     };
                 },
             });
