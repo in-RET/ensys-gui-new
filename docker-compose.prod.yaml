@@ -93,7 +93,7 @@ services:
         container_name: ensys-prod-proxy
         restart: always
         ports:
-            - "${PROXY_PORT_PROD}:443"
+            - "${PROXY_PORT_PROD}:80"
         networks:
             - ensys-prod
             - ensys-network
