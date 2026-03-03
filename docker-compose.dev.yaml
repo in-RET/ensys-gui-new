@@ -38,7 +38,7 @@ services:
         container_name: ensys-dev-redis
         restart: always
         env_file: .env
-        command: [ "redis-server", "--bind", "redis-dev" ]
+        command: [ "redis-server", "--bind", "redis-dev", "--port", "${REDIS_PORT_DEV}" ]
         networks:
             - ensys-dev
         volumes:
@@ -88,12 +88,12 @@ services:
 
     proxy-dev:
         build:
-            context: ./proxy/dev
-            dockerfile: dockerfile
+            context: ./proxy
+            dockerfile: dev/dockerfile
         container_name: ensys-dev-proxy
         restart: always
         ports:
-            - "${PROXY_PORT_DEV}:80"
+            - "${PROXY_PORT_DEV}:443"
         networks:
             - ensys-dev
         depends_on:

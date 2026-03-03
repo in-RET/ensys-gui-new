@@ -38,7 +38,7 @@ services:
         container_name: ensys-prod-redis
         restart: always
         env_file: .env
-        command: [ "redis-server", "--bind", "redis-prod" ]
+        command: [ "redis-server", "--bind", "redis-prod", "--port", "${REDIS_PORT_PROD}" ]
         networks:
             - ensys-prod
         volumes:
@@ -88,12 +88,12 @@ services:
 
     proxy-prod:
         build:
-            context: ./proxy/prod
-            dockerfile: dockerfile
+            context: ./proxy
+            dockerfile: prod/dockerfile
         container_name: ensys-prod-proxy
         restart: always
         ports:
-            - "${PROXY_PORT_PROD}:80"
+            - "${PROXY_PORT_PROD}:443"
         networks:
             - ensys-prod
             - ensys-network

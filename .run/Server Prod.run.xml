@@ -2,14 +2,14 @@
   <configuration default="false" name="Server Prod" type="docker-deploy" factoryName="docker-compose.yml" server-name="Docker">
     <deployment type="docker-compose.yml">
       <settings>
-        <option name="envFilePath" value="$PROJECT_DIR$/.env" />
+        <option name="envFilePath" value="$PROJECT_DIR$/../ensys-prod/.env" />
         <option name="envFilePaths">
           <list>
-            <option value="$PROJECT_DIR$/.env" />
+            <option value="$PROJECT_DIR$/../ensys-prod/.env" />
           </list>
         </option>
         <option name="commandLineOptions" value="--build" />
-        <option name="sourceFilePath" value="docker-compose.prod.yaml" />
+        <option name="sourceFilePath" value="../ensys-prod/docker-compose.prod.yaml" />
         <option name="upRemoveOrphans" value="true" />
       </settings>
     </deployment>
