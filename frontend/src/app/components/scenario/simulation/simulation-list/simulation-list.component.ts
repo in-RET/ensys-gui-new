@@ -1,15 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { map } from 'rxjs';
-import { ResDataModel } from '../../../../shared/models/http.model';
-import { ScenarioBaseInfoModel } from '../../models/scenario.model';
-import {
-    SimulationResModel,
-    SimulationStatus,
-} from '../models/simulation.model';
-import { SimulationService } from '../services/simulation.service';
-import { SimulationListCardComponent } from './simulation-list-card/simulation-list-card.component';
+import {CommonModule} from '@angular/common';
+import {Component, inject, Input, OnInit} from '@angular/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {map} from 'rxjs';
+import {ResDataModel} from '../../../../shared/models/http.model';
+import {ScenarioBaseInfoModel} from '../../models/scenario.model';
+import {SimulationResModel, SimulationStatus,} from '../models/simulation.model';
+import {SimulationService} from '../services/simulation.service';
+import {SimulationListCardComponent} from './simulation-list-card/simulation-list-card.component';
 
 @Component({
     selector: 'app-simulation-list',
@@ -71,7 +68,7 @@ export class SimulationListComponent implements OnInit {
 
     onStopSimulation(scenarioId: number) {
         this.simulationService.onStopSimulation(scenarioId).subscribe({
-            next: (value: ResDataModel<SimulationResModel>) => {},
+            next: (value: ResDataModel<SimulationResModel>) => { /* empty */ },
             error: (err) => {
                 console.error(err);
             },

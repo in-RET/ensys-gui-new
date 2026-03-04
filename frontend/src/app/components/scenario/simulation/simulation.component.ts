@@ -19,30 +19,28 @@ export class SimulationComponent implements OnInit {
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
-
-    constructor(private http: HttpClient) {}
+    httpService = inject(HttpClient);
 
     ngOnInit() {
         this.loading = true;
         const simulationId = +this.route.snapshot.params['id'];
 
-        if (simulationId) this.loadSimulation(simulationId);
-    }
+        if (simulationId) {
+            console.log(environment.apiUrl + 'results/' + simulationId);
+            this.httpService
+                .get(environment.apiUrl + 'results/' + simulationId)
+                .subscribe({
+                    next: (value: any) => {
+                        this.loadGraphs(value.data.items[0].graphs);
+                        this.loadStatic(value.data.items[0].static);
+                    },
+                    error: (err) => {
+                        console.error('Failed to load JSON', err);
 
-    loadSimulation(simulationId: number) {
-        this.http
-            .get(environment.apiUrl + 'results/' + simulationId)
-            .subscribe({
-                next: (value: any) => {
-                    this.loadGraphs(value.data.items[0].graphs);
-                    this.loadStatic(value.data.items[0].static);
-                },
-                error: (err) => {
-                    console.error('Failed to load JSON', err);
-
-                    this.alertService.error(err.detail);
-                },
-            });
+                        this.alertService.error(err.detail);
+                    },
+                });
+        }
     }
 
     loadStatic(value: any) {

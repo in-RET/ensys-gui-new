@@ -1,13 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { ResDataModel } from '../../../../../shared/models/http.model';
-import { ScenarioBaseInfoModel } from '../../../models/scenario.model';
-import {
-    SimulationResModel,
-    SimulationStatus,
-} from '../../models/simulation.model';
-import { SimulationService } from '../../services/simulation.service';
+import {CommonModule} from '@angular/common';
+import {ChangeDetectorRef, Component, inject, Input} from '@angular/core';
+import {Router, RouterModule} from '@angular/router';
+import {ResDataModel} from '../../../../../shared/models/http.model';
+import {ScenarioBaseInfoModel} from '../../../models/scenario.model';
+import {SimulationResModel, SimulationStatus,} from '../../models/simulation.model';
+import {SimulationService} from '../../services/simulation.service';
+import {AlertService} from '../../../../../shared/services/alert.service';
+import {environment} from '../../../../../../environments/environment';
 
 @Component({
     selector: 'app-simulation-list-card',
@@ -24,6 +23,7 @@ export class SimulationListCardComponent {
 
     router = inject(Router);
     simulationService = inject(SimulationService);
+    alertService = inject(AlertService);
     cdr = inject(ChangeDetectorRef);
 
     identify(index: any, item: any) {
@@ -31,10 +31,20 @@ export class SimulationListCardComponent {
     }
 
     openSimulation(simId: number) {
-        const url = this.router.serializeUrl(
-            this.router.createUrlTree(['/simulation', simId]),
-        );
-        window.open(url, '_blank');
+        if (environment.dev_on_server_build) {
+            const url = this.router.serializeUrl(
+                this.router.createUrlTree(['/dev/simulation', simId])
+            );
+            console.log("URL:", url);
+            window.open(url, '_blank');
+        } else {
+            const url = this.router.serializeUrl(
+                this.router.createUrlTree(['/simulation', simId])
+            );
+
+            console.log("URL:", url);
+            window.open(url, '_blank');
+        }
     }
 
     stopSimulation(scenarioId: number) {
