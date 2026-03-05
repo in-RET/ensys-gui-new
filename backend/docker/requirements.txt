@@ -145,7 +145,7 @@ ptyprocess==0.7.0
 pure_eval==0.2.3
 pvlib==0.13.0
 px==0.2.2
-pyasn1==0.6.1
+pyasn1==0.6.2
 pycparser==2.23
 pydantic==2.11.7
 pydantic_core==2.33.2
