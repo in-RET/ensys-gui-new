@@ -250,7 +250,7 @@ export class ScenarioEnergyDesignComponent
 
         if (this.formModal_info.node)
             this.formModal_info.url = this.getEntityInfoUrl(
-                this.formModal_info.node.type,
+                this.formModal_info.node.class,
             );
 
         // appear Modal
