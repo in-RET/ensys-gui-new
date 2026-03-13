@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map, Observable, switchMap } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
+import { EnergyModelConverterService } from '../../../shared/services/energy-model-converter-service/energy-model-converter.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
     ScenarioBaseInfoModel,
@@ -43,6 +44,7 @@ export class ScenarioBaseComponent implements OnInit {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
+    serv = inject(EnergyModelConverterService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
@@ -164,7 +166,7 @@ export class ScenarioBaseComponent implements OnInit {
 
                         return res;
                     }
-                })
+                }),
             )
             .subscribe((res: any) => {
                 if (!res.currentProject) this.router.navigate(['projects']);
@@ -190,7 +192,7 @@ export class ScenarioBaseComponent implements OnInit {
                     'Update Scenario & Start Simulation?',
                     'Update & Play',
                     `Update & Simulation`,
-                    `Just Simulation`
+                    `Just Simulation`,
                 );
 
             if (confirmed_updateAndSimulation) {
@@ -200,7 +202,7 @@ export class ScenarioBaseComponent implements OnInit {
                         map((res: ScenarioResModel) => {
                             if (res) {
                                 this.toastService.success(
-                                    `Scenario ${res.name} updated.`
+                                    `Scenario ${res.name} updated.`,
                                 );
                                 return res;
                             }
@@ -213,9 +215,9 @@ export class ScenarioBaseComponent implements OnInit {
                                     map((res: ResModel<ScenarioResModel>) => {
                                         if (res.success) return res.data;
                                         throw new Error('Unknown API error');
-                                    })
-                                )
-                        )
+                                    }),
+                                ),
+                        ),
                     )
                     .subscribe({
                         next: (val: any) => {
@@ -233,11 +235,19 @@ export class ScenarioBaseComponent implements OnInit {
                         map((res: ResModel<ScenarioResModel>) => {
                             if (res.success) return res.data;
                             throw new Error('Unknown API error');
-                        })
+                        }),
                     )
                     .subscribe({
                         next: (val: any) => {
                             this.toastService.success(val);
+
+                            const d =
+                                this.scenarioService.restoreDrawflow_Storage();
+                            const new_d =
+                                this.serv.convertDrawFlowDataToOemofModelData(
+                                    d,
+                                );
+                            this.serv.downloadJson(new_d, 'a');
                         },
                         error: (err) => {
                             this.alertService.error('Failed');
@@ -251,7 +261,7 @@ export class ScenarioBaseComponent implements OnInit {
                 'The Scenario has not been stored, you need to save at first.',
                 'Save & Play',
                 `Save + Start`,
-                `No`
+                `No`,
             );
 
             if (confirmed) {
@@ -263,7 +273,7 @@ export class ScenarioBaseComponent implements OnInit {
                         map((res: ResModel<ScenarioResModel>) => {
                             if (res.success) return res.data.items[0];
                             throw new Error('Unknown API error');
-                        })
+                        }),
                     ).subscribe({
                         next: (val: ScenarioResModel) => {
                             const scenarioData: ScenarioBaseInfoModel | null =
@@ -276,7 +286,7 @@ export class ScenarioBaseComponent implements OnInit {
                                 scenarioData.scenario.id = val.id;
 
                                 this.scenarioService.updateBaseInfo_Scenario(
-                                    scenarioData
+                                    scenarioData,
                                 );
 
                                 // update local this.data
@@ -289,32 +299,32 @@ export class ScenarioBaseComponent implements OnInit {
                                     // start simulation
                                     this.simulationService
                                         .startSimulation(
-                                            this.currentScenario.scenario.id
+                                            this.currentScenario.scenario.id,
                                         )
                                         .pipe(
                                             map(
                                                 (
-                                                    res: ResModel<ScenarioResModel>
+                                                    res: ResModel<ScenarioResModel>,
                                                 ) => {
                                                     if (res.success)
                                                         return res.data;
                                                     throw new Error(
-                                                        'Unknown API error'
+                                                        'Unknown API error',
                                                     );
-                                                }
-                                            )
+                                                },
+                                            ),
                                         )
                                         .subscribe({
                                             next: (
-                                                val: ResDataModel<ScenarioResModel>
+                                                val: ResDataModel<ScenarioResModel>,
                                             ) => {
                                                 this.toastService.success(
-                                                    'Simulation has started.'
+                                                    'Simulation has started.',
                                                 );
                                             },
                                             error: (err) => {
                                                 this.alertService.error(
-                                                    'Failed'
+                                                    'Failed',
                                                 );
                                             },
                                         });
