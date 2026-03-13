@@ -64,13 +64,7 @@ class FormModalInfo {
     hide: boolean = false;
     show: boolean = false;
     node?: FormNode;
-    preDefData!:
-        | {
-              name: string;
-              simulationYear: number;
-              hasChanged: boolean;
-          }
-        | undefined;
+    preDefData!: { inputs: []; outputs: [] } | undefined;
     flowData: { inputs: FlowData[]; outputs: FlowData[] } | undefined;
     url: string = '';
     connection!: Connection;
@@ -224,6 +218,7 @@ export class ScenarioEnergyDesignComponent
             this.formModal_info.preDefData = e.data.preDefData;
 
         let nodeType = '';
+
         if (!e.editMode) nodeType = e.node?.type ?? '';
         else nodeType = e.node?.class ?? '';
 
@@ -264,23 +259,7 @@ export class ScenarioEnergyDesignComponent
 
     async showFormModal_flow(e: any) {
         this.formModal_info = new FormModalInfo();
-
-        // load flow data from server
-        if (e.node?.data?.preDefData && e.node?.data?.preDefData.hasChanged) {
-            const pData = e.node.data.preDefData;
-
-            const PreDefinedData =
-                await this.flowService.getPreDefinedValue_ports(
-                    pData.name,
-                    pData.simulationYear,
-                );
-            this.formModal_info.preDefData = {
-                name: pData.name,
-                simulationYear: pData.simulationYear,
-                hasChanged: pData.hasChanged,
-            };
-            this.formModal_info.flowData = PreDefinedData;
-        }
+        this.formModal_info.preDefData = e.data.preDefData;
 
         // when edit flow, so load its data
         if (e.data)
@@ -297,11 +276,11 @@ export class ScenarioEnergyDesignComponent
 
         if (e.connection) {
             this.formModal_info.connection = e.connection;
-            const connections: Connection = this.formModal_info.connection; //this.formModal_info.data.connection;
+            const connections: Connection = this.formModal_info.connection;
 
             // if flow is creating for 1st time
-            if (this.formModal_info.flowData) {
-                const fData = this.formModal_info.flowData;
+            if (this.formModal_info.preDefData) {
+                const fData = this.formModal_info.preDefData;
 
                 if (this.formModal_info.node?.id === +connections.input_node) {
                     const currentPortNum_in =
@@ -444,6 +423,8 @@ export class ScenarioEnergyDesignComponent
     }
 
     private setPredefinedFormFields_node(option: string, type: string) {
+        console.log(this.formModal_info);
+
         // get oep data form fields
         if (option != 'user_defined') {
             //set data from server
@@ -458,7 +439,7 @@ export class ScenarioEnergyDesignComponent
                     )
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
-                        next: (value: OEPResponse) => {
+                        next: async (value: OEPResponse) => {
                             if (type == 'transformer') {
                                 this.formModal_info.data = {
                                     ...this.formModal_info.data,
@@ -526,14 +507,18 @@ export class ScenarioEnergyDesignComponent
                                 'outputPort_name',
                             );
 
-                            if (scenarioBaseData && scenarioBaseData.scenario)
-                                this.formModal_info.preDefData = {
-                                    name: option,
-                                    simulationYear:
+                            if (scenarioBaseData && scenarioBaseData.scenario) {
+                                const PreDefinedData =
+                                    await this.flowService.getPreDefinedValue_ports(
+                                        option,
                                         scenarioBaseData.scenario
                                             .simulationYear,
-                                    hasChanged: true,
-                                };
+                                    );
+
+                                if (this.formModal_info.node)
+                                    this.formModal_info.node.preDefData =
+                                        PreDefinedData;
+                            }
                         },
                         error: (err) => {
                             this.toastService.error(
@@ -585,6 +570,13 @@ export class ScenarioEnergyDesignComponent
             }
 
             this.formModal_info.preDefData = undefined;
+
+            if (this.formModal_info.node) {
+                this.formModal_info.node.preDefData = {
+                    inputs: [],
+                    outputs: [],
+                };
+            }
         }
     }
 
@@ -633,7 +625,7 @@ export class ScenarioEnergyDesignComponent
                     )
                     .pipe(map((d: any) => d.items[0]))
                     .subscribe({
-                        next: (value: OEPResponse) => {
+                        next: async (value: OEPResponse) => {
                             for (const key in value.node_data) {
                                 const val = value.node_data[key];
                                 this.formComponent.setFieldData(key, val);
@@ -647,6 +639,7 @@ export class ScenarioEnergyDesignComponent
                                 );
                             });
 
+                            // set node's ports name + ...props
                             value.ports_data.outputs.forEach((port: Port) => {
                                 this.formComponent.setFieldData(
                                     'outputPort_name',
@@ -654,17 +647,18 @@ export class ScenarioEnergyDesignComponent
                                 );
                             });
 
-                            // save in/out data port based on predefined item, to use in flow
-                            // this.formModal_info.preDefData = value.ports_data;
-
-                            if (scenarioBaseData && scenarioBaseData.scenario)
-                                this.formModal_info.preDefData = {
-                                    name: option,
-                                    simulationYear:
+                            if (scenarioBaseData && scenarioBaseData.scenario) {
+                                const PreDefinedData =
+                                    await this.flowService.getPreDefinedValue_ports(
+                                        option,
                                         scenarioBaseData.scenario
                                             .simulationYear,
-                                    hasChanged: true,
-                                };
+                                    );
+
+                                if (this.formModal_info.node)
+                                    this.formModal_info.node.preDefData =
+                                        PreDefinedData;
+                            }
                         },
                         error: (err) => {
                             this.toastService.error(
@@ -704,6 +698,15 @@ export class ScenarioEnergyDesignComponent
                 this.formComponent.setFieldData(element.name, null);
                 this.formComponent.disableControl(element.name);
             });
+
+            this.formModal_info.preDefData = undefined;
+
+            if (this.formModal_info.node) {
+                this.formModal_info.node.preDefData = {
+                    inputs: [],
+                    outputs: [],
+                };
+            }
         }
     }
 
@@ -815,6 +818,7 @@ export class ScenarioEnergyDesignComponent
             (this.formModal_info.node?.oep ||
                 this.formModal_info.node?.data.oep)
         ) {
+            if (this.formModal_info.node?.oep) debugger;
             const isOepSelected =
                 this.formModal_info.node?.oep ??
                 this.formModal_info.node?.data.oep;
@@ -886,23 +890,187 @@ export class ScenarioEnergyDesignComponent
                             return false;
                         }
 
-                        // add connections if node is bus
-                        if (this.formModal_info.node.type == 'bus')
-                            formData['connections'] = {
-                                inputs: [],
-                                outputs: [],
-                            };
-
-                        formData = {
-                            ...formData,
-                            ...portsInfo,
-                            preDefData: this.formModal_info.preDefData,
-                        };
-
                         if (formData) {
-                            if (!this.formModal_info.editMode)
+                            if (!this.formModal_info.editMode) {
+                                formData = {
+                                    ...formData,
+                                    ...portsInfo,
+                                    preDefData:
+                                        this.formModal_info.node.preDefData,
+                                };
+
+                                // add connections if node is bus
+                                if (this.formModal_info.node.type !== 'bus')
+                                    formData['connections'] = {
+                                        inputs: [],
+                                        outputs: [],
+                                    };
+
                                 this.makeNode(formData, this.formModal_info);
-                            else if (this.formModal_info.editMode) {
+                            } else if (this.formModal_info.editMode) {
+                                formData = {
+                                    ...formData,
+                                    ...portsInfo,
+                                    preDefData:
+                                        this.formModal_info.node.preDefData ||
+                                        this.formModal_info.preDefData,
+                                };
+
+                                formData['connections'] =
+                                    this.formModal_info.data.connections;
+
+                                // means: pre-D has changed
+                                if (this.formModal_info.node.preDefData) {
+                                    if (
+                                        this.formModal_info.node.preDefData
+                                            .inputs.length > 0
+                                    ) {
+                                        this.formModal_info.node.preDefData.inputs.forEach(
+                                            (pre_input: Port) => {
+                                                if (this.formModal_info.node) {
+                                                    const inputs =
+                                                        this.formModal_info.node
+                                                            .data.connections
+                                                            .inputs;
+
+                                                    if (inputs.length > 0) {
+                                                        if (
+                                                            this.formModal_info
+                                                                .node.class !==
+                                                            'bus'
+                                                        ) {
+                                                            inputs.forEach(
+                                                                (
+                                                                    inELm: {
+                                                                        baseInfo: any;
+                                                                        formInfo: any;
+                                                                    },
+                                                                    i: number,
+                                                                ) => {
+                                                                    if (
+                                                                        inELm
+                                                                            .baseInfo
+                                                                            .input_port ==
+                                                                        `input_${i + 1}`
+                                                                    ) {
+                                                                        inELm.formInfo =
+                                                                            pre_input.flow_data ||
+                                                                            {};
+                                                                    }
+                                                                },
+                                                            );
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                        );
+                                    } else {
+                                        const inputs =
+                                            this.formModal_info.node.data
+                                                .connections.inputs;
+
+                                        if (inputs.length > 0) {
+                                            if (
+                                                this.formModal_info.node
+                                                    .class !== 'bus'
+                                            ) {
+                                                inputs.forEach(
+                                                    (
+                                                        inELm: {
+                                                            baseInfo: any;
+                                                            formInfo: any;
+                                                        },
+                                                        i: number,
+                                                    ) => {
+                                                        if (
+                                                            inELm.baseInfo
+                                                                .input_port ==
+                                                            `input_${i + 1}`
+                                                        ) {
+                                                            inELm.formInfo = {};
+                                                        }
+                                                    },
+                                                );
+                                            }
+                                        }
+                                    }
+
+                                    if (
+                                        this.formModal_info.node.preDefData
+                                            .outputs.length > 0
+                                    ) {
+                                        this.formModal_info.node.preDefData.outputs.forEach(
+                                            (pre_output: Port) => {
+                                                if (this.formModal_info.node) {
+                                                    const outputs =
+                                                        this.formModal_info.node
+                                                            .data.connections
+                                                            .outputs;
+
+                                                    if (outputs.length > 0) {
+                                                        if (
+                                                            this.formModal_info
+                                                                .node.class !==
+                                                            'bus'
+                                                        ) {
+                                                            outputs.forEach(
+                                                                (
+                                                                    outELm: {
+                                                                        baseInfo: any;
+                                                                        formInfo: any;
+                                                                    },
+                                                                    i: number,
+                                                                ) => {
+                                                                    if (
+                                                                        outELm
+                                                                            .baseInfo
+                                                                            .output_port ==
+                                                                        `output_${i + 1}`
+                                                                    ) {
+                                                                        outELm.formInfo =
+                                                                            pre_output.flow_data ||
+                                                                            {};
+                                                                    }
+                                                                },
+                                                            );
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                        );
+                                    } else {
+                                        const outputs =
+                                            this.formModal_info.node.data
+                                                .connections.outputs;
+
+                                        if (outputs.length > 0) {
+                                            if (
+                                                this.formModal_info.node
+                                                    .class !== 'bus'
+                                            ) {
+                                                outputs.forEach(
+                                                    (
+                                                        outELm: {
+                                                            baseInfo: any;
+                                                            formInfo: any;
+                                                        },
+                                                        i: number,
+                                                    ) => {
+                                                        if (
+                                                            outELm.baseInfo
+                                                                .output_port ==
+                                                            `output_${i + 1}`
+                                                        ) {
+                                                            outELm.formInfo =
+                                                                {};
+                                                        }
+                                                    },
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+
                                 this.updateNode(
                                     formData,
                                     this.formModal_info.node?.id ?? 0,
