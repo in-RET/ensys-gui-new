@@ -1,28 +1,124 @@
-<section class="template d-flex p-2 mb-3 justify-content-center">
-    <!-- Placeholder -->
-</section>
-
-<ng-container *ngIf="templates$ | async as templates; else emptyState">
-    <app-template-item
-        *ngFor="let template of templates; trackBy: trackByTemplateId"
-        [template]="template"
-    />
-</ng-container>
-
-<ng-template #emptyState>
-    <section class="templates-empty" role="status" aria-live="polite">
-        <div>
-            <div class="templates-empty__img">
-                <img
-                    src="static/assets/illustrations/empty_folder.svg"
-                    alt="Empty folder"
-                    width="160"
-                    height="120"
-                    loading="lazy"
+<div
+    style="
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    "
+    [hidden]="loading.templates"
+>
+    <ng-container *ngIf="templateList && templateList.length >= 0">
+        <div class="p-3 overflow-y-auto">
+            <div class="row" style="overflow-x: hidden; overflow-y: auto">
+                <app-template-item
+                    class="col-4 mb-3"
+                    *ngFor="
+                        let template of templateList;
+                        trackBy: trackByTemplateId
+                    "
+                    [template]="template"
+                    (deleteTemplate)="deleteTemplate($event)"
+                    (duplicateTemplate)="duplicateTemplate($event)"
                 />
             </div>
-
-            <div class="templates-empty__text">There are no templates yet</div>
         </div>
-    </section>
-</ng-template>
+
+        <section
+            class="templates-empty"
+            role="status"
+            aria-live="polite"
+            *ngIf="templateList.length === 0"
+        >
+            <div>
+                <div class="templates-empty__img">
+                    <img
+                        src="static/assets/illustrations/empty_folder.svg"
+                        alt="Empty folder"
+                        width="160"
+                        height="120"
+                        loading="lazy"
+                    />
+                </div>
+
+                <div class="templates-empty__text">
+                    There are no templates yet
+                </div>
+            </div>
+        </section>
+    </ng-container>
+</div>
+
+<!-- placeholders while loading -->
+<div class="row mt-3 mb-3 justify-content-center p-3" *ngIf="loading.templates">
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+</div>

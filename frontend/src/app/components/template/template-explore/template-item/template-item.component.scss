@@ -1,65 +1,18 @@
-// Template item styling inherited from global styles
-// Additional styles specific to template item component can be added here
-
-.template-item {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 16px;
-  background-color: #ffffff;
-  transition: box-shadow 0.3s ease;
-
-  &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .template-thumbnail {
-    width: 100%;
-    height: auto;
-    border-radius: 4px;
-    margin-bottom: 12px;
-  }
-
-  .template-title {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #333333;
-  }
-
-  .template-description {
-    font-size: 14px;
-    color: #666666;
-    margin-bottom: 12px;
-  }
-
-  .template-actions {
-    display: flex;
-    justify-content: space-between;
-
+.scenario-actions {
     .btn {
-      padding: 8px 16px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
-
-      &.btn-primary {
-        background-color: #007bff;
-        color: #ffffff;
-        border: none;
-
-        &:hover {
-          background-color: #0056b3;
-        }
-      }
-
-      &.btn-secondary {
-        background-color: #6c757d;
-        color: #ffffff;
-        border: none;
-
-        &:hover {
-          background-color: #5a6268;
-        }
-      }
+        border-radius: 0; // reset
+        border: unset;
     }
-  }}
+
+    .btn:first-child:not(:only-child) {
+        border-radius: 0 0 0 7px;
+    }
+
+    .btn:last-child:not(:only-child) {
+        border-radius: 0 0 7px 0;
+    }
+
+    .btn:only-child {
+        border-radius: 0 0 7px 5px;
+    }
+}

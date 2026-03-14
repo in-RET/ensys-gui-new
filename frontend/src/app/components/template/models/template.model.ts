@@ -1,26 +1,25 @@
-import {ScenarioModel} from '../../scenario/models/scenario.model';
-
-export interface TemplateModel {
-    country: string;
-    currency: string; // e.g. "EUR"
-    description: string;
-    latitude: number;
-    longitude: number;
-    id: number;
-    name: string;
-    unit_co2: string; // e.g. "t CO2"
-    unit_energy: string; // e.g. "MW/MWh"
-    scenarioList?: ScenarioModel[];
-}
+import { ScenarioModel } from '../../scenario/models/scenario.model';
 
 export interface TemplateResModel {
-    country: string;
-    currency: string; // e.g. "EUR"
-    description: string;
     id: number;
+    country: string;
     latitude: number;
-    longitude: number;
-    name: string;
-    unit_co2: string; // e.g. "t CO2"
     unit_energy: string; // e.g. "MW/MWh"
+    longitude: number;
+    description: string;
+    name: string;
+    unit_currency: string; // e.g. "EUR"
+    unit_co2: string; // e.g. "t CO2"
+}
+export interface TemplateModel {
+    id: number;
+    country: string;
+    latitude: number;
+    unit_energy: string; // e.g. "MW/MWh"
+    longitude: number;
+    description: string;
+    name: string;
+    unit_currency: string; // e.g. "EUR"
+    unit_co2: string; // e.g. "t CO2"
+    scenarioList?: ScenarioModel[];
 }
