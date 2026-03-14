@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
@@ -17,13 +17,11 @@ import { ProjectItemComponent } from './project-item/project-item.component';
 })
 export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
-
     loading: { projects: boolean } = { projects: true };
 
     toastService = inject(ToastService);
     projectService = inject(ProjectService);
     scenarioService = inject(ScenarioService);
-    cdr = inject(ChangeDetectorRef);
 
     ngOnInit() {
         // Initialize storage cleanup on enter
@@ -51,13 +49,14 @@ export class ProjectExploreComponent implements OnInit {
                     this.loading.projects = false;
                 }),
                 catchError((err) => {
+                    this.toastService.error(err.error.detail);
                     console.error(err);
                     this.toastService.error('Failed to load projects.');
                     return of([] as ProjectModel[]);
                 }),
-                shareReplay({ bufferSize: 1, refCount: true })
+                shareReplay({ bufferSize: 1, refCount: true }),
             )
-            .subscribe((val: any) => {
+            .subscribe((val: ProjectModel[]) => {
                 this.project_list = val;
             });
     }
@@ -70,9 +69,9 @@ export class ProjectExploreComponent implements OnInit {
                 if (value.success) {
                     // Immutable update to work well with OnPush
                     this.project_list = this.project_list.filter(
-                        (p) => p.id !== id
+                        (p) => p.id !== id,
                     );
-                    this.cdr.detectChanges();
+
                     this.toastService.success('Project deleted successfully.');
                 }
             },
@@ -95,17 +94,17 @@ export class ProjectExploreComponent implements OnInit {
                 if (value.success) {
                     // Immutable update to work well with OnPush
                     const newProject = this.project_list.find(
-                        (p) => p.id === value.data?.id
+                        (p) => p.id === value.data?.id,
                     )!;
                     this.project_list = [...this.project_list, newProject];
 
                     this.toastService.success(
-                        'Project duplicated successfully.'
+                        'Project duplicated successfully.',
                     );
                 } else this.toastService.error('An error occured.');
             },
             error: (err) => {
-                this.toastService.error(err);
+                this.toastService.error(err.error.detail);
             },
         });
     }

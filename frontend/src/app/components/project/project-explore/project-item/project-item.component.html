@@ -7,7 +7,9 @@
             <h2 class="name text-break">{{ project.name }}</h2>
             <span class="icon-pin" aria-hidden="true"></span>
             <span>{{ project.country }}</span>
+
             <br />
+
             <span class="property">
                 {{ project.date_created || "{not defined}" | date }}
             </span>
@@ -27,7 +29,7 @@
                     class="btn btn--action action"
                     type="button"
                     value="Delete"
-                    (click)="duplicate_modal(project.id)"
+                    (click)="onDuplicateProject(project.id)"
                 >
                     <span class="icon icon-duplicate" aria-hidden="true"></span>
                 </button>
@@ -38,7 +40,7 @@
                     class="btn btn--action action"
                     type="button"
                     value="Delete"
-                    (click)="delete_modal(project.id)"
+                    (click)="onDeleteProject(project.id)"
                 >
                     <span class="icon icon-delete" aria-hidden="true"></span>
                 </button>
@@ -114,7 +116,7 @@
         </ng-container>
 
         <ng-template #loading>
-            <span class="text-muted p-2">Loading scenarios...</span>
+            <span class="text-muted p-2">Loading Scenarios...</span>
         </ng-template>
     </div>
 </section>

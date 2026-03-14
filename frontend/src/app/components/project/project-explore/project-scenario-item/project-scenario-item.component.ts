@@ -73,12 +73,12 @@ export class ProjectScenarioItemComponent {
     }
 
     async onDeleteScenario(scenarioId: number) {
-        const confirmed = await this.alertService.confirm(
-            `Are you sure delete scenario ${this.scenario.name}?`,
-            'Delete',
-        );
-
-        if (confirmed) {
+        if (
+            await this.alertService.confirm(
+                `Are you sure delete scenario ${this.scenario.name}?`,
+                'Delete',
+            )
+        ) {
             this.scenarioService.deleteScenario(scenarioId).subscribe({
                 next: (value) => {
                     if (value.success) {
@@ -89,19 +89,22 @@ export class ProjectScenarioItemComponent {
                     } else this.toastService.error('An error occured.');
                 },
                 error: (err) => {
-                    this.toastService.error(err);
+                    this.toastService.error(
+                        err.error.detail ||
+                            'An error occured while deleting scenario.',
+                    );
                 },
             });
         }
     }
 
     async onDuplicateScenario(scenarioId: number) {
-        const confirmed = await this.alertService.confirm(
-            `Are you sure duplicate scenario ${this.scenario.name}?`,
-            'Duplicate',
-        );
-
-        if (confirmed) {
+        if (
+            await this.alertService.confirm(
+                `Are you sure duplicate scenario ${this.scenario.name}?`,
+                'Duplicate',
+            )
+        ) {
             this.scenarioService.duplicateScenario(scenarioId).subscribe({
                 next: (value) => {
                     if (value.success) {
@@ -116,7 +119,10 @@ export class ProjectScenarioItemComponent {
                     } else this.toastService.error('An error occured.');
                 },
                 error: (err) => {
-                    this.toastService.error(err);
+                    this.toastService.error(
+                        err.error.detail ||
+                            'An error occured while duplicating scenario.',
+                    );
                 },
             });
         }

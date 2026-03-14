@@ -35,12 +35,10 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
 export class ProjectItemComponent implements OnInit {
     isCollapsed = true;
 
-    // @Input() project!: ProjectModel;
     private _project!: ProjectModel;
     @Input() set project(val: ProjectModel) {
         this._project = val;
 
-        // this.scenarios$ =
         this.scenarioService
             .getScenarios(this._project.id)
             .pipe(
@@ -57,7 +55,9 @@ export class ProjectItemComponent implements OnInit {
                     return of([] as ScenarioModel[]);
                 }),
             )
-            .subscribe((data) => (this._project.scenarioList = data));
+            .subscribe(
+                (data: ScenarioModel[]) => (this._project.scenarioList = data),
+            );
     }
     get project(): ProjectModel {
         return this._project;
@@ -73,40 +73,27 @@ export class ProjectItemComponent implements OnInit {
 
     ngOnInit() {}
 
-    async delete_modal(id: number) {
-        const confirmed = await this.alertService.confirm(
-            'This will also delete all related project data.',
-            undefined,
-            undefined,
-            undefined,
-            'warning',
-        );
-        if (confirmed) {
-            this._deleteProject(id);
-        }
+    async onDeleteProject(id: number) {
+        if (
+            await this.alertService.confirm(
+                'This will also delete all related project data.',
+                'Delete',
+                undefined,
+                undefined,
+                'error',
+            )
+        )
+            this.deleteProject.emit(id);
     }
 
-    private _deleteProject(id: number) {
-        this.deleteProject.emit(id);
-    }
-
-    async duplicate_modal(id: number) {
-        const confirmed = await this.alertService.confirm(
-            'This will also duplicate all related project data.',
-            undefined,
-            undefined,
-            undefined,
-            'warning',
-        );
-
-        if (confirmed) {
-            this._duplicateProject(id);
-            await this.alertService.success(`Duplicated the project`);
-        }
-    }
-
-    private _duplicateProject(id: number) {
-        this.duplicateProject.emit(id);
+    async onDuplicateProject(id: number) {
+        if (
+            await this.alertService.confirm(
+                `Are you sure you want to duplicate project ${this.project.name}?`,
+                'Duplicate',
+            )
+        )
+            this.duplicateProject.emit(id);
     }
 
     newScenario(pId: number, pName: string) {
