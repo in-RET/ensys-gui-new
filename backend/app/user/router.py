@@ -196,7 +196,7 @@ async def read_user_endpoint(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[user.model_dump()],
+            items=[user.model_dump_json()],
             totalCount=1,
         ),
         success=True,

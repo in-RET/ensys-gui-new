@@ -41,7 +41,7 @@ scenario_router = APIRouter(
 )
 
 
-@scenario_router.post("")
+@scenario_router.post("", response_model=DataResponse)
 async def create_scenario_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     scenario_data: EnScenario,
@@ -65,7 +65,7 @@ async def create_scenario_endpoint(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[scenario.model_dump(exclude={"energysystem"})],  # type: ignore[call-arg]
+            items=[scenario.model_dump(exclude={"modeling_data"})],  # type: ignore[call-arg]
             totalCount=1,
         )
     )
@@ -221,7 +221,7 @@ async def delete_scenario_endpoint(
         return MessageResponse(data="Scenario deleted.", success=True)
 
 
-@scenario_router.post("/duplicate/{scenario_id}")
+@scenario_router.post("/duplicate/{scenario_id}", response_model=DataResponse)
 async def duplicate_scenario_endpoint(
     scenario_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -248,7 +248,7 @@ async def duplicate_scenario_endpoint(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[scenario.model_dump(exclude={"modeling_data"})],
+            items=[scenario.model_dump_json(exclude={"modeling_data"})],
             totalCount=1,
         ),
         success=True,

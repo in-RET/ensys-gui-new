@@ -4,13 +4,16 @@ from typing import Annotated
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Path
 from oep_client.oep_client import OepClient
+from sqlmodel import Session
 from starlette import status
 
 from .service import get_oep_client
+from ..db import get_db_session
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse
 from ..security import oauth2_scheme
 from ..types import oemofBlockTypes, oepTypes, oepTypesData
+from ..user.service import read_user_by_token
 
 oep_router = APIRouter(
     prefix="/oep",
@@ -18,11 +21,12 @@ oep_router = APIRouter(
 )
 
 
-@oep_router.get("/{table_name}")
+@oep_router.get("/{table_name}", response_model=DataResponse)
 async def get_oep_data(
     token: Annotated[str, Depends(oauth2_scheme)],
     table_name: str,
     oep_cli: Annotated[OepClient, Depends(get_oep_client)],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Get OEP Data from a specified table.
@@ -43,11 +47,7 @@ async def get_oep_data(
 
     :raises HTTPException: If the token is invalid or not provided.
     """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
-
+    read_user_by_token(token=token, db=db)
     data = oep_cli.select_from_table(table=table_name)
 
     return DataResponse(
@@ -55,11 +55,12 @@ async def get_oep_data(
     )
 
 
-@oep_router.get("/meta/{table_name}")
+@oep_router.get("/meta/{table_name}", response_model=DataResponse)
 async def get_oep_metadata(
     token: Annotated[str, Depends(oauth2_scheme)],
     table_name: str,
     oep_cli: Annotated[OepClient, Depends(get_oep_client)],
+    db: Session = Depends(get_db_session),
 ) -> DataResponse:
     """
     Retrieve metadata for a specific table.
@@ -76,11 +77,7 @@ async def get_oep_metadata(
 
     :raises HTTPException: If the token is invalid or not provided.
     """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
-
+    read_user_by_token(token=token, db=db)
     data = oep_cli.get_metadata(table=table_name)
 
     return DataResponse(
@@ -97,6 +94,7 @@ async def get_local_oep_schemas(
             enum=list(oemofBlockTypes), description="Block type to identify the schema."
         ),
     ],
+    db: Session = Depends(get_db_session),
 ) -> DataResponse:
     """
     This endpoint retrieves a list of local schemas that match the provided
@@ -111,11 +109,7 @@ async def get_local_oep_schemas(
     :raises HTTPException: Raises a 401 HTTP status code exception if the user
         is unauthorized or the token is invalid.
     """
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
-
+    read_user_by_token(token=token, db=db)
     schema_list = oepTypesData[oemofBlockTypes[block_type]]
 
     return DataResponse(
@@ -124,7 +118,7 @@ async def get_local_oep_schemas(
     )
 
 
-def calc_annuity(capex, wacc, n, u=None):
+def calc_annuity(capex, wacc, n, u=None) -> float:
     if u is None:
         u = n
 
@@ -139,7 +133,7 @@ def calc_annuity(capex, wacc, n, u=None):
     )
 
 
-@oep_router.get("/local_data/{oep_name}/{simulation_year}/node_data")
+@oep_router.get("/local_data/{oep_name}/{simulation_year}/node_data", response_model=DataResponse)
 async def get_local_oep_data_node(
     token: Annotated[str, Depends(oauth2_scheme)],
     oep_name: Annotated[
@@ -155,6 +149,7 @@ async def get_local_oep_data_node(
             description="Simulation year from the scenario.",
         ),
     ],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
     """
     Fetch localized Open Energy Platform (OEP) data for a specific simulation year and type.
@@ -167,6 +162,7 @@ async def get_local_oep_data_node(
     validating inputs against permitted values. The data is returned in a structured response
     object that organizes inputs and outputs for further processing.
 
+    :param oep_name:
     :param token: Authentication token required for access.
     :type token: str
     :param oep_type: Type of OEP data being requested.
@@ -178,10 +174,7 @@ async def get_local_oep_data_node(
     :raises HTTPException: If the token is invalid, the simulation year is unsupported, or any required file is missing.
     """
 
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
+    read_user_by_token(token=token, db=db)
 
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(
@@ -415,7 +408,7 @@ async def get_local_oep_data_node(
     )
 
 
-@oep_router.get("/local_data/{oep_name}/{simulation_year}/ports_data")
+@oep_router.get("/local_data/{oep_name}/{simulation_year}/ports_data", response_model=DataResponse)
 async def get_local_oep_data_ports(
     token: Annotated[str, Depends(oauth2_scheme)],
     oep_name: Annotated[
@@ -431,11 +424,9 @@ async def get_local_oep_data_ports(
             description="Simulation year from the scenario.",
         ),
     ],
+    db: Session = Depends(get_db_session)
 ) -> DataResponse:
-    if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
-        )
+    read_user_by_token(token=token, db=db)
 
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(

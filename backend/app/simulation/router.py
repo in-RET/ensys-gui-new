@@ -9,6 +9,7 @@ including starting, stopping, and monitoring simulation tasks.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import Session
 from starlette import status
 
 from .service import (
@@ -157,7 +158,7 @@ async def get_simulations_endpoint(
 async def get_simulation_endpoint(
     simulation_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
-    db=Depends(get_db_session),
+    db: Session = Depends(get_db_session),
 ) -> DataResponse:
     """
     Get details of a specific simulation.

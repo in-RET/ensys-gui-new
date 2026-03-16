@@ -33,12 +33,12 @@ projects_router = APIRouter(
 )
 
 
-@projects_router.post("", response_model=MessageResponse)
+@projects_router.post("", response_model=DataResponse)
 async def create_project_endpoint(
     project_data: EnProject,
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
-) -> MessageResponse:
+) -> DataResponse:
     """
     Create a new project for the authenticated user.
 
@@ -57,7 +57,12 @@ async def create_project_endpoint(
     user = read_user_by_token(token=token, db=db)
     create_project(project_data=project_data, user=user, db=db)
 
-    return MessageResponse(data="Project created.", success=True)
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[project_data.model_dump_json()],
+            totalCount=1),
+        success=True
+    )
 
 
 @projects_router.get("s", response_model=DataResponse)
@@ -194,7 +199,7 @@ async def delete_project_endpoint(
         )
 
 
-@projects_router.post("/duplicate/{project_id}")
+@projects_router.post("/duplicate/{project_id}", response_model=DataResponse)
 async def duplicate_project_endpoint(
     project_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -219,7 +224,8 @@ async def duplicate_project_endpoint(
         new_proj = duplicate_project(project_id=project_id, user=user, db=db)
 
         return DataResponse(
-            data=GeneralDataModel(items=[new_proj.model_dump_json()], totalCount=0),
+            data=GeneralDataModel(
+                items=[new_proj.model_dump_json()], totalCount=0),
             success=True,
         )
     else:
