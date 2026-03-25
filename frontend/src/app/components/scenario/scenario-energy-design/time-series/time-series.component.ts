@@ -28,13 +28,14 @@ export interface ModeOption {
     styleUrl: './time-series.component.scss',
 })
 export class TimeSeriesComponent {
-    timeSeriesModal: any = {
+    modalInfo: {
+        showPlot: boolean;
+        title: string;
+        selectedType?: 'list' | 'file' | 'number';
+        data: number[];
+    } = {
         showPlot: false,
         title: 'Time Series Data',
-        action: {
-            label: 'Import',
-            fn: undefined,
-        },
         selectedType: undefined, // types: list , file, number
         data: [],
     };
@@ -69,15 +70,17 @@ export class TimeSeriesComponent {
         { value: 'number', label: 'Single Value' },
     ] as const;
 
+    private _modes!: ModeOption[];
     @Input()
-    set modes(value: ModeOption[] | null | undefined) {
-        this._modes = value && value?.length ? value : [...this.defaultModes];
+    set modes(d: ModeOption[] | null) {
+        this._modes = d && d?.length ? d : [...this.defaultModes];
     }
     get modes() {
         return this._modes;
     }
-    private _modes!: ModeOption[];
 
+    @Output()
+    dataSubmit: EventEmitter<number[]> = new EventEmitter<number[]>();
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
 
@@ -128,7 +131,7 @@ export class TimeSeriesComponent {
 
             if (this.timeSeries_table.hasHeader) rows.shift(); // Remove header row if present
 
-            const data = rows.slice(0).map((row) => {
+            const data: any[] = rows.slice(0).map((row) => {
                 const rowData: any = {};
 
                 headers.forEach((header, index) => {
@@ -223,7 +226,7 @@ export class TimeSeriesComponent {
 
             const yVal: number[] = [];
 
-            switch (this.timeSeriesModal.selectedType) {
+            switch (this.modalInfo.selectedType) {
                 case 'list':
                     break;
 
@@ -251,8 +254,8 @@ export class TimeSeriesComponent {
         }
     }
 
-    chart_timeSeries_initial(xVal: any, yVal: any) {
-        this.timeSeriesModal.showPlot = true;
+    chart_timeSeries_initial(xVal: string[], yVal: number[]) {
+        this.modalInfo.showPlot = true;
 
         const timeSeriesData: any = {
             x: xVal, // 8760 time: 2025-01-01 to 2025-12-31
@@ -285,7 +288,7 @@ export class TimeSeriesComponent {
         setTimeout(() => {
             Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config)
                 .then(() => {
-                    this.timeSeriesModal.data = yVal;
+                    this.modalInfo.data = yVal;
                 })
                 .catch((error) => {
                     console.error('Error creating plot:', error);
@@ -294,21 +297,21 @@ export class TimeSeriesComponent {
     }
 
     collapseTable(val: boolean) {
-        this.timeSeriesModal.showPlot = !val;
+        this.modalInfo.showPlot = !val;
         this.isCollapsed_timeSeriesTable = val;
         this.isCollapsed_timeSeriesPlot = !val;
     }
 
     collapsePlot(val: boolean) {
-        this.timeSeriesModal.showPlot = val;
+        this.modalInfo.showPlot = val;
         this.isCollapsed_timeSeriesTable = !val;
         this.isCollapsed_timeSeriesPlot = val;
     }
 
     changeMode(type: 'list' | 'file' | 'number') {
-        if (this.timeSeriesModal.selectedType) this.resetData();
+        if (this.modalInfo.selectedType) this.resetData();
 
-        this.timeSeriesModal.selectedType = type;
+        this.modalInfo.selectedType = type;
     }
 
     resetData() {
@@ -323,21 +326,14 @@ export class TimeSeriesComponent {
             noRecordsCnt: 0,
         };
         this.timeSeries_table.hasHeader = true;
-        this.timeSeriesModal.showPlot = false;
+        this.modalInfo.showPlot = false;
     }
-
-    // resetFileInput() {
-    //     this.fileInput.nativeElement.value = '';
-    // }
-
-    toggleHasHeader() {}
 
     submitData() {
-        // show notif of import success
-        this.closeModal(this.timeSeriesModal.data);
+        this.dataSubmit.emit(this.modalInfo.data);
     }
 
-    closeModal(data?: any) {
-        this.closeModal_TimeSeries.emit(data);
+    closeModal(approved: any) {
+        this.closeModal_TimeSeries.emit(approved);
     }
 }

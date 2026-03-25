@@ -30,7 +30,7 @@ export class FormComponent {
     @Input() set formData(d: any) {
         if (d) {
             this._formData = d;
-            this.initForm(this.formData);
+            this.initForm();
         } else this._formData = null;
     }
     get formData() {
@@ -41,10 +41,9 @@ export class FormComponent {
 
     ngOnInit() {}
 
-    initForm(formData: any) {
+    initForm() {
         this.form = new FormGroup({});
-
-        formData.sections.forEach((section: any) => {
+        this.formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports' && section.fields)
                 section.fields.forEach((field: any) => {
                     let fControl: FormControl = new FormControl(
@@ -54,7 +53,7 @@ export class FormComponent {
                                 ? field['disabled']
                                 : null,
                         },
-                        []
+                        [],
                     );
 
                     if (field.isReq)

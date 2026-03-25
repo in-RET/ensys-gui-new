@@ -352,6 +352,6 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     openSimulations(scenarioId: number) {
-        this.scenarioEnergyDesignComponent.openSimulationsList(scenarioId);
+        this.scenarioEnergyDesignComponent.showModal_Simulation(scenarioId);
     }
 }

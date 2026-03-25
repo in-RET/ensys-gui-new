@@ -1,0 +1,44 @@
+<app-modal
+    *ngIf="modalInfo"
+    [title]="modalInfo.title"
+    (closeModal)="closeModal(false)"
+    [show]="modalInfo.show"
+>
+    <div modal-form>
+        <p
+            class="text-center p-2 border border-warning rounded-4 shadow"
+            *ngIf="modalInfo.node && modalInfo.node.data.oep"
+        >
+            The <b>OEP </b> field is enabled at the node level, so please review
+            and adjust its parameters directly in the node.
+        </p>
+        <app-form
+            #form
+            [formData]="modalInfo.formData"
+            (onSubmit)="submitForm()"
+        />
+    </div>
+
+    <div
+        modal-actions
+        *ngIf="modalInfo.formData !== null; else empty_form_actions"
+    >
+        <span class="text-danger modal_error" *ngIf="formError.isShow">
+            {{ formError.msg }}
+        </span>
+
+        <button class="btn btn--success btn--medium" (click)="submitForm()">
+            Submit
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>

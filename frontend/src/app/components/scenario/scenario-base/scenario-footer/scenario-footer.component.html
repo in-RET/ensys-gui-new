@@ -1,17 +1,16 @@
 <footer class="step-footer" style="z-index: 1">
     <div>
-        <div class="step-footer__left"></div>
-
         <div class="step-footer__center gap-1 d-flex">
-            <button
-                class="btn btn--medium btn--hollow btn--previous"
-                *ngIf="step > 0"
-                (click)="previous()"
-            >
-                Scenario Setup
-            </button>
+            <ng-container *ngIf="step > 0">
+                <button
+                    class="btn btn--medium btn--hollow btn--previous"
+                    (click)="previous()"
+                >
+                    Scenario Setup
+                </button>
+            </ng-container>
 
-            <button class="btn btn--medium" *ngIf="step < 1" (click)="next()">
+            <button class="btn btn--medium" *ngIf="step == 0" (click)="next()">
                 Next
             </button>
 
@@ -47,15 +46,14 @@
             </ng-container>
         </div>
 
-        <div class="step-footer__right">
+        <ng-container *ngIf="step == 1 && scenarioData.scenario">
             <a
                 class="btn btn--medium btn--transparent"
-                *ngIf="step == 1 && scenarioData.scenario"
                 [ngClass]="{ disabled: isScenarioNew }"
                 (click)="onOpenSimulations(scenarioData.scenario.id)"
             >
                 Simulation(s)
             </a>
-        </div>
+        </ng-container>
     </div>
 </footer>

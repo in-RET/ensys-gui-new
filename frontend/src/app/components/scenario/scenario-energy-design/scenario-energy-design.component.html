@@ -1,191 +1,44 @@
 <div class="system-design">
-    <app-energy-components
-        [components]="components"
-        (touchEnd)="touchEnd($event)"
-        *ngIf="!isFullscreen"
-    />
+    <app-energy-components *ngIf="!isFullscreen" />
 
     <app-energy-drawflow
         class="w-100 h-100"
-        (showFormModal_node)="showFormModal_node($event)"
-        (showFormModal_flow)="showFormModal_flow($event)"
         (toggleFullScreen)="toggleFullScreen()"
     />
 </div>
 
-<app-modal
-    *ngIf="formModal_info && formModal_info.show"
-    [title]="formModal_info.title"
-    (closeModal)="closeModal($event)"
-    [hidden]="formModal_info.hide"
->
-    <div class="node-info" modal-header-center-icon>
-        <button
-            title="Info"
-            (click)="openInfoUrl(formModal_info.url)"
-            role="button"
-        >
-            <!-- <a [href]="formModal_info.url" target="_blank" class="w-100 h-100">
-            </a> -->
-        </button>
-    </div>
+<ng-container *ngIf="modalStateService.modalState | async as modalState">
+    <app-node-form-modal
+        [modalInfo]="modalState.nodeForm"
+        (formSubmitted)="onNodeFormSubmitted($event)"
+        (modalClosed)="onNodeFormClosed($event)"
+        (makeNode)="makeNode($event.formValue, $event.formModalInfo)"
+        (updateNode)="updateNode($event.data, $event.nodeId, $event.nodeType)"
+        (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
+    />
 
-    <div modal-form>
-        <div *ngIf="formModal_info.formData !== null">
-            <p
-                class="text-center p-2 border border-warning rounded-4 shadow"
-                *ngIf="
-                    formModal_info.type == 'flow' &&
-                    formModal_info.node &&
-                    formModal_info.node.data.oep
-                "
-            >
-                The <b>OEP </b> field is enabled at the node level, so please
-                review and adjust its parameters directly in the node.
-            </p>
+    <app-flow-form-modal
+        [modalInfo]="modalState.flowForm"
+        (saveConnectionInNode)="flow_updateConnectionInNode($event)"
+        (modalClosed)="onFlowFormClosed($event)"
+        (onShowModal_EpCostsCalculator)="onCalculatorOpened($event)"
+        (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
+    />
 
-            <app-form
-                [formData]="formModal_info.formData"
-                (onSubmit)="submitFormData()"
-                #form
-            />
-        </div>
+    <app-calculator-modal
+        [modalInfo]="modalState.calculator"
+        (formSubmitted)="onCalculateEpCosts($event)"
+        (modalClosed)="onCalculatorClosed()"
+    />
 
-        <!-- ports -->
-        <!-- transformer -->
-        <div
-            class="row mb-3"
-            *ngIf="
-                formModal_info.type == 'node' &&
-                formModal_info.node &&
-                (formModal_info.node.type === 'transformer' ||
-                    formModal_info.node.class === 'transformer')
-            "
-        >
-            <div class="col-6">
-                <app-order-list
-                    label="Inputs"
-                    [data]="formModal_info.data.ports.inputs"
-                    [acceptDuplicate]="false"
-                    [fields]="['name', 'timeSeries']"
-                    [editable]="formModal_info.data.ports?.editable"
-                    [options]="{
-                        id: 'inputs',
-                        group: 'transformer',
-                    }"
-                    (openModal_TimeSeries)="openModal_TimeSeries($event)"
-                    #transform_inputs
-                />
-            </div>
+    <app-time-series-modal
+        [modalInfo]="modalState.timeSeries"
+        (dataSubmitted)="onTimeSeriesSubmitted($event)"
+        (modalClosed)="onTimeSeriesClosed()"
+    />
 
-            <div class="col-6">
-                <app-order-list
-                    label="Outputs"
-                    [data]="formModal_info.data.ports.outputs"
-                    [acceptDuplicate]="false"
-                    [fields]="['name', 'timeSeries']"
-                    [editable]="formModal_info.data.ports?.editable"
-                    [options]="{
-                        id: 'outputs',
-                        group: 'transformer',
-                    }"
-                    (openModal_TimeSeries)="openModal_TimeSeries($event)"
-                    #transform_outputs
-                />
-            </div>
-        </div>
-    </div>
-
-    <div
-        modal-actions
-        *ngIf="formModal_info.formData !== null; else empty_form_actions"
-    >
-        <span class="text-danger modal_error" *ngIf="formError.isShow">
-            {{ formError.msg }}
-        </span>
-
-        <button
-            type="submit"
-            class="btn btn--success btn--medium"
-            (click)="submitFormData()"
-        >
-            <span>{{ formModal_info.action.label }}</span>
-        </button>
-    </div>
-
-    <ng-template #empty_form_actions>
-        <button
-            type="button"
-            class="btn btn--primary btn--medium"
-            (click)="modalComponent._closeModal(false)"
-        >
-            <span>Close</span>
-        </button>
-    </ng-template>
-</app-modal>
-
-<!-- form modal calculator -->
-<app-modal
-    *ngIf="formModal_calculator.show"
-    [title]="formModal_calculator.title"
-    (closeModal)="closeModalEpCostsCalculator()"
->
-    <div modal-form>
-        <p class="text-danger" *ngIf="formCalError.isShow">
-            Error: {{ formCalError.msg }}
-        </p>
-
-        <app-form
-            [formData]="formModal_calculator.formData"
-            (onSubmit)="calculateEpCosts()"
-            #form_cal
-        />
-    </div>
-
-    <div
-        modal-actions
-        *ngIf="formModal_calculator.formData !== null; else empty_form_actions"
-    >
-        <button
-            type="submit"
-            class="btn btn--success btn--medium"
-            (click)="calculateEpCosts()"
-        >
-            <span>{{ formModal_calculator.action.label }}</span>
-        </button>
-    </div>
-
-    <ng-template #empty_form_actions>
-        <button
-            type="button"
-            class="btn btn--primary btn--medium"
-            (click)="modalComponent._closeModal(false)"
-        >
-            <span>Close</span>
-        </button>
-    </ng-template>
-</app-modal>
-
-<!-- form modal simulation -->
-<app-modal
-    *ngIf="showSimulations"
-    title="Simulations"
-    (closeModal)="closeSimulationModal()"
-    [hidden]="false"
-    [size]="''"
-    [hasActions]="false"
->
-    <div modal-body>
-        <app-simulation-list-card
-            [data]="simulationList"
-            [loading]="loadSimulationsLoading"
-        />
-    </div>
-</app-modal>
-
-<app-time-series
-    *ngIf="timeSeriesModal.show"
-    [maxRecords_TimeSeries]="8760"
-    [modes]="timeSeriesModal.modes"
-    (closeModal_TimeSeries)="closeModal_TimeSeries($event)"
-/>
+    <app-simulation-modal
+        [modalInfo]="modalState.simulation"
+        (modalClosed)="onSimulationClosed()"
+    />
+</ng-container>

@@ -1,11 +1,17 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, map, Observable} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {BaseHttpService} from '../../../core/base-http/base-http.service';
-import {ResModel} from '../../../shared/models/http.model';
-import {AlertService} from '../../../shared/services/alert.service';
-import {ToastService} from '../../../shared/services/toast.service';
-import {ScenarioBaseInfoModel, ScenarioReqModel, ScenarioResModel,} from '../models/scenario.model';
+import { inject, Injectable } from '@angular/core';
+import { DrawflowNode } from 'drawflow';
+import { BehaviorSubject, map, Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { BaseHttpService } from '../../../core/base-http/base-http.service';
+import { ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+} from '../models/scenario.model';
+import { ModalStateService } from '../scenario-energy-design/modals/modal-state.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,12 +21,19 @@ export class ScenarioService {
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
 
-    private readonly _isDrawflowEmpty$ = new BehaviorSubject<boolean>(true);
-    readonly isDrawflowEmpty$ = this._isDrawflowEmpty$.asObservable();
+    private _drawflowData$ = new BehaviorSubject<{
+        [nodeKey: string]: DrawflowNode;
+    } | null>(null);
+    readonly drawflowData$ = this._drawflowData$.asObservable();
+
+    readonly isDrawflowEmpty$: Observable<boolean> = this._drawflowData$.pipe(
+        map((data) => data === null),
+    );
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     baseHttp = inject(BaseHttpService);
+    private modalStateService = inject(ModalStateService);
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -77,13 +90,21 @@ export class ScenarioService {
     }
 
     //====================  draw flow   ====================
-    saveDrawflow_Storage(data: any, needStringify = true) {
+    saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
-            needStringify ? JSON.stringify(data) : data,
+            JSON.stringify(data),
         );
+    }
 
-        this._isDrawflowEmpty$.next(false);
+    setDrawflowData(data: { [nodeKey: string]: DrawflowNode }) {
+        this._drawflowData$.next(data);
+    }
+
+    private clearDrawflowData() {
+        console.log(3);
+
+        this._drawflowData$.next(null);
     }
 
     restoreDrawflow_Storage(mustResultString = false): string | false | any {
@@ -92,14 +113,13 @@ export class ScenarioService {
         );
 
         if (DrawflowData && DrawflowData.trim() != '') {
-            this._isDrawflowEmpty$.next(false);
             return mustResultString ? DrawflowData : JSON.parse(DrawflowData);
         } else return false;
     }
 
-    removeDrawflow_Storage() {
+    removeDrawflow_Data() {
         localStorage.removeItem(this.scenario_drawflow_localstorage_name);
-        this._isDrawflowEmpty$.next(true);
+        this.clearDrawflowData();
     }
 
     //====================  draw flow   ====================
@@ -215,5 +235,64 @@ export class ScenarioService {
                 throw new Error('Unknown API error');
             }),
         );
+    }
+
+    getEntityInfoUrl(nodeName: string) {
+        switch (nodeName) {
+            case 'source':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._source';
+
+            case 'transformer':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._converter';
+
+            case 'genericStorage':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._generic_storage';
+
+            case 'sink':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#oemof.solph.components._sink.Sink';
+
+            case 'bus':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.busses.html';
+
+            case 'flow':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.flow.html#module-oemof.solph.flows';
+
+            default:
+                return 'https://oemof-solph.readthedocs.io';
+        }
+    }
+
+    checkNodeDuplication(nodeName: string, nodeId: number) {
+        const currentDrawflowData = this._drawflowData$.getValue();
+
+        if (
+            currentDrawflowData == null ||
+            Object.keys(currentDrawflowData).length == 0
+        )
+            return false;
+
+        if (
+            !currentDrawflowData ||
+            JSON.stringify(currentDrawflowData) === '{}' ||
+            Object.keys(currentDrawflowData).length == 0
+        ) {
+            return false;
+        }
+
+        for (const key in currentDrawflowData) {
+            if (
+                Object.prototype.hasOwnProperty.call(currentDrawflowData, key)
+            ) {
+                const node = currentDrawflowData[key];
+
+                if (node.id != nodeId || !nodeId) {
+                    if (node.name === nodeName || node.data.name === nodeName) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }
