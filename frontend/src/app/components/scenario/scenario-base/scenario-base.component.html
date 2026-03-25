@@ -1,6 +1,10 @@
-<app-scenario-setup *ngIf="currentStep == 0" #setup />
-
 <div class="d-flex flex-column h-100">
+    <app-scenario-setup
+        class="flex-grow-1 overflow-auto"
+        *ngIf="currentStep == 0"
+        #setup
+    />
+
     <app-scenario-energy-design
         *ngIf="currentStep == 1"
         [currentScenario]="currentScenario"

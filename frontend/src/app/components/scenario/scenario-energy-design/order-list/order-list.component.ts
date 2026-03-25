@@ -96,8 +96,8 @@ export class OrderListComponent {
         return this._data;
     }
 
-    @Output() openModal_TimeSeries = new EventEmitter<{
-        controlName: string | 'timeSeries';
+    @Output() showModal_TimeSeries = new EventEmitter<{
+        controlName: 'timeSeries';
         options: any;
     }>();
 
@@ -355,7 +355,7 @@ export class OrderListComponent {
     }
 
     openTimeSeriesModal() {
-        this.openModal_TimeSeries.emit({
+        this.showModal_TimeSeries.emit({
             controlName: 'timeSeries',
             options: this.options,
         });

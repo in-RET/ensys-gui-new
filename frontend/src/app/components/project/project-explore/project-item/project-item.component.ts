@@ -98,7 +98,7 @@ export class ProjectItemComponent implements OnInit {
 
     newScenario(pId: number, pName: string) {
         this.scenarioService.removeBaseInfo_Storage();
-        this.scenarioService.removeDrawflow_Storage();
+        this.scenarioService.removeDrawflow_Data();
 
         this.scenarioService.saveBaseInfo_Storage({
             project: {

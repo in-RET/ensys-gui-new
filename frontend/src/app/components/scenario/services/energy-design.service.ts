@@ -25,6 +25,15 @@ export interface Ports {
     providedIn: 'root',
 })
 export class EnergyDesignService {
+    formModal_calculator: any = {
+        show: false,
+        title: 'EP Costs Calculator',
+        action: {
+            label: undefined,
+            fn: undefined,
+        },
+    };
+
     constructor(
         private flowService: FlowService,
         private generalService: GeneralService,
@@ -178,7 +187,7 @@ export class EnergyDesignService {
                         label: '',
                         icon: 'calculator',
                         onClick: () => {
-                            callback['showModalEpCostsCalculator']();
+                            callback['showModal_EpCostsCalculator']();
                         },
                     },
                 ],
@@ -304,7 +313,7 @@ export class EnergyDesignService {
                         label: '',
                         icon: 'calculator',
                         onClick: () => {
-                            callback['showModalEpCostsCalculator']();
+                            callback['showModal_EpCostsCalculator']();
                         },
                     },
                 ],
@@ -414,7 +423,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'variable_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -435,7 +444,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'max',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -456,7 +465,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'min',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -477,7 +486,12 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']('fix');
+                        callback['showModal_TimeSeries'](
+                            // ('fix');
+                            {
+                                controlName: 'fix',
+                            },
+                        );
                     },
                 },
             },
@@ -492,7 +506,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'positive_gradient_limit',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -513,7 +527,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'negative_gradient_limit',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -534,7 +548,7 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['openModal_TimeSeries']({
+                        callback['showModal_TimeSeries']({
                             controlName: 'fixed_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
@@ -1421,6 +1435,7 @@ export class EnergyDesignService {
                                     oep,
                                     data,
                                     preDefData,
+                                    callback,
                                 ),
                             },
                         ],
@@ -1565,7 +1580,11 @@ export class EnergyDesignService {
                                     data,
                                     preDefData,
                                     callback,
-                                ),
+                                ).map((elm: any) => {
+                                    if (oep) elm['disabled'] = true;
+
+                                    return elm;
+                                }),
                             },
                         ],
                     };

@@ -34,10 +34,8 @@ export class ProjectScenarioItemComponent {
             next: (res) => {
                 if (res.success && res.data && res.data.length != 0) {
                     const data = res.data.items[0];
-
                     this.scenarioService.saveDrawflow_Storage(
-                        data.modeling_data,
-                        false,
+                        JSON.parse(data.modeling_data),
                     );
 
                     // save project,scenario - storage

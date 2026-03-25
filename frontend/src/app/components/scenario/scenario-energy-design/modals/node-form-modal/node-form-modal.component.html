@@ -1,0 +1,80 @@
+<app-modal
+    *ngIf="modalInfo"
+    [title]="modalInfo.title"
+    (closeModal)="closeModal(false)"
+    [show]="modalInfo.show"
+>
+    <div modal-form>
+        <app-form
+            #form
+            [formData]="modalInfo.formData"
+            (onSubmit)="submitForm()"
+        />
+        <!-- ports -->
+        <!-- transformer -->
+        <div
+            class="row mb-3"
+            *ngIf="
+                modalInfo.data &&
+                modalInfo.node &&
+                modalInfo.node.class === 'transformer'
+            "
+        >
+            <div class="col-6">
+                <app-order-list
+                    label="Inputs"
+                    [data]="modalInfo.data.ports.inputs"
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'timeSeries']"
+                    [editable]="modalInfo.data.ports?.editable"
+                    [options]="{
+                        id: 'inputs',
+                        group: 'transformer',
+                    }"
+                    (showModal_TimeSeries)="showModal_TimeSeries($event)"
+                    #transform_inputs
+                />
+            </div>
+
+            <div class="col-6">
+                <app-order-list
+                    label="Outputs"
+                    [data]="modalInfo.data.ports.outputs"
+                    [acceptDuplicate]="false"
+                    [fields]="['name', 'timeSeries']"
+                    [editable]="modalInfo.data.ports?.editable"
+                    [options]="{
+                        id: 'outputs',
+                        group: 'transformer',
+                    }"
+                    (showModal_TimeSeries)="showModal_TimeSeries($event)"
+                    #transform_outputs
+                />
+            </div>
+        </div>
+    </div>
+    <!-- Add other elements like order lists for transformer -->
+
+    <div
+        modal-actions
+        *ngIf="modalInfo.formData !== null; else empty_form_actions"
+    >
+        <span class="text-danger modal_error" *ngIf="formError.isShow">
+            {{ formError.msg }}
+        </span>
+
+        <button class="btn btn--success btn--medium" (click)="submitForm()">
+            Submit
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>

@@ -84,7 +84,6 @@ export class ProjectExploreComponent implements OnInit {
 
     clearScenarioDataStorage() {
         this.scenarioService.removeBaseInfo_Storage();
-        this.scenarioService.removeDrawflow_Storage();
         this.toastService.info('Storage cleared.');
     }
 

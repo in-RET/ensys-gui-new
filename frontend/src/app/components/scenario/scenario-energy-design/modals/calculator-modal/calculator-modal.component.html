@@ -1,0 +1,40 @@
+<app-modal
+    *ngIf="modalInfo"
+    [title]="modalInfo.title"
+    (closeModal)="closeModal(false)"
+>
+    <div modal-form>
+        <p class="text-danger" *ngIf="formError.isShow">
+            Error: {{ formError.msg }}
+        </p>
+
+        <app-form
+            [formData]="modalInfo.formData"
+            (onSubmit)="onFormSubmitted()"
+            #form
+        />
+    </div>
+
+    <div
+        modal-actions
+        *ngIf="modalInfo.formData !== null; else empty_form_actions"
+    >
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="onFormSubmitted()"
+        >
+            <span>{{ modalInfo.action.label }}</span>
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>

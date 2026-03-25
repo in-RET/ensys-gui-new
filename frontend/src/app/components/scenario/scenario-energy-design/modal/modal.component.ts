@@ -7,8 +7,10 @@ import {
     OnDestroy,
     OnInit,
     Output,
+    SimpleChanges,
     ViewChild,
 } from '@angular/core';
+import { Modal } from 'bootstrap';
 
 @Component({
     selector: 'app-modal',
@@ -19,23 +21,46 @@ import {
 export class ModalComponent implements OnInit, OnDestroy {
     modal: any;
 
-    @ViewChild('modal') modalRef = {} as ElementRef;
-
     @Input() title!: string;
     @Input() formData!: any;
     @Input() size: 'sm' | '' | 'lg' | 'xl' = 'xl'; // sm, md, lg, xl, full
     @Input() hasActions: boolean = true;
+    @Input() show: boolean = true;
 
     @Output() closeModal: EventEmitter<any> = new EventEmitter<any>();
 
+    @ViewChild('modal') modalEl!: ElementRef;
+    private isInitialized = false;
+
     ngOnInit() {
-        setTimeout(() => {
-            // this.modal = new bootstrap.Modal(this.modalRef.nativeElement);
-            this.modal = new (window as any).bootstrap.Modal(
-                this.modalRef.nativeElement
-            );
+        // setTimeout(() => {
+        //     this.modal = new (window as any).bootstrap.Modal(
+        //         this.modalRef.nativeElement,
+        //     );
+        //     this.modal.show();
+        // }, 0);
+    }
+
+    ngAfterViewInit() {
+        this.modal = new Modal(this.modalEl.nativeElement);
+        this.isInitialized = true;
+
+        // sync initial state
+        this.syncModal();
+    }
+
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes['show'] && this.isInitialized) {
+            this.syncModal();
+        }
+    }
+
+    private syncModal() {
+        if (this.show) {
             this.modal.show();
-        }, 0);
+        } else {
+            this.modal.hide();
+        }
     }
 
     _closeModal(approve: boolean) {
