@@ -41,7 +41,7 @@ demandlib==0.2.2
 dhnx==0.0.3
 dill==0.4.0
 dnspython==2.7.0
-ecdsa==0.19.1
+ecdsa==0.19.2
 email-validator==2.3.0
 exchangelib==5.5.1
 executing==2.2.1
