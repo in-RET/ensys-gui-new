@@ -149,7 +149,7 @@ pyasn1==0.6.3
 pycparser==2.23
 pydantic==2.11.7
 pydantic_core==2.33.2
-Pygments==2.19.2
+Pygments==2.20.0
 pymdown-extensions==10.16.1
 pyomo==6.9.4
 pyparsing==3.2.3
