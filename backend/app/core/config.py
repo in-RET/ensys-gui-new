@@ -18,76 +18,37 @@ where appropriate.
 """
 
 import os
-
 # Standard Library
 from functools import lru_cache
+from typing import List, Optional
 
 # Third Party
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
-from typing import List, Optional
 
 
 class Settings(BaseSettings):
-    """
-    Application settings management using Pydantic BaseSettings.
+    """Pydantic settings model for backend configuration.
 
-    This class handles all configuration settings for the application,
-    automatically loading values from environment variables and providing
-    type validation and conversion.
-
-    Application Settings:
-        :param app_name: Name of the application
-        :type app_name: str
-        :param environment: Runtime environment (development|production|test)
-        :type environment: str
-        :param root_path: Base path for API endpoints
-        :type root_path: str
-        :param log_level: Logging level (INFO, DEBUG, etc.)
-        :type log_level: str
-
-    CORS Settings:
-        :param cors_origins: List of allowed CORS origins
-        :type cors_origins: List[str]
-        :param allow_credentials: Whether to allow credentials in CORS
-        :type allow_credentials: bool
-
-    Database Settings:
-        :param database_url: Database connection URL
-        :type database_url: str
-        :param sqlalchemy_echo: Enable SQLAlchemy query logging
-        :type sqlalchemy_echo: bool
-        :param pool_size: Database connection pool size
-        :type pool_size: int
-        :param max_overflow: Maximum pool overflow connections
-        :type max_overflow: int
-        :param pool_recycle: Connection recycle time in seconds
-        :type pool_recycle: int
-
-    Redis/Celery Settings:
-        :param redis_host: Redis server hostname
-        :type redis_host: str
-        :param redis_port: Redis server port
-        :type redis_port: int
-        :param redis_url: Complete Redis URL (auto-generated if not set)
-        :type redis_url: Optional[str]
-
-    File System Settings:
-        :param local_datadir: Local directory for data storage
-        :type local_datadir: str
+    - covers app metadata, CORS, DB pool, Redis/Celery, and paths
+    - reads from env vars; validation ensures correct types
     """
 
     # App Settings
     app_name: str = Field(
         default="EnSys Backend", description="Name of the application"
     )
+
     environment: str = Field(
         default="development",
-        description="Runtime environment (development|production|test)",
+        description="Runtime environment",
     )
-    root_path: str = Field(
-        default="/dev/api", description="Base path for API endpoints"
+
+    root_path: Optional[str] = Field(
+        default=None,
+        description="Base path for API endpoints",
     )
+
     log_level: str = Field(default="INFO", description="Logging level")
 
     # CORS Settings
@@ -100,10 +61,10 @@ class Settings(BaseSettings):
 
     # Database Settings
     database_url: str = Field(
-        validation_alias="DATABASE_URL", description="Database connection URL"
+        validation_alias="DATABASE_URL", description="Database connection URL", default=os.getenv("DATABASE_URL")
     )
     sqlalchemy_echo: bool = Field(
-        default=False, description="Enable SQLAlchemy query logging"
+        default=True, description="Enable SQLAlchemy query logging"
     )
     pool_size: int = Field(default=5, description="Database connection pool size")
     max_overflow: int = Field(
@@ -128,14 +89,10 @@ class Settings(BaseSettings):
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_cors_origins(cls, v):  # noqa: N805
-        """
-        Validate and process CORS origins configuration.
+        """Normalize CORS origins to a list of strings.
 
-        Converts string input to list of origins, supporting both comma
-        and space-separated formats.
-
-        :param v: Input value for CORS origins
-        :return: List of CORS origin strings
+        - accepts comma/space separated input
+        - returns: list of allowed origins
         """
         if isinstance(v, str):
             parts = [s.strip() for s in v.replace(" ", ",").split(",") if s.strip()]
@@ -144,29 +101,23 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def set_redis_url(self):
-        """
-        Set Redis URL if not explicitly provided.
-
-        Constructs Redis URL from host and port if not set in environment.
-
-        :return: Updated Settings instance
-        """
+        """Populate `redis_url` when only host/port are provided."""
         if not self.redis_url:
             self.redis_url = f"redis://{self.redis_host}:{self.redis_port}"
         return self
 
+    @model_validator(mode="after")
+    def set_root_path(self):
+        if not self.root_path:
+            self.root_path = {
+                "development": "/dev/api",
+                "production": "/api"
+            }.get(self.environment, "/api")
+        return self
 
 @lru_cache()
 def get_settings() -> Settings:
-    """
-    Get application settings with caching.
-
-    Creates and caches a Settings instance, ensuring consistent configuration
-    across the application.
-
-    :return: Cached Settings instance
-    :rtype: Settings
-    """
+    """Return a cached Settings instance for dependency injection."""
     origins = [
         "https://ensys.hs-nordhausen.de",
         "https://ensys.hs-nordhausen.de/dev",
@@ -181,4 +132,5 @@ def get_settings() -> Settings:
         cors_origins=origins,
         redis_host=os.getenv("REDIS_HOST"),
         redis_port=int(os.getenv("REDIS_PORT_DEV")),
+        environment=os.getenv("ENVIRONMENT"),
     )

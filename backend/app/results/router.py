@@ -22,23 +22,12 @@ results_router = APIRouter(
 
 
 def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> GeneralDataModel:
-    """
-    Fetches results from a simulation dump file based on the simulation ID. This function
-    retrieves the energy system data from a serialized dump file stored in the local directory
-    based on a simulation token. It processes the dump files, restores the energy system,
-    and aggregates result sequences for each identified energy bus into structured data.
-    The results are returned in the form of a ResultDataModel.
+    """Load simulation results from the dump on disk.
 
-    :param simulation_id: ID of the simulation for which results are being fetched
-    :type simulation_id: int
-    :param db: Database session used to query the simulation information
-    :type db: Session
-    :return: A ResultDataModel containing the result data extracted from the dump and the
-        total count of data entries
-    :rtype: ResultDataModel
-
-    :raises HTTPException: Raised with status code 404 if the simulation ID does not exist
-        or if the required dump file is not found
+    - param simulation_id: simulation id whose dump to read
+    - param db: Session for fetching simulation metadata
+    - returns: GeneralDataModel with ResultDataModel entries
+    - raises: HTTPException 404 when simulation or dump is missing
     """
     simulation = db.get(EnSimulationDB, simulation_id)
 
@@ -144,26 +133,13 @@ async def get_results(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> ResultResponse | ErrorResponse:
-    """
-    Retrieve the results of a simulation based on the given simulation id. This endpoint checks
-    the current status of the simulation and provides appropriate responses based on that status.
-    If the simulation is finished, the results are returned. If the status indicates in-progress,
-    failed, or canceled, it responds with corresponding error messages. Errors are also returned
-    if the simulation does not exist or if the request is unauthenticated.
+    """Return simulation results or status-aware errors.
 
-    :param simulation_id: The unique identifier of the simulation.
-    :type simulation_id: int
-    :param token: The OAuth2 token for authentication.
-    :type token: str
-    :param db: Database session dependency, used to query the database.
-    :type db: Session
-    :return: A ResultResponse object containing simulation results if successful, or an
-             ErrorResponse object containing error details if an error occurs.
-    :rtype: ResultResponse | ErrorResponse
-
-    :raises HTTPException: If the request is unauthenticated.
-    :raises HTTPException: If the simulation does not exist.
-    :raises HTTPException: If the simulation status is unknown.
+    - param simulation_id: simulation id to inspect
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: ResultResponse on finished, ErrorResponse otherwise
+    - raises: HTTPException 401/404 on auth or missing simulation
     """
     if not token:
         raise HTTPException(

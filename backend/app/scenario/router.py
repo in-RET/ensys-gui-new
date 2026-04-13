@@ -47,17 +47,12 @@ async def create_scenario_endpoint(
     scenario_data: EnScenario,
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Create a new scenario for a project.
+    """Create a scenario for a project owned by the caller.
 
-    Validates project ownership and creates a scenario with the provided
-    configuration data.
-
-    :param scenario_data: Scenario configuration data
-    :type scenario_data: EnScenario
-    :return: Response containing the created scenario data
-    :rtype: DataResponse
-    :raises HTTPException: If user lacks project access rights (401)
+    - param token: bearer token from OAuth2
+    - param scenario_data: scenario payload
+    - param db: SQLModel session dependency
+    - returns: DataResponse with created scenario (without modeling_data)
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -77,21 +72,13 @@ async def read_scenarios_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Retrieve all scenarios for a specific project.
+    """List scenarios for a project the user can access.
 
-    Returns a list of scenarios associated with the given project ID,
-    excluding the detailed energy system modeling data.
-
-    :param project_id: ID of the project whose scenarios to retrieve
-    :type project_id: int
-    :param token: Authentication token
-    :type token: str
-    :param db: Database session
-    :type db: Session
-    :return: Response containing list of scenarios
-    :rtype: DataResponse
-    :raises HTTPException: If user not authorized to access project (401)
+    - param project_id: project id to filter scenarios
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with scenarios (without modeling_data)
+    - raises: HTTPException 401 on unauthorized access
     """
     user = read_user_by_token(token=token, db=db)
     if not user.check_project_rights(project_id=project_id, db=db):  # db=db):
@@ -117,19 +104,13 @@ async def read_scenario_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Retrieve a specific scenario by its ID.
+    """Fetch a single scenario by id.
 
-    Returns detailed information about a single scenario, excluding the
-    energy system modeling data.
-
-    :param scenario_id: ID of the scenario to retrieve
-    :type scenario_id: int
-    :param token: Authentication token
-    :type token: str
-    :return: Response containing the scenario data
-    :rtype: DataResponse
-    :raises HTTPException: If user not authorized to access scenario (401)
+    - param scenario_id: scenario id to fetch
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with the scenario
+    - raises: HTTPException 401/404 on unauthorized or missing
     """
     user = read_user_by_token(token=token, db=db)
     print(f"user: {user.id} requests scenario: {scenario_id}")
@@ -154,102 +135,73 @@ async def update_scenario_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Update an existing scenario's configuration.
+    """Apply partial updates to a scenario the user owns.
 
-    Applies partial updates to a scenario's data.
-
-    :param scenario_id: ID of the scenario to update
-    :type scenario_id: int
-    :param scenario_data: Updated scenario data
-    :type scenario_data: EnScenarioUpdate
-    :param token: Authentication token
-    :type token: str
-    :return: Response containing updated scenario data
-    :rtype: DataResponse
-    :raises HTTPException: If user not authorized to update scenario (401)
+    - param scenario_id: scenario id to update
+    - param scenario_data: partial update payload
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with updated scenario
     """
     user = read_user_by_token(token=token, db=db)
 
-    if not user.check_scenario_rights(scenario_id=scenario_id, db=db):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not authorized to update this scenario.",
-        )
-    else:
-        scenario_updated = update_scenario(
-            scenario_id=scenario_id, scenario_data=scenario_data, user=user, db=db
-        )
+    scenario = update_scenario(
+        scenario_id=scenario_id,
+        scenario_data=scenario_data,
+        user=user,
+        db=db
+    )
 
-        return DataResponse(
-            data=GeneralDataModel(items=[scenario_updated.model_dump()], totalCount=1),
-            success=True,
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[scenario.model_dump()],
+            totalCount=1
         )
+    )
 
 
-@scenario_router.delete("/{scenario_id}", response_model=MessageResponse)
+@scenario_router.delete("/{scenario_id}")
 async def delete_scenario_endpoint(
     scenario_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Delete a specific scenario.
+    """Delete a scenario the user can access.
 
-    Permanently removes a scenario and all its associated data from the system.
-
-    :param db:
-    :type db: Session
-    :param scenario_id: ID of the scenario to delete
-    :type scenario_id: int
-    :param token: Authentication token
-    :type token: str
-    :return: Response confirming successful deletion
-    :rtype: MessageResponse
-    :raises HTTPException: If user not authorized to delete scenario (401)
+    - param scenario_id: scenario id to delete
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse confirming deletion
+    - raises: HTTPException 401 on unauthorized access
     """
     user = read_user_by_token(token=token, db=db)
 
-    if not user.check_scenario_rights(scenario_id=scenario_id, db=db):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not authorized to delete this scenario.",
-        )
-    else:
-        delete_scenario(scenario_id=scenario_id, user=user, db=db)
+    delete_success = delete_scenario(scenario_id=scenario_id, user=user, db=db)
 
-        return MessageResponse(data="Scenario deleted.", success=True)
+    return MessageResponse(message="Scenario deleted successfully.")
 
 
-@scenario_router.post("/duplicate/{scenario_id}", response_model=DataResponse)
+@scenario_router.post("/duplicate/{scenario_id}")
 async def duplicate_scenario_endpoint(
     scenario_id: int,
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Duplicate an existing scenario.
+    """Duplicate a scenario and return the copy.
 
-    Creates a copy of the specified scenario with all its configuration data
-    and energy system settings.
-
-    :param db:
-    :type db: Session
-    :param scenario_id: ID of the scenario to duplicate
-    :type scenario_id: int
-    :param token: Authentication token
-    :type token: str
-    :return: Response containing the new scenario data
-    :rtype: DataResponse
-    :raises HTTPException: If user not authorized to access scenario (401)
+    - param scenario_id: scenario id to duplicate
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with duplicated scenario
+    - raises: HTTPException 401 on unauthorized access
     """
     user = read_user_by_token(token=token, db=db)
+
     scenario = duplicate_scenario(scenario_id=scenario_id, user=user, db=db)
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[scenario.model_dump_json(exclude={"modeling_data"})],
-            totalCount=1,
-        ),
-        success=True,
+            items=[scenario.model_dump()],
+            totalCount=1
+        )
     )

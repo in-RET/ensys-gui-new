@@ -40,19 +40,10 @@ SessionLocal = sessionmaker(
 
 
 def get_db_session():
-    """
-    Create and manage a database session for request handling.
+    """Yield a SQLModel session for request handling.
 
-    This function serves as a FastAPI dependency that provides a SQLModel Session
-    for database operations. It ensures proper resource management by automatically
-    closing the session after use.
-
-    Yields:
-        Session: A SQLModel session instance bound to the application's database engine.
-
-    Note:
-        The session is automatically closed when the request processing is complete,
-        even if an exception occurs during processing.
+    - returns: active `Session` bound to the app engine
+    - raises: HTTPException when transaction rollback is triggered
     """
     db_session: Session = SessionLocal()
     try:

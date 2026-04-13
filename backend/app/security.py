@@ -33,23 +33,11 @@ if not token_secret:
 
 
 def decode_token(token: str) -> dict:
-    """
-    Decode and validate a JSON Web Token (JWT).
+    """Decode and validate a JWT access token.
 
-    This function decodes a JWT using the application's secret key and validates
-    its structure and signature. If the token is invalid or expired, an exception
-    is raised.
-
-    Args:
-        token (str): The JWT string to decode and validate.
-
-    Returns:
-        dict: The decoded token payload containing user information.
-
-    Raises:
-        HTTPException: If the token is invalid, expired, or malformed.
-            - status_code=401 for invalid or expired tokens
-            - status_code=400 for malformed tokens
+    - param token: bearer token to decode
+    - returns: decoded payload dict
+    - raises: HTTPException 401 on invalid/expired tokens
     """
     try:
         return jwt.decode(token, token_secret, algorithms=["HS256"])
@@ -62,29 +50,12 @@ def decode_token(token: str) -> dict:
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Verify a password against its hash.
-
-    Args:
-        plain_password (str): The plain text password to verify.
-        hashed_password (str): The hashed password to compare against.
-
-    Returns:
-        bool: True if the password matches the hash, False otherwise.
-    """
+    """Check a plaintext password against a bcrypt hash."""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
-    """
-    Generate a secure hash of a password.
-
-    Args:
-        password (str): The plain text password to hash.
-
-    Returns:
-        str: The securely hashed password.
-    """
+    """Hash a plaintext password with bcrypt."""
     return pwd_context.hash(password)
 
 

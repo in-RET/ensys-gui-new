@@ -36,22 +36,17 @@ async def start_simulation_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Start a new simulation for the given scenario.
+    """Start a simulation for the scenario and launch its task.
 
-    :param scenario_id: The scenario to simulate
-    :type scenario_id: int
-    :param token: Authentication token
-    :type token: str
-    :param db: Database session
-    :type db: Session
-    :return: Success message with simulation details
-    :rtype: MessageResponse
+    - param scenario_id: scenario id to simulate
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse with created simulation and task ids
     """
     user = read_user_by_token(token=token, db=db)
 
     sim_id, task_id = create_and_start_simulation(
-        scenario_id=scenario_id, db=db, user=user
+        scenario_id=scenario_id, db=db, user=user, simulation_token=str(uuid.uuid4())
     )
 
     return MessageResponse(
@@ -66,12 +61,12 @@ async def get_simulation_status_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Get the status of a specific simulation.
+    """Return the current status of a simulation.
 
-    :param simulation_id: The simulation to check
-    :param token: Authentication token
-    :return: Status message
+    - param simulation_id: simulation id to check
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse with status and message
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -87,13 +82,12 @@ async def stop_simulations_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Stop all simulations for a scenario.
+    """Stop all simulations associated with a scenario.
 
-    :param scenario_id: The scenario whose simulations to stop
-    :param token: Authentication token
-    :param db: Database session
-    :return: Success message with optional errors
+    - param scenario_id: scenario id whose simulations should stop
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse with count of stopped simulations
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -112,12 +106,12 @@ async def stop_simulation_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Stop a specific simulation.
+    """Stop a single simulation and revoke its task.
 
-    :param simulation_id: The simulation to stop
-    :param token: Authentication token
-    :return: Success message
+    - param simulation_id: simulation id to stop
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse confirming the simulation stop
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -134,13 +128,12 @@ async def get_simulations_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Get all simulations for a scenario.
+    """List simulations for a scenario the user can access.
 
-    :param scenario_id: The scenario to get simulations for
-    :param token: Authentication token
-    :param db: Database session
-    :return: List of simulations
+    - param scenario_id: scenario id to list simulations for
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with simulations and totalCount
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -160,13 +153,12 @@ async def get_simulation_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Get details of a specific simulation.
+    """Fetch details for a single simulation.
 
-    :param simulation_id: The simulation to get
-    :param token: Authentication token
-    :param db: Database session
-    :return: Simulation details
+    - param simulation_id: simulation id to fetch
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with the simulation and totalCount
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -186,13 +178,13 @@ async def delete_simulation_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db=Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Delete a simulation.
+    """Delete a simulation owned by the caller.
 
-    :param simulation_id: The simulation to delete
-    :param token: Authentication token
-    :param db: Database session
-    :return: Success message
+    - param simulation_id: simulation id to delete
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse when deletion succeeds
+    - raises: HTTPException 409 if the simulation cannot be deleted
     """
     user = read_user_by_token(token=token, db=db)
 

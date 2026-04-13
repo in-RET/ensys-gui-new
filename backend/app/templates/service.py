@@ -25,34 +25,13 @@ from ..scenario.model import EnScenarioDB
 
 
 def get_all_templates(db: Session) -> list[dict]:
-    """
-    Retrieve all available templates from the database.
-
-    Fetches and serializes all template records for presentation or processing.
-
-    :param db: Active database session for query execution
-    :type db: Session
-    :return: List of serialized template records
-    :rtype: list[dict]
-    """
+    """Fetch all templates as serialized dicts."""
     templates = db.exec(select(EnTemplateDB)).all()
     return [t.model_dump() for t in templates]
 
 
 def get_template_scenarios(template_id: int, db: Session) -> list[EnTemplateScenarioDB]:
-    """
-    Retrieve all scenarios associated with a specific template.
-
-    Fetches scenarios linked to the given template ID.
-
-    :param template_id: ID of the template to fetch scenarios for
-    :type template_id: int
-    :param db: Active database session for query execution
-    :type db: Session
-    :return: List of scenarios associated with the template
-    :rtype: list[EnTemplateScenarioDB]
-    """
-
+    """Fetch scenarios linked to a template id."""
     scenarios = db.exec(
         select(EnTemplateScenarioDB).where(
             EnTemplateScenarioDB.template_id == template_id
@@ -65,19 +44,7 @@ def get_template_scenarios(template_id: int, db: Session) -> list[EnTemplateScen
 def get_template_scenario(
     template_scenario_id: int, db: Session
 ) -> EnTemplateScenarioDB:
-    """
-    Retrieve a specific template scenario by its ID.
-
-    Fetches the scenario record corresponding to the provided scenario ID.
-
-    :param template_scenario_id: ID of the template scenario to retrieve
-    :type template_scenario_id: int
-    :param db: Active database session for query execution
-    :type db: Session
-    :return: Template scenario record
-    :rtype: EnTemplateScenarioDB
-    :raises HTTPException: If scenario not found (404)
-    """
+    """Return a template scenario by id or 404."""
     scenario = db.exec(
         select(EnTemplateScenarioDB).where(
             EnTemplateScenarioDB.id == template_scenario_id
@@ -96,28 +63,7 @@ def get_template_scenario(
 def clone_template_to_project(
     template_id: int, user_id: int, db: Session
 ) -> EnProjectDB:
-    """
-    Generate a new project from a template.
-
-    Creates a new project instance based on a template's configuration,
-    associating it with the specified user and copying all relevant template
-    data.
-
-    :param template_id: Template to clone
-    :type template_id: int
-    :param user_id: User who will own the new project
-    :type user_id: int
-    :param db: Database session for transaction
-    :type db: Session
-    :return: Newly created project instance
-    :rtype: EnProjectDB
-    :raises HTTPException: For template not found (404) or constraint violations (409)
-
-    Note:
-        - Creates a new project with fresh IDs
-        - Maintains template metadata in project
-        - Sets creation timestamp to current time
-    """
+    """Create a project (and scenarios) from a template for a user."""
     template = db.exec(
         select(EnTemplateDB).where(EnTemplateDB.id == template_id)
     ).first()
@@ -179,35 +125,13 @@ def clone_template_to_project(
 
 
 def validate_template_name(name: str, db: Session) -> bool:
-    """
-    Verify template name uniqueness.
-
-    Checks if a template name is available for use, ensuring no duplicates
-    exist in the system.
-
-    :param name: Proposed template name
-    :type name: str
-    :param db: Database session for query
-    :type db: Session
-    :return: True if name is unique, False otherwise
-    :rtype: bool
-    """
+    """Check if a template name is unused."""
     existing = db.exec(select(EnTemplateDB).where(EnTemplateDB.name == name)).first()
     return existing is None
 
 
 def delete_template(template_id: int, db: Session) -> None:
-    """
-    Delete a template from the database.
-
-    Removes a template and all its associated data.
-
-    :param template_id: ID of the template to delete
-    :type template_id: int
-    :param db: Database session for transaction
-    :type db: Session
-    :raises HTTPException: If template not found (404)
-    """
+    """Delete a template by id, raising 404 or 409 on failure."""
     template = db.exec(
         select(EnTemplateDB).where(EnTemplateDB.id == template_id)
     ).first()
@@ -228,19 +152,7 @@ def delete_template(template_id: int, db: Session) -> None:
 
 
 def duplicate_template(template_id: int, db: Session) -> EnTemplateDB:
-    """
-    Duplicate an existing template.
-
-    Creates a copy of a template with all its configurations.
-
-    :param template_id: ID of the template to duplicate
-    :type template_id: int
-    :param db: Database session for transaction
-    :type db: Session
-    :return: Newly created template instance
-    :rtype: EnTemplateDB
-    :raises HTTPException: If template not found (404) or constraint violations (409)
-    """
+    """Create a copy of a template with `(Copy)` suffix."""
     template = db.exec(
         select(EnTemplateDB).where(EnTemplateDB.id == template_id)
     ).first()

@@ -25,20 +25,12 @@ from ..user.model import EnUserDB
 
 
 def _check_scenario_duplicates(scen_name: str, scen_proj_id: int, db: Session) -> bool:
-    """
-    Check for duplicate scenarios within a project.
+    """Return True if no duplicate scenario name exists in a project.
 
-    Verifies whether a scenario with the given name already exists in the
-    specified project to prevent duplicates.
-
-    :param scen_name: Name to check for duplicates
-    :type scen_name: str
-    :param scen_proj_id: Project ID to check within
-    :type scen_proj_id: int
-    :param db: Database session for query
-    :type db: Session
-    :return: True if no duplicates exist, False otherwise
-    :rtype: bool
+    - param scen_name: scenario name to check
+    - param scen_proj_id: project id to scope the check
+    - param db: SQLModel session
+    - returns: bool
     """
     possible_duplicates = db.exec(
         select(EnScenarioDB)
@@ -54,22 +46,13 @@ def create_scenario(
     user: EnUserDB,
     db: Session,
 ) -> EnScenarioDB:
-    """
-    Create a new scenario for a project.
+    """Create a scenario after auth and duplicate checks.
 
-    Validates project ownership, checks for duplicate scenario names,
-    and creates the scenario in the database.
-
-    :param scenario_data: Scenario configuration data
-    :type scenario_data: EnScenario
-    :param user: User creating the scenario
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: Created scenario database object
-    :rtype: EnScenarioDB
-    :raises HTTPException: If user lacks project rights (401), scenario name
-        exists (409), or database error (409)
+    - param scenario_data: scenario payload
+    - param user: owner user
+    - param db: SQLModel session
+    - returns: created EnScenarioDB
+    - raises: HTTPException 401/409 on auth or duplicate
     """
 
     if user.check_project_rights(project_id=scenario_data.project_id, db=db):
@@ -104,20 +87,13 @@ def create_scenario(
 
 
 def read_scenario(scenario_id: int, user: EnUserDB, db: Session) -> EnScenarioDB:
-    """
-    Retrieve a specific scenario by ID.
+    """Fetch a scenario by id after authorization.
 
-    Validates user access rights before returning the scenario data.
-
-    :param scenario_id: ID of the scenario to retrieve
-    :type scenario_id: int
-    :param user: User requesting the scenario
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: Scenario database object
-    :rtype: EnScenarioDB
-    :raises HTTPException: If scenario not found (404)
+    - param scenario_id: id to fetch
+    - param user: requesting user
+    - param db: SQLModel session
+    - returns: EnScenarioDB
+    - raises: HTTPException 404/401 on missing or unauthorized
     """
     if user.check_scenario_rights(scenario_id=scenario_id, db=db):
         scenario = db.get(EnScenarioDB, scenario_id)
@@ -129,15 +105,11 @@ def read_scenario(scenario_id: int, user: EnUserDB, db: Session) -> EnScenarioDB
 
 
 def read_scenarios(project_id: int, db: Session) -> list[EnScenarioDB]:
-    """
-    Retrieve all scenarios for a specific project.
+    """List all scenarios for a project.
 
-    :param project_id: ID of the project
-    :type project_id: int
-    :param db: Database session
-    :type db: Session
-    :return: List of scenario database objects
-    :rtype: list[EnScenarioDB]
+    - param project_id: project id to filter
+    - param db: SQLModel session
+    - returns: list of EnScenarioDB
     """
     scenarios = db.exec(
         select(EnScenarioDB).where(EnScenarioDB.project_id == project_id)
@@ -149,23 +121,14 @@ def read_scenarios(project_id: int, db: Session) -> list[EnScenarioDB]:
 def update_scenario(
     scenario_id: int, scenario_data: EnScenarioUpdate, user: EnUserDB, db: Session
 ) -> EnScenarioDB:
-    """
-    Update an existing scenario's configuration.
+    """Apply partial updates to a scenario.
 
-    Validates user authorization, checks for name conflicts, and applies
-    the provided updates to the scenario.
-
-    :param scenario_id: ID of the scenario to update
-    :type scenario_id: int
-    :param scenario_data: Updated scenario data
-    :type scenario_data: EnScenarioUpdate
-    :param user: User performing the update
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: Updated scenario database object
-    :rtype: EnScenarioDB
-    :raises HTTPException: If user not authorized (401) or database error (409)
+    - param scenario_id: id to update
+    - param scenario_data: update payload
+    - param user: requesting user
+    - param db: SQLModel session
+    - returns: updated EnScenarioDB
+    - raises: HTTPException 401/409 on auth or db errors
     """
     if not user.check_scenario_rights(scenario_id=scenario_id, db=db):
         raise HTTPException(
@@ -197,26 +160,12 @@ def update_scenario(
 
 
 def delete_scenario(scenario_id: int, user: EnUserDB, db: Session) -> None:
-    """
-    Delete a scenario and its associated simulations.
+    """Delete a scenario and its simulations after auth checks.
 
-    Performs a cascading delete of a scenario and all its linked simulations
-    within a single database transaction. Validates authentication and existence
-    before deletion.
-
-    :param scenario_id: ID of the scenario to delete
-    :type scenario_id: int
-    :param user: User performing the deletion
-    :type user: EnUserDB
-    :param db: Database session for transaction
-    :type db: Session
-    :raises HTTPException: If unauthorized (401), scenario not found (404),
-        or database integrity error (409)
-
-    Note:
-        - Requires valid user authorization
-        - Performs cascade delete of linked simulations
-        - Executes in a single transaction
+    - param scenario_id: id of the scenario to delete
+    - param user: requesting user
+    - param db: SQLModel session
+    - raises: HTTPException 401/404/409 on auth, missing, or db errors
     """
     scenario = read_scenario(scenario_id=scenario_id, user=user, db=db)
 
@@ -246,31 +195,14 @@ def duplicate_scenario(
     db: Session,
     new_project_id: Optional[int] = None,
 ) -> EnScenarioDB:
-    """
-    Create a copy of an existing scenario.
+    """Create a copy of a scenario, optionally into another project.
 
-    Creates a new scenario with the same configuration as an existing one,
-    optionally in a different project. Useful for creating variations of
-    existing scenarios.
-
-    :param scenario_id: ID of the scenario to duplicate
-    :type scenario_id: int
-    :param user: User performing the duplication
-    :type user: EnUserDB
-    :param db: Database session for transaction
-    :type db: Session
-    :param new_project_id: Optional target project ID (default: same project)
-    :type new_project_id: Optional[int]
-    :return: Newly created scenario database object
-    :rtype: EnScenarioDB
-    :raises HTTPException: If source scenario not found (404) or database
-        integrity error (409)
-
-    Note:
-        - Creates a deep copy of the scenario
-        - Maintains all configuration but creates new IDs
-        - Can copy across projects if new_project_id provided
-        - Automatically generates unique name with " - Copy" suffix
+    - param scenario_id: id to duplicate
+    - param user: requesting user
+    - param db: SQLModel session
+    - param new_project_id: target project or None for same project
+    - returns: new EnScenarioDB copy
+    - raises: HTTPException 404/409 on missing source or db issues
     """
     db_scenario = read_scenario(scenario_id=scenario_id, user=user, db=db)
 

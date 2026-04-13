@@ -1,12 +1,4 @@
-"""
-Email Module
------------
-
-This module provides email functionality for the EnSys application.
-It handles email notifications and templating.
-
-:module: mail
-"""
+"""Email helpers for activation messages via EWS."""
 
 import os
 
@@ -17,19 +9,11 @@ from .user.model import EnUserDB
 
 
 async def send_mail(token: str, user: EnUserDB):
-    """
-    Send an account activation email to a newly registered user.
+    """Send an activation email with a token link.
 
-    This function generates and sends an HTML email containing an activation link
-    to the user's registered email address. It uses Exchange Web Services (EWS)
-    for email delivery.
-
-    :param token: The authentication token for account activation
-    :type token: str
-    :param user: The user database object containing recipient information
-    :type user: EnUserDB
-    :raises IOError: If the email template file cannot be read
-    :raises Exception: If email configuration is invalid or sending fails
+    - param token: activation token to embed in the email
+    - param user: EnUserDB recipient
+    - raises: IOError on missing template, Exception on bad config or send failure
     """
     exchange_user = os.getenv("EXCHANGE_USER")
     exchange_pass = os.getenv("EXCHANGE_PASS")

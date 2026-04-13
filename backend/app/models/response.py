@@ -4,20 +4,7 @@ from ..models.base import ErrorModel, GeneralDataModel
 
 
 class GeneralResponse(BaseModel):
-    """
-    Represents the general response structure for API requests.
-
-    This class encapsulates the standard response format, including the data
-    returned, success status, and any errors that occurred during the request.
-    It is used as the base model for structuring API responses.
-
-    :ivar data: Data returned by the request.
-    :type data: None
-    :ivar success: Indicates whether the request was successful or not.
-    :type success: bool
-    :ivar errors: List of errors encountered during the request.
-    :type errors: list[ErrorModel] | None
-    """
+    """Standard API envelope with data, success flag, and errors."""
 
     data: None = Field(default=None, description="Data returned by the request.")
     success: bool = Field(
@@ -29,52 +16,19 @@ class GeneralResponse(BaseModel):
 
 
 class DataResponse(GeneralResponse):
-    """
-    Represents a response containing general data, inheriting from the
-    GeneralResponse.
-
-    This class is used for defining a response structure that includes the
-    general data model. It enforces the inclusion of the general data field,
-    ensuring proper structure and expected data handling as part of the response.
-    It can be extended or utilized wherever a general data response entity
-    is required.
-
-    :ivar data: The general data model that represents the main content of
-                the response.
-    :type data: GeneralDataModel
-    """
+    """Response containing a populated `GeneralDataModel`."""
 
     data: GeneralDataModel = Field(...)
 
 
 class MessageResponse(GeneralResponse):
-    """
-    Represents a response message inheriting properties from `GeneralResponse`.
-
-    This class is used to handle message responses with associated data and extends
-    the general response functionality by including a specific 'data' attribute.
-
-    :ivar data: The content of the response message.
-    :type data: str
-    """
+    """Response carrying a message string."""
 
     data: str = Field(...)
 
 
 class ErrorResponse(GeneralResponse):
-    """
-    Represents an error response detailing the result of a failed operation.
-
-    This class extends the GeneralResponse and is intended to provide a standard
-    structure for reporting errors or unsuccessful operations in the application.
-    It includes attributes that indicate the success status and any data related
-    to the error response.
-
-    :ivar data: Data returned by the request. Default is None.
-    :type data: None
-    :ivar success: Indicates whether the request was successful or not. Default is False.
-    :type success: bool
-    """
+    """Error response with success False and optional data payload."""
 
     data: GeneralDataModel | None = Field(
         default=None, description="Data returned by the request."
@@ -86,18 +40,7 @@ class ErrorResponse(GeneralResponse):
 
 
 class ResultResponse(GeneralResponse):
-    """
-    Represents a successful response containing result data.
-
-    This class extends the GeneralResponse and is designed to provide a standard
-    structure for returning successful operation results. It includes attributes
-    that indicate the success status and the actual result data.
-
-    :ivar data: The result data returned by the request.
-    :type data: GeneralDataModel
-    :ivar success: Indicates whether the request was successful or not. Default is True.
-    :type success: bool
-    """
+    """Success response carrying result data."""
 
     data: GeneralDataModel = Field(
         ..., description="The result data returned by the request."

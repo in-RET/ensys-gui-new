@@ -24,49 +24,34 @@ from ..security import decode_token
 
 
 def _check_username_exists(username: str, db: Session) -> bool:
-    """
-    Check if a username already exists in the database.
+    """Return True if the username already exists.
 
-    :param username: Username to check
-    :type username: str
-    :param db: Database session
-    :type db: Session
-    :return: True if username exists, False otherwise
-    :rtype: bool
+    - param username: username to look up
+    - param db: SQLModel session
+    - returns: bool
     """
     statement = select(EnUserDB).where(EnUserDB.username == username.lower())
     return db.exec(statement).first() is not None
 
 
 def _check_mail_exists(mail: str, db: Session) -> bool:
-    """
-    Check if an email address already exists in the database.
+    """Return True if the email already exists.
 
-    :param mail: Email address to check
-    :type mail: str
-    :param db: Database session
-    :type db: Session
-    :return: True if email exists, False otherwise
-    :rtype: bool
+    - param mail: email to look up
+    - param db: SQLModel session
+    - returns: bool
     """
     statement = select(EnUserDB).where(EnUserDB.mail == mail)
     return db.exec(statement).first() is not None
 
 
 def create_user(user: EnUser, db: Session) -> EnUserDB:
-    """
-    Create a new user account in the database.
+    """Create a new user with hashed password.
 
-    Validates username and email uniqueness, hashes the password, and
-    persists the user record.
-
-    :param user: User data for account creation
-    :type user: EnUser
-    :param db: Database session
-    :type db: Session
-    :return: Created user database object
-    :rtype: EnUserDB
-    :raises HTTPException: If username or email already exists (status code 409)
+    - param user: registration data
+    - param db: SQLModel session
+    - returns: persisted EnUserDB
+    - raises: HTTPException 409 on duplicate username/mail
     """
     if _check_username_exists(username=user.username, db=db):
         raise HTTPException(
@@ -102,22 +87,13 @@ def create_user(user: EnUser, db: Session) -> EnUserDB:
 
 
 def authenticate_user(username: str, password: str, db: Session) -> EnUserDB:
-    """
-    Authenticate a user by username and password.
+    """Validate credentials and return the user if active.
 
-    Verifies user credentials, checks account activation status, and updates
-    the last login timestamp upon successful authentication.
-
-    :param username: Username to authenticate
-    :type username: str
-    :param password: Plain text password to verify
-    :type password: str
-    :param db: Database session
-    :type db: Session
-    :return: Authenticated user database object
-    :rtype: EnUserDB
-    :raises HTTPException: If user not found (404), not activated (401), or
-        password incorrect (401)
+    - param username: username to authenticate
+    - param password: plain password
+    - param db: SQLModel session
+    - returns: EnUserDB on success
+    - raises: HTTPException 404/401 on missing user, inactive, or bad password
     """
     statement = select(EnUserDB).where(EnUserDB.username == username.lower())
 
@@ -158,17 +134,11 @@ def activate_user(
     user: EnUserDB,
     db: Session,
 ) -> bool:
-    """
-    Activate a user account.
+    """Activate a user if not already active.
 
-    Sets the user's is_active flag to True if not already activated.
-
-    :param user: User database object to activate
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: True if activation successful, False if database error occurs
-    :rtype: bool
+    - param user: EnUserDB to activate
+    - param db: SQLModel session
+    - returns: True on success
     """
     if user.is_active:
         return True
@@ -186,16 +156,12 @@ def activate_user(
 
 
 def read_user(user_id: int, db: Session) -> EnUserDB:
-    """
-    Retrieve a user by their ID.
+    """Fetch a user by id or raise 404.
 
-    :param user_id: ID of the user to retrieve
-    :type user_id: int
-    :param db: Database session
-    :type db: Session
-    :return: User database object
-    :rtype: EnUserDB
-    :raises HTTPException: If user not found (status code 404)
+    - param user_id: id to fetch
+    - param db: SQLModel session
+    - returns: EnUserDB
+    - raises: HTTPException 404 when missing
     """
     user = db.get(EnUserDB, user_id)
 
@@ -211,19 +177,12 @@ def read_user_by_token(
     db: Session,
     token: str,
 ) -> EnUserDB:
-    """
-    Retrieve a user by their authentication token.
+    """Resolve a user from a JWT token.
 
-    Decodes the JWT token to extract the username and retrieves the
-    corresponding user from the database.
-
-    :param token: JWT authentication token
-    :type token: str
-    :param db: Database session
-    :type db: Session
-    :return: User database object
-    :rtype: EnUserDB
-    :raises HTTPException: If token is invalid (401) or user not found (404)
+    - param token: bearer token to decode
+    - param db: SQLModel session
+    - returns: EnUserDB
+    - raises: HTTPException 401/404 on invalid token or missing user
     """
     print(f"Token: {token}")
 
@@ -257,20 +216,13 @@ def update_user(
     user: EnUserDB,
     db: Session,
 ) -> EnUserDB:
-    """
-    Update user profile information.
+    """Apply partial updates to a user profile.
 
-    Applies partial updates to user data and persists changes to the database.
-
-    :param update_data: Updated user data
-    :type update_data: EnUserUpdate
-    :param user: User database object to update
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: Updated user database object
-    :rtype: EnUserDB
-    :raises HTTPException: If database integrity error occurs (status code 409)
+    - param update_data: fields to change
+    - param user: target EnUserDB
+    - param db: SQLModel session
+    - returns: updated EnUserDB
+    - raises: HTTPException 409 on db conflict
     """
     user_update = update_data.model_dump(exclude_unset=True)
     user_db = user.sqlmodel_update(user_update)
@@ -286,25 +238,19 @@ def update_user(
     finally:
         db.refresh(user_db)
 
-        return user_db
+    return user_db
 
 
 def delete_user(
     user: EnUserDB,
     db: Session,
 ) -> None:
-    """
-    Delete a user account from the database.
+    """Remove a user from the database.
 
-    Permanently removes the user record and all associated data.
-
-    :param user: User database object to delete
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: None
-    :rtype: None
-    :raises HTTPException: If database integrity error occurs (status code 409)
+    - param user: EnUserDB to delete
+    - param db: SQLModel session
+    - returns: None
+    - raises: HTTPException 409 on db errors
     """
     db.delete(user)
 
@@ -315,5 +261,5 @@ def delete_user(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Could not delete user."
         ) from exc
-    finally:
-        return None
+    
+    return None

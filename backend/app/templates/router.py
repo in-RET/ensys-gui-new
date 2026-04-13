@@ -23,7 +23,7 @@ from .service import (
 )
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
-from ..models.response import DataResponse, MessageResponse
+from ..models.response import DataResponse
 from ..security import oauth2_scheme
 from ..user.service import read_user_by_token
 
@@ -32,15 +32,10 @@ templates_router = APIRouter(prefix="/templates", tags=["templates"])
 
 @templates_router.get("")
 async def get_templates_endpoint(db: Session = Depends(get_db_session)) -> DataResponse:
-    """
-    Retrieve all available templates.
+    """List all available templates.
 
-    Lists all templates accessible to the authenticated user. Templates are
-    returned with their complete configuration data.
-
-    :return: Response containing list of templates and count
-    :rtype: DataResponse
-    :raises HTTPException: If not authenticated (401)
+    - param db: SQLModel session dependency
+    - returns: DataResponse with templates and totalCount
     """
     response_list = get_all_templates(db=db)
     return DataResponse(
@@ -53,16 +48,11 @@ async def get_templates_endpoint(db: Session = Depends(get_db_session)) -> DataR
 async def get_templates_scenarios_endpoint(
     template_id: int, db: Session = Depends(get_db_session)
 ) -> DataResponse:
-    """
-    Retrieve all scenarios for a specific template.
+    """List scenarios attached to a template.
 
-    Lists all scenarios associated with the specified template.
-
-    :param template_id: ID of the template
-    :type template_id: int
-    :return: Response containing list of scenarios and count
-    :rtype: DataResponse
-    :raises HTTPException: If template not found (404)
+    - param template_id: id of the template
+    - param db: SQLModel session dependency
+    - returns: DataResponse with scenarios and totalCount
     """
     response_list = get_template_scenarios(template_id=template_id, db=db)
 
@@ -78,26 +68,12 @@ async def create_project_from_template_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Create a new project from a template.
+    """Create a project from a template for the authenticated user.
 
-    Generates a new project instance based on the specified template,
-    associating it with the authenticated user.
-
-    :param template_id: ID of the template to use
-    :type template_id: int
-    :param token: Authentication token from OAuth2 scheme
-    :type token: str
-    :param db: Database session for transaction
-    :type db: Session
-    :return: Success message with operation result
-    :rtype: MessageResponse
-    :raises HTTPException: If not authenticated (401) or template not found (404)
-
-    Note:
-        - Creates a new project with unique ID
-        - Copies all template configurations
-        - Associates project with current user
+    - param template_id: id of the template to clone
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with the new project json dump
     """
     user = read_user_by_token(token=token, db=db)
 

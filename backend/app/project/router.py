@@ -39,20 +39,12 @@ async def create_project_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Create a new project for the authenticated user.
+    """Create a project for the authenticated user.
 
-    :param db:
-    :param token: token of the authenticated user
-    :type token: str
-    :param project_data: Project data to create
-    :type project_data: EnProject
-    :return: Response message indicating success
-    :rtype: MessageResponse
-
-    Note:
-        The project is initially owned by the authenticated user and has
-        the current timestamp as its creation date.
+    - param project_data: project payload
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with created project payload
     """
     user = read_user_by_token(token=token, db=db)
     create_project(project_data=project_data, user=user, db=db)
@@ -70,18 +62,11 @@ async def read_projects_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Retrieve all projects owned by the authenticated user.
+    """List all projects owned by the caller.
 
-    :param db: database session
-    :type db: Session
-    :param token: token of the authenticated user
-    :type token: str
-    :return: Response containing the list of projects
-    :rtype: DataResponse
-
-    Note:
-        This endpoint returns a paginated list of projects.
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with projects and totalCount
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -99,19 +84,13 @@ async def read_project_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Retrieve a specific project by its ID if the requester is the owner.
+    """Get a single project if the user is authorized.
 
-    :param db: database session
-    :type db: Session
-    :param project_id: ID of the project to retrieve
-    :type project_id: int
-    :param token: Authentication token of the requester
-    :type token: str
-    :return: Response containing the project data
-    :rtype: DataResponse
-
-    Error 404 is raised if the project does not exist.
+    - param project_id: id of the project
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: DataResponse with project data
+    - raises: HTTPException 401/404 on auth or missing project
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -135,21 +114,13 @@ async def update_project_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Update an existing project owned by the authenticated user.
+    """Update a project the user owns.
 
-    :param db: database session
-    :type db: Session
-    :param project_id: ID of the project to update
-    :type project_id: int
-    :param project_data: New data for the project
-    :type project_data: EnProjectUpdate
-    :param token: Authentication token of the requester
-    :type token: str
-    :return: Response message indicating success
-    :rtype: MessageResponse
-
-    Error 404 is raised if the project does not exist.
+    - param project_id: id to update
+    - param project_data: partial update payload
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse on success
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -170,19 +141,12 @@ async def delete_project_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> MessageResponse:
-    """
-    Delete a project and all its associated scenarios.
+    """Delete a project and its scenarios when authorized.
 
-    :param db: Database session
-    :type db: Session
-    :param project_id: ID of the project to delete
-    :type project_id: int
-    :param token: Authentication token of the requester
-    :type token: str
-    :return: Response message indicating success
-    :rtype: MessageResponse
-
-    This operation removes the project and all scenarios linked to it.
+    - param project_id: id to delete
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: MessageResponse indicating deletion
     """
     user = read_user_by_token(token=token, db=db)
 
@@ -205,19 +169,12 @@ async def duplicate_project_endpoint(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db_session),
 ) -> DataResponse:
-    """
-    Duplicate a project and its scenarios for the owner or a specified user.
+    """Duplicate a project and its scenarios for the owner or a specified user.
 
-    :param db: database session
-    :type db: Session
-    :param project_id: ID of the project to duplicate
-    :type project_id: int
-    :param token: Authentication token of the requester
-    :type token: str
-    :return: Response message indicating success
-    :rtype: MessageResponse
-
-    The duplication includes all scenarios from the original project.
+    - param project_id: ID of the project to duplicate
+    - param token: Authentication token of the requester
+    - param db: SQLModel session dependency
+    - returns: DataResponse with duplicated project payload
     """
     user = read_user_by_token(token=token, db=db)
     if user.check_project_rights(project_id=project_id, db=db):

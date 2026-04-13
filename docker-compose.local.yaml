@@ -115,5 +115,4 @@ volumes:
     static_volume:
     node_modules:
     cache:
-    grafana_storage:
 

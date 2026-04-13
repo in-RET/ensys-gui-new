@@ -30,21 +30,14 @@ def create_and_start_simulation(
     scenario_id: int,
     simulation_token: str = uuid(),
 ) -> tuple[int | None, str | None]:
-    """
-    Create a new simulation record for a scenario.
+    """Create a simulation entry and enqueue the celery task.
 
-    Initializes a simulation database entry with the provided or generated
-    token, associating it with a specific scenario.
-
-    :param scenario_id: ID of the scenario to simulate
-    :type scenario_id: int
-    :param simulation_token: Unique token for the simulation (auto-generated if not provided)
-    :type simulation_token: str
-    :param db: Database session for transaction
-    :type db: Session
-    :return: Created simulation database object
-    :rtype: EnSimulationDB
-    :raises HTTPException: If database integrity error occurs (409)
+    - param user: authenticated user
+    - param scenario_id: scenario to simulate
+    - param simulation_token: optional token (auto-generated)
+    - param db: SQLModel session
+    - returns: tuple of simulation id and celery task id
+    - raises: HTTPException 401/409 on auth or db errors
     """
     if not user.check_user_rights(scenario_id=scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
@@ -78,19 +71,7 @@ def create_and_start_simulation(
 
 
 def read_simulation_status(simulation_id: int, user: EnUserDB, db: Session) -> int:
-    """
-        Get the status of a specific simulation.
-    ®
-        Retrieves the current status code of a simulation.
-
-        :param simulation_id: The simulation ID
-        :type simulation_id: int
-        :param user: Authenticated user requesting the status
-        :type user: EnUserDB
-        :return: The simulation status code
-        :rtype: int
-        :raises HTTPException: If simulation not found or not authorized
-    """
+    """Return the status code for a simulation."""
 
     return read_simulation(simulation_id=simulation_id, user=user, db=db).status
 
@@ -100,20 +81,13 @@ def read_simulation(
     user: EnUserDB,
     db: Session,
 ) -> EnSimulationDB:
-    """
-    Get a specific simulation.
+    """Fetch a simulation after authorizing access.
 
-    Retrieves a simulation by ID and validates user authorization.
-
-    :param simulation_id: The simulation ID
-    :type simulation_id: int
-    :param user: Authenticated user requesting the simulation
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: The simulation database object
-    :rtype: EnSimulationDB
-    :raises HTTPException: If not found (404) or not authorized (401)
+    - param simulation_id: target simulation id
+    - param user: requesting user
+    - param db: SQLModel session
+    - returns: `EnSimulationDB`
+    - raises: HTTPException 404/401 on missing or unauthorized
     """
     simulation = db.exec(
         select(EnSimulationDB).where(EnSimulationDB.id == simulation_id)
@@ -133,21 +107,7 @@ def read_simulation(
 def read_scenario_simulations(
     scenario_id: int, user: EnUserDB, db: Session
 ) -> List[EnSimulationDB] | None:
-    """
-    Get all simulations for a scenario.
-
-    Retrieves all simulation records associated with a specific scenario
-    if the user has authorization.
-
-    :param scenario_id: The scenario ID
-    :type scenario_id: int
-    :param user: Authenticated user requesting the simulations
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: List of simulations or None if not authorized
-    :rtype: List[EnSimulationDB] | None
-    """
+    """List simulations for a scenario if the user is authorized."""
     if user.check_user_rights(scenario_id=scenario_id, db=db):
         statement = select(EnSimulationDB).where(
             EnSimulationDB.scenario_id == scenario_id
@@ -163,22 +123,7 @@ def stop_simulation(
     user: EnUserDB,
     db: Session,
 ) -> EnSimulationDB:
-    """
-    Stop a specific simulation.
-
-    Revokes the running simulation task and updates its status to stopped.
-
-    :param simulation_id: The simulation ID to stop
-    :type simulation_id: int
-    :param user: Authenticated user stopping the simulation
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: The stopped simulation database object
-    :rtype: EnSimulationDB
-    :raises HTTPException: If not found (404), not authorized (401),
-        or database error (409)
-    """
+    """Cancel a running simulation and mark it stopped."""
     simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
 
     celery_app.control.revoke(task_id=simulation.sim_token, terminate=True)
@@ -202,21 +147,14 @@ def stop_simulation(
 def stop_simulations_for_scenario(
     scenario_id: int, user: EnUserDB, db: Session, simulation_id: int = None
 ) -> List[EnSimulationDB]:
-    """
-    Stop all running simulations for a scenario.
+    """Revoke running simulations for a scenario and mark them stopped.
 
-    Revokes all active simulation tasks for a given scenario and updates
-    their status to stopped.
-
-    :param scenario_id: The scenario ID
-    :type scenario_id: int
-    :param user: Authenticated user stopping the simulations
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :return: List of stopped simulations
-    :rtype: List[EnSimulationDB]
-    :raises HTTPException: If not authorized (401) or database error (500)
+    - param scenario_id: scenario whose simulations should stop
+    - param user: requesting user
+    - param db: SQLModel session
+    - param simulation_id: optional id to keep running
+    - returns: list of affected simulations
+    - raises: HTTPException 401/500 on auth or db errors
     """
     simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
 
@@ -241,19 +179,12 @@ def stop_simulations_for_scenario(
 
 
 def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> bool:
-    """
-    Delete a simulation from the database.
+    """Delete a simulation if the user is authorized.
 
-    Permanently removes a simulation record and all associated data.
-
-    :param simulation_id: The simulation ID to delete
-    :type simulation_id: int
-    :param user: Authenticated user deleting the simulation
-    :type user: EnUserDB
-    :param db: Database session
-    :type db: Session
-    :raises HTTPException: If not found (404), not authorized (401),
-        or database error (409)
+    - param simulation_id: id to delete
+    - param user: requesting user
+    - param db: SQLModel session
+    - returns: True when deleted
     """
     simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
     if simulation:
