@@ -73,7 +73,7 @@ services:
                 os_version: ${OS_VERSION}
         container_name: ensys-dev-flower
         env_file: .env
-        command: celery --app=app.celery.celery_app flower --port=8002
+        command: celery --app=app.celery.celery_app flower --port=8002 --url-prefix=flower --basic-auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD}
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
@@ -96,11 +96,14 @@ services:
             - "${PROXY_PORT_DEV}:80"
         networks:
             - ensys-dev
+            - ensys-network
         depends_on:
             - frontend-dev
             - backend-dev
 
 networks:
+    ensys-network:
+        external: true
     ensys-dev:
 
 volumes:
