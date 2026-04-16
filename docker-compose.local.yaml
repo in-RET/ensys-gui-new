@@ -60,7 +60,7 @@ services:
         container_name: ensys-dev-redis
         restart: always
         env_file: .env
-        command: [ "redis-server", "--bind", "redis-dev"]
+        command: [ "redis-server", "--bind", "redis-dev", "--port", "${REDIS_PORT_DEV}" ]
         networks:
             - local
         volumes:
