@@ -159,7 +159,7 @@ def update_scenario(
         return scenario
 
 
-def delete_scenario(scenario_id: int, user: EnUserDB, db: Session) -> None:
+def delete_scenario(scenario_id: int, user: EnUserDB, db: Session) -> bool:
     """Delete a scenario and its simulations after auth checks.
 
     - param scenario_id: id of the scenario to delete
@@ -180,6 +180,8 @@ def delete_scenario(scenario_id: int, user: EnUserDB, db: Session) -> None:
 
     try:
         db.commit()
+
+        return True
     except IntegrityError as exc:
         db.rollback()
         # Generic handling; DB should ideally have unique constraints and proper messages

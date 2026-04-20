@@ -10,7 +10,6 @@ It handles the business logic for simulation operations including:
 """
 
 from datetime import datetime
-from typing import List
 
 from celery import uuid
 from fastapi import HTTPException
@@ -106,7 +105,7 @@ def read_simulation(
 
 def read_scenario_simulations(
     scenario_id: int, user: EnUserDB, db: Session
-) -> List[EnSimulationDB] | None:
+) -> list[EnSimulationDB] | None:
     """List simulations for a scenario if the user is authorized."""
     if user.check_user_rights(scenario_id=scenario_id, db=db):
         statement = select(EnSimulationDB).where(
@@ -146,7 +145,7 @@ def stop_simulation(
 
 def stop_simulations_for_scenario(
     scenario_id: int, user: EnUserDB, db: Session, simulation_id: int = None
-) -> List[EnSimulationDB]:
+) -> list[EnSimulationDB]:
     """Revoke running simulations for a scenario and mark them stopped.
 
     - param scenario_id: scenario whose simulations should stop

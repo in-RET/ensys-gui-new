@@ -178,7 +178,10 @@ async def delete_scenario_endpoint(
 
     delete_success = delete_scenario(scenario_id=scenario_id, user=user, db=db)
 
-    return MessageResponse(message="Scenario deleted successfully.")
+    return MessageResponse(
+        data=f"Scenario {scenario_id} has been deleted",
+        success=delete_success,
+    )
 
 
 @scenario_router.post("/duplicate/{scenario_id}")
