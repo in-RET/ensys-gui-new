@@ -10,8 +10,8 @@ It handles the business logic for simulation operations including:
 """
 
 from datetime import datetime
+from uuid import uuid4
 
-from celery import uuid
 from fastapi import HTTPException
 from oemof.tools import logger
 from sqlalchemy.exc import IntegrityError
@@ -27,7 +27,7 @@ def create_and_start_simulation(
     user: EnUserDB,
     db: Session,
     scenario_id: int,
-    simulation_token: str = uuid(),
+    simulation_token: str = str(uuid4()),
 ) -> tuple[int | None, str | None]:
     """Create a simulation entry and enqueue the celery task.
 

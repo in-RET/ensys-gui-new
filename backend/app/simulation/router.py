@@ -5,7 +5,7 @@ Simulation Router Module
 This module provides API endpoints for managing energy system simulations,
 including starting, stopping, and monitoring simulation tasks.
 """
-
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
