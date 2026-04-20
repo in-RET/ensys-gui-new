@@ -5,7 +5,7 @@ services:
             dockerfile: docker/dockerfile.prod
         container_name: ensys-prod-frontend
         env_file: .env
-        restart: no
+        restart: always
         networks:
             - ensys-prod
 
@@ -16,11 +16,11 @@ services:
             args:
                 os_version: ${OS_VERSION}
         container_name: ensys-prod-backend
+        restart: always
         env_file: .env
         environment:
             - "POSTGRES_HOST=host.docker.internal"
         command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --proxy-headers --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
-        restart: no
         volumes:
             - ./backend/app:/backend/app
             - ./backend/data:/backend/data
@@ -51,6 +51,7 @@ services:
             args:
                 os_version: ${OS_VERSION}
         container_name: ensys-prod-celery
+        restart: always
         env_file: .env
         command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
         volumes:
@@ -72,6 +73,7 @@ services:
             args:
                 os_version: ${OS_VERSION}
         container_name: ensys-prod-flower
+        restart: always
         env_file: .env
         command: celery --app=app.celery.celery_app flower --port=8002 --url-prefix=flower --basic-auth=${FLOWER_USERNAME}:${FLOWER_PASSWORD}
         volumes:
