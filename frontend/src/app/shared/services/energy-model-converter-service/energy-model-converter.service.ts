@@ -8,7 +8,9 @@ import { convertDrawflowToEnergyModel } from './converter';
 export class EnergyModelConverterService {
     constructor() {}
 
-    convertDrawFlowDataToOemofModelData(data: DrawflowNode) {
+    convertDrawFlowDataToOemofModelData(data: {
+        [nodeKey: string]: DrawflowNode;
+    }) {
         const d = convertDrawflowToEnergyModel(data);
         return d;
     }

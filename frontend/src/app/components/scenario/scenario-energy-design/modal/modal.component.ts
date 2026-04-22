@@ -23,7 +23,7 @@ export class ModalComponent implements OnInit, OnDestroy {
 
     @Input() title!: string;
     @Input() formData!: any;
-    @Input() size: 'sm' | '' | 'lg' | 'xl' = 'xl'; // sm, md, lg, xl, full
+    @Input() size: 'sm' | '' | 'lg' | 'xl' | 'fullscreen' = 'xl'; // sm, md, lg, xl, fullscreen
     @Input() hasActions: boolean = true;
     @Input() show: boolean = true;
 

@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../core/guards/auth-guard.service';
-import { localStorageProjectResolver } from '../shared/resolvers/project.resolver';
-import { localStorageScenarioResolver } from '../shared/resolvers/scenario.resolver';
+import { LocalStorageProjectResolver } from '../shared/resolvers/project.resolver';
 
 export const routes: Routes = [
     {
@@ -11,7 +10,7 @@ export const routes: Routes = [
                 path: '',
                 loadComponent: () =>
                     import('../core/layout/index/index.component').then(
-                        (c) => c.IndexComponent
+                        (c) => c.IndexComponent,
                     ),
             },
 
@@ -19,36 +18,36 @@ export const routes: Routes = [
                 path: 'about',
                 loadComponent: () =>
                     import('../components/legal/about/about.component').then(
-                        (c) => c.AboutComponent
+                        (c) => c.AboutComponent,
                     ),
             },
             {
                 path: 'faq',
                 loadComponent: () =>
                     import('../components/legal/faq/faq.component').then(
-                        (c) => c.FaqComponent
+                        (c) => c.FaqComponent,
                     ),
             },
             {
                 path: 'license',
                 loadComponent: () =>
-                    import(
-                        '../components/legal/license/license.component'
-                    ).then((c) => c.LicenseComponent),
+                    import('../components/legal/license/license.component').then(
+                        (c) => c.LicenseComponent,
+                    ),
             },
             {
                 path: 'imprint',
                 loadComponent: () =>
-                    import(
-                        '../components/legal/imprint/imprint.component'
-                    ).then((c) => c.ImprintComponent),
+                    import('../components/legal/imprint/imprint.component').then(
+                        (c) => c.ImprintComponent,
+                    ),
             },
             {
                 path: 'privacy',
                 loadComponent: () =>
-                    import(
-                        '../components/legal/privacy/privacy.component'
-                    ).then((c) => c.PrivacyComponent),
+                    import('../components/legal/privacy/privacy.component').then(
+                        (c) => c.PrivacyComponent,
+                    ),
             },
 
             {
@@ -62,12 +61,11 @@ export const routes: Routes = [
                 path: 'scenario',
                 canActivate: [AuthGuard],
                 loadComponent: () =>
-                    import(
-                        '../components/scenario/scenario-base/scenario-base.component'
-                    ).then((c) => c.ScenarioBaseComponent),
+                    import('../components/scenario/scenario-base/scenario-base.component').then(
+                        (c) => c.ScenarioBaseComponent,
+                    ),
                 resolve: {
-                    currentProject: localStorageProjectResolver,
-                    currentScenario: localStorageScenarioResolver,
+                    currentProject: LocalStorageProjectResolver,
                 },
             },
 

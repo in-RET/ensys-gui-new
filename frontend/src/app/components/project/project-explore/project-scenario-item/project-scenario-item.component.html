@@ -11,23 +11,23 @@
         <button
             id="duplicate_{{ scenario.id }}"
             style="margin-top: 0.25rem"
-            class="btn btn--action action"
+            class="btn btn--action action d-flex"
             type="button"
             value="Duplicate"
             (click)="onDuplicateScenario(scenario.id)"
         >
-            <span class="icon icon-duplicate" aria-hidden="true"></span>
+            <span class="icon icon-duplicate p-2" aria-hidden="true"></span>
         </button>
 
         <button
             id="delete_{{ scenario.id }}"
             style="margin-top: 0.25rem"
-            class="btn btn--action action"
+            class="btn btn--action action d-flex"
             type="button"
             value="Delete"
             (click)="onDeleteScenario(scenario.id)"
         >
-            <span class="icon icon-delete" aria-hidden="true"></span>
+            <span class="icon icon-delete p-2" aria-hidden="true"></span>
         </button>
     </div>
 </div>

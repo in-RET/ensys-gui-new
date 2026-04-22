@@ -11,6 +11,15 @@ import {
 import Drawflow, { DrawflowNode } from 'drawflow';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import {
+    ScenarioUpdatedModel,
+    ScenarioUpdatedModel_project,
+    ScenarioUpdatedModel_scenario,
+} from '../../models/scenario.model';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../../services/scenario-state.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { FormComponent } from '../form/form.component';
 import { ModalComponent } from '../modal/modal.component';
@@ -58,6 +67,11 @@ export class EnergyDrawflowComponent {
     touchTimer: any;
 
     contextmenu: ContextMenuState | null = null;
+    toolBar: {
+        isOpen: boolean;
+    } = {
+        isOpen: false,
+    };
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild(ModalComponent)
@@ -66,6 +80,9 @@ export class EnergyDrawflowComponent {
     @Output('_drop') drop: EventEmitter<any> = new EventEmitter();
     @Output() toggleFullScreen: EventEmitter<any> = new EventEmitter();
     @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
+    @Output() startSimulation: EventEmitter<void> = new EventEmitter<void>();
+    @Output() updateScenario: EventEmitter<ScenarioUpdatedModel> =
+        new EventEmitter<ScenarioUpdatedModel>();
 
     private scenarioService = inject(ScenarioService);
     private renderer = inject(Renderer2);
@@ -73,6 +90,7 @@ export class EnergyDrawflowComponent {
     private toastService = inject(ToastService);
     private cdr = inject(ChangeDetectorRef);
     private modalStateService = inject(ModalStateService);
+    private scenarioStateService = inject(ScenarioStateService);
 
     ngAfterViewInit() {
         setTimeout(() => {
@@ -124,17 +142,24 @@ export class EnergyDrawflowComponent {
             this.toastService.info('Drawflow event: nodeCreated');
 
             setTimeout(() => this.updateInputPorts(), 0);
+
+            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+                this.onUpdateDrawflow();
         });
 
         this.editor.on('nodeDataChanged', (data: any) => {
             console.log('Drawflow event: nodeDataChanged');
-            // this.saveCurrentDrawflow();
+
+            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+                this.onUpdateDrawflow();
         });
 
         this.editor.on('nodeRemoved', (data: any) => {
             console.log('Drawflow event: nodeRemoved');
             this.toastService.info('Drawflow event: nodeRemoved');
-            // this.saveCurrentDrawflow();
+
+            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+                this.onUpdateDrawflow();
         });
 
         this.editor.on('connectionCreated', (connection: any) => {
@@ -148,24 +173,19 @@ export class EnergyDrawflowComponent {
                 output_port: connection.output_class,
             };
             this.connectionCreated(connection);
-
             this.updateInputPorts();
         });
 
         this.editor.on('connectionRemoved', (connection: any) => {
             console.log('Drawflow event: connectionRemoved');
             this.toastService.info('Drawflow event: connectionRemoved');
-            // this.saveCurrentDrawflow();
 
             setTimeout(() => this.updateInputPorts(), 0);
         });
 
         this.editor.on('connectionSelected', (connection: any) => {});
 
-        this.editor.on('zoom', (data: any) => {
-            // console.log('zoom', data);
-            // this.saveCurrentDrawflow();
-        });
+        this.editor.on('zoom', (data: any) => {});
 
         this.editor.on('contextmenu', (e: any) => {
             this.unShowConextMenu();
@@ -208,20 +228,28 @@ export class EnergyDrawflowComponent {
     }
 
     private loadCurrentDrawflow() {
-        let CURRENT_DRAWFLOW = this.scenarioService.restoreDrawflow_Storage();
+        const currentScenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
 
-        if (CURRENT_DRAWFLOW) {
-            this.scenarioService.setDrawflowData(CURRENT_DRAWFLOW);
+        if (currentScenarioData) {
+            let CURRENT_DRAWFLOW:
+                | {
+                      [nodeKey: string]: DrawflowNode;
+                  }
+                | null
+                | undefined = currentScenarioData.scenario?.modeling_data;
 
-            const dataToImport = {
-                drawflow: {
-                    Home: {
-                        data: CURRENT_DRAWFLOW,
+            if (CURRENT_DRAWFLOW) {
+                const dataToImport = {
+                    drawflow: {
+                        Home: {
+                            data: CURRENT_DRAWFLOW,
+                        },
                     },
-                },
-            };
-            this.editor.import(dataToImport);
-            this.setBusColorFlows(CURRENT_DRAWFLOW);
+                };
+                this.editor.import(dataToImport);
+                this.setBusColorFlows(CURRENT_DRAWFLOW);
+            }
         }
     }
 
@@ -317,6 +345,7 @@ export class EnergyDrawflowComponent {
         });
 
         const removeAllportsHighlight = () => {
+            if (!ports_all) return;
             ports_all.forEach((p) => p.classList.remove('magnet-highlight'));
         };
 
@@ -643,9 +672,12 @@ export class EnergyDrawflowComponent {
     }
 
     private saveCurrentDrawflow() {
-        const CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        const CURRENT_DRAWFLOW: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+
         this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
-        this.scenarioService.setDrawflowData(CURRENT_DRAWFLOW);
+        this.scenarioStateService.setDrawflowData(CURRENT_DRAWFLOW);
     }
 
     getNodePosition(position: number, type: 'x' | 'y') {
@@ -729,10 +761,22 @@ export class EnergyDrawflowComponent {
             this.updatePortsAfterEdit({ ...currentNode }, data);
         }
 
-        this.editor.dispatch('nodeDataChanged', nodeId);
         this.editor.import(this.editor.export());
         this.setBusColorFlows(this.editor.export().drawflow.Home.data);
         this.saveCurrentDrawflow();
+        this.editor.dispatch('nodeDataChanged', nodeId);
+
+        // update storage
+        // const d: ScenarioStateModel | null =
+        //     this.scenarioStateService.getScenarioData();
+
+        // if (d && d.project && d.scenario) {
+        //     const scenarioData: ScenarioBaseInfoModel = {
+        //         project: d.project,
+        //         scenario: d.scenario,
+        //     };
+        //     this.scenarioService.saveBaseInfo_Storage(scenarioData);
+        // }
     }
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
@@ -1254,10 +1298,13 @@ export class EnergyDrawflowComponent {
             this.editor.nodeId = 1;
             this.scenarioService.removeDrawflow_Data();
             this.toastService.info(`Cleaned the grid model successfully!`);
+
+            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+                this.onUpdateDrawflow();
         }
     }
 
-    // flow
+    // flow - submit form
     saveConnectionInNode(connection: any, editMode: boolean, data: any) {
         let node, connections;
 
@@ -1292,6 +1339,9 @@ export class EnergyDrawflowComponent {
         }
 
         this.saveCurrentDrawflow();
+
+        if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+            this.onUpdateDrawflow();
     }
 
     async deleteFlow(
@@ -1315,13 +1365,6 @@ export class EnergyDrawflowComponent {
         );
 
         if (confirmed) {
-            this.editor.removeSingleConnection(
-                node_source.node.id,
-                node_destination.node.id,
-                node_source.port.code,
-                node_destination.port.code,
-            );
-
             const currentConnection = {
                 output_node: node_source.node.id,
                 output_port: node_source.port.code,
@@ -1329,8 +1372,17 @@ export class EnergyDrawflowComponent {
                 input_port: node_destination.port.code,
             };
 
+            this.editor.removeSingleConnection(
+                node_source.node.id,
+                node_destination.node.id,
+                node_source.port.code,
+                node_destination.port.code,
+            );
             this.deleteConnectionData(currentConnection);
             this.saveCurrentDrawflow();
+
+            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+                this.onUpdateDrawflow();
         }
     }
 
@@ -1416,7 +1468,9 @@ export class EnergyDrawflowComponent {
     }
 
     onChangeBusFlowsColor(e: any) {
-        const currentNode = this.editor.getNodeFromId(this.contextmenu!.nodeId);
+        const currentNode: DrawflowNode = this.editor.getNodeFromId(
+            this.contextmenu!.nodeId,
+        );
         currentNode.data.flowsColor = e.value;
         this.drawflow_node_update(
             this.contextmenu!.nodeId,
@@ -1434,6 +1488,36 @@ export class EnergyDrawflowComponent {
         connections.forEach((connection: Element) => {
             (connection as HTMLElement).style.stroke = color;
         });
+    }
+
+    onStartSimulation() {
+        this.startSimulation.emit();
+    }
+
+    onUpdateDrawflow() {
+        const data: ScenarioUpdatedModel = {
+            project: this.scenarioStateService.getScenarioData()
+                ?.project as ScenarioUpdatedModel_project,
+            scenario: this.scenarioStateService.getScenarioData()
+                ?.scenario as ScenarioUpdatedModel_scenario,
+        };
+        const CURRENT_DRAWFLOW: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+        data.scenario.modeling_data = CURRENT_DRAWFLOW;
+        this.updateScenario.emit(data);
+    }
+
+    toggleToolBar() {
+        this.toolBar.isOpen = !this.toolBar.isOpen;
+    }
+
+    showModal_Simulation() {
+        const _scenario: ScenarioUpdatedModel_scenario =
+            this.scenarioStateService.getScenarioData()
+                ?.scenario as ScenarioUpdatedModel_scenario;
+
+        this.modalStateService.openSimulation({ scenarioId: _scenario.id });
     }
 }
 

@@ -28,7 +28,7 @@ export class ContentComponent implements OnInit {
 
     ngOnInit() {
         this.contentLayoutService.fullscreenStatus.subscribe(
-            (status: boolean | undefined) => (this.isFullscreen = status)
+            (status: boolean | undefined) => (this.isFullscreen = status),
         );
 
         this.checkCurrentUerStatus();
@@ -44,7 +44,7 @@ export class ContentComponent implements OnInit {
                     } else {
                         return [null];
                     }
-                })
+                }),
             )
             .subscribe((user: any) => {
                 this.user.info = user;

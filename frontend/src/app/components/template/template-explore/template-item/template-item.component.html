@@ -26,95 +26,101 @@
                 <button
                     id="duplicate_{{ template.id }}"
                     style="margin-top: 0.25rem"
-                    class="btn btn--action action"
+                    class="btn btn--action action d-flex"
                     type="button"
                     value="Delete"
                     (click)="onDuplicateTemplate(template.id)"
                 >
-                    <span class="icon icon-duplicate" aria-hidden="true"></span>
+                    <span
+                        class="icon icon-duplicate p-2"
+                        aria-hidden="true"
+                    ></span>
                 </button>
 
                 <button
                     id="delete_{{ template.id }}"
                     style="margin-top: 0.25rem"
-                    class="btn btn--action action"
+                    class="btn btn--action action d-flex"
                     type="button"
                     value="Delete"
                     (click)="onDeleteTemplate(template.id)"
                 >
-                    <span class="icon icon-delete" aria-hidden="true"></span>
+                    <span
+                        class="icon icon-delete p-2"
+                        aria-hidden="true"
+                    ></span>
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="project__scenarios text-center">
-            <ng-container *ngIf="template.scenarioList; else loading">
-                <ng-container *ngIf="template.scenarioList.length > 0">
-                    <div
-                        class="collapse"
-                        #collapse="ngbCollapse"
-                        [(ngbCollapse)]="isCollapsed"
-                    >
-                        <ul class="list-group rounded-0">
-                            <li
-                                class="list-group-item scenario_item"
-                                *ngFor="let scenario of template.scenarioList"
-                            >
-                                <app-template-scenario-item
-                                    [scenario]="scenario"
-                                />
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- scenario actions -->
-                    <div class="d-flex scenario-actions">
-                        <!-- show Scenarios -->
-
-                        <button
-                            type="button"
-                            class="btn btn-outline-primary action"
-                            (click)="isCollapsed = !isCollapsed"
-                            [attr.aria-expanded]="!isCollapsed"
-                            aria-controls="collapseExample"
-                            *ngIf="template.scenarioList.length > 0"
-                        >
-                            <span
-                                class="icon icon--small js-toggle-scenario-icon"
-                                aria-hidden="true"
-                                [ngClass]="{
-                                    'icon-i_arrow_down': isCollapsed,
-                                    'icon-i_arrow_up': !isCollapsed,
-                                }"
-                            >
-                            </span>
-                            <span class="js-toggle-scenario-name">
-                                Scenarios
-                            </span>
-                        </button>
-
-                        <!-- new Scenario -->
-                        <button
-                            class="btn btn--success action"
-                            type="button"
-                            (click)="createProjectFromTemplate(+template.id)"
-                        >
-                            <img
-                                src="static/assets/icons/feather/white/plus.svg"
-                                alt=""
-                                height="20"
-                                width="20"
-                                loading="lazy"
-                            />
-                            <span>Use Template</span>
-                        </button>
-                    </div>
-                </ng-container>
+    <!-- Scenario List -->
+    <div class="project__scenarios text-center">
+        <div
+            class="collapse"
+            #collapse="ngbCollapse"
+            [(ngbCollapse)]="isCollapsed"
+        >
+            <ng-container *ngIf="loading.scenarios; else dataBlock">
+                <span class="text-muted p-2">Loading Templates...</span>
             </ng-container>
 
-            <ng-template #loading>
-                <span class="text-muted p-2">Loading Templates...</span>
+            <ng-template #dataBlock>
+                <ng-container
+                    *ngIf="
+                        template.scenarioList &&
+                            template.scenarioList.length > 0;
+                        else noData
+                    "
+                >
+                    <ul class="list-group rounded-0">
+                        <li
+                            class="list-group-item scenario_item"
+                            *ngFor="let scenario of template.scenarioList"
+                        >
+                            <app-template-scenario-item [scenario]="scenario" />
+                        </li>
+                    </ul>
+                </ng-container>
+
+                <ng-template #noData>
+                    <span class="text-muted p-2">No scenarios available!</span>
+                </ng-template>
             </ng-template>
+        </div>
+
+        <!-- scenario actions -->
+        <div class="d-flex scenario-actions">
+            <!-- show Scenarios -->
+            <button
+                type="button"
+                class="btn btn-outline-primary action"
+                [attr.aria-expanded]="!isCollapsed"
+                aria-controls="collapseExample"
+                [disabled]="loading.scenarios"
+                (click)="toggleCollapse()"
+            >
+                <span
+                    class="icon icon--small js-toggle-scenario-icon"
+                    aria-hidden="true"
+                    [ngClass]="{
+                        'icon-i_arrow_down': isCollapsed,
+                        'icon-i_arrow_up': !isCollapsed,
+                    }"
+                >
+                </span>
+                <span class="js-toggle-scenario-name"> Scenarios </span>
+            </button>
+
+            <!-- new Scenario -->
+            <button
+                class="btn btn--success action"
+                type="button"
+                [disabled]="loading.scenarios"
+                (click)="createProjectFromTemplate(+template.id)"
+            >
+                <span>Use</span>
+            </button>
         </div>
     </div>
 </section>

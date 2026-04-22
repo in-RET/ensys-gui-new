@@ -1,0 +1,53 @@
+table {
+    width: 100%;
+    table-layout: fixed;
+
+    td {
+        overflow-x: hidden;
+        white-space: nowrap;
+
+        &::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #aaa;
+            border-radius: 3px;
+        }
+
+        &:hover {
+            overflow-x: auto;
+        }
+    }
+
+    tr {
+        &.disable {
+            td {
+                background-color: #898a8b37;
+                opacity: 0.5;
+            }
+        }
+    }
+}
+
+[ngbDropdownToggle]::after {
+    display: none !important;
+}
+
+button[ngbDropdownToggle] {
+    background-color: unset;
+}
+
+button[ngbDropdownToggle]:hover,
+button[ngbDropdownToggle]:active,
+button[ngbDropdownToggle]:focus {
+    background-color: unset !important;
+}
+
+.dropdown-menu {
+    min-width: 140px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

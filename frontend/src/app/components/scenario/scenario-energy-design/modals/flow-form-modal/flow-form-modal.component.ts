@@ -35,14 +35,6 @@ export class FlowFormModalComponent {
         msg: '',
         isShow: false,
     };
-    // formModal_calculator: any = {
-    //     show: false,
-    //     title: 'EP Costs Calculator',
-    //     action: {
-    //         label: undefined,
-    //         fn: undefined,
-    //     },
-    // };
 
     @Input() modalInfo!: EditFormModalInfo | null;
     @Output() saveConnectionInNode = new EventEmitter<any>();
@@ -81,8 +73,6 @@ export class FlowFormModalComponent {
         let nodeType = this.modalInfo.node.class;
 
         if (this.modalInfo.connection) {
-            // this.modalInfo.data.connection = this.modalInfo.connection;
-            // const connections: Connection = this.modalInfo.data.connection;
             const connections: Connection = this.modalInfo.connection;
 
             // if flow is creating for 1st time
@@ -133,42 +123,8 @@ export class FlowFormModalComponent {
     submitForm() {
         if (!this.modalInfo) return;
 
-        // for flow, if OEP is on
-        // if (this.modalInfo.node.data.oep) {
-        //     const isOepSelected = this.modalInfo.node.data.oep;
-
-        //     let formData = this.formComponent.submit(!isOepSelected);
-
-        //     // now, call state serv and fill data out
-        //     // save data of connection fields in both sides
-        //     this.saveConnectionInNode.emit({
-        //         connection: this.modalInfo.data.connection,
-        //         editMode: this.modalInfo.editMode,
-        //         data: formData,
-        //     });
-
-        //     // this.saveCurrentDrawflow();
-        // }
-
-        const findOEPFieldData = (
-            field: any | undefined,
-        ): boolean | undefined => {
-            if (!field) return undefined;
-            return Object.keys(field).some((k) => k === 'oep')
-                ? field['oep']
-                : undefined;
-        };
-
         let isOepSelected: boolean;
-        isOepSelected = findOEPFieldData(this.modalInfo.data) ?? false;
-
-        if (this.modalInfo.editMode)
-            isOepSelected =
-                findOEPFieldData(this.modalInfo.node.data.oep) ?? false;
-
-        if (isOepSelected === undefined)
-            isOepSelected =
-                findOEPFieldData(this.modalInfo.node.data.oep) ?? false;
+        isOepSelected = this.modalInfo.node.data.oep; // findOEPFieldData(this.modalInfo.data) ?? false;
 
         let formData = this.formComponent.submit(!isOepSelected);
 
@@ -273,10 +229,6 @@ export class FlowFormModalComponent {
     private showModal_TimeSeries(e: {
         controlName: string;
         modes: ModeOption[] | null;
-        // options?: {
-        //     id: string;
-        //     group: string;
-        // };
     }) {
         // clear previous data
         let timeSeriesData: {
@@ -290,7 +242,6 @@ export class FlowFormModalComponent {
         };
 
         // condirions: filed is 'fix' && not from node 'source' || 'sink'
-        // if (!e.modes && this.modalInfo) {
         if (this.modalInfo) {
             if (e.modes) timeSeriesData.modes = e.modes;
             else if (

@@ -2,11 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { PublicService } from '../../../../shared/services/public.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
     ScenarioBaseInfoModel,
     ScenarioModel,
+    ScenarioResModel,
+    UserModelingSTEP,
 } from '../../../scenario/models/scenario.model';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../../../scenario/services/scenario-state.service';
 import { ScenarioService } from '../../../scenario/services/scenario.service';
 import { ProjectModel } from '../../models/project.model';
 
@@ -27,36 +34,74 @@ export class ProjectScenarioItemComponent {
     toastService = inject(ToastService);
     alertService = inject(AlertService);
     scenarioService = inject(ScenarioService);
+    scenarioStateService = inject(ScenarioStateService);
     router = inject(Router);
+    publicService = inject(PublicService);
 
     openScenario(scenario_id: number) {
         this.scenarioService.getScenario(scenario_id).subscribe({
             next: (res) => {
                 if (res.success && res.data && res.data.length != 0) {
-                    const data = res.data.items[0];
-                    this.scenarioService.saveDrawflow_Storage(
-                        JSON.parse(data.modeling_data),
-                    );
+                    const data: ScenarioResModel = res.data.items[0];
+                    const modeling_data: string | null =
+                        this.publicService.normalizeString(data.modeling_data);
+
+                    if (modeling_data)
+                        this.scenarioService.saveDrawflow_Storage(
+                            JSON.parse(modeling_data),
+                        );
 
                     // save project,scenario - storage
                     const scenarioData: ScenarioBaseInfoModel = {
                         project: {
                             id: this.project.id,
                             name: this.project.name ?? '_',
-                            scenarioList: this.project.scenarioList ?? [],
                         },
                         scenario: {
                             id: data.id,
                             name: data.name,
-                            sDate: data.sDate,
+                            sDate: data.start_date,
                             timeStep: 8760,
                             interval: data.interval,
-                            simulationYear: 2025,
+                            simulationYear: data.simulation_year,
+                            constraints: data.constraints
+                                ? JSON.parse(data.constraints)
+                                : null,
+                            modeling_data: modeling_data
+                                ? JSON.parse(modeling_data)
+                                : null,
+                        },
+                    };
+                    this.scenarioService.saveBaseInfo_Storage(scenarioData);
+
+                    // update drawflowData$ state
+                    const d: ScenarioStateModel = {
+                        project: {
+                            id: this.project.id,
+                            name: this.project.name,
+                        },
+                        scenario: {
+                            id: data.id,
+                            name: data.name,
+                            sDate: data.start_date,
+                            timeStep: 8760,
+                            interval: data.interval,
+                            simulationYear: data.simulation_year,
+                            constraints: data.constraints
+                                ? JSON.parse(data.constraints)
+                                : null,
+                            modeling_data: modeling_data
+                                ? JSON.parse(modeling_data)
+                                : null,
                         },
                     };
 
-                    this.scenarioService.saveBaseInfo_Storage(scenarioData);
-                    this.toastService.info('Scenario data restored.');
+                    this.scenarioStateService.setScenarioData(d);
+                    this.scenarioService.updateUserModelingState({
+                        currentStep: UserModelingSTEP.SCENARIO_SETUP,
+                        autoUpdate: true,
+                    });
+                    // this.toastService.info('Scenario data restored.');
                     this.router.navigate(['/scenario']);
                 } else {
                     this.toastService.error(

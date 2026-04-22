@@ -1,9 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Output,
+    ViewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import Drawflow from 'drawflow';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ScenarioUpdatedModel } from '../models/scenario.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
 import { ScenarioService } from '../services/scenario.service';
@@ -39,10 +46,8 @@ import { ModeOption } from './time-series/time-series.component';
 export class ScenarioEnergyDesignComponent {
     components: any;
     editor!: Drawflow;
-
     editMode: boolean = false;
     isFullscreen: boolean = false;
-    showSimulations: boolean = false;
 
     formError: { msg: string | null; isShow: boolean } = {
         msg: '',
@@ -62,9 +67,20 @@ export class ScenarioEnergyDesignComponent {
         },
     };
 
+    formModalSetup: any = {
+        visibility: {
+            setup: true,
+            constaints: false,
+        },
+    };
+
+    @Output() startSimulation: EventEmitter<void> = new EventEmitter<void>();
+    @Output() updateScenario: EventEmitter<ScenarioUpdatedModel> =
+        new EventEmitter<ScenarioUpdatedModel>();
+    @Output() goToSetupPage: EventEmitter<void> = new EventEmitter<void>();
+
     @ViewChild(EnergyDrawflowComponent)
     energyDrawflowComponent!: EnergyDrawflowComponent;
-
     @ViewChild('form')
     formComponent!: FormComponent;
     @ViewChild(ModalComponent)
@@ -73,8 +89,6 @@ export class ScenarioEnergyDesignComponent {
     nodeFormModalComponent!: NodeFormModalComponent;
     @ViewChild(FlowFormModalComponent)
     flowFormModalComponent!: FlowFormModalComponent;
-
-    @Input() currentScenario: any;
 
     contentLayoutService = inject(ContentLayoutService);
     energyDesignService = inject(EnergyDesignService);
@@ -248,9 +262,20 @@ export class ScenarioEnergyDesignComponent {
         this.modalStateService.closeSimulation();
     }
 
+    onStartSimulation() {
+        this.startSimulation.emit();
+    }
+
+    onUpdateScenario(e: ScenarioUpdatedModel) {
+        this.updateScenario.emit(e);
+    }
+
+    onGoToSetupPage() {
+        this.goToSetupPage.emit();
+    }
+
     ngOnDestroy() {
         this.isFullscreen = false;
         this.contentLayoutService.setScreenFull(this.isFullscreen);
-        this.scenarioService.removeDrawflow_Data();
     }
 }

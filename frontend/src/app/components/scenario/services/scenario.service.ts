@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
-import { BehaviorSubject, map, Observable } from 'rxjs';
+import { map, Observable, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { BaseHttpService } from '../../../core/base-http/base-http.service';
 import { ResModel } from '../../../shared/models/http.model';
@@ -10,8 +10,10 @@ import {
     ScenarioBaseInfoModel,
     ScenarioReqModel,
     ScenarioResModel,
+    UserModelingStateModel,
 } from '../models/scenario.model';
 import { ModalStateService } from '../scenario-energy-design/modals/modal-state.service';
+import { ScenarioStateService } from './scenario-state.service';
 
 @Injectable({
     providedIn: 'root',
@@ -20,20 +22,13 @@ export class ScenarioService {
     private baseUrl: string = environment.apiUrl + 'scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
-
-    private _drawflowData$ = new BehaviorSubject<{
-        [nodeKey: string]: DrawflowNode;
-    } | null>(null);
-    readonly drawflowData$ = this._drawflowData$.asObservable();
-
-    readonly isDrawflowEmpty$: Observable<boolean> = this._drawflowData$.pipe(
-        map((data) => data === null),
-    );
+    private user_modeling_state = 'user_modeling_state';
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     baseHttp = inject(BaseHttpService);
     private modalStateService = inject(ModalStateService);
+    private scenarioStateService = inject(ScenarioStateService);
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -67,6 +62,11 @@ export class ScenarioService {
         );
     }
 
+    replaceBaseInfo_Storage(data: ScenarioBaseInfoModel) {
+        this.removeBaseInfo_Storage();
+        this.saveBaseInfo_Storage(data);
+    }
+
     removeBaseInfo_Storage() {
         localStorage.removeItem(this.scenario_localstorage_name);
     }
@@ -82,44 +82,29 @@ export class ScenarioService {
         return null;
     }
 
-    updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
-        localStorage.setItem(
-            `${this.scenario_localstorage_name}`,
-            JSON.stringify(d),
-        );
-    }
-
     //====================  draw flow   ====================
     saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
+        if (!data) return;
+
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
             JSON.stringify(data),
         );
     }
 
-    setDrawflowData(data: { [nodeKey: string]: DrawflowNode }) {
-        this._drawflowData$.next(data);
-    }
-
-    private clearDrawflowData() {
-        console.log(3);
-
-        this._drawflowData$.next(null);
-    }
-
-    restoreDrawflow_Storage(mustResultString = false): string | false | any {
+    restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
         const DrawflowData: string | null = localStorage.getItem(
             this.scenario_drawflow_localstorage_name,
         );
 
         if (DrawflowData && DrawflowData.trim() != '') {
-            return mustResultString ? DrawflowData : JSON.parse(DrawflowData);
-        } else return false;
+            return JSON.parse(DrawflowData);
+        } else return null;
     }
 
     removeDrawflow_Data() {
         localStorage.removeItem(this.scenario_drawflow_localstorage_name);
-        this.clearDrawflowData();
+        this.scenarioStateService.clearDrawflowData();
     }
 
     //====================  draw flow   ====================
@@ -145,96 +130,70 @@ export class ScenarioService {
     }
 
     //====================  local  ====================
-    onSaveScenario(): Observable<ScenarioResModel> | undefined {
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.restoreBaseInfo_Storage();
-
+    saveCurrentScenario(
+        scenarioData: ScenarioBaseInfoModel,
+    ): Observable<ScenarioResModel> {
         if (!scenarioData || !scenarioData.scenario) {
-            this.alertService.warning('There is no data to save!');
-            return;
-        }
-
-        const drawflowData = this.restoreDrawflow_Storage(true);
-
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return;
+            return throwError(() => new Error('There is no data to save!'));
         }
 
         const newScenarioData: ScenarioReqModel = {
-            name: scenarioData.scenario?.name,
-            start_date: scenarioData.scenario?.sDate,
+            name: scenarioData.scenario.name,
+            start_date: scenarioData.scenario.sDate,
             time_steps: scenarioData.scenario.timeStep,
             project_id: scenarioData.project?.id,
             interval: 1,
-            modeling_data: drawflowData,
+            modeling_data: scenarioData.scenario.modeling_data
+                ? JSON.stringify(scenarioData.scenario.modeling_data)
+                : '',
+            constraints:
+                scenarioData.scenario.constraints &&
+                scenarioData.scenario.constraints.length > 0
+                    ? JSON.stringify(scenarioData.scenario.constraints)
+                    : '',
         };
 
         return this.createScenario(newScenarioData).pipe(
             map((res: ResModel<ScenarioResModel>) => {
                 if (res.success) return res.data.items[0];
-
-                //  if (res.error.status == 409) {
-                //                 const confirmed = await this.alertService.confirm(
-                //                     'Do you want change the name? Or Update current?',
-                //                     'Duplicate Scenario!',
-                //                     '< Step',
-                //                     'Update',
-                //                     'error'
-                //                 );
-
-                //                 if (confirmed) {
-                //                     this.prevtStep();
-                //                 } else {
-                //                     this.updateScenario();
-                //                 }
-                //             } else
-                // this.alertService.error(err.message || 'Save failed');
                 throw new Error('Unknown API error');
             }),
         );
     }
 
-    onUpdateScenario(): Observable<ScenarioResModel> | undefined {
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.restoreBaseInfo_Storage();
+    updateCurrentScenario(
+        scenarioData: ScenarioBaseInfoModel,
+    ): Observable<ScenarioResModel> {
+        if (scenarioData.scenario && scenarioData.scenario.id) {
+            const newScenarioData: ScenarioReqModel = {
+                name: scenarioData.scenario.name,
+                start_date: scenarioData.scenario.sDate,
+                time_steps: scenarioData.scenario.timeStep,
+                interval: 1,
+                modeling_data: scenarioData.scenario.modeling_data
+                    ? JSON.stringify(scenarioData.scenario.modeling_data)
+                    : '',
+                constraints:
+                    scenarioData.scenario.constraints &&
+                    scenarioData.scenario.constraints.length > 0
+                        ? JSON.stringify(scenarioData.scenario.constraints)
+                        : '',
+            };
 
-        if (!scenarioData || !scenarioData.scenario) {
-            this.alertService.warning('There is no data to save!');
-            return;
+            return this.updateScenario(
+                newScenarioData,
+                scenarioData.scenario.id,
+            ).pipe(
+                map((res: ResModel<ScenarioResModel>) => {
+                    if (res.success) {
+                        return res.data.items[0];
+                    }
+                    throw new Error('Unknown API error');
+                }),
+            );
+        } else {
+            return throwError(() => new Error('No scenario data to update!'));
         }
-
-        if (!scenarioData.scenario?.id) {
-            this.alertService.warning('Error: Id not found!');
-            return;
-        }
-
-        const newScenarioData: ScenarioReqModel = {
-            name: scenarioData.scenario?.name,
-            start_date: scenarioData.scenario?.sDate,
-            time_steps: scenarioData.scenario?.timeStep,
-            interval: 1,
-            modeling_data: this.restoreDrawflow_Storage(true),
-        };
-
-        const drawflowData = this.restoreDrawflow_Storage();
-
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return;
-        }
-
-        return this.updateScenario(
-            newScenarioData,
-            scenarioData.scenario.id,
-        ).pipe(
-            map((res: ResModel<ScenarioResModel>) => {
-                if (res.success) {
-                    return res.data.items[0];
-                }
-                throw new Error('Unknown API error');
-            }),
-        );
     }
 
     getEntityInfoUrl(nodeName: string) {
@@ -263,7 +222,12 @@ export class ScenarioService {
     }
 
     checkNodeDuplication(nodeName: string, nodeId: number) {
-        const currentDrawflowData = this._drawflowData$.getValue();
+        const currentDrawflowData:
+            | string
+            | {
+                  [nodeKey: string]: DrawflowNode;
+              }
+            | null = this.scenarioStateService.getDrawflowData();
 
         if (
             currentDrawflowData == null ||
@@ -294,5 +258,40 @@ export class ScenarioService {
         }
 
         return false;
+    }
+
+    saveUserModelingState(userModelingState: UserModelingStateModel) {
+        localStorage.setItem(
+            this.user_modeling_state,
+            JSON.stringify(userModelingState),
+        );
+    }
+
+    updateUserModelingState(updates: Partial<UserModelingStateModel>) {
+        const currentStateStr = localStorage.getItem(this.user_modeling_state);
+        let currentState: UserModelingStateModel = currentStateStr
+            ? JSON.parse(currentStateStr)
+            : ({} as UserModelingStateModel);
+
+        const newState = { ...currentState, ...updates };
+
+        localStorage.setItem(
+            this.user_modeling_state,
+            JSON.stringify(newState),
+        );
+    }
+
+    removeUserModelingState() {
+        localStorage.removeItem(this.user_modeling_state);
+    }
+
+    restoreUserModelingState(): UserModelingStateModel | null {
+        const stateStr = localStorage.getItem(this.user_modeling_state);
+
+        if (stateStr && stateStr.trim() != '') {
+            return JSON.parse(stateStr);
+        }
+
+        return null;
     }
 }
