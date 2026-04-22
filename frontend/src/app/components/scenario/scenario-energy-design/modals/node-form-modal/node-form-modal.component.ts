@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     EventEmitter,
+    inject,
     Input,
     Output,
     ViewChild,
@@ -10,12 +11,15 @@ import { FormsModule } from '@angular/forms';
 import { map } from 'rxjs';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { OEPResponse, Port } from '../../../models/node.model';
-import { ScenarioBaseInfoModel } from '../../../models/scenario.model';
 import {
     EnergyDesignService,
     Ports,
 } from '../../../services/energy-design.service';
 import { FlowService } from '../../../services/flow.service';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../../../services/scenario-state.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { FormComponent } from '../../form/form.component';
 import { ModalComponent } from '../../modal/modal.component';
@@ -45,7 +49,6 @@ export class NodeFormModalComponent {
     };
 
     @Input() modalInfo: FormModalInfo | null = null;
-    @Output() formSubmitted = new EventEmitter<any>();
     @Output() modalClosed = new EventEmitter<boolean>();
     @Output() makeNode = new EventEmitter<{
         formValue: any;
@@ -70,6 +73,8 @@ export class NodeFormModalComponent {
     transform_inputs!: OrderListComponent;
     @ViewChild('transform_outputs')
     transform_outputs!: OrderListComponent;
+
+    scenarioStateService = inject(ScenarioStateService);
 
     constructor(
         private energyDesignService: EnergyDesignService,
@@ -119,120 +124,7 @@ export class NodeFormModalComponent {
 
             this.modalInfo.url =
                 this.scenarioService.getEntityInfoUrl(nodeType);
-
-            // appear Modal
-            // this.modalInfo.show = true;
         }
-
-        //     // clean previous formModal
-        //     this.formModal_info = new FormModalInfo();
-        //     // this.formModal_info.id = e.id;
-        //     this.formModal_info.type = 'node';
-        //     this.formModal_info.title = e.title;
-        //     this.formModal_info.action = e.action;
-        //     this.formModal_info.node = e.node;
-        //     this.formModal_info.data = e.data;
-        //     this.formModal_info.editMode = e.editMode;
-
-        //     // on edit
-        //     if (e.editMode && e.data && e.data.preDefData)
-        //         this.formModal_info.preDefData = e.data.preDefData;
-
-        //     let nodeType = '';
-
-        //     if (!e.editMode) nodeType = e.node?.type ?? '';
-        //     else nodeType = e.node?.class ?? '';
-
-        //     this.formModal_info.formData =
-        //         await this.energyDesignService.getFormFields_node(
-        //             nodeType,
-        //             e.editMode,
-        //             e.data,
-        //             this.defineCallbackFlowForm(),
-        //         );
-
-        //     if (e.node?.type == 'transformer' || e.node?.class == 'transformer') {
-        //         if (e.editMode) {
-        //             this.formModal_info.data.ports = {
-        //                 ...this.formModal_info.data.ports,
-        //                 editable: !this.formModal_info.data.oep,
-        //             };
-        //         } else {
-        //             // a new node
-        //             this.formModal_info.data = {
-        //                 ports: {
-        //                     inputs: [],
-        //                     outputs: [],
-        //                     editable: true,
-        //                 },
-        //             };
-        //         }
-        //     }
-
-        //     if (this.formModal_info.node)
-        //         this.formModal_info.url = this.getEntityInfoUrl(
-        //             this.formModal_info.node.class,
-        //         );
-
-        //     // appear Modal
-        //     this.formModal_info.show = true;
-        // }
-
-        // async showFormModal_flow(e: any) {
-        //     this.formModal_info = new FormModalInfo();
-        //     this.formModal_info.preDefData = e.data.preDefData;
-
-        //     // when edit flow, so load its data
-        //     if (e.data)
-        //         this.formModal_info.data = {
-        //             ...e.data,
-        //         };
-
-        //     this.formModal_info.type = 'flow';
-        //     this.formModal_info.title = e.title;
-        //     this.formModal_info.action = e.action;
-        //     this.formModal_info.node = e.node;
-
-        //     let nodeType = e.node?.class ?? '';
-
-        //     if (e.connection) {
-        //         this.formModal_info.connection = e.connection;
-        //         const connections: Connection = this.formModal_info.connection;
-
-        //         // if flow is creating for 1st time
-        //         if (this.formModal_info.preDefData) {
-        //             const fData = this.formModal_info.preDefData;
-
-        //             if (this.formModal_info.node?.id === +connections.input_node) {
-        //                 const currentPortNum_in =
-        //                     +connections['input_port'].split('_')[1];
-        //                 this.formModal_info.data =
-        //                     fData.inputs[currentPortNum_in - 1]['flow_data'] || {};
-        //             } else if (
-        //                 this.formModal_info.node?.id === +connections.output_node
-        //             ) {
-        //                 const currentPortNum_out =
-        //                     +connections['output_port'].split('_')[1];
-        //                 this.formModal_info.data =
-        //                     fData.outputs[currentPortNum_out - 1]['flow_data'] ||
-        //                     {};
-        //             }
-        //         }
-        //     }
-
-        //     this.formModal_info.formData =
-        //         await this.energyDesignService.getFormFields_flow(
-        //             nodeType,
-        //             e.editMode,
-        //             e.node?.data?.oep,
-        //             this.formModal_info.data,
-        //             this.defineCallbackFlowForm(),
-        //             e.node?.data?.preDefData,
-        //         );
-
-        //     this.formModal_info.editMode = e.editMode;
-        //     this.formModal_info.url = this.getEntityInfoUrl('flow');
-        //     this.formModal_info.show = true;
     }
 
     private setPredefinedFormFields_storage(option: string) {
@@ -255,8 +147,6 @@ export class NodeFormModalComponent {
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
-            // const formData = this.formComponent.form.getRawValue();
-
             lsFields_ = [
                 ...this.energyDesignService.getDefaultFields_storage(),
                 ...lsFields_,
@@ -269,8 +159,8 @@ export class NodeFormModalComponent {
             });
 
             //set data from server
-            const scenarioBaseData: ScenarioBaseInfoModel | null =
-                this.scenarioService.restoreBaseInfo_Storage();
+            const scenarioBaseData: ScenarioStateModel | null =
+                this.scenarioStateService.getScenarioData();
 
             if (scenarioBaseData && scenarioBaseData.scenario) {
                 this.flowService
@@ -326,12 +216,13 @@ export class NodeFormModalComponent {
             }
         } else {
             this.formComponent.disableControl('oep');
+
             // set oep switch off
             this.formComponent.setFieldData('oep', false);
             this.formComponent.setFieldData('investment', false);
             this.formComponent.setFieldData('nominal_value', null);
-            this.formComponent.setFieldData('inputPort_name', null);
-            this.formComponent.setFieldData('outputPort_name', null);
+            this.formComponent.setFieldData('inputPort_name', 'port_in_1');
+            this.formComponent.setFieldData('outputPort_name', 'port_out_1');
             // enable all fields
             this.formComponent.enabelControl('inputPort_name');
             this.formComponent.enabelControl('outputPort_name');
@@ -371,8 +262,8 @@ export class NodeFormModalComponent {
         // get oep data form fields
         if (option != 'user_defined') {
             //set data from server
-            const scenarioBaseData: ScenarioBaseInfoModel | null =
-                this.scenarioService.restoreBaseInfo_Storage();
+            const scenarioBaseData: ScenarioStateModel | null =
+                this.scenarioStateService.getScenarioData();
 
             if (scenarioBaseData && scenarioBaseData.scenario) {
                 this.flowService
@@ -489,12 +380,12 @@ export class NodeFormModalComponent {
             this.formComponent.disableControl('oep');
             // set oep switch off
             this.formComponent.setFieldData('oep', false);
-            this.modalInfo.data.oep = false;
-            this.modalInfo.data ? (this.modalInfo.data.oep = false) : null;
-            this.modalInfo.node ? (this.modalInfo.node.data.oep = false) : null;
+            this.modalInfo.node.data.oep = false;
+            // this.modalInfo.data ? (this.modalInfo.data.oep = false) : null;
+            // this.modalInfo.node ? (this.modalInfo.node.data.oep = false) : null;
 
-            this.formComponent.setFieldData('inputPort_name', null);
-            this.formComponent.setFieldData('outputPort_name', null);
+            this.formComponent.setFieldData('inputPort_name', 'port_in_1');
+            this.formComponent.setFieldData('outputPort_name', 'port_out_1');
             // enable all fields
             this.formComponent.enabelControl('inputPort_name');
             this.formComponent.enabelControl('outputPort_name');
@@ -553,8 +444,6 @@ export class NodeFormModalComponent {
             isOepSelected =
                 findOEPFieldData(this.modalInfo.node?.data.oep) ?? false;
 
-        // if (isOepSelected === undefined)
-        //     isOepSelected = findOEPFieldData(this.modalInfo.node.oep) ?? false;
         // its wrong, bc if OEP is one then data hasn't changed,
         // so submit means as close fn not more!
         let formData = this.formComponent.submit(!isOepSelected);
@@ -764,8 +653,6 @@ export class NodeFormModalComponent {
                             });
                         this.closeModal(true);
                     }
-
-                    // this.modalComponent._closeModal(true);
                 } else {
                     this.setFormError(true, ' * The form is not completed!');
                 }
@@ -775,8 +662,6 @@ export class NodeFormModalComponent {
         } else {
             this.setFormError(true, ' * Complete the form!');
         }
-
-        this.formSubmitted.emit(formData);
     }
 
     closeModal(approve: boolean) {
@@ -789,8 +674,6 @@ export class NodeFormModalComponent {
             toggleInvestFields: this.toggleInvestFields.bind(this),
             toggleFomFields: this.toggleFomFields.bind(this),
             toggleVisibilitySection: this.toggleVisibilitySection.bind(this),
-            showModal_EpCostsCalculator:
-                this.showModal_EpCostsCalculator.bind(this),
             onChangePreDefined: this.onChangePreDefined.bind(this),
             toggleOEP: this.toggleOEP.bind(this),
         };
@@ -830,17 +713,6 @@ export class NodeFormModalComponent {
                 }
             });
         }
-    }
-
-    private showModal_EpCostsCalculator() {
-        // this.formModal_calculator.action = {
-        //     label: 'ƒ',
-        //     fn: 'calculateEpCosts',
-        // };
-        // this.formModal_calculator.formData = this.getFormFieldsEpCosts();
-        // this.modalComponent.hideModal();
-        // this.modalInfo.hide = true;
-        // this.formModal_calculator.show = true;
     }
 
     private onChangePreDefined(e: { option: string; type: string }) {
@@ -921,15 +793,6 @@ export class NodeFormModalComponent {
         };
         modes?: ModeOption[] | null;
     }) {
-        // clear previous data
-        // this.timeSeriesModal = {
-        //     id: '',
-        //     group: '',
-        //     data: [],
-        //     modes: [],
-        //     show: false,
-        // };
-
         let timeSeriesData: {
             groupName: string;
             controlName: string;
@@ -952,12 +815,9 @@ export class NodeFormModalComponent {
     }
 
     setTimeSeriesData(controlName: string, data: number[]) {
-        // this.formComponent.setFieldData(controlName, data);
-        //  if (this.timeSeriesModal.group === 'transformer') {
         if (controlName == 'inputs')
             this.transform_inputs.submitTimeSeriesData(data);
         else if (controlName == 'outputs')
             this.transform_outputs.submitTimeSeriesData(data);
-        // } else {
     }
 }

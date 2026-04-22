@@ -1,18 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, Observable, switchMap } from 'rxjs';
-import { ResDataModel, ResModel } from '../../../shared/models/http.model';
+import { map, Subscription } from 'rxjs';
+import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { EnergyModelConverterService } from '../../../shared/services/energy-model-converter-service/energy-model-converter.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
     ScenarioBaseInfoModel,
-    ScenarioReqModel,
     ScenarioResModel,
+    ScenarioUpdatedModel,
+    UserModelingStateModel,
+    UserModelingSTEP,
 } from '../models/scenario.model';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../services/scenario-state.service';
 import { ScenarioService } from '../services/scenario.service';
 import { SimulationService } from '../simulation/services/simulation.service';
 import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.component';
@@ -29,14 +35,14 @@ import { ScenarioFooterComponent } from './scenario-footer/scenario-footer.compo
     styleUrl: './scenario-base.component.scss',
 })
 export class ScenarioBaseComponent implements OnInit {
-    currentStep: number = 1;
-    currentScenario!: ScenarioBaseInfoModel;
-    isScenarioNew!: boolean;
+    subscriptionScenarioState!: Subscription;
+    UserModelingSTEP = UserModelingSTEP;
+    currentScenario!: ScenarioStateModel | null;
 
     @ViewChild('setup')
-    scenarioSetupComponent!: ScenarioSetupComponent;
+    setupComponent!: ScenarioSetupComponent;
     @ViewChild('sed', { static: false })
-    scenarioEnergyDesignComponent!: any;
+    energyDesignComponent!: any;
 
     scenarioService = inject(ScenarioService);
     route = inject(ActivatedRoute);
@@ -45,124 +51,31 @@ export class ScenarioBaseComponent implements OnInit {
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
     serv = inject(EnergyModelConverterService);
+    scenarioStateService = inject(ScenarioStateService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
-        this.checkScenarioIsNew();
+        this.loadCurrentScenarioData();
+
+        this.subscriptionScenarioState =
+            this.scenarioStateService.scenarioState.subscribe(
+                (res: ScenarioStateModel | null) => {
+                    console.log('Scenario_State has changed: ', res);
+                    this.currentScenario = res;
+                },
+            );
     }
 
-    nextStep() {
-        switch (this.currentStep) {
-            case 0:
-                let scenarioBaseData = this.scenarioSetupComponent.getData();
-
-                if (scenarioBaseData) {
-                    this.saveBaseInfo(scenarioBaseData);
-                    ++this.currentStep;
-                }
-                break;
-        }
-    }
-
-    prevtStep() {
-        --this.currentStep;
-    }
-
-    saveBaseInfo(data: any) {
-        this.scenarioService.removeBaseInfo_Storage();
-
-        const { id, name, sDate, timeStep, interval, simulationYear, project } =
-            data;
-
-        const _data: ScenarioBaseInfoModel = {
-            project,
-            scenario: {
-                id,
-                name,
-                sDate,
-                timeStep,
-                interval,
-                simulationYear,
-            },
-        };
-
-        this.scenarioService.saveBaseInfo_Storage(_data);
-        this.currentScenario = _data;
-    }
-
-    onSaveScenario(): void {
-        this.scenarioService.onSaveScenario()?.subscribe({
-            next: (val: ScenarioResModel) => {
-                this.toastService.success(`Scenario ${val.name} saved.`);
-
-                // update session
-                const scenarioData: ScenarioBaseInfoModel | null =
-                    this.scenarioService.restoreBaseInfo_Storage();
-
-                if (scenarioData && scenarioData.scenario) {
-                    scenarioData.scenario.id = val.id;
-
-                    this.scenarioService.updateBaseInfo_Scenario(scenarioData);
-
-                    // update local this.data
-                    this.currentScenario.scenario = scenarioData.scenario;
-                    // update view+data by id
-                    this.checkScenarioIsNew();
-                }
-            },
-            error: (err: string) => {
-                this.toastService.error(err);
-            },
-        });
-    }
-
-    async saveScenario(): Promise<Observable<any> | undefined> {
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.scenarioService.restoreBaseInfo_Storage();
-
-        if (!scenarioData || !scenarioData.scenario) {
-            this.alertService.warning('There is no data to save!');
-            return;
-        }
-
-        const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
-
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return;
-        }
-
-        let newScenarioData: ScenarioReqModel = {
-            name: scenarioData.scenario?.name,
-            start_date: scenarioData.scenario?.sDate,
-            time_steps: scenarioData.scenario.timeStep,
-            project_id: scenarioData.project?.id,
-            interval: 1,
-            modeling_data: drawflowData,
-        };
-
-        return this.scenarioService.createScenario(newScenarioData);
-    }
-
-    onUpdateScenario() {
-        this.scenarioService.onUpdateScenario()?.subscribe({
-            next: (val: ScenarioResModel) => {
-                this.toastService.success(`Scenario ${val.name} updated.`);
-            },
-        });
-    }
-
-    checkScenarioBaseDataAvailablity() {
+    private checkScenarioBaseDataAvailablity() {
         this.route.data
             .pipe(
                 map((res: any) => {
                     if (res) {
-                        const { currentProject, currentScenario } = res;
-
-                        this.currentScenario = {
-                            project: currentProject,
-                            scenario: currentScenario,
-                        };
+                        // const {
+                        //     currentProject,
+                        // }: {
+                        //     currentProject: ScenarioBaseInfoModel_project | null;
+                        // } = res;
 
                         return res;
                     }
@@ -170,188 +83,286 @@ export class ScenarioBaseComponent implements OnInit {
             )
             .subscribe((res: any) => {
                 if (!res.currentProject) this.router.navigate(['projects']);
-                else if (!res.currentScenario) this.goToStep(0);
             });
     }
 
-    goToStep(number: number) {
-        this.currentStep = number;
+    goToStep(step: UserModelingSTEP) {
+        this.scenarioService.updateUserModelingState({
+            currentStep: step,
+        });
+        this.scenarioStateService.setUserModelingState({
+            currentStep: step,
+        });
     }
 
-    async startSimulation(scenarioId: number | undefined): Promise<any> {
-        const drawflowData = this.scenarioService.restoreDrawflow_Storage(true);
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return false;
-        }
+    private loadCurrentScenarioData() {
+        const currentScenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
 
-        // scenario has stored
-        if (scenarioId) {
-            const confirmed_updateAndSimulation =
-                await this.alertService.confirm(
-                    'Update Scenario & Start Simulation?',
-                    'Update & Play',
-                    `Update & Simulation`,
-                    `Just Simulation`,
-                );
+        if (!currentScenarioData) {
+            const currentScenarioData_storage: ScenarioBaseInfoModel | null =
+                this.scenarioService.restoreBaseInfo_Storage();
 
-            if (confirmed_updateAndSimulation) {
-                this.scenarioService
-                    .onUpdateScenario()
-                    ?.pipe(
-                        map((res: ScenarioResModel) => {
-                            if (res) {
-                                this.toastService.success(
-                                    `Scenario ${res.name} updated.`,
-                                );
-                                return res;
-                            }
-                            throw new Error('Unknown API error');
-                        }),
-                        switchMap(() =>
-                            this.simulationService
-                                .startSimulation(scenarioId)
-                                .pipe(
-                                    map((res: ResModel<ScenarioResModel>) => {
-                                        if (res.success) return res.data;
-                                        throw new Error('Unknown API error');
-                                    }),
-                                ),
-                        ),
-                    )
-                    .subscribe({
-                        next: (val: any) => {
-                            this.toastService.success(val);
+            if (currentScenarioData_storage) {
+                let scenarioStateData: ScenarioBaseInfoModel | null = null;
+
+                if (currentScenarioData_storage.project) {
+                    scenarioStateData = {
+                        project: {
+                            id: currentScenarioData_storage.project.id,
+                            name: currentScenarioData_storage.project?.name,
                         },
-                        error: (err) => {
-                            this.alertService.error('Failed');
-                        },
-                    });
-            } else {
-                // start simulation
-                this.simulationService
-                    .startSimulation(scenarioId)
-                    .pipe(
-                        map((res: ResModel<ScenarioResModel>) => {
-                            if (res.success) return res.data;
-                            throw new Error('Unknown API error');
-                        }),
-                    )
-                    .subscribe({
-                        next: (val: any) => {
-                            this.toastService.success(val);
+                    };
 
-                            const d =
-                                this.scenarioService.restoreDrawflow_Storage();
-                            const new_d =
-                                this.serv.convertDrawFlowDataToOemofModelData(
-                                    d,
-                                );
-                            this.serv.downloadJson(new_d, 'a');
-                        },
-                        error: (err) => {
-                            this.alertService.error('Failed');
-                        },
-                    });
-            }
-        }
-        // has not stored yet
-        else {
-            const confirmed = await this.alertService.confirm(
-                'The Scenario has not been stored, you need to save at first.',
-                'Save & Play',
-                `Save + Start`,
-                `No`,
-            );
-
-            if (confirmed) {
-                let res: Observable<any> | undefined =
-                    await this.saveScenario();
-
-                if (res) {
-                    res.pipe(
-                        map((res: ResModel<ScenarioResModel>) => {
-                            if (res.success) return res.data.items[0];
-                            throw new Error('Unknown API error');
-                        }),
-                    ).subscribe({
-                        next: (val: ScenarioResModel) => {
-                            const scenarioData: ScenarioBaseInfoModel | null =
-                                this.scenarioService.restoreBaseInfo_Storage();
-
-                            this.toastService.success(`Scenario  saved.`);
-
-                            // update session
-                            if (scenarioData?.scenario) {
-                                scenarioData.scenario.id = val.id;
-
-                                this.scenarioService.updateBaseInfo_Scenario(
-                                    scenarioData,
-                                );
-
-                                // update local this.data
-                                this.currentScenario.scenario =
-                                    scenarioData.scenario;
-                                // update view+data by id
-                                this.checkScenarioIsNew();
-
-                                if (this.currentScenario.scenario?.id) {
-                                    // start simulation
-                                    this.simulationService
-                                        .startSimulation(
-                                            this.currentScenario.scenario.id,
-                                        )
-                                        .pipe(
-                                            map(
-                                                (
-                                                    res: ResModel<ScenarioResModel>,
-                                                ) => {
-                                                    if (res.success)
-                                                        return res.data;
-                                                    throw new Error(
-                                                        'Unknown API error',
-                                                    );
-                                                },
-                                            ),
-                                        )
-                                        .subscribe({
-                                            next: (
-                                                val: ResDataModel<ScenarioResModel>,
-                                            ) => {
-                                                this.toastService.success(
-                                                    'Simulation has started.',
-                                                );
-                                            },
-                                            error: (err) => {
-                                                this.alertService.error(
-                                                    'Failed',
-                                                );
-                                            },
-                                        });
-                                }
-                            }
-                        },
-                        error: (err: string) => {
-                            this.toastService.error(err);
-                            return false;
-                        },
-                    });
+                    if (currentScenarioData_storage.scenario) {
+                        scenarioStateData.scenario = {
+                            id: currentScenarioData_storage.scenario.id,
+                            name: currentScenarioData_storage.scenario.name,
+                            sDate: currentScenarioData_storage.scenario.sDate,
+                            timeStep:
+                                currentScenarioData_storage.scenario.timeStep,
+                            interval:
+                                currentScenarioData_storage.scenario.interval,
+                            simulationYear:
+                                currentScenarioData_storage.scenario
+                                    .simulationYear,
+                            modeling_data:
+                                currentScenarioData_storage.scenario
+                                    .modeling_data,
+                            constraints:
+                                currentScenarioData_storage.scenario
+                                    .constraints,
+                        };
+                    }
                 }
+
+                if (scenarioStateData)
+                    this.scenarioStateService.setScenarioData(
+                        scenarioStateData,
+                    );
+            }
+        }
+
+        // user state
+        const userModelingState: UserModelingStateModel | null =
+            this.scenarioStateService.getUserModelingState();
+
+        if (!userModelingState) {
+            const currentuserModelingState: UserModelingStateModel | null =
+                this.scenarioService.restoreUserModelingState();
+
+            if (currentuserModelingState) {
+                this.scenarioStateService.setUserModelingState(
+                    currentuserModelingState,
+                );
             }
         }
     }
 
-    checkScenarioIsNew() {
-        if (this.currentScenario.scenario?.id) {
-            this.isScenarioNew = false;
-            return false;
+    async saveAndGoToScenarioPage() {
+        const formData = this.setupComponent.getFormData();
+
+        if (!formData) {
+            this.toastService.warning('Please fill in all required fields!');
+            return;
+        }
+
+        formData.id =
+            this.scenarioStateService.getScenarioData()?.scenario?.id!;
+        const constraints = this.setupComponent.getConstraintData();
+
+        if (!formData.id) {
+            const data: ScenarioBaseInfoModel = {
+                project: formData.project,
+                scenario: {
+                    name: formData.name,
+                    sDate: formData.sDate,
+                    timeStep: formData.timeStep,
+                    interval: 1,
+                    simulationYear: formData.simulationYear,
+                    constraints: constraints,
+                    modeling_data: null,
+                },
+            };
+            await this.saveScenario(data);
         } else {
-            this.isScenarioNew = true;
-            return true;
+            const data: ScenarioUpdatedModel = {
+                project: formData.project,
+                scenario: {
+                    id: formData.id,
+                    name: formData.name,
+                    sDate: formData.sDate,
+                    timeStep: formData.timeStep,
+                    interval: 1,
+                    simulationYear: formData.simulationYear,
+                    constraints: constraints,
+                    modeling_data:
+                        this.scenarioStateService.getScenarioData()?.scenario
+                            ?.modeling_data || null,
+                },
+            };
+            await this.updateScenario(data);
+        }
+
+        this.goToStep(UserModelingSTEP.SCENARIO_MODELING);
+    }
+
+    goToSetupPage() {
+        this.goToStep(UserModelingSTEP.SCENARIO_SETUP);
+    }
+
+    onSaveScenario(e: ScenarioBaseInfoModel) {
+        this.saveScenario(e);
+    }
+    /**
+     *
+     * @param baseData
+     * @param constraints
+     * both of params are filled if the fn called by Setup component
+     * @returns a promise for await
+     */
+    saveScenario(data: ScenarioBaseInfoModel): Promise<void> | void {
+        return new Promise((resolve, reject) => {
+            this.scenarioService.saveCurrentScenario(data).subscribe({
+                next: (val: ScenarioResModel) => {
+                    if (data.scenario) {
+                        data.scenario.id = val.id;
+                    }
+
+                    // update session
+                    this.scenarioService.replaceBaseInfo_Storage(data);
+
+                    // update drawflowData$ state
+                    this.scenarioStateService.setScenarioData(data);
+
+                    this.toastService.success(`Scenario ${val.name} saved.`);
+                    resolve();
+                },
+                error: (err: any) => {
+                    let errStr: string;
+                    if (err && err.error.detail) errStr = err.error.detail;
+                    else if (err && err.message) errStr = err.message;
+                    else errStr = 'Unknown API error';
+                    this.toastService.error(errStr);
+                    reject(err);
+                },
+            });
+        });
+    }
+
+    updateScenario(data: ScenarioUpdatedModel): Promise<void> | void {
+        return new Promise((resolve, reject) => {
+            this.scenarioService.updateCurrentScenario(data).subscribe({
+                next: (val: ScenarioResModel) => {
+                    // update session
+                    this.scenarioService.replaceBaseInfo_Storage(data);
+
+                    // update drawflowData$ state
+                    this.scenarioStateService.setScenarioData(data);
+
+                    this.toastService.success(`Scenario ${val.name} updated.`);
+                    resolve();
+                },
+                error: (err: any) => {
+                    let errStr: string;
+                    if (err && err.error.detail) errStr = err.error.detail;
+                    else if (err && err.message) errStr = err.message;
+                    else errStr = 'Unknown API error';
+                    this.toastService.error(errStr);
+                    reject(err);
+                },
+            });
+        });
+    }
+
+    // onUpdateScenarioDrawflow() {}
+
+    async startSimulation(): Promise<void> {
+        if (
+            this.currentScenario &&
+            this.currentScenario.scenario &&
+            this.currentScenario.project
+        ) {
+            // first update current scenario, then start simulation
+            const data: ScenarioUpdatedModel = {
+                project: this.currentScenario.project,
+                scenario: {
+                    id: this.currentScenario.scenario.id!,
+                    name: this.currentScenario.scenario.name,
+                    sDate: this.currentScenario.scenario.sDate,
+                    timeStep: this.currentScenario.scenario.timeStep,
+                    interval: 1,
+                    simulationYear:
+                        this.currentScenario.scenario.simulationYear,
+                    constraints: this.currentScenario.scenario.constraints,
+                    modeling_data: this.currentScenario.scenario.modeling_data,
+                },
+            };
+            await this.updateScenario(data);
+
+            // start simulation
+            this.simulationService
+                .startSimulation(data.scenario.id)
+                .pipe(
+                    map((res: ResModel<ScenarioResModel>) => {
+                        if (res.success) return res.data;
+                        throw new Error('Unknown API error');
+                    }),
+                )
+                .subscribe({
+                    next: (val: any) => {
+                        this.toastService.success(val);
+
+                        // const d: {
+                        //     [nodeKey: string]: DrawflowNode;
+                        // } | null =
+                        //     this.scenarioService.restoreDrawflow_Storage();
+
+                        // if (d) {
+                        //     const new_d =
+                        //         this.serv.convertDrawFlowDataToOemofModelData(
+                        //             d,
+                        //         );
+                        //     this.serv.downloadJson(new_d, 'a');
+                        // }
+                    },
+                    error: (err) => {
+                        this.alertService.error('Failed');
+                    },
+                });
+        } else {
+            this.alertService.error(
+                'Failed to update scenario before simulation!',
+            );
         }
     }
 
-    openSimulations(scenarioId: number) {
-        this.scenarioEnergyDesignComponent.showModal_Simulation(scenarioId);
+    openSimulations() {
+        const scenarioId =
+            this.scenarioStateService.getScenarioData()?.scenario?.id;
+
+        if (scenarioId) {
+            this.energyDesignComponent.showModal_Simulation(scenarioId);
+        }
+    }
+
+    footerSaveScenario() {
+        this.setupComponent.onSaveScenario();
+    }
+
+    footerUpdateScenario() {
+        this.setupComponent.onUpdateScenario();
+    }
+
+    ngOnDestroy() {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioStateService.clearScenarioData();
+
+        this.scenarioService.removeUserModelingState();
+        this.scenarioStateService.clearUserModelingState();
+
+        this.scenarioService.removeDrawflow_Data();
+
+        this.subscriptionScenarioState.unsubscribe();
     }
 }

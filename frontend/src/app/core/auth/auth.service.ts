@@ -10,10 +10,10 @@ export class AuthCoreService {
     public redirectUrl: string | null = null;
 
     private readonly _token = new BehaviorSubject<string | undefined | null>(
-        undefined
+        undefined,
     );
     private readonly _user = new BehaviorSubject<any | undefined | null>(
-        undefined
+        undefined,
     );
 
     currentToken: Observable<string | undefined | null> =
@@ -56,12 +56,16 @@ export class AuthCoreService {
     }
 
     saveUserInfoInStorage(userData: any) {
-        localStorage.setItem(USER_INFO, userData);
+        localStorage.setItem(USER_INFO, JSON.stringify(userData));
     }
 
     getUserInfoFromStorage(): any {
         const userData = localStorage.getItem(USER_INFO);
         return userData ? JSON.parse(userData) : null;
+    }
+
+    removeUserInfoFromStorage() {
+        localStorage.removeItem(USER_INFO);
     }
 
     saveUser(userInfo: any) {

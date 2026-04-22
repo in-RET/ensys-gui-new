@@ -1,8 +1,9 @@
-import {CommonModule} from '@angular/common';
-import {Component, EventEmitter, inject, Input, Output} from '@angular/core';
-import {RouterModule} from '@angular/router';
-import {ScenarioBaseInfoModel} from '../../models/scenario.model';
-import {ScenarioService} from '../../services/scenario.service';
+import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { UserModelingSTEP } from '../../models/scenario.model';
+import { ScenarioStateService } from '../../services/scenario-state.service';
+import { ScenarioService } from '../../services/scenario.service';
 
 @Component({
     selector: 'app-scenario-footer',
@@ -11,41 +12,50 @@ import {ScenarioService} from '../../services/scenario.service';
     styleUrl: './scenario-footer.component.scss',
 })
 export class ScenarioFooterComponent {
-    @Input('step') step!: number;
-    @Input('scenarioData') scenarioData!: ScenarioBaseInfoModel;
-    @Input('isScenarioNew') isScenarioNew!: boolean;
+    UserModelingSTEP = UserModelingSTEP;
 
-    @Output() nextStep: EventEmitter<any> = new EventEmitter<any>();
-    @Output() prevtStep: EventEmitter<any> = new EventEmitter<any>();
-    @Output() saveScenario: EventEmitter<any> = new EventEmitter<any>();
-    @Output() updateScenario: EventEmitter<any> = new EventEmitter<any>();
-    @Output() startSimulation: EventEmitter<any> = new EventEmitter<any>();
-    @Output() openSimulations: EventEmitter<any> = new EventEmitter<any>();
+    @Output() nextStep: EventEmitter<void> = new EventEmitter<void>();
+    @Output() prevtStep: EventEmitter<void> = new EventEmitter<void>();
+    @Output() saveScenario: EventEmitter<void> = new EventEmitter<void>();
+    @Output() updateScenario: EventEmitter<void> = new EventEmitter<void>();
+    @Output() startSimulation: EventEmitter<void> = new EventEmitter<void>();
+    @Output() openSimulations: EventEmitter<void> = new EventEmitter<void>();
 
     scenarioService = inject(ScenarioService);
+    scenarioStateService = inject(ScenarioStateService);
 
     next() {
         this.nextStep.emit();
     }
 
     previous() {
+        this.update();
         this.prevtStep.emit();
     }
 
-    save() {
-        this.saveScenario.emit();
-        // after saving should be sened update scenarioData with id for going to simulation pgae
-    }
-
     update() {
-        this.updateScenario.emit();
+        // const data: void = {
+        //     project: this.scenarioStateService.getScenarioData()
+        //         ?.project as ScenarioUpdatedModel_project,
+        //     scenario: this.scenarioStateService.getScenarioData()
+        //         ?.scenario as ScenarioUpdatedModel_scenario,
+        // };
+        // this.updateScenario.emit(data);
     }
 
     onStartSimulation() {
-        this.startSimulation.emit(this.scenarioData.scenario?.id);
+        this.startSimulation.emit();
     }
 
-    onOpenSimulations(scenarioId: number | undefined) {
-        if (scenarioId) this.openSimulations.emit(scenarioId);
+    onOpenSimulations() {
+        this.openSimulations.emit();
+    }
+
+    onSaveScenario() {
+        this.saveScenario.emit();
+    }
+
+    onUpdateScenario() {
+        this.updateScenario.emit();
     }
 }

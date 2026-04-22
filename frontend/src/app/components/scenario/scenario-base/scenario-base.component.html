@@ -1,26 +1,39 @@
-<div class="d-flex flex-column h-100">
-    <app-scenario-setup
-        class="flex-grow-1 overflow-auto"
-        *ngIf="currentStep == 0"
-        #setup
-    />
+<ng-container
+    *ngIf="scenarioStateService.userModelingState | async as userModelingState"
+>
+    <div class="d-flex flex-column h-100">
+        <app-scenario-setup
+            class="flex-grow-1 overflow-auto"
+            *ngIf="
+                userModelingState.currentStep == UserModelingSTEP.SCENARIO_SETUP
+            "
+            (saveScenario)="onSaveScenario($event)"
+            (updateScenario)="updateScenario($event)"
+            #setup
+        />
 
-    <app-scenario-energy-design
-        *ngIf="currentStep == 1"
-        [currentScenario]="currentScenario"
-        #sed
-        class="flex-grow-1 overflow-auto"
-    />
+        <app-scenario-energy-design
+            *ngIf="
+                userModelingState.currentStep ==
+                UserModelingSTEP.SCENARIO_MODELING
+            "
+            #sed
+            class="flex-grow-1 overflow-auto"
+            (startSimulation)="startSimulation()"
+            (updateScenario)="updateScenario($event)"
+            (goToSetupPage)="goToSetupPage()"
+        />
 
-    <app-scenario-footer
-        [step]="currentStep"
-        [scenarioData]="currentScenario"
-        [isScenarioNew]="isScenarioNew"
-        (nextStep)="nextStep()"
-        (prevtStep)="prevtStep()"
-        (saveScenario)="onSaveScenario()"
-        (updateScenario)="onUpdateScenario()"
-        (startSimulation)="startSimulation($event)"
-        (openSimulations)="openSimulations($event)"
-    />
-</div>
+        <app-scenario-footer
+            *ngIf="
+                userModelingState.currentStep == UserModelingSTEP.SCENARIO_SETUP
+            "
+            (nextStep)="saveAndGoToScenarioPage()"
+            (prevtStep)="goToSetupPage()"
+            (saveScenario)="footerSaveScenario()"
+            (updateScenario)="footerUpdateScenario()"
+            (startSimulation)="startSimulation()"
+            (openSimulations)="openSimulations()"
+        />
+    </div>
+</ng-container>

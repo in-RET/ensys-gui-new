@@ -16,6 +16,7 @@ export interface ModalState {
         modes: ModeOption[] | null;
     } | null;
     simulation: any | null;
+    setup: boolean | null;
 }
 
 @Injectable({
@@ -28,6 +29,7 @@ export class ModalStateService {
         calculator: null,
         timeSeries: null,
         simulation: null,
+        setup: null,
     });
 
     get modalState(): Observable<ModalState> {
@@ -125,6 +127,20 @@ export class ModalStateService {
         this.modalState$.next({
             ...this.modalState$.value,
             simulation: null,
+        });
+    }
+
+    openSetup() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            setup: true,
+        });
+    }
+
+    closeSetup() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            setup: false,
         });
     }
 }

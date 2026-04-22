@@ -1,8 +1,11 @@
 import { Injectable } from '@angular/core';
+import { DrawflowNode } from 'drawflow';
 import { GeneralService } from '../../../shared/services/general.service';
 import { FlowData } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
+import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 import { FlowService } from './flow.service';
+import { ScenarioStateService } from './scenario-state.service';
 import { ScenarioService } from './scenario.service';
 
 interface EPCostParams {
@@ -38,6 +41,7 @@ export class EnergyDesignService {
         private flowService: FlowService,
         private generalService: GeneralService,
         private scenarioService: ScenarioService,
+        private scenarioStateService: ScenarioStateService,
     ) {}
 
     dividerSec() {
@@ -75,7 +79,7 @@ export class EnergyDesignService {
         defaultVal?: any,
     ) {
         const _field = {
-            name: name,
+            name: name.toLowerCase(),
             placeholder: placeholder,
             label: label,
             isReq: isReq,
@@ -911,6 +915,7 @@ export class EnergyDesignService {
                                             },
                                             undefined,
                                         ),
+                                        'port_out_1',
                                     ),
                                 ],
                             },
@@ -1002,6 +1007,18 @@ export class EnergyDesignService {
                                         '',
                                         editMode,
                                         data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.getFieldData(
+                                            'oep',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            undefined,
+                                        ),
+                                        'port_in_1',
                                     ),
 
                                     this.getField(
@@ -1029,6 +1046,18 @@ export class EnergyDesignService {
                                         '',
                                         editMode,
                                         data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        this.getFieldData(
+                                            'oep',
+                                            {
+                                                mode: editMode,
+                                                data,
+                                            },
+                                            undefined,
+                                        ),
+                                        'port_out_1',
                                     ),
                                 ],
                             },
@@ -1224,6 +1253,7 @@ export class EnergyDesignService {
                                             },
                                             undefined,
                                         ),
+                                        'port_in_1',
                                     ),
                                     this.getField(
                                         'name',
@@ -1263,6 +1293,11 @@ export class EnergyDesignService {
                                         '',
                                         editMode,
                                         data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        false,
+                                        'port_in_1',
                                     ),
 
                                     this.getField(
@@ -1290,6 +1325,11 @@ export class EnergyDesignService {
                                         '',
                                         editMode,
                                         data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        false,
+                                        'port_out_1',
                                     ),
                                 ],
                             },
@@ -1302,6 +1342,30 @@ export class EnergyDesignService {
         name = name.toLocaleLowerCase();
         fields = getFields();
         return fields;
+    }
+
+    getConstraintsFields_flow(data: any, editMode: boolean) {
+        const currntConstraints: ConstraintRow[] | undefined =
+            this.scenarioStateService.getScenarioData()?.scenario?.constraints;
+
+        if (!currntConstraints || currntConstraints.length == 0) return [];
+
+        return currntConstraints
+            .filter((constraint) => constraint.enabled)
+            .map((constraint: ConstraintRow) => {
+                const val: Record<string, any> = constraint.values;
+
+                return this.getField(
+                    val['keyword'] || val['name'] || 'no_name',
+                    val['keyword'] || val['name'] || 'No Name',
+                    val['keyword'] || val['name'] || 'No Name',
+                    false,
+                    'text',
+                    '',
+                    editMode,
+                    data,
+                );
+            });
     }
 
     getFormFields_flow(
@@ -1586,6 +1650,18 @@ export class EnergyDesignService {
                                     return elm;
                                 }),
                             },
+
+                            this.dividerSec(),
+
+                            {
+                                name: 'constraints',
+                                class: 'col-12',
+                                visible: true,
+                                fields: this.getConstraintsFields_flow(
+                                    data,
+                                    editMode,
+                                ),
+                            },
                         ],
                     };
 
@@ -1822,7 +1898,7 @@ export class EnergyDesignService {
         return annuity + opex_costs;
     }
 
-    private getDrawflowData(): {} {
+    private getDrawflowData(): { [nodeKey: string]: DrawflowNode } | null {
         return this.scenarioService.restoreDrawflow_Storage();
     }
 

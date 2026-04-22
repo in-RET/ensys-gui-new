@@ -1,8 +1,8 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {AuthCoreService} from '../../../core/auth/auth.service';
-import {BaseHttpService} from '../../../core/base-http/base-http.service';
+import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthCoreService } from '../../../core/auth/auth.service';
+import { BaseHttpService } from '../../../core/base-http/base-http.service';
 
 @Injectable({
     providedIn: 'root',
@@ -28,6 +28,7 @@ export class AuthService {
         // clear authorizition data
         this.authCoreService.removeTokenToStorage();
         this.authCoreService.removeToken();
+        this.authCoreService.removeUserInfoFromStorage();
     }
 
     signup(

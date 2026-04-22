@@ -1,11 +1,17 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {finalize, map, switchMap, tap} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {AuthCoreService} from '../../../core/auth/auth.service';
-import {AuthService} from '../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { finalize, switchMap, tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthCoreService } from '../../../core/auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -48,21 +54,22 @@ export class LoginComponent {
                 switchMap(() =>
                     this.authService.getCurrentUser().pipe(
                         tap((userRes: any) => {
-                            this.authCoreService.saveUser(
-                                userRes.data.items[0]
+                            const userData =
+                                typeof userRes.data.items[0] === 'string'
+                                    ? JSON.parse(userRes.data.items[0])
+                                    : userRes.data.items[0];
+
+                            this.authCoreService.saveUserInfoInStorage(
+                                userData,
                             );
+                            this.authCoreService.saveUser(userData);
                         }),
-                        map((user: any) => user.data.items[0])
-                    )
+                    ),
                 ),
-                finalize(() => (this.loading = false))
+                finalize(() => (this.loading = false)),
             )
             .subscribe({
-                next: (user) => {
-                    this.authCoreService.saveUserInfoInStorage(
-                        JSON.stringify(user)
-                    );
-
+                next: () => {
                     this.router.navigate(['/projects']);
                 },
 

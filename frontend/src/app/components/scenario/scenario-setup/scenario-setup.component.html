@@ -1,5 +1,6 @@
 <div class="scenario-main">
     <form [formGroup]="form">
+        <!-- basic fields -->
         <div class="row g-2">
             <!-- project -->
             <div class="col-auto" formGroupName="project">
@@ -10,7 +11,7 @@
                         [ngClass]="{
                             'is-invalid':
                                 projectId!.invalid &&
-                                (projectId!.dirty || projectId!.touched)
+                                (projectId!.dirty || projectId!.touched),
                         }"
                         tabindex="1"
                     >
@@ -20,7 +21,7 @@
 
                         <option
                             [value]="project.id"
-                            *ngFor="let project of projectList"
+                            *ngFor="let project of projects"
                         >
                             {{ project.name }}
                         </option>
@@ -40,7 +41,7 @@
                         required
                         [ngClass]="{
                             'is-invalid':
-                                name!.invalid && (name!.dirty || name!.touched)
+                                name!.invalid && (name!.dirty || name!.touched),
                         }"
                         tabindex="2"
                     />
@@ -58,7 +59,7 @@
                             'is-invalid':
                                 simulationYear!.invalid &&
                                 (simulationYear!.dirty ||
-                                    simulationYear!.touched)
+                                    simulationYear!.touched),
                         }"
                         tabindex="6"
                     >
@@ -85,7 +86,7 @@
                         [ngClass]="{
                             'is-invalid':
                                 sDate!.invalid &&
-                                (sDate!.dirty || sDate!.touched)
+                                (sDate!.dirty || sDate!.touched),
                         }"
                         tabindex="3"
                         disabled
@@ -107,7 +108,7 @@
                             'is-invalid':
                                 simulationPeriod!.invalid &&
                                 (simulationPeriod!.dirty ||
-                                    simulationPeriod!.touched)
+                                    simulationPeriod!.touched),
                         }"
                         tabindex="4"
                     />
@@ -124,7 +125,7 @@
                         [ngClass]="{
                             'is-invalid':
                                 timeStep!.invalid &&
-                                (timeStep!.dirty || timeStep!.touched)
+                                (timeStep!.dirty || timeStep!.touched),
                         }"
                         tabindex="5"
                     >
@@ -139,8 +140,36 @@
             </div>
         </div>
 
-        <div class="row g-auto"></div>
+        <ng-container
+            *ngIf="scenarioStateService.scenarioState | async as scenarioData"
+        >
+            <!-- constraints -->
+            <app-constraints
+                [data]="scenarioData.scenario?.constraints || []"
+                #constraints
+            />
 
-        <section style="display: none"></section>
+            <!-- <div class="d-flex" style="justify-content: center">
+                <button
+                    class="btn btn--medium"
+                    *ngIf="scenarioData && !scenarioData.scenario"
+                    (click)="onSaveScenario()"
+                >
+                    Save
+                </button>
+
+                <button
+                    class="btn btn--medium"
+                    *ngIf="
+                        scenarioData &&
+                        scenarioData.scenario &&
+                        scenarioData.scenario.id
+                    "
+                    (click)="onUpdateScenario()"
+                >
+                    Update
+                </button>
+            </div> -->
+        </ng-container>
     </form>
 </div>

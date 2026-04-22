@@ -1,0 +1,160 @@
+<section>
+    <div class="row g-auto border-top border-secondary py-3">
+        <h3>Constraints</h3>
+
+        <div class="d-flex p-3 gap-3" style="flex-direction: column">
+            <div class="d-flex" style="justify-content: end">
+                <button
+                    class="btn btn-primary"
+                    (click)="modalConstraint_open()"
+                >
+                    Add Constraint
+                </button>
+            </div>
+
+            <!-- table -->
+            <ng-container
+                *ngIf="
+                    constraintList && constraintList.length > 0;
+                    else no_data
+                "
+            >
+                <div class="d-flex">
+                    <table
+                        class="table table-bordered"
+                        *ngIf="constraintList.length"
+                    >
+                        <thead>
+                            <tr>
+                                <th style="width: 70px">#</th>
+                                <th style="width: 350px">Type</th>
+                                <th>Values</th>
+                                <th style="width: 90px">Status</th>
+                                <th style="width: 50px"></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr
+                                *ngFor="let row of constraintList"
+                                [class.disable]="!row.enabled"
+                            >
+                                <td>{{ row.id }}</td>
+                                <td>{{ row.type }}</td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        <span
+                                            class="badge"
+                                            [ngClass]="
+                                                row.enabled
+                                                    ? 'bg-primary'
+                                                    : 'bg-secondary'
+                                            "
+                                            *ngFor="
+                                                let item of row.values
+                                                    | keyvalue
+                                            "
+                                        >
+                                            {{ item.key }}: {{ item.value }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td
+                                    (click)="toggleConstraintStatus(row.id)"
+                                    class="text-center cursor-pointer"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        class="form-check-input"
+                                        [checked]="row.enabled"
+                                    />
+                                </td>
+                                <td class="actions text-end">
+                                    <div
+                                        ngbDropdown
+                                        container="body"
+                                        placement="bottom-end"
+                                    >
+                                        <button
+                                            class="btn btn-sm btn-link p-0 border-0 shadow-none"
+                                            ngbDropdownToggle
+                                        >
+                                            <img
+                                                src="static/assets/icons/feather/black/more-vertical.svg"
+                                                width="20"
+                                                height="20"
+                                            />
+                                        </button>
+
+                                        <div ngbDropdownMenu>
+                                            <button
+                                                ngbDropdownItem
+                                                (click)="onEditConstraint(row)"
+                                            >
+                                                <i
+                                                    class="bi bi-pencil me-2"
+                                                ></i>
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                ngbDropdownItem
+                                                class="text-danger"
+                                                (click)="onDeleteRow(row.id)"
+                                            >
+                                                <i class="bi bi-trash me-2"></i>
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </ng-container>
+
+            <ng-template #no_data>
+                <div class="w-100" style="justify-content: center">
+                    <div
+                        class="d-flex"
+                        style="align-items: center; justify-content: center"
+                    >
+                        <div class="alert alert-warning" role="alert">
+                            ---------- No Data! ----------
+                        </div>
+                    </div>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</section>
+
+<app-modal
+    [size]="''"
+    [title]="'Constraint Row'"
+    (closeModal)="modalConstraint_close(false)"
+    *ngIf="constraintFormInfo?.show"
+>
+    <div modal-form>
+        <app-constraints-form
+            #constraintsForm
+            [data]="selectedConstraint"
+            [totalRec]="constraintList.length"
+            (onAdd)="addConstraint($event)"
+            (onEdit)="editConstraint($event)"
+        />
+    </div>
+
+    <div modal-actions>
+        <div class="d-flex justify-content-end">
+            <button
+                class="btn btn-success"
+                type="submit"
+                (click)="submitForm()"
+            >
+                Submit
+            </button>
+        </div>
+    </div>
+</app-modal>

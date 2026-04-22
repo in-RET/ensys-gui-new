@@ -1,16 +1,20 @@
 <div class="system-design">
-    <app-energy-components *ngIf="!isFullscreen" />
+    <app-energy-components
+        *ngIf="!isFullscreen"
+        (goToSetupPage)="onGoToSetupPage()"
+    />
 
     <app-energy-drawflow
         class="w-100 h-100"
         (toggleFullScreen)="toggleFullScreen()"
+        (startSimulation)="onStartSimulation()"
+        (updateScenario)="onUpdateScenario($event)"
     />
 </div>
 
 <ng-container *ngIf="modalStateService.modalState | async as modalState">
     <app-node-form-modal
         [modalInfo]="modalState.nodeForm"
-        (formSubmitted)="onNodeFormSubmitted($event)"
         (modalClosed)="onNodeFormClosed($event)"
         (makeNode)="makeNode($event.formValue, $event.formModalInfo)"
         (updateNode)="updateNode($event.data, $event.nodeId, $event.nodeType)"
@@ -41,4 +45,11 @@
         [modalInfo]="modalState.simulation"
         (modalClosed)="onSimulationClosed()"
     />
+
+    <!-- <app-setup-modal
+        [modalInfo]="modalState.setup"
+        (updateScenario)="onUpdateScenario($event)"
+    >
+        <app-scenario-setup class="flex-grow-1 overflow-auto" />
+    </app-setup-modal> -->
 </ng-container>

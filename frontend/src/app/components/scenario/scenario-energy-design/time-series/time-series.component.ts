@@ -12,7 +12,10 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 import * as Plotly from 'plotly.js-dist-min';
-import { ScenarioBaseInfoModel } from '../../models/scenario.model';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../../services/scenario-state.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { ModalComponent } from '../modal/modal.component';
 
@@ -89,6 +92,7 @@ export class TimeSeriesComponent {
     @ViewChild('numInput') numInput!: ElementRef<HTMLInputElement>;
 
     scenarioService = inject(ScenarioService);
+    scenarioStateService = inject(ScenarioStateService);
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -217,8 +221,10 @@ export class TimeSeriesComponent {
             return result;
         };
 
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.scenarioService.restoreBaseInfo_Storage();
+        // const scenarioData: ScenarioBaseInfoModel | null =
+        //     this.scenarioService.restoreBaseInfo_Storage();
+        const scenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
 
         if (scenarioData && scenarioData.scenario) {
             const curentScenario = scenarioData.scenario;
