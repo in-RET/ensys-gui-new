@@ -48,7 +48,7 @@ def check_flow_investment(flow_data):
         return None
 
 
-def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
+def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     """Build input/output flow mappings for a flowchart component.
 
     - param flowchart_data: full flowchart node/connection map
@@ -84,7 +84,6 @@ def create_io_data(flowchart_data, flowchart_component) -> (dict, dict):
                         flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                 input_data[target_bus_name] = EnFlow(**flow_data)
-
         # build component_data["outputs"]
         output_data = {}
 

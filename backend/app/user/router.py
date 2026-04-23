@@ -191,4 +191,4 @@ async def delete_user_endpoint(
 
     delete_user(user=user, db=db)
 
-    return MessageResponse(data=f"User was successfully deleted.", success=True)
+    return MessageResponse(data="User was successfully deleted.", success=True)

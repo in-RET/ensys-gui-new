@@ -46,7 +46,7 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                             {str(item.output): investcosts}
                         )
                     else:
-                        print(f"Error")
+                        print("Error")
                     # sum_investcosts += investcosts
 
             if hasattr(item, "variable_costs"):
@@ -70,7 +70,7 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                                 {str(item.input): sum(erloese)}
                             )
                         else:
-                            print(f"Error")
+                            print("Error")
                         # sum_erloese += sum(erloese)
 
                     else:
@@ -92,7 +92,7 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                                 {str(item.input): sum(line)}
                             )
                         else:
-                            print(f"Error")
+                            print("Error")
 
                         # sum_variablecosts += sum(line)
 
