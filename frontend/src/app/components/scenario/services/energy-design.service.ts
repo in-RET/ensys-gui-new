@@ -92,7 +92,7 @@ export class EnergyDesignService {
             span: space,
             class: classList,
             onClick: callback,
-            selectOptionList: options,
+            options: options,
             disabled: disabled,
         };
 
@@ -1351,20 +1351,58 @@ export class EnergyDesignService {
         if (!currntConstraints || currntConstraints.length == 0) return [];
 
         return currntConstraints
-            .filter((constraint) => constraint.enabled)
+            .filter(
+                (constraint) =>
+                    constraint.enabled &&
+                    constraint.type !== 'investment_limit',
+            )
             .map((constraint: ConstraintRow) => {
                 const val: Record<string, any> = constraint.values;
 
-                return this.getField(
-                    val['keyword'] || val['name'] || 'no_name',
-                    val['keyword'] || val['name'] || 'No Name',
-                    val['keyword'] || val['name'] || 'No Name',
-                    false,
-                    'text',
-                    '',
-                    editMode,
-                    data,
-                );
+                if (constraint.type === 'equate_flows')
+                    return this.getField(
+                        'constraint_' +
+                            (val['keyword'] || val['name'] || 'no_name'),
+                        val['keyword'] || val['name'] || 'no_name',
+                        'Equate_Flows',
+                        false,
+                        'options_radio',
+                        '6',
+                        editMode,
+                        data,
+                        undefined,
+                        undefined,
+                        [
+                            { name: 'Flows 1', value: 'flows_1' },
+                            { name: 'Flows 2', value: 'flows_2' },
+                        ],
+                    );
+                else if (
+                    constraint.type === 'limit_active_flow_count_by_keyword'
+                )
+                    return this.getField(
+                        'constraint_' +
+                            (val['keyword'] || val['name'] || 'no_name'),
+                        val['keyword'] || val['name'] || 'no_name',
+                        val['keyword'] || val['name'] || 'no_name',
+                        false,
+                        'check',
+                        '6',
+                        editMode,
+                        data,
+                    );
+                else
+                    return this.getField(
+                        'constraint_' +
+                            (val['keyword'] || val['name'] || 'no_name'),
+                        val['keyword'] || val['name'] || 'No Name',
+                        val['keyword'] || val['name'] || 'No Name',
+                        false,
+                        'number',
+                        '6',
+                        editMode,
+                        data,
+                    );
             });
     }
 
@@ -1385,6 +1423,19 @@ export class EnergyDesignService {
                 case 'genericstorage':
                     return {
                         sections: [
+                            {
+                                name: 'constraints',
+                                label: 'Constraints',
+                                class: 'col-12',
+                                visible: true,
+                                fields: this.getConstraintsFields_flow(
+                                    data,
+                                    editMode,
+                                ),
+                            },
+
+                            this.dividerSec(),
+
                             {
                                 name: 'non-OEP',
                                 class: 'col-12',
@@ -1508,6 +1559,19 @@ export class EnergyDesignService {
                 default:
                     const fields = {
                         sections: [
+                            {
+                                name: 'constraints',
+                                label: 'Constraints',
+                                class: 'col-12',
+                                visible: true,
+                                fields: this.getConstraintsFields_flow(
+                                    data,
+                                    editMode,
+                                ),
+                            },
+
+                            this.dividerSec(),
+
                             {
                                 name: 'non-OEP',
                                 class: 'col-12',
@@ -1649,18 +1713,6 @@ export class EnergyDesignService {
 
                                     return elm;
                                 }),
-                            },
-
-                            this.dividerSec(),
-
-                            {
-                                name: 'constraints',
-                                class: 'col-12',
-                                visible: true,
-                                fields: this.getConstraintsFields_flow(
-                                    data,
-                                    editMode,
-                                ),
                             },
                         ],
                     };

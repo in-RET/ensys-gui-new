@@ -35,7 +35,7 @@ export class ConstraintsFormComponent {
     get data(): ConstraintRow | null {
         return this._data;
     }
-    @Input() totalRec!: number;
+    @Input() allConstraints!: ConstraintRow[];
 
     @Output() onAdd: EventEmitter<ConstraintRow> =
         new EventEmitter<ConstraintRow>();
@@ -74,6 +74,11 @@ export class ConstraintsFormComponent {
         const group = this.fb.group({});
 
         this.selectedDefinition?.fields.forEach((field) => {
+            const fieldDefaultName =
+                type +
+                '_' +
+                (this.allConstraints.filter((X) => X.type === type).length + 1);
+
             group.addControl(
                 field.key,
                 new FormControl(
@@ -81,7 +86,10 @@ export class ConstraintsFormComponent {
                         value:
                             data && field.key && data.values[field.key]
                                 ? data.values[field.key]
-                                : field.defaultValue || null,
+                                : field.defaultValue ||
+                                  (field.type === 'number'
+                                      ? 0
+                                      : fieldDefaultName),
                         disabled: field.disabled ?? false,
                     },
                     field.required ? Validators.required : [],
@@ -98,10 +106,12 @@ export class ConstraintsFormComponent {
             return;
         }
 
+        const nextId = Math.max(0, ...this.allConstraints.map((c) => c.id)) + 1;
+
         const row: ConstraintRow = {
-            id: this.data ? this.data.id : ++this.totalRec,
+            id: this.data?.id ?? nextId,
             type: this.form.value.type,
-            values: { ...this.dynamicFieldsGroup.value },
+            values: { ...this.dynamicFieldsGroup.getRawValue() },
             enabled: true,
         };
 

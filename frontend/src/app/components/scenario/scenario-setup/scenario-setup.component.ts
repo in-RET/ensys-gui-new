@@ -316,6 +316,104 @@ export class ScenarioSetupComponent implements OnInit {
         this.form.get(fControlName)?.setErrors({ err: err });
     }
 
+    removeConstraintFromFlow(constraintName: string) {
+        const d = this.scenarioStateService.getScenarioData();
+        if (!d || !d.scenario) return;
+
+        const modelingData = d.scenario.modeling_data;
+        if (modelingData) {
+            Object.keys(modelingData).forEach((nodeKey: string) => {
+                const nodeDataConnections =
+                    modelingData[nodeKey].data.connections;
+                if (!nodeDataConnections) return;
+
+                nodeDataConnections.inputs.forEach(
+                    (input: { baseInfo: any; formInfo: any }) => {
+                        input.formInfo = Object.fromEntries(
+                            Object.entries(input.formInfo).filter(
+                                ([_, value]) =>
+                                    _ !== 'constraint_' + constraintName,
+                            ),
+                        );
+                    },
+                );
+
+                nodeDataConnections.outputs.forEach(
+                    (output: { baseInfo: any; formInfo: any }) => {
+                        output.formInfo = Object.fromEntries(
+                            Object.entries(output.formInfo).filter(
+                                ([_, value]) =>
+                                    _ !== 'constraint_' + constraintName,
+                            ),
+                        );
+                    },
+                );
+            });
+        }
+    }
+
+    addConstraintToFlow(constraintName: string) {
+        const d = this.scenarioStateService.getScenarioData();
+        if (!d || !d.scenario) return;
+
+        const modelingData = d.scenario.modeling_data;
+        if (modelingData) {
+            Object.keys(modelingData).forEach((nodeKey: string) => {
+                const nodeDataConnections =
+                    modelingData[nodeKey].data.connections;
+                if (!nodeDataConnections) return;
+
+                nodeDataConnections.inputs.forEach(
+                    (input: { baseInfo: any; formInfo: any }) => {
+                        input.formInfo['constraint_' + constraintName] = null;
+                    },
+                );
+
+                nodeDataConnections.outputs.forEach(
+                    (output: { baseInfo: any; formInfo: any }) => {
+                        output.formInfo['constraint_' + constraintName] = null;
+                    },
+                );
+            });
+        }
+    }
+
+    editConstraintOnFlow(e: { old: string; new: string }) {
+        const d = this.scenarioStateService.getScenarioData();
+        if (!d || !d.scenario) return;
+
+        const modelingData = d.scenario.modeling_data;
+        if (modelingData) {
+            Object.keys(modelingData).forEach((nodeKey: string) => {
+                const nodeDataConnections =
+                    modelingData[nodeKey].data.connections;
+                if (!nodeDataConnections) return;
+
+                nodeDataConnections.inputs.forEach(
+                    (input: { baseInfo: any; formInfo: any }) => {
+                        input.formInfo['constraint_' + e.new.toLowerCase()] =
+                            input.formInfo['constraint_' + e.old.toLowerCase()];
+                        delete input.formInfo[
+                            'constraint_' + e.old.toLowerCase()
+                        ];
+                    },
+                );
+
+                nodeDataConnections.outputs.forEach(
+                    (output: { baseInfo: any; formInfo: any }) => {
+                        output.formInfo['constraint_' + e.new.toLowerCase()] =
+                            output.formInfo[
+                                'constraint_' + e.old.toLowerCase()
+                            ];
+                        delete output.formInfo[
+                            'constraint_' + e.old.toLowerCase()
+                        ];
+                    },
+                );
+            });
+        }
+    }
+
     ngOnDestroy() {
         if (this.subscriptionScenarioState)
             this.subscriptionScenarioState.unsubscribe();
