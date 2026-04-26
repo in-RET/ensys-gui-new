@@ -140,7 +140,7 @@
         <app-constraints-form
             #constraintsForm
             [data]="selectedConstraint"
-            [totalRec]="constraintList.length"
+            [allConstraints]="constraintList"
             (onAdd)="addConstraint($event)"
             (onEdit)="editConstraint($event)"
         />
@@ -149,7 +149,7 @@
     <div modal-actions>
         <div class="d-flex justify-content-end">
             <button
-                class="btn btn-success"
+                class="btn btn--success"
                 type="submit"
                 (click)="submitForm()"
             >

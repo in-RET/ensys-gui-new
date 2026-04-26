@@ -146,6 +146,9 @@
             <!-- constraints -->
             <app-constraints
                 [data]="scenarioData.scenario?.constraints || []"
+                (removeConstraintFromFlow)="removeConstraintFromFlow($event)"
+                (addConstraintToFlow)="addConstraintToFlow($event)"
+                (editConstraintOnFlow)="editConstraintOnFlow($event)"
                 #constraints
             />
 

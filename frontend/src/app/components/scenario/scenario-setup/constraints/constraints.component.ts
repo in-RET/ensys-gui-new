@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, Input, ViewChild } from '@angular/core';
+import {
+    Component,
+    EventEmitter,
+    inject,
+    Input,
+    Output,
+    ViewChild,
+} from '@angular/core';
 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { AlertService } from '../../../../shared/services/alert.service';
@@ -43,6 +50,13 @@ export class ConstraintsComponent {
         return this._data;
     }
 
+    @Output() removeConstraintFromFlow: EventEmitter<string> =
+        new EventEmitter<string>();
+    @Output() addConstraintToFlow: EventEmitter<string> =
+        new EventEmitter<string>();
+    @Output() editConstraintOnFlow: EventEmitter<{ old: string; new: string }> =
+        new EventEmitter<{ old: string; new: string }>();
+
     @ViewChild('constraintsForm') constraintsForm!: ConstraintsFormComponent;
 
     alertService = inject(AlertService);
@@ -58,6 +72,21 @@ export class ConstraintsComponent {
     }
 
     editConstraint(d: ConstraintRow): void {
+        const i = this.constraintList.findIndex((X) => X.id == d.id);
+        const constraintName: string =
+            (this.constraintList[i].values['keyword'] as string) ||
+            (this.constraintList[i].values['name'] as string);
+
+        if (
+            ((d.values['keyword'] as string) ||
+                (d.values['name'] as string)) !== constraintName
+        ) {
+            this.onEditConstraintOnFlow(
+                constraintName,
+                (d.values['keyword'] as string) || (d.values['name'] as string),
+            );
+        }
+
         this.constraintList[
             this.constraintList.findIndex((X) => X.id === d.id)
         ] = d;
@@ -92,6 +121,12 @@ export class ConstraintsComponent {
     }
 
     onDeleteConstraint(rowId: number) {
+        const i = this.constraintList.findIndex((X) => X.id == rowId);
+        this.onRemoveConstraintFromFlow(
+            (this.constraintList[i].values['keyword'] as string) ||
+                (this.constraintList[i].values['name'] as string),
+        );
+
         this.constraintList = this.constraintList.filter((x) => x.id !== rowId);
     }
 
@@ -102,8 +137,21 @@ export class ConstraintsComponent {
 
     toggleConstraintStatus(rowId: number): void {
         const i = this.constraintList.findIndex((X) => X.id == rowId);
-        if (i > -1)
+
+        if (i > -1) {
             this.constraintList[i].enabled = !this.constraintList[i].enabled;
+
+            if (this.constraintList[i].enabled)
+                this.onAddConstraintToFlow(
+                    (this.constraintList[i].values['keyword'] as string) ||
+                        (this.constraintList[i].values['name'] as string),
+                );
+            else
+                this.onRemoveConstraintFromFlow(
+                    (this.constraintList[i].values['keyword'] as string) ||
+                        (this.constraintList[i].values['name'] as string),
+                );
+        }
     }
 
     getConstraintData(): ConstraintRow[] {
@@ -119,5 +167,21 @@ export class ConstraintsComponent {
         // ];
         // return _sampleD;
         return this.constraintList;
+    }
+
+    onRemoveConstraintFromFlow(constraintName: string): void {
+        this.removeConstraintFromFlow.emit(constraintName);
+    }
+    onAddConstraintToFlow(constraintName: string): void {
+        this.addConstraintToFlow.emit(constraintName);
+    }
+    onEditConstraintOnFlow(
+        old_constraintName: string,
+        new_constraintName: string,
+    ): void {
+        this.editConstraintOnFlow.emit({
+            old: old_constraintName.toLowerCase(),
+            new: new_constraintName.toLowerCase(),
+        });
     }
 }

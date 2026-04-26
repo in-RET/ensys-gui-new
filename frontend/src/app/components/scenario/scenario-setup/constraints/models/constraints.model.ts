@@ -29,7 +29,7 @@ export interface ConstraintDefinition {
 export interface ConstraintRow {
     id: number;
     type: ConstraintType;
-    values: Record<string, any>;
+    values: Record<string, string | number | boolean>;
     enabled: boolean;
 }
 
