@@ -119,18 +119,17 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """Return a cached Settings instance for dependency injection."""
     origins = [
+        "http://10.1.7.31:9004",
+        "http://10.1.7.31:9004/dev",
         "https://ensys.hs-nordhausen.de",
         "https://ensys.hs-nordhausen.de/dev",
-        "http://10.1.7.31:20005",
-        "http://localhost:20005",
-        "http://10.1.7.31:9004",
         "http://localhost:9004",
-        "http://localhost:4200",
+        "http://localhost:9004/dev",
     ]
 
     return Settings(
         cors_origins=origins,
-        redis_host=os.getenv("REDIS_HOST"),
+        redis_host=str(os.getenv("REDIS_HOST")),
         redis_port=int(os.getenv("REDIS_PORT_DEV")),
-        environment=os.getenv("ENVIRONMENT"),
+        environment=str(os.getenv("ENVIRONMENT")),
     )

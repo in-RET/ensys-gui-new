@@ -229,25 +229,22 @@ def simulation_task(scenario_id: int, simulation_id: int):
         task_logger.critical("error - runtime error")
         task_logger.critical(runError)
 
-        try:
-            if simulation is not None:
-                simulation.status = Status.FAILED.value
-                simulation.status_message = str(runError)
-                simulation.end_date = datetime.now()
+        if simulation is not None:
+            simulation.status = Status.FAILED.value
+            simulation.status_message = str(runError)
+            simulation.end_date = datetime.now()
 
-                try:
-                    db.commit()
-                except IntegrityError as exc:
-                    db.rollback()
-                    # Generic handling; DB should ideally have unique constraints and proper messages
-                    raise HTTPException(
-                        status_code=status.HTTP_409_CONFLICT,
-                        detail="Database integrity error at simulation task - 2",
-                    ) from exc
+            try:
+                db.commit()
+            except IntegrityError as exc:
+                db.rollback()
+                # Generic handling; DB should ideally have unique constraints and proper messages
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Database integrity error at simulation task - 2",
+                ) from exc
 
-                db.refresh(simulation)
-        except Exception:  # noqa: BLE001
-            pass
+            db.refresh(simulation)
 
         task_in_progress.dec()
 
@@ -256,6 +253,24 @@ def simulation_task(scenario_id: int, simulation_id: int):
     except Exception as ex:
         task_logger.critical("error - aborting task")
         task_logger.critical(ex)
+
+
+        if simulation is not None:
+            simulation.status = Status.FAILED.value
+            simulation.status_message = str(ex)
+            simulation.end_date = datetime.now()
+
+            try:
+                db.commit()
+            except IntegrityError as exc:
+                db.rollback()
+                # Generic handling; DB should ideally have unique constraints and proper messages
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Database integrity error at simulation task - 3",
+                ) from exc
+
+            db.refresh(simulation)
 
         task_in_progress.dec()
 

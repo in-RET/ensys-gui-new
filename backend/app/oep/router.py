@@ -7,6 +7,7 @@ from oep_client.oep_client import OepClient
 from sqlmodel import Session
 from starlette import status
 
+from notebooks.playground import oep_type
 from .service import get_oep_client
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
@@ -36,6 +37,7 @@ async def get_oep_data(
     authentication is required for accessing the endpoint. The data response includes
     the retrieved items, their total count, and a success status indicator.
 
+    :param db:
     :param token: A bearer token for authentication.
     :type token: str
     :param table_name: The name of the table to retrieve data from.
@@ -181,13 +183,20 @@ async def get_local_oep_data_node(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year."
         )
 
-    for type in oepTypesData.keys():
-        item_list = oepTypesData[type]
+    oep_type = None
+
+    for tmp_type in oepTypesData.keys():
+        item_list = oepTypesData[tmp_type]
 
         for item in item_list:
             if item["name"] == oep_name:
-                oep_type = type.value
+                oep_type = tmp_type.value
                 break
+
+    if oep_type is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OEP type."
+        )
 
     root_path = os.path.abspath(
         os.path.join(os.getcwd(), "data", "oep", oep_type.lower())

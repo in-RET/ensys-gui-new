@@ -7,7 +7,6 @@ from fastapi.templating import Jinja2Templates
 from sqladmin import Admin
 from sqlalchemy import create_engine
 from starlette.middleware.gzip import GZipMiddleware
-from starlette.responses import HTMLResponse
 
 from .core.config import get_settings
 from .oep.router import oep_router
