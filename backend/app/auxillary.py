@@ -45,7 +45,7 @@ def check_flow_investment(flow_data):
             # custom_attributes="to be done"
         )
     else:
-        return None
+        return flow_data["nominal_value"]
 
 
 def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
@@ -80,8 +80,8 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
 
                         if flow_data is None:
                             raise ValueError("Flow Data is None")
-
-                        flow_data["nominal_value"] = check_flow_investment(flow_data)
+                        else:
+                            flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                 input_data[target_bus_name] = EnFlow(**flow_data)
         # build component_data["outputs"]
@@ -100,8 +100,8 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
 
                         if flow_data is None:
                             raise ValueError("Flow Data is None")
-
-                        flow_data["nominal_value"] = check_flow_investment(flow_data)
+                        else:
+                            flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                 output_data[target_bus_name] = EnFlow(**flow_data)
 
