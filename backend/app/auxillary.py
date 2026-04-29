@@ -10,7 +10,6 @@ The module provides:
     - Model conversion utilities
     - Database utility functions
 """
-
 from datetime import datetime
 
 from fastapi import HTTPException, Depends
@@ -29,6 +28,8 @@ def check_flow_investment(flow_data):
     - returns: EnInvestment or None
     """
     if flow_data["investment"] is True:
+        del flow_data["investment"]
+
         return EnInvestment(
             maximum=flow_data["maximum"],
             minimum=flow_data["minimum"],
@@ -58,57 +59,39 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     # build component_data["inputs"]
     component_data = flowchart_component["data"]
 
-    print(f"Component Data: {component_data}")
-    if component_data["connections"] is not None:
-        print(f"Number of Connections: {len(component_data["connections"])}")
-    else:
-        print(f"Number of Connections: {component_data["connections"]}")
+    input_data = {}
+    output_data = {}
 
     if component_data["connections"] is not None:
-        input_data = {}
-        if len(flowchart_component["inputs"]) > 0:
-            for input_name in flowchart_component["inputs"]:
-                flow_data = None
+        # build component_data["inputs"]
+        for input_name in flowchart_component["inputs"]:
+            target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
+            target_bus_name = flowchart_data[target_bus_id]["name"]
 
-                target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
-                target_bus_name = flowchart_data[target_bus_id]["name"]
+            print(f"{target_bus_name} with id: {target_bus_id} -> {input_name}")
 
-                # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
-                for node_input in component_data["connections"]["inputs"]:
-                    if input_name in node_input:
-                        flow_data = node_input[input_name]["formInfo"]
-
-                        if flow_data is None:
-                            raise ValueError("Flow Data is None")
-                        else:
-                            flow_data["nominal_value"] = check_flow_investment(flow_data)
+            # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
+            for node_input in component_data["connections"]["inputs"]:
+                flow_data = node_input["formInfo"]
+                flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                 input_data[target_bus_name] = EnFlow(**flow_data)
+
         # build component_data["outputs"]
-        output_data = {}
+        for output_name in flowchart_component["outputs"]:
+            target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
+            target_bus_name = flowchart_data[target_bus_id]["name"]
 
-        if len(flowchart_component["outputs"]) > 0:
-            for output_name in flowchart_component["outputs"]:
-                flow_data = None
+            print(f"{target_bus_name} with id: {target_bus_id} -> {output_name}")
 
-                target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
-                target_bus_name = flowchart_data[target_bus_id]["name"]
-
-                for output in component_data["connections"]["outputs"]:
-                    if output_name in output:
-                        flow_data = output[output_name]["formInfo"]
-
-                        if flow_data is None:
-                            raise ValueError("Flow Data is None")
-                        else:
-                            flow_data["nominal_value"] = check_flow_investment(flow_data)
+            for output in component_data["connections"]["outputs"]:
+                flow_data = output["formInfo"]
+                flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                 output_data[target_bus_name] = EnFlow(**flow_data)
 
-        return input_data, output_data
+    return input_data, output_data
 
-    else:
-        return {}, {}
 
 
 def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
@@ -221,8 +204,6 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
             ensys_data["storage_costs"] = component_data["storage_costs"] if component_data["storage_costs"] else None
 
             ensys_component = EnGenericStorage(**ensys_data)
-
-            print(f"ensys_component: {ensys_component.model_dump_json(indent=2)}")
         elif flowchart_component["class"] == "bus":
             ensys_component = EnBus(label=flowchart_component["name"])
         else:

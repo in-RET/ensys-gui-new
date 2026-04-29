@@ -64,7 +64,7 @@ class Settings(BaseSettings):
         validation_alias="DATABASE_URL", description="Database connection URL", default=os.getenv("DATABASE_URL")
     )
     sqlalchemy_echo: bool = Field(
-        default=True, description="Enable SQLAlchemy query logging"
+        default=False, description="Enable SQLAlchemy query logging"
     )
     pool_size: int = Field(default=5, description="Database connection pool size")
     max_overflow: int = Field(

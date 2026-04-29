@@ -7,7 +7,6 @@ from oep_client.oep_client import OepClient
 from sqlmodel import Session
 from starlette import status
 
-from notebooks.playground import oep_type
 from .service import get_oep_client
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
