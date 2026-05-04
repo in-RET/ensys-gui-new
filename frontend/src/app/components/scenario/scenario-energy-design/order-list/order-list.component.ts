@@ -361,7 +361,7 @@ export class OrderListComponent {
         });
     }
 
-    submitTimeSeriesData(data: number[]) {
+    submitTimeSeriesData(data: number | number[]) {
         this.timeSeries.setValue(data);
     }
 }

@@ -814,7 +814,7 @@ export class NodeFormModalComponent {
         this.onShowModal_TimeSeries.emit(timeSeriesData);
     }
 
-    setTimeSeriesData(controlName: string, data: number[]) {
+    setTimeSeriesData(controlName: string, data: number | number[]) {
         if (controlName == 'inputs')
             this.transform_inputs.submitTimeSeriesData(data);
         else if (controlName == 'outputs')
