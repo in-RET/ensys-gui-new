@@ -35,12 +35,12 @@ export class TimeSeriesComponent {
         showPlot: boolean;
         title: string;
         selectedType?: 'list' | 'file' | 'number';
-        data: number[];
+        data: undefined | number | number[];
     } = {
         showPlot: false,
         title: 'Time Series Data',
         selectedType: undefined, // types: list , file, number
-        data: [],
+        data: undefined,
     };
     timeSeries_table: {
         data: undefined | null | any[];
@@ -65,6 +65,10 @@ export class TimeSeriesComponent {
     };
     isCollapsed_timeSeriesTable: boolean = false;
     isCollapsed_timeSeriesPlot: boolean = true;
+    formError: { msg: string | null; isShow: boolean } = {
+        msg: '',
+        isShow: false,
+    };
 
     @Input() maxRecords_TimeSeries: number = 8760;
     private readonly defaultModes: ModeOption[] = [
@@ -83,7 +87,9 @@ export class TimeSeriesComponent {
     }
 
     @Output()
-    dataSubmit: EventEmitter<number[]> = new EventEmitter<number[]>();
+    dataSubmit: EventEmitter<number | number[]> = new EventEmitter<
+        number | number[]
+    >();
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
 
@@ -95,6 +101,13 @@ export class TimeSeriesComponent {
     scenarioStateService = inject(ScenarioStateService);
 
     constructor(private cdr: ChangeDetectorRef) {}
+
+    private setFormError(status: boolean, msg: string) {
+        this.formError = {
+            msg: msg,
+            isShow: status,
+        };
+    }
 
     onSelectFile_TimeSeries(event: Event): void {
         // check any file selected before
@@ -135,16 +148,44 @@ export class TimeSeriesComponent {
 
             if (this.timeSeries_table.hasHeader) rows.shift(); // Remove header row if present
 
-            const data: any[] = rows.slice(0).map((row) => {
+            // clean each cell
+            const clearedData: any[] = rows.slice(0).map((row) => {
                 const rowData: any = {};
 
-                headers.forEach((header, index) => {
+                headers.forEach((h, index) => {
                     if (row[index] !== undefined)
                         rowData[index] = row[index].trim();
                     else rowData[index] = '';
                 });
                 return rowData;
             });
+
+            // convert each cell to number
+            const data: any[] = clearedData.map((row) => {
+                const rowData: any = {};
+
+                headers.forEach((h, index) => {
+                    // check whether the cell value can be converted to a number, if yes convert it, if not keep the original value
+                    const numValue = parseFloat(row[index]);
+                    rowData[index] = isNaN(numValue) ? row[index] : numValue;
+                });
+                return rowData;
+            });
+
+            // remove the last row if it's empty
+            while (true) {
+                if (data.length > 0) {
+                    const lastRow = data[data.length - 1];
+                    const isEmptyRow = Object.values(lastRow).every(
+                        (value) =>
+                            value === null ||
+                            value === undefined ||
+                            value === '',
+                    );
+                    if (isEmptyRow) data.pop();
+                    else break;
+                }
+            }
 
             this.timeSeries_table.data = data;
             this.timeSeries_table.columns = headers.map((header: string) => ({
@@ -158,7 +199,6 @@ export class TimeSeriesComponent {
             this.timeSeries_table.loading = false;
 
             this.cdr.detectChanges();
-            // this.collapseTable(false);
         };
 
         reader.readAsText(file);
@@ -221,8 +261,6 @@ export class TimeSeriesComponent {
             return result;
         };
 
-        // const scenarioData: ScenarioBaseInfoModel | null =
-        //     this.scenarioService.restoreBaseInfo_Storage();
         const scenarioData: ScenarioStateModel | null =
             this.scenarioStateService.getScenarioData();
 
@@ -336,7 +374,13 @@ export class TimeSeriesComponent {
     }
 
     submitData() {
-        this.dataSubmit.emit(this.modalInfo.data);
+        if (this.modalInfo.selectedType === 'number') {
+            this.modalInfo.data = parseFloat(this.numInput.nativeElement.value);
+        }
+
+        if (this.modalInfo.data) {
+            this.dataSubmit.emit(this.modalInfo.data);
+        } else this.setFormError(true, ' * The Data is not completed!');
     }
 
     closeModal(approved: any) {

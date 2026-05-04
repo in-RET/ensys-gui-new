@@ -299,8 +299,6 @@
                                         aria-label="Close"
                                         *ngIf="
                                             form.get(field.name)?.value &&
-                                            form.get(field.name)?.value.length >
-                                                0 &&
                                             !form.controls[field.name].disabled
                                         "
                                         (click)="

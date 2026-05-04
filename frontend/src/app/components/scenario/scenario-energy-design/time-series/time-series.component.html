@@ -146,15 +146,8 @@
                                 class="form-control"
                                 placeholder="Value"
                                 #numInput
-                                style="max-width: 10rem"
+                                style="max-width: 15rem"
                             />
-
-                            <button
-                                class="btn btn--success"
-                                (click)="setDataAndShowPlot()"
-                            >
-                                Show Plot
-                            </button>
                         </div>
                     </ng-container>
 
@@ -277,12 +270,22 @@
         </div>
     </div>
 
-    <div modal-actions>
+    <div
+        modal-actions
+        class="d-flex w-100 align-items-center justify-content-center"
+    >
+        <span
+            class="text-danger modal_error"
+            style="position: absolute; left: 10px"
+            *ngIf="formError.isShow"
+        >
+            {{ formError.msg }}
+        </span>
+
         <button
             type="submit"
             class="btn btn--success btn--medium"
             (click)="submitData()"
-            [disabled]="modalInfo.data.length == 0 && !modalInfo.showPlot"
         >
             <span>Import</span>
         </button>
