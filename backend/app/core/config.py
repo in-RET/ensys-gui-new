@@ -125,6 +125,7 @@ def get_settings() -> Settings:
         "https://ensys.hs-nordhausen.de/dev",
         "http://localhost:9004",
         "http://localhost:9004/dev",
+        "http://localhost:4200",
     ]
 
     return Settings(
