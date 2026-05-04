@@ -258,7 +258,7 @@ export class FlowFormModalComponent {
         this.onShowModal_TimeSeries.emit(timeSeriesData);
     }
 
-    setTimeSeriesData(controlName: string, data: number[]) {
+    setTimeSeriesData(controlName: string, data: number | number[]) {
         this.formComponent.setFieldData(controlName, data);
     }
 }

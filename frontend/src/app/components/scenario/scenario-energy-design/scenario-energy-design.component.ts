@@ -188,7 +188,7 @@ export class ScenarioEnergyDesignComponent {
         this.modalStateService.openTimeSeries(e);
     }
 
-    onTimeSeriesSubmitted(e: { controlName: string; data: number[] }) {
+    onTimeSeriesSubmitted(e: { controlName: string; data: number | number[] }) {
         if (e) {
             let currentState!: ModalState;
             const subscription = this.modalStateService.modalState.subscribe(

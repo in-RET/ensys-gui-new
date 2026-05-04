@@ -18,11 +18,11 @@ export class TimeSeriesModalComponent {
     } | null;
     @Output() dataSubmitted = new EventEmitter<{
         controlName: string;
-        data: any;
+        data: number | number[];
     }>();
     @Output() modalClosed = new EventEmitter<boolean>();
 
-    onDataSubmitted(data: number[]) {
+    onDataSubmitted(data: number | number[]) {
         if (!this.modalInfo) return;
 
         this.dataSubmitted.emit({
