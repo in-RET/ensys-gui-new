@@ -107,11 +107,17 @@ export class ConstraintsFormComponent {
         }
 
         const nextId = Math.max(0, ...this.allConstraints.map((c) => c.id)) + 1;
+        const values = this.dynamicFieldsGroup.getRawValue();
+        // clear values
+        Object.keys(values).forEach((key) => {
+            const val = values[key];
+            values[key] = typeof val === 'string' ? val.trim() : val;
+        });
 
         const row: ConstraintRow = {
             id: this.data?.id ?? nextId,
             type: this.form.value.type,
-            values: { ...this.dynamicFieldsGroup.getRawValue() },
+            values: { ...values },
             enabled: true,
         };
 

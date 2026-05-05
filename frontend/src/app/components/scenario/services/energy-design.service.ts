@@ -1358,12 +1358,15 @@ export class EnergyDesignService {
             )
             .map((constraint: ConstraintRow) => {
                 const val: Record<string, any> = constraint.values;
+                const fieldName = (val['keyword'] || val['name']).trim();
+                const fieldNameWithFullTrim = (val['keyword'] || val['name'])
+                    .trim()
+                    .replace(/\s+/g, '_');
 
                 if (constraint.type === 'equate_flows')
                     return this.getField(
-                        'constraint_' +
-                            (val['keyword'] || val['name'] || 'no_name'),
-                        val['keyword'] || val['name'] || 'no_name',
+                        'constraint_' + (fieldNameWithFullTrim || 'no_name'),
+                        fieldName || 'No Name',
                         'Equate_Flows',
                         false,
                         'options_radio',
@@ -1381,10 +1384,9 @@ export class EnergyDesignService {
                     constraint.type === 'limit_active_flow_count_by_keyword'
                 )
                     return this.getField(
-                        'constraint_' +
-                            (val['keyword'] || val['name'] || 'no_name'),
-                        val['keyword'] || val['name'] || 'no_name',
-                        val['keyword'] || val['name'] || 'no_name',
+                        'constraint_' + (fieldNameWithFullTrim || 'no_name'),
+                        fieldName || 'No Name',
+                        fieldName || 'No Name',
                         false,
                         'check',
                         '6',
@@ -1393,10 +1395,9 @@ export class EnergyDesignService {
                     );
                 else
                     return this.getField(
-                        'constraint_' +
-                            (val['keyword'] || val['name'] || 'no_name'),
-                        val['keyword'] || val['name'] || 'No Name',
-                        val['keyword'] || val['name'] || 'No Name',
+                        'constraint_' + (fieldNameWithFullTrim || 'no_name'),
+                        fieldName || 'No Name',
+                        fieldName || 'No Name',
                         false,
                         'number',
                         '6',
@@ -1427,7 +1428,11 @@ export class EnergyDesignService {
                                 name: 'constraints',
                                 label: 'Constraints',
                                 class: 'col-12',
-                                visible: true,
+                                visible:
+                                    this.getConstraintsFields_flow(
+                                        data,
+                                        editMode,
+                                    ).length > 0,
                                 fields: this.getConstraintsFields_flow(
                                     data,
                                     editMode,
@@ -1439,6 +1444,7 @@ export class EnergyDesignService {
                             {
                                 name: 'non-OEP',
                                 class: 'col-12',
+                                visible: true,
                                 fields: [
                                     this.getField(
                                         'investment',
@@ -1563,7 +1569,11 @@ export class EnergyDesignService {
                                 name: 'constraints',
                                 label: 'Constraints',
                                 class: 'col-12',
-                                visible: true,
+                                visible:
+                                    this.getConstraintsFields_flow(
+                                        data,
+                                        editMode,
+                                    ).length > 0,
                                 fields: this.getConstraintsFields_flow(
                                     data,
                                     editMode,

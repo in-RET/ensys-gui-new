@@ -379,6 +379,8 @@ export class ScenarioSetupComponent implements OnInit {
     }
 
     editConstraintOnFlow(e: { old: string; new: string }) {
+        console.log(e);
+
         const d = this.scenarioStateService.getScenarioData();
         if (!d || !d.scenario) return;
 

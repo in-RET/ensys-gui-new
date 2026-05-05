@@ -208,6 +208,7 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     goToSetupPage() {
+        // this.updateScenario()
         this.goToStep(UserModelingSTEP.SCENARIO_SETUP);
     }
 
@@ -235,7 +236,7 @@ export class ScenarioBaseComponent implements OnInit {
                     // update drawflowData$ state
                     this.scenarioStateService.setScenarioData(data);
 
-                    this.toastService.success(`Scenario ${val.name} saved.`);
+                    this.toastService.success(`Scenario "${val.name}" saved.`);
                     resolve();
                 },
                 error: (err: any) => {
@@ -260,7 +261,9 @@ export class ScenarioBaseComponent implements OnInit {
                     // update drawflowData$ state
                     this.scenarioStateService.setScenarioData(data);
 
-                    this.toastService.success(`Scenario ${val.name} updated.`);
+                    this.toastService.success(
+                        `Scenario "${val.name}" updated.`,
+                    );
                     resolve();
                 },
                 error: (err: any) => {
