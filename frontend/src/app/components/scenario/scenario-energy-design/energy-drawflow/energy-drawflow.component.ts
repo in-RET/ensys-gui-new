@@ -149,9 +149,6 @@ export class EnergyDrawflowComponent {
 
         this.editor.on('nodeDataChanged', (data: any) => {
             console.log('Drawflow event: nodeDataChanged');
-
-            if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
-                this.onUpdateDrawflow();
         });
 
         this.editor.on('nodeRemoved', (data: any) => {
@@ -756,6 +753,10 @@ export class EnergyDrawflowComponent {
         `;
         this.editor.updateNodeDataFromId(nodeId, data);
 
+        this.toastService.success(
+            'Node "' + currentNode.name + '" updated successfully.',
+        );
+
         if (nodeType === 'transformer') {
             // remove/reorder port if it changed
             this.updatePortsAfterEdit({ ...currentNode }, data);
@@ -765,6 +766,9 @@ export class EnergyDrawflowComponent {
         this.setBusColorFlows(this.editor.export().drawflow.Home.data);
         this.saveCurrentDrawflow();
         this.editor.dispatch('nodeDataChanged', nodeId);
+
+        if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+            this.onUpdateDrawflow();
 
         // update storage
         // const d: ScenarioStateModel | null =
@@ -1478,6 +1482,9 @@ export class EnergyDrawflowComponent {
             currentNode.data,
         );
         this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
+
+        if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
+            this.onUpdateDrawflow();
     }
 
     setBusFlowsColor(nodeId: number, color: string) {
@@ -1505,6 +1512,7 @@ export class EnergyDrawflowComponent {
             [nodeKey: string]: DrawflowNode;
         } = this.editor.export().drawflow.Home.data;
         data.scenario.modeling_data = CURRENT_DRAWFLOW;
+
         this.updateScenario.emit(data);
     }
 

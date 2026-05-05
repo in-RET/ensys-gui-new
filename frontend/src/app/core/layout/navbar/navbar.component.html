@@ -16,7 +16,8 @@
         *ngIf="scenarioStateService.scenarioState | async as scenarioState"
     >
         <span>
-            {{ scenarioState.project?.name }}|
+            {{ scenarioState.project?.name }}
+            |
             {{ scenarioState.scenario?.name }}
         </span>
     </div>

@@ -128,7 +128,6 @@ export class ScenarioEnergyDesignComponent {
             nodeType,
             data,
         );
-        this.toastService.success('Node edited.');
     }
 
     onNodeFormSubmitted(e: any) {}

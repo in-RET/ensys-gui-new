@@ -73,18 +73,20 @@ export class ConstraintsComponent {
 
     editConstraint(d: ConstraintRow): void {
         const i = this.constraintList.findIndex((X) => X.id == d.id);
-        const constraintName: string =
+        const constraintName: string = (
             (this.constraintList[i].values['keyword'] as string) ||
-            (this.constraintList[i].values['name'] as string);
+            (this.constraintList[i].values['name'] as string)
+        )
+            .trim()
+            .replace(/\s+/g, '_');
 
-        if (
-            ((d.values['keyword'] as string) ||
-                (d.values['name'] as string)) !== constraintName
-        ) {
-            this.onEditConstraintOnFlow(
-                constraintName,
-                (d.values['keyword'] as string) || (d.values['name'] as string),
-            );
+        const newConstraintName: string = (
+            (d.values['keyword'] as string) || (d.values['name'] as string)
+        )
+            .trim()
+            .replace(/\s+/g, '_');
+        if (newConstraintName !== constraintName) {
+            this.onEditConstraintOnFlow(constraintName, newConstraintName);
         }
 
         this.constraintList[
@@ -140,17 +142,16 @@ export class ConstraintsComponent {
 
         if (i > -1) {
             this.constraintList[i].enabled = !this.constraintList[i].enabled;
+            const fieldName = (
+                (this.constraintList[i].values['keyword'] as string) ||
+                (this.constraintList[i].values['name'] as string)
+            )
+                .trim()
+                .replace(/\s+/g, '_');
 
             if (this.constraintList[i].enabled)
-                this.onAddConstraintToFlow(
-                    (this.constraintList[i].values['keyword'] as string) ||
-                        (this.constraintList[i].values['name'] as string),
-                );
-            else
-                this.onRemoveConstraintFromFlow(
-                    (this.constraintList[i].values['keyword'] as string) ||
-                        (this.constraintList[i].values['name'] as string),
-                );
+                this.onAddConstraintToFlow(fieldName);
+            else this.onRemoveConstraintFromFlow(fieldName);
         }
     }
 

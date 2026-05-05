@@ -350,10 +350,13 @@
                 </div>
             </ng-container>
 
+            <!-- !formData.sections[i].felds || formData.sections[i].felds.length==0 -->
+
             <ng-container
                 *ngIf="
                     section.name == 'divider' &&
                     i < formData.sections.length - 1 &&
+                    formData.sections[i - 1].visible &&
                     formData.sections[i + 1].visible
                 "
             >
