@@ -1,0 +1,20 @@
+.current-scenario-info {
+    font-size: 1em;
+    color: #6c757d;
+
+    &::before {
+        content: "{ ";
+        font-size: 1.25em;
+        color: #000000;
+        font-weight: bold;
+        padding-right: 0.5em;
+    }
+
+    &::after {
+        content: " }";
+        font-size: 1.25em;
+        color: #000000;
+        font-weight: bold;
+        padding-left: 0.5em;
+    }
+}
