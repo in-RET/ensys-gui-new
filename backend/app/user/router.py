@@ -59,10 +59,14 @@ async def login_user_endpoint(
     """
     # Authenticate via service
     user_db = authenticate_user(username=username, password=password, db=db)
+    user_token = user_db.get_token()
+
+    response_data = user_db.model_dump(exclude={"password"})
+    response_data.update({"access_token": user_token})
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[user_db.model_dump(exclude={"password"})],
+            items=[response_data],
             totalCount=1,
         ),
         success=True,
@@ -87,6 +91,7 @@ async def register_user_endpoint(
     """
     # Use service to create user
     db_user = create_user(user=user, db=db)
+
     return MessageResponse(data="", success=True)
 
 
