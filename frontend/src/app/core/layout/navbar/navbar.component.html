@@ -11,6 +11,16 @@
         />
     </a>
 
+    <div
+        class="d-flex justify-content-between align-items-center current-scenario-info"
+        *ngIf="scenarioStateService.scenarioState | async as scenarioState"
+    >
+        <span>
+            {{ scenarioState.project?.name }}|
+            {{ scenarioState.scenario?.name }}
+        </span>
+    </div>
+
     <!-- log[in-out] / user menu -->
     <div class="d-flex justify-content-between align-items-center h-100">
         <ng-container *ngIf="user.is_authenticated">

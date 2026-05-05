@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../../components/auth/services/auth.service';
+import { ScenarioStateService } from '../../../components/scenario/services/scenario-state.service';
 
 @Component({
     selector: 'app-navbar',
@@ -38,6 +39,7 @@ export class NavbarComponent {
 
     authService = inject(AuthService);
     cdr = inject(ChangeDetectorRef);
+    scenarioStateService = inject(ScenarioStateService);
 
     ngOnInit() {
         this.cdr.markForCheck();
