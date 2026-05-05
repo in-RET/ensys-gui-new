@@ -13,7 +13,6 @@ The module provides endpoints for:
     - Account deletion
 """
 
-import asyncio
 import os
 from typing import Annotated
 
@@ -21,19 +20,17 @@ from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from sqlmodel import Session
 from starlette import status
-from starlette.responses import JSONResponse
 
-from .model import EnUser, EnUserUpdate, EnUserDB
+from .model import EnUser, EnUserUpdate
 from .service import (
     authenticate_user,
     create_user,
     read_user_by_token,
     update_user,
     delete_user,
-    activate_user,
+    activate_user, reset_password,
 )
 from ..db import get_db_session
-from ..mail import send_mail
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse, MessageResponse
 from ..security import oauth2_scheme
@@ -51,7 +48,7 @@ async def login_user_endpoint(
     username: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db_session),
-) -> JSONResponse:
+) -> DataResponse:
     """Authenticate a user and return an access token.
 
     - param username: login username (form field)
@@ -63,13 +60,12 @@ async def login_user_endpoint(
     # Authenticate via service
     user_db = authenticate_user(username=username, password=password, db=db)
 
-    return JSONResponse(
-        content={
-            "message": "User login successful.",
-            "access_token": user_db.get_token(),
-            "token_type": "bearer",
-        },
-        status_code=status.HTTP_200_OK,
+    return DataResponse(
+        data=GeneralDataModel(
+            items=[user_db.model_dump(exclude={"password"})],
+            totalCount=1,
+        ),
+        success=True,
     )
 
 
@@ -90,13 +86,7 @@ async def register_user_endpoint(
     - raises: HTTPException 409/404 on conflicts or failure
     """
     # Use service to create user
-    db_user: EnUserDB = create_user(user=user, db=db)
-
-    token = db_user.get_token()
-
-    # send activation mail asynchronously
-    asyncio.create_task(send_mail(token=token, user=db_user))
-
+    db_user = create_user(user=user, db=db)
     return MessageResponse(data="", success=True)
 
 
@@ -142,7 +132,7 @@ async def read_user_endpoint(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[user.model_dump_json(exclude={"password"})],
+            items=[user.model_dump(exclude={"password"})],
             totalCount=1,
         ),
         success=True,
@@ -163,7 +153,6 @@ def update_user_endpoint(
     - returns: DataResponse with updated user
     """
     user = read_user_by_token(token=token, db=db)
-
     updated = update_user(user=user, update_data=data, db=db)
 
     return DataResponse(
@@ -188,7 +177,24 @@ async def delete_user_endpoint(
     - raises: HTTPException 404 when user not found
     """
     user = read_user_by_token(token=token, db=db)
-
     delete_user(user=user, db=db)
 
     return MessageResponse(data="User was successfully deleted.", success=True)
+
+@users_router.post("/reset_password/{e-mail}", response_model=MessageResponse)
+async def reset_password_endpoint(
+    e_mail: str,
+    db: Session = Depends(get_db_session)
+) -> MessageResponse:
+    """Reset password endpoint.
+    - param db: SQLModel session dependency
+    - returns: MessageResponse indicating password reset
+    - raises: HTTPException 404 when user not found
+    """
+
+    user = reset_password(
+        mail=e_mail,
+        db=db
+    )
+
+    return MessageResponse(data="Password reset was successful.", success=True)

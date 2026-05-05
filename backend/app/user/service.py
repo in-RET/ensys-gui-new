@@ -14,12 +14,13 @@ It handles the business logic for user operations including:
 from datetime import datetime
 
 from fastapi import HTTPException
-from passlib.hash import pbkdf2_sha256
+from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 from starlette import status
 
 from .model import EnUserDB, EnUser, EnUserUpdate
+from ..mail import send_activation_mail, send_reset_mail
 from ..security import decode_token
 
 
@@ -69,11 +70,14 @@ def create_user(user: EnUser, db: Session) -> EnUserDB:
 
     db_user.date_joined = datetime.now()
 
-    db.add(db_user)
+    token = db_user.get_token()
 
     try:
+        send_activation_mail(token=token, user=db_user)
+
+        db.add(db_user)
         db.commit()
-    except IntegrityError as exc:
+    except IntegrityError:
         db.rollback()
         # Generic handling; DB should ideally have unique constraints and proper messages
         raise HTTPException(
@@ -148,7 +152,7 @@ def activate_user(
         db.add(user)
         try:
             db.commit()
-        except IntegrityError as exc:
+        except IntegrityError:
             db.rollback()
             return False
 
@@ -210,6 +214,43 @@ def read_user_by_token(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
         )
 
+def read_user_by_email(
+    db: Session,
+    email: str,
+) -> EnUserDB:
+    """Fetch a user by email.
+    - param email: email to fetch
+    - param db: SQLModel session
+    - returns: EnUserDB
+    - raises: HTTPException 401/404 on invalid email or missing user
+    """
+
+    user = db.exec(select(EnUserDB).where(EnUserDB.mail == email.lower())).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found."
+        )
+    else:
+        return user
+
+def reset_password(
+    mail: str,
+    db: Session
+) -> EnUserDB:
+    user = read_user_by_email(db=db, email=mail)
+    new_password = user.reset_password()
+    try:
+        # send activation mail asynchronously
+        # asyncio.create_task(send_reset_mail(user=user))
+        send_reset_mail(user=user, password=new_password)
+
+        db.add(user)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, "Integrity error on password reset")
+
+    return user
 
 def update_user(
     update_data: EnUserUpdate,
@@ -261,5 +302,5 @@ def delete_user(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Could not delete user."
         ) from exc
-    
+
     return None
