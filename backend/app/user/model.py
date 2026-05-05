@@ -1,10 +1,11 @@
 """User data models for auth, storage, and validation."""
 
 from datetime import datetime
+from secrets import token_urlsafe
 
 from fastapi import HTTPException
 from jose import jwt
-from passlib.hash import pbkdf2_sha256
+from passlib.handlers.pbkdf2 import pbkdf2_sha256
 from pydantic import field_validator, BaseModel
 from sqladmin import ModelView
 from sqlmodel import Field, SQLModel, Session
@@ -126,6 +127,15 @@ class EnUserDB(SQLModel, table=True):
     def verify_password(self, password: str) -> bool:
         """Check plaintext against stored hash."""
         return pbkdf2_sha256.verify(password, self.password)
+
+    def reset_password(self) -> str:
+        """Reset password to a random value."""
+        new_password = token_urlsafe(32)
+        new_password_hash = pbkdf2_sha256.hash(new_password)
+        self.verify_password(new_password_hash)
+        self.password = new_password_hash
+
+        return new_password
 
     def get_token(self) -> str:
         """Return JWT token payload with username and is_staff flags."""
