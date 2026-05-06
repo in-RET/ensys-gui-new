@@ -1,10 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { registerAllModules } from 'handsontable/registry';
 import { AuthCoreService } from '../core/auth/auth.service';
 import { ToastContainerComponent } from '../shared/components/toast-container/toast-container.component';
-
-registerAllModules();
 
 @Component({
     selector: 'app-root',
