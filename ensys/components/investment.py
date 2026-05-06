@@ -52,7 +52,7 @@ class EnInvestment(EnBaseModel):
     :type custom_attributes: dict | None
     """
     maximum: float | None = Field(
-        default=None,  # eigtl. float("+inf"),
+        default=float("+inf"),  # eigtl. float("+inf"),
         title='Maximum',
         description='Maximum of the additional invested capacity; defined per period p for a multi-period model.'
     )
