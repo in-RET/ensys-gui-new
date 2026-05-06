@@ -140,10 +140,10 @@ export class NodeFormModalComponent {
             this.formComponent.disableControl('inputPort_name');
             this.formComponent.disableControl('outputPort_name');
             this.formComponent.disableControl('investment');
-            this.formComponent.disableControl('nominal_value');
+            this.formComponent.disableControl('nominal_storage_capacity');
 
             let lsFields_ = [
-                ...[{ name: 'nominal_value' }],
+                ...[{ name: 'nominal_storage_capacity' }],
                 ...this.energyDesignService.getInvestmentFields(),
             ];
 
@@ -733,7 +733,7 @@ export class NodeFormModalComponent {
             // user input data
             if (!this.formComponent.form.controls['oep'].value) {
                 this.formComponent.enabelControl('investment');
-                this.formComponent.enabelControl('nominal_value');
+                this.formComponent.enabelControl('nominal_storage_capacity');
                 this.formComponent.enabelControl('inputPort_name');
                 this.formComponent.enabelControl('outputPort_name');
                 this.formComponent.setFieldData('investment', false);
@@ -749,7 +749,7 @@ export class NodeFormModalComponent {
                 this.formComponent.disableControl('inputPort_name');
                 this.formComponent.disableControl('outputPort_name');
                 this.formComponent.disableControl('investment');
-                this.formComponent.disableControl('nominal_value');
+                this.formComponent.disableControl('nominal_storage_capacity');
 
                 let lsFields_ = [
                     ...this.energyDesignService.getInvestmentFields(),
