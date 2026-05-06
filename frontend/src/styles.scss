@@ -3,9 +3,6 @@
 @use "static/scss/main.scss" as *;
 @use "static/scss/abstracts/mixins" as *;
 
-@import "handsontable/styles/handsontable.min.css";
-@import "handsontable/styles/ht-theme-main.min.css";
-
 html,
 body {
     height: 100%;
