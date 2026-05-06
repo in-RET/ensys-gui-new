@@ -395,6 +395,7 @@ export class EnergyDesignService {
                 } else item['disabled'] = true;
             } else {
                 item['value'] = null;
+                item['disabled'] = true;
             }
 
             item['label'] = this.generalService.convertText_uppercaseAt0(
@@ -651,13 +652,6 @@ export class EnergyDesignService {
 
     getDefaultFields_storage(data?: any) {
         return [
-            {
-                name: 'nominal_storage_capacity',
-                placeholder: 'nominal_storage_capacity',
-                label: 'nominal_storage_capacity',
-                type: 'number',
-                span: '4',
-            },
             {
                 name: 'invest_relation_input_capacity',
                 placeholder: 'invest_relation_input_capacity',
@@ -1105,12 +1099,12 @@ export class EnergyDesignService {
                                 visible: true,
                                 fields: [
                                     this.getField(
-                                        'nominal_value',
-                                        'Nominal Value',
-                                        'Nominal Value',
+                                        'nominal_storage_capacity',
+                                        'nominal_storage_capacity Value',
+                                        'nominal Storage Capacity',
                                         false,
                                         'number',
-                                        'auto',
+                                        '4',
                                         editMode,
                                         data,
                                         undefined,
@@ -1139,14 +1133,14 @@ export class EnergyDesignService {
                                         data,
                                         callback,
                                     ).map((elm: any) => {
-                                        // if (elm.actions) {
-                                        //     elm.actions.forEach(
-                                        //         (element: any) => {
-                                        //             element['disabled'] =
-                                        //                 !isInvSelected;
-                                        //         }
-                                        //     );
-                                        // }
+                                        if (
+                                            elm.name == 'overall_maximum' ||
+                                            elm.name == 'overall_minimum' ||
+                                            elm.name == 'interest_rate' ||
+                                            elm.name == 'lifetime'
+                                        ) {
+                                            elm['disabled'] = true;
+                                        }
 
                                         return elm;
                                     }),
