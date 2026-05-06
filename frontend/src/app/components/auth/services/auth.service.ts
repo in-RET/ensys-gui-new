@@ -41,4 +41,8 @@ export class AuthService {
         const data = { username, firstname, lastname, password, mail };
         return this.baseHttp.post(`${this.baseUrl}/auth/register`, data);
     }
+
+    resetPassword(email: string): Observable<any> {
+        return this.baseHttp.post(`${this.baseUrl}/reset_password/${email}`);
+    }
 }
