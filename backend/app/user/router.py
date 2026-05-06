@@ -32,7 +32,7 @@ from .service import (
 )
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
-from ..models.response import DataResponse, MessageResponse
+from ..models.response import DataResponse, MessageResponse, AuthResponse
 from ..security import oauth2_scheme
 
 templates = Jinja2Templates(directory=os.path.join("templates", "html"))
@@ -48,7 +48,7 @@ async def login_user_endpoint(
     username: str = Form(...),
     password: str = Form(...),
     db: Session = Depends(get_db_session),
-) -> DataResponse:
+) -> AuthResponse:
     """Authenticate a user and return an access token.
 
     - param username: login username (form field)
@@ -61,15 +61,13 @@ async def login_user_endpoint(
     user_db = authenticate_user(username=username, password=password, db=db)
     user_token = user_db.get_token()
 
-    response_data = user_db.model_dump(exclude={"password"})
-    response_data.update({"access_token": user_token})
-
-    return DataResponse(
+    return AuthResponse(
         data=GeneralDataModel(
-            items=[response_data],
+            items=[user_db.model_dump(exclude={"password"})],
             totalCount=1,
         ),
         success=True,
+        access_token=user_token,
     )
 
 

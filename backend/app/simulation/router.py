@@ -95,8 +95,9 @@ async def stop_simulations_endpoint(
         scenario_id=scenario_id, user=user, db=db
     )
 
+    length = len(simulations) if simulations is not None else None
     return MessageResponse(
-        data=f"{len(simulations)} Simulation(s) stopped.", success=True
+        data=f"{length} Simulation(s) stopped.", success=True
     )
 
 

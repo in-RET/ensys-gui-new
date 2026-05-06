@@ -1,6 +1,7 @@
-import { HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import {HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+
 const ACCESS_TOKEN = 'access_token';
 const REFRESH_TOKEN = 'refresh_token';
 const USER_INFO = 'user_info';
@@ -31,7 +32,7 @@ export class AuthCoreService {
     /** Return token and menu if exists */
     public getHasAccess(): boolean {
         // return localStorage.getItem(ACCESS_TOKEN) ? true : false;
-        return this.getToken() ? true : false;
+        return !!this.getToken();
     }
 
     getTokenFromStorage(): string | null {

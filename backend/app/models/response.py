@@ -20,6 +20,9 @@ class DataResponse(GeneralResponse):
 
     data: GeneralDataModel = Field(...)
 
+class AuthResponse(GeneralResponse):
+    data: GeneralDataModel = Field(...)
+    access_token: str = Field(...)
 
 class MessageResponse(GeneralResponse):
     """Response carrying a message string."""

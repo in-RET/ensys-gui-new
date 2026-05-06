@@ -1,17 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import {
-    FormControl,
-    FormGroup,
-    FormsModule,
-    ReactiveFormsModule,
-    Validators,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { finalize, switchMap, tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AuthCoreService } from '../../../core/auth/auth.service';
-import { AuthService } from '../services/auth.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject} from '@angular/core';
+import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
+import {Router, RouterModule} from '@angular/router';
+import {finalize, switchMap, tap} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {AuthCoreService} from '../../../core/auth/auth.service';
+import {AuthService} from '../services/auth.service';
 
 @Component({
     selector: 'app-login',

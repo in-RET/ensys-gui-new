@@ -10,7 +10,6 @@ It handles the business logic for simulation operations including:
 """
 
 from datetime import datetime
-from uuid import uuid4
 
 from fastapi import HTTPException
 from oemof.tools import logger
@@ -27,7 +26,7 @@ def create_and_start_simulation(
     user: EnUserDB,
     db: Session,
     scenario_id: int,
-    simulation_token: str = str(uuid4()),
+    simulation_token: str,
 ) -> tuple[int | None, str | None]:
     """Create a simulation entry and enqueue the celery task.
 
@@ -92,20 +91,19 @@ def read_simulation(
         select(EnSimulationDB).where(EnSimulationDB.id == simulation_id)
     ).first()
 
-    if not simulation:
+    if simulation is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No Simulation found."
         )
-
-    if not user.check_user_rights(scenario_id=simulation.scenario_id, db=db):
+    elif not user.check_user_rights(scenario_id=simulation.scenario_id, db=db):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Not authorized.")
-
-    return simulation
+    else:
+        return simulation
 
 
 def read_scenario_simulations(
     scenario_id: int, user: EnUserDB, db: Session
-) -> list[EnSimulationDB] | None:
+) -> list[EnSimulationDB]:
     """List simulations for a scenario if the user is authorized."""
     if user.check_user_rights(scenario_id=scenario_id, db=db):
         statement = select(EnSimulationDB).where(
@@ -114,7 +112,7 @@ def read_scenario_simulations(
 
         return list(db.exec(statement).all())
     else:
-        return None
+        raise HTTPException(409, detail="Not authorized.")
 
 
 def stop_simulation(
@@ -145,7 +143,7 @@ def stop_simulation(
 
 def stop_simulations_for_scenario(
     scenario_id: int, user: EnUserDB, db: Session, simulation_id: int = None
-) -> list[EnSimulationDB]:
+) -> list[EnSimulationDB] | None:
     """Revoke running simulations for a scenario and mark them stopped.
 
     - param scenario_id: scenario whose simulations should stop
@@ -157,22 +155,20 @@ def stop_simulations_for_scenario(
     """
     simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
 
-    for simulation in simulations:
-        if simulation.id != simulation_id or simulation_id is None:
-            celery_app.control.revoke(task_id=simulation.sim_token, terminate=True)
-            simulation.status = Status.STOPPED.value
-            simulation.status_message = "Simulation was canceled by user request."
-            simulation.end_date = datetime.now()
+    if simulations is not None:
+        for simulation in simulations:
+            if simulation.status is Status.STARTED.value:
+                stop_simulation(simulation_id=simulation.id, user=user, db=db)
+                
+            try:
+                db.commit()
+            except Exception as exc:
+                db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)
+                )
 
-        try:
-            db.commit()
-        except Exception as exc:
-            db.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(exc)
-            )
-
-        db.refresh(simulation)
+            db.refresh(simulation)
 
     return simulations
 
