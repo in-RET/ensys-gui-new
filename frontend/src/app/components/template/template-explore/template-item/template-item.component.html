@@ -21,36 +21,6 @@
                     {{ template.description }}
                 </span>
             </div>
-
-            <div class="actions">
-                <button
-                    id="duplicate_{{ template.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action d-flex"
-                    type="button"
-                    value="Delete"
-                    (click)="onDuplicateTemplate(template.id)"
-                >
-                    <span
-                        class="icon icon-duplicate p-2"
-                        aria-hidden="true"
-                    ></span>
-                </button>
-
-                <button
-                    id="delete_{{ template.id }}"
-                    style="margin-top: 0.25rem"
-                    class="btn btn--action action d-flex"
-                    type="button"
-                    value="Delete"
-                    (click)="onDeleteTemplate(template.id)"
-                >
-                    <span
-                        class="icon icon-delete p-2"
-                        aria-hidden="true"
-                    ></span>
-                </button>
-            </div>
         </div>
     </div>
 
