@@ -176,7 +176,7 @@ export class NodeFormModalComponent {
                                 this.formComponent.setFieldData(key, val);
                             }
 
-                            // set node's ports name+...props
+                            // set node's ports name +...props
                             value.ports_data.inputs.forEach((port: Port) => {
                                 this.formComponent.setFieldData(
                                     'inputPort_name',
