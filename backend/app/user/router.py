@@ -184,7 +184,7 @@ async def delete_user_endpoint(
 
     return MessageResponse(data="User was successfully deleted.", success=True)
 
-@users_router.post("/reset_password/{e-mail}", response_model=MessageResponse)
+@users_router.post("/reset_password/{e_mail}", response_model=MessageResponse)
 async def reset_password_endpoint(
     e_mail: str,
     db: Session = Depends(get_db_session)
