@@ -19,22 +19,35 @@ import { ValidateService } from '../services/validate.service';
     styleUrl: './signup.component.scss',
 })
 export class SignupComponent {
+    authService = inject(AuthService);
+    router = inject(Router);
     validateService = inject(ValidateService);
 
     form: FormGroup = new FormGroup(
         {
-            email: new FormControl(null, Validators.required),
+            email: new FormControl(null, [
+                Validators.required,
+                Validators.minLength(8),
+                Validators.email,
+            ]),
             fName: new FormControl(null, Validators.required),
             lName: new FormControl(null, Validators.required),
             user: new FormControl(null, Validators.required),
-            pass: new FormControl(null, Validators.required),
+            pass: new FormControl(null, [
+                Validators.required,
+                Validators.minLength(8),
+                this.validateService.strongPasswordValidator,
+            ]),
             confirmPass: new FormControl(
                 null,
-                Validators.compose([Validators.required])
+                Validators.compose([
+                    Validators.required,
+                    Validators.minLength(8),
+                ]),
             ),
             consentOpt: new FormControl(false, Validators.required),
         },
-        this.validateService.passwordMatch('pass', 'confirmPass')
+        this.validateService.passwordMatch('pass', 'confirmPass'),
     );
 
     get email() {
@@ -65,14 +78,12 @@ export class SignupComponent {
         return this.form.get('consentOpt');
     }
 
-    errorList: string[] = [];
+    errMsg: string = '';
     loading: boolean = false;
-
-    authService = inject(AuthService);
-    router = inject(Router);
 
     signup() {
         this.loading = true;
+        this.errMsg = '';
 
         this.authService
             .signup(
@@ -80,7 +91,7 @@ export class SignupComponent {
                 this.fName?.value,
                 this.lName?.value,
                 this.pass?.value,
-                this.email?.value
+                this.email?.value,
             )
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
@@ -92,7 +103,7 @@ export class SignupComponent {
                     console.error(err);
 
                     if (err.error.detail) {
-                        this.errorList.push(err.error.detail);
+                        this.errMsg = err.error.detail;
                     }
                 },
             });
