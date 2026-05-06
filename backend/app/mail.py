@@ -5,6 +5,7 @@ import os
 from exchangelib import HTMLBody, Account, Configuration, Credentials, Message
 from jinja2 import Template
 
+from .core.config import get_settings
 from .user.model import EnUserDB
 
 
@@ -44,10 +45,14 @@ def send_activation_mail(token: str, user: EnUserDB):
     except IOError as e:
         raise IOError(f"Failed to read email template: {str(e)}")
 
+    fastapi_settings = get_settings()
+    base_url = fastapi_settings.app_base_url.rstrip("/")
+    activation_link = f"<a href='{base_url}/api/user/auth/activate/{token}'>Link</a>"
+
     # Generate email content
     content = template.render(
         username=user.username,
-        token=token
+        link=activation_link
     )
 
     # Create and send email

@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     """
 
     # App Settings
+    # Beispiel (Pydantic Settings, Name ggf. an deine Klasse anpassen)
+    app_base_url: str = Field(
+        default="http://localhost:9004/dev", description="Base URL for the application"
+    )
+
     app_name: str = Field(
         default="EnSys Backend", description="Name of the application"
     )
@@ -132,4 +137,5 @@ def get_settings() -> Settings:
         redis_host=str(os.getenv("REDIS_HOST")),
         redis_port=int(os.getenv("REDIS_PORT_DEV")),
         environment=str(os.getenv("ENVIRONMENT")),
+        app_base_url=str(os.getenv("BASE_URL")),
     )
