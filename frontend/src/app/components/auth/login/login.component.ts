@@ -1,11 +1,17 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {finalize, switchMap, tap} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {AuthCoreService} from '../../../core/auth/auth.service';
-import {AuthService} from '../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { finalize, tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthCoreService } from '../../../core/auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -42,24 +48,20 @@ export class LoginComponent {
             .logIn(this.user?.value, this.pass?.value)
             .pipe(
                 tap((res: any) => {
-                    this.authCoreService.saveTokenToStorage(res.access_token);
-                    this.authCoreService.saveToken(res.access_token);
-                }),
-                switchMap(() =>
-                    this.authService.getCurrentUser().pipe(
-                        tap((userRes: any) => {
-                            const userData =
-                                typeof userRes.data.items[0] === 'string'
-                                    ? JSON.parse(userRes.data.items[0])
-                                    : userRes.data.items[0];
+                    if (res.success) {
+                        this.authCoreService.saveTokenToStorage(
+                            res.access_token,
+                        );
+                        this.authCoreService.saveToken(res.access_token);
 
-                            this.authCoreService.saveUserInfoInStorage(
-                                userData,
-                            );
-                            this.authCoreService.saveUser(userData);
-                        }),
-                    ),
-                ),
+                        res = res.data.items[0];
+                        this.authCoreService.saveUserInfoInStorage(res);
+                        this.authCoreService.saveUser(res);
+                    } else {
+                        throw new Error(res.message);
+                    }
+                }),
+
                 finalize(() => (this.loading = false)),
             )
             .subscribe({
@@ -68,6 +70,7 @@ export class LoginComponent {
                 },
 
                 error: (err) => {
+                    debugger;
                     console.error(err);
                     this.error = {
                         message: err.error.detail,
