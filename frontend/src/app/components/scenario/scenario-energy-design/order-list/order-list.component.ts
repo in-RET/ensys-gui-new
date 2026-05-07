@@ -13,7 +13,7 @@ export interface OrderItem {
     name?: string;
     number?: number | null;
     type?: OrderType;
-    timeSeries?: number[];
+    timeSeries?: number | number[];
 }
 
 class OrderType {
@@ -165,6 +165,8 @@ export class OrderListComponent {
                 this.name.setErrors({ incorrect: true });
             }
         }
+
+        console.log(this.data);
     }
 
     clearForms() {

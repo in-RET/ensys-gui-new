@@ -298,7 +298,7 @@ export class NodeFormModalComponent {
                                         id: this.modalInfo?.data.ports.inputs
                                             .length,
                                         name: port.name,
-                                        number: port.efficiency ?? 1,
+                                        timeSeries: port.efficiency ?? 1,
                                     };
 
                                     this.modalInfo?.data.ports.inputs.push(
@@ -320,7 +320,7 @@ export class NodeFormModalComponent {
                                         id: this.modalInfo?.data.ports.outputs
                                             .length,
                                         name: port.name,
-                                        number: port.efficiency ?? 1,
+                                        timeSeries: port.efficiency ?? 1,
                                     };
 
                                     this.modalInfo?.data.ports.outputs.push(
