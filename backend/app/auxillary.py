@@ -10,15 +10,8 @@ The module provides:
     - Model conversion utilities
     - Database utility functions
 """
-from datetime import datetime
-
-from fastapi import HTTPException, Depends
-from sqlmodel import Session
-from starlette import status
 
 from ensys.components import *
-from .db import get_db_session
-from .simulation.model import EnSimulationDB, Status
 
 
 def check_flow_investment(flow_data):
@@ -111,7 +104,7 @@ def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
         target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
         target_bus_name = flowchart_data[target_bus_id]["name"]
 
-        conversion_value = component_ports["inputs"][input_port["id"]]["number"]
+        conversion_value = component_ports["inputs"][input_port["id"]]["timeSeries"]
         if conversion_value is not None:
             conversion_factors[target_bus_name] = conversion_value
 
@@ -121,7 +114,7 @@ def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
         target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
         target_bus_name = flowchart_data[target_bus_id]["name"]
 
-        conversion_value = component_ports["outputs"][output_port["id"]]["number"]
+        conversion_value = component_ports["outputs"][output_port["id"]]["timeSeries"]
 
         if conversion_value is not None:
             conversion_factors[target_bus_name] = conversion_value
