@@ -472,7 +472,7 @@ export class NodeFormModalComponent {
 
                 if (portsInfo === false) {
                     this.setFormError(true, ' * Ports have not been added!');
-                    // return false;
+                    return;
                 }
 
                 if (formData) {
