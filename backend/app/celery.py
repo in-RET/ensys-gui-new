@@ -19,8 +19,6 @@ import os
 import pathlib
 from datetime import datetime
 
-# Third Party
-from celery import Celery
 from celery.signals import after_setup_logger
 from celery.utils.log import get_task_logger
 from fastapi import HTTPException
@@ -29,6 +27,8 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy.exc import IntegrityError
 from starlette import status
 
+# Third Party
+from celery import Celery
 # Local Application
 from ensys.components import EnModel
 from .auxillary import convert_gui_json_to_ensys
@@ -178,7 +178,6 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         gurobi_logfile = os.path.abspath(os.path.join(log_path, "solver.log"))
         pathlib.Path(gurobi_logfile).touch()
-        print(gurobi_logfile)
 
         task_logger.info("solve optimization model")
         oemof_model.solve(
@@ -226,8 +225,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         task_in_progress.dec()
 
     except RuntimeError as runError:
-        task_logger.critical("error - runtime error")
-        task_logger.critical(runError)
+        task_logger.critical(f"RuntimeError: {runError}")
 
         if simulation is not None:
             simulation.status = Status.FAILED.value
@@ -250,10 +248,32 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         raise HTTPException(status_code=500, detail=str(runError))
 
-    except Exception as ex:
-        task_logger.critical("error - aborting task")
-        task_logger.critical(ex)
+    except KeyError as keyError:
+        task_logger.critical(f"KeyError: {keyError}")
 
+        if simulation is not None:
+            simulation.status = Status.FAILED.value
+            simulation.status_message = str(keyError)
+            simulation.end_date = datetime.now()
+
+            try:
+                db.commit()
+            except IntegrityError as exc:
+                db.rollback()
+                # Generic handling; DB should ideally have unique constraints and proper messages
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Database integrity error at simulation task - 2",
+                ) from exc
+
+            db.refresh(simulation)
+
+        task_in_progress.dec()
+
+        raise HTTPException(status_code=500, detail=f"It appeared a KeyError for the Key {keyError}.")
+
+    except Exception as ex:
+        task_logger.critical(f"Another Exception: {ex}")
 
         if simulation is not None:
             simulation.status = Status.FAILED.value
