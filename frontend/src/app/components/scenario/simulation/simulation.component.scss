@@ -1,20 +1,15 @@
 #wrapper {
-    border: 1px solid black;
-    width: 100%;
-    height: 100%;
-    padding: 1rem;
+    // width: 100%;
+    overflow-y: auto;
+    height: 87vh;
 }
 
 #header {
-    border: 1px solid black;
-    text-align: center;
     font-size: 12pt;
-    padding: 0.5em;
     margin: 5px;
 }
 
 .plot_heading {
-    border: 1px solid black;
     text-align: center;
     margin: 5px;
     padding: 0.5em;

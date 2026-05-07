@@ -62,16 +62,17 @@
                         ID:{{ item.id }}
                         -
                         <small>
-                            {{ item.start_date | date : "short" }}
+                            {{ item.start_date | date: "short" }}
                         </small>
                     </h5>
 
-                    <span>
-                        For Support: <b>{{ item.sim_token }}</b>
+                    <span *ngIf="item.status_message">
+                        Status Message:
+                        <b style="color: #ff9100">{{ item.status_message }}</b>
                     </span>
-                    <br>
+
                     <span>
-                        Status Message: <b>{{ item.status_message }}</b>
+                        <b style="font-size: 0.75em">{{ item.sim_token }}</b>
                     </span>
                 </div>
             </div>

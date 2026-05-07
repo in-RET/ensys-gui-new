@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AlertService } from '../../../shared/services/alert.service';
 // import Plotly from 'plotly.js';
@@ -22,20 +23,21 @@ export class SimulationComponent implements OnInit {
     httpService = inject(HttpClient);
 
     ngOnInit() {
-        this.loading = true;
         const simulationId = +this.route.snapshot.params['id'];
 
         if (simulationId) {
+            this.loading = true;
+
             this.httpService
                 .get(environment.apiUrl + 'results/' + simulationId)
+                .pipe(tap(() => (this.loading = false)))
                 .subscribe({
                     next: (value: any) => {
-                        this.loadGraphs(value.data.items[0].graphs);
                         this.loadStatic(value.data.items[0].static);
+                        this.loadGraphs(value.data.items[0].graphs);
                     },
                     error: (err) => {
                         console.error('Failed to load JSON', err);
-
                         this.alertService.error(err.detail);
                     },
                 });
@@ -74,7 +76,6 @@ export class SimulationComponent implements OnInit {
 
     loadGraphs(value: any) {
         value.forEach((bus: any) => {
-            // const plotname: any = bus.name;
             const x: any = bus.index;
             const y: any = {};
 
@@ -93,6 +94,7 @@ export class SimulationComponent implements OnInit {
                 })),
                 layout: {
                     title: 'Hallo Welt',
+                    autosize: true,
                 },
             };
 
@@ -106,8 +108,9 @@ export class SimulationComponent implements OnInit {
             plotly_main_div.appendChild(plot_heading);
             plotly_main_div.appendChild(plot_div);
 
-            this.loading = false;
-            Plotly.newPlot(bus.name, fig.data, fig.layout);
+            Plotly.newPlot(bus.name, fig.data, fig.layout, {
+                responsive: true,
+            });
         });
     }
 }
