@@ -79,13 +79,19 @@ export class FlowFormModalComponent {
             if (this.modalInfo.data.preDefData) {
                 const fData = this.modalInfo.data.preDefData;
 
-                if (this.modalInfo.node.id === +connections.input_node) {
+                if (
+                    this.modalInfo.node.id === +connections.input_node &&
+                    fData.inputs &&
+                    fData.inputs.length > 0
+                ) {
                     const currentPortNum_in =
                         +connections['input_port'].split('_')[1];
                     this.modalInfo.data =
                         fData.inputs[currentPortNum_in - 1]['flow_data'] || {};
                 } else if (
-                    this.modalInfo.node.id === +connections.output_node
+                    this.modalInfo.node.id === +connections.output_node &&
+                    fData.outputs &&
+                    fData.outputs.length > 0
                 ) {
                     const currentPortNum_out =
                         +connections['output_port'].split('_')[1];

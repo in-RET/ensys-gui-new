@@ -42,6 +42,7 @@ interface ContextMenuState {
         out: any[];
     };
     nodeFlowsColor: string;
+    showColorPicker: boolean;
 }
 
 @Component({
@@ -769,18 +770,6 @@ export class EnergyDrawflowComponent {
 
         if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
             this.onUpdateDrawflow();
-
-        // update storage
-        // const d: ScenarioStateModel | null =
-        //     this.scenarioStateService.getScenarioData();
-
-        // if (d && d.project && d.scenario) {
-        //     const scenarioData: ScenarioBaseInfoModel = {
-        //         project: d.project,
-        //         scenario: d.scenario,
-        //     };
-        //     this.scenarioService.saveBaseInfo_Storage(scenarioData);
-        // }
     }
 
     updatePortsAfterEdit(currentNode: any, changedData: any) {
@@ -1246,6 +1235,7 @@ export class EnergyDrawflowComponent {
                 out: nodeConnections_out,
             },
             nodeFlowsColor: currentNode.data.flowsColor ?? '#000000',
+            showColorPicker: false,
         };
 
         this.cdr.detectChanges();
@@ -1483,8 +1473,7 @@ export class EnergyDrawflowComponent {
         );
         this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
 
-        if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
-            this.onUpdateDrawflow();
+        if (this.contextmenu) this.unShowConextMenu();
     }
 
     setBusFlowsColor(nodeId: number, color: string) {
@@ -1526,6 +1515,11 @@ export class EnergyDrawflowComponent {
                 ?.scenario as ScenarioUpdatedModel_scenario;
 
         this.modalStateService.openSimulation({ scenarioId: _scenario.id });
+    }
+
+    onColorPicker(e: any) {
+        if (!this.contextmenu) return;
+        this.contextmenu.showColorPicker = true;
     }
 }
 

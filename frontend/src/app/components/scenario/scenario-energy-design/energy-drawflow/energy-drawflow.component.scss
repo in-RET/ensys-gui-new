@@ -87,7 +87,7 @@
     }
 }
 
-.submenu-parent:not(.color-picker) {
+.submenu-parent {
     cursor: pointer;
 }
 
@@ -140,10 +140,6 @@
     top: 0;
     display: none;
     min-width: 180px;
-}
-
-.submenu-parent:hover .nested-menu {
-    // display: block;
 }
 
 .open-right {
