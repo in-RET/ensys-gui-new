@@ -236,7 +236,19 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onCalculatorOpened(e: { action: any; formData: any }) {
-        this.modalStateService.toggleFlowForm();
+        let currentState!: ModalState;
+        const subscription = this.modalStateService.modalState.subscribe(
+            (state) => {
+                currentState = state;
+            },
+        );
+        subscription.unsubscribe();
+
+        if (currentState.nodeForm) {
+            this.modalStateService.toggleNodeForm();
+        } else if (currentState.flowForm) {
+            this.modalStateService.toggleFlowForm();
+        }
 
         this.modalStateService.openCalculator({
             action: e.action,
@@ -245,12 +257,39 @@ export class ScenarioEnergyDesignComponent {
     }
 
     onCalculateEpCosts(epCosts: number) {
-        this.flowFormModalComponent.calculateEpCosts(epCosts);
+        let currentState!: ModalState;
+        const subscription = this.modalStateService.modalState.subscribe(
+            (state) => {
+                currentState = state;
+            },
+        );
+        subscription.unsubscribe();
+
+        if (currentState.nodeForm) {
+            // this.modalStateService.toggleNodeForm();
+            this.nodeFormModalComponent.calculateEpCosts(epCosts);
+        } else if (currentState.flowForm) {
+            // this.modalStateService.toggleFlowForm();
+            this.flowFormModalComponent.calculateEpCosts(epCosts);
+        }
     }
 
     onCalculatorClosed() {
         this.modalStateService.closeCalculator();
-        this.toggleFlowForm();
+
+        let currentState!: ModalState;
+        const subscription = this.modalStateService.modalState.subscribe(
+            (state) => {
+                currentState = state;
+            },
+        );
+        subscription.unsubscribe();
+
+        if (currentState.nodeForm) {
+            this.modalStateService.toggleNodeForm();
+        } else if (currentState.flowForm) {
+            this.modalStateService.toggleFlowForm();
+        }
     }
 
     showModal_Simulation(scenarioId: number) {
