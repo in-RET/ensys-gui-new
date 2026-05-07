@@ -1082,6 +1082,7 @@ export class EnergyDesignService {
 
                                             callback['toggleInvestFields'](
                                                 InvestmentFields,
+                                                'nominal_storage_capacity',
                                             );
                                         },
                                         undefined,
@@ -1101,7 +1102,7 @@ export class EnergyDesignService {
                                     this.getField(
                                         'nominal_storage_capacity',
                                         'nominal_storage_capacity Value',
-                                        'nominal Storage Capacity',
+                                        'Nominal Storage Capacity',
                                         false,
                                         'number',
                                         '4',
@@ -1462,6 +1463,7 @@ export class EnergyDesignService {
 
                                             callback['toggleInvestFields'](
                                                 InvestmentFields,
+                                                'nominal_value',
                                             );
                                         },
                                         undefined,
@@ -1603,6 +1605,7 @@ export class EnergyDesignService {
 
                                             callback['toggleInvestFields'](
                                                 InvestmentFields,
+                                                'nominal_value',
                                             );
                                         },
                                         undefined,

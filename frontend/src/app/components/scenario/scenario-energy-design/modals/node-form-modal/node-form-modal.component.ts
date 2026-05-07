@@ -49,7 +49,7 @@ export class NodeFormModalComponent {
     };
 
     @Input() modalInfo: FormModalInfo | null = null;
-    @Output() modalClosed = new EventEmitter<boolean>();
+    @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() makeNode = new EventEmitter<{
         formValue: any;
         formModalInfo: FormModalInfo;
@@ -64,6 +64,7 @@ export class NodeFormModalComponent {
         controlName: string;
         modes: ModeOption[] | null;
     }>();
+    @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
 
     @ViewChild('form')
     formComponent!: FormComponent;
@@ -664,8 +665,8 @@ export class NodeFormModalComponent {
         }
     }
 
-    closeModal(approve: boolean) {
-        this.modalClosed.emit(approve);
+    closeModal(approved: boolean) {
+        this.modalClosed.emit({ approved: approved });
         this.cleanFormError();
     }
 
@@ -676,11 +677,16 @@ export class NodeFormModalComponent {
             toggleVisibilitySection: this.toggleVisibilitySection.bind(this),
             onChangePreDefined: this.onChangePreDefined.bind(this),
             toggleOEP: this.toggleOEP.bind(this),
+            showModal_EpCostsCalculator:
+                this.showModal_EpCostsCalculator.bind(this),
         };
     }
 
-    private toggleInvestFields(investmentFields: string[]) {
-        this.formComponent.toggleControl('nominal_value');
+    private toggleInvestFields(
+        investmentFields: string[],
+        non_investmentFields: string,
+    ) {
+        this.formComponent.toggleControl(non_investmentFields);
 
         investmentFields.forEach((fieldName: string) => {
             if (
@@ -778,6 +784,19 @@ export class NodeFormModalComponent {
                     !this.formComponent.form.controls['oep'].value;
             }
         }
+    }
+
+    private showModal_EpCostsCalculator() {
+        this.onShowModal_EpCostsCalculator.emit({
+            action: {
+                label: 'ƒ',
+                fn: 'calculateEpCosts',
+            },
+            formData: this.energyDesignService.getFormFieldsEpCosts(),
+        });
+    }
+    calculateEpCosts(epCosts: number) {
+        this.formComponent.setFieldData('ep_costs', epCosts);
     }
 
     /**
