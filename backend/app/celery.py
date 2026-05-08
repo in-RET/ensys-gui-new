@@ -136,7 +136,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
     # convert modeling_data to energy system data
     task_logger.info("convert modeling_data to energy system data")
     modeling_data_json = json.loads(scenario.modeling_data)
-    constraints_json = json.loads(scenario.constraints)
+    constraints_json = json.loads(scenario.constraints) if scenario.constraints != "" else None
 
     try:
         with open(os.path.join(simulation_folder, "modeling_data.json"), "w") as f:
@@ -176,18 +176,19 @@ def simulation_task(scenario_id: int, simulation_id: int):
         oemof_model = solph.Model(oemof_es)
 
         # add constraints
-        for constraint in constraints_json:
-            print(f"Constraint {constraint}")
+        if constraints_json is not None:
+            for constraint in constraints_json:
+                print(f"Constraint {constraint}")
 
-            if constraint["enabled"]:
-                if constraint["type"] == "emission_limit":
-                    solph.constraints.emission_limit(
-                        om=oemof_model,
-                        limit=float(constraint["values"]["limit"]),
-                    )
-                # elif weitere constraints
-                else:
-                    task_logger.warning(f"Constraint type {constraint['type']} not recognized or implemented.")
+                if constraint["enabled"]:
+                    if constraint["type"] == "emission_limit":
+                        solph.constraints.emission_limit(
+                            om=oemof_model,
+                            limit=float(constraint["values"]["limit"]),
+                        )
+                    # elif weitere constraints
+                    else:
+                        task_logger.warning(f"Constraint type {constraint['type']} not recognized or implemented.")
 
         # solve the optimization model
         # TODO: Dynamic solver kwargs
