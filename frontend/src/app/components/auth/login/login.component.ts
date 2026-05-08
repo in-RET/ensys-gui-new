@@ -70,7 +70,6 @@ export class LoginComponent {
                 },
 
                 error: (err) => {
-                    debugger;
                     console.error(err);
                     this.error = {
                         message: err.error.detail,

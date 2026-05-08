@@ -2,14 +2,18 @@
     class="py-2 px-3 border-bottom d-flex justify-content-between sticky-top bg-white"
 >
     <!-- main icon + link to projects -->
-    <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
-        <img
-            class="bi"
-            style="height: 100%"
-            src="/static/assets/logos/ensys_logo_full.svg"
-            alt="ensys_logo_full"
-        />
-    </a>
+    <div>
+        <a [routerLink]="user.is_authenticated ? ['projects'] : ['']">
+            <img
+                class="bi"
+                style="height: 100%"
+                src="/static/assets/logos/ensys_logo_full.svg"
+                alt="ensys_logo_full"
+            />
+        </a>
+
+        <small class="ms-1" style="color: #bcc0c480"> v{{ version }} </small>
+    </div>
 
     <div
         class="d-flex justify-content-between align-items-center current-scenario-info"
