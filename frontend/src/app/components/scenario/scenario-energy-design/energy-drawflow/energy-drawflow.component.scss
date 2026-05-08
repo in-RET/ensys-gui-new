@@ -57,23 +57,23 @@
     background-repeat: no-repeat;
 
     &.edit {
-        background-image: url("/static/assets/icons/feather/black/edit.svg");
+        background-image: url("../../../../../static/assets/icons/feather/black/edit.svg");
         filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(53deg)
             brightness(118%) contrast(119%);
     }
 
     &.trash {
-        background-image: url("/static/assets/icons/feather/black/trash.svg");
+        background-image: url("../../../../../static/assets/icons/feather/white/trash.svg");
         filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(330deg)
             brightness(118%) contrast(119%);
     }
 
     &.arrow-right {
-        background-image: url("/static/assets/icons/feather/black/arrow-right.svg");
+        background-image: url("../../../../../static/assets/icons/feather/black/arrow-right.svg");
     }
 
     &.arrow-left {
-        background-image: url("/static/assets/icons/feather/black/arrow-left.svg");
+        background-image: url("../../../../../static/assets/icons/feather/black/arrow-left.svg");
     }
 }
 
@@ -170,44 +170,44 @@
         cursor: pointer;
 
         &.zoom-in {
-            background-image: url("/static/assets/icons/feather/white/zoom-in.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/zoom-in.svg");
             cursor: pointer;
         }
 
         &.zoom-out {
-            background-image: url("/static/assets/icons/feather/white/zoom-out.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/zoom-out.svg");
         }
 
         &.zoom-reset {
-            background-image: url("/static/assets/icons/feather/white/refresh-ccw.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/refresh-ccw.svg");
         }
 
         &.full-screen {
-            background-image: url("/static/assets/icons/feather/white/maximize.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/maximize.svg");
         }
 
         &.delete-all {
-            background-image: url("/static/assets/icons/feather/white/trash.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/trash.svg");
         }
 
         &.play {
-            background-image: url("/static/assets/icons/feather/white/play.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/play.svg");
         }
 
         &.save {
-            background-image: url("/static/assets/icons/feather/white/save.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/save.svg");
         }
 
         &.more-vertical {
-            background-image: url("/static/assets/icons/feather/white/more-vertical.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/more-vertical.svg");
         }
 
         &.close {
-            background-image: url("/static/assets/icons/feather/white/x.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/x.svg");
         }
 
         &.list {
-            background-image: url("/static/assets/icons/feather/white/list.svg");
+            background-image: url("../../../../../static/assets/icons/feather/white/list.svg");
         }
     }
 
