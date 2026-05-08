@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { environment } from '../../../../environments/environment.local';
 import { AuthService } from '../../../components/auth/services/auth.service';
 import { ScenarioStateService } from '../../../components/scenario/services/scenario-state.service';
 
@@ -13,6 +14,7 @@ import { ScenarioStateService } from '../../../components/scenario/services/scen
 })
 export class NavbarComponent {
     is_creation_scenario_mode: boolean = false;
+    version = environment.version;
 
     @Input() user: any = {
         is_authenticated: false,
