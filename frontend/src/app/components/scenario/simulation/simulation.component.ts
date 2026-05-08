@@ -38,7 +38,10 @@ export class SimulationComponent implements OnInit {
                     },
                     error: (err) => {
                         console.error('Failed to load JSON', err);
-                        this.alertService.error(err.detail);
+                        this.alertService.error(
+                            err.error.detail ||
+                                'Failed to load simulation results! Check Logs for more details.',
+                        );
                     },
                 });
         }
