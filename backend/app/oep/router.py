@@ -8,11 +8,11 @@ from sqlmodel import Session
 from starlette import status
 
 from .service import get_oep_client
+from ..app_types import oemofBlockTypes, oepTypes, oepTypesData
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse
 from ..security import oauth2_scheme
-from ..types import oemofBlockTypes, oepTypes, oepTypesData
 from ..user.service import read_user_by_token
 
 oep_router = APIRouter(
@@ -493,7 +493,7 @@ async def get_local_oep_data_ports(
 
         if oep_type.lower() == "generic_storage":
             port["flow_data"] = {"investment": True}
-            
+
         del port["investment"]
 
         if (

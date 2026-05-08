@@ -136,12 +136,15 @@ def simulation_task(scenario_id: int, simulation_id: int):
     # convert modeling_data to energy system data
     task_logger.info("convert modeling_data to energy system data")
     modeling_data_json = json.loads(scenario.modeling_data)
+    constraints_json = json.loads(scenario.constraints)
 
     try:
         with open(os.path.join(simulation_folder, "modeling_data.json"), "w") as f:
             f.write(json.dumps(modeling_data_json, indent=4))
 
-        converted_energy_system = convert_gui_json_to_ensys(modeling_data_json)
+        converted_energy_system = convert_gui_json_to_ensys(
+            flowchart_data=modeling_data_json
+        )
 
         # Create Energysystem to be stored
         task_logger.info("create energysystem to be stored")
@@ -171,6 +174,20 @@ def simulation_task(scenario_id: int, simulation_id: int):
         # create the model for optimization
         task_logger.info("create simulation model")
         oemof_model = solph.Model(oemof_es)
+
+        # add constraints
+        for constraint in constraints_json:
+            print(f"Constraint {constraint}")
+
+            if constraint["enabled"]:
+                if constraint["type"] == "emission_limit":
+                    solph.constraints.emission_limit(
+                        om=oemof_model,
+                        limit=float(constraint["values"]["limit"]),
+                    )
+                # elif weitere constraints
+                else:
+                    task_logger.warning(f"Constraint type {constraint['type']} not recognized or implemented.")
 
         # solve the optimization model
         # TODO: Dynamic solver kwargs
@@ -253,7 +270,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         if simulation is not None:
             simulation.status = Status.FAILED.value
-            simulation.status_message = str(keyError)
+            simulation.status_message = f"It appeared a KeyError for the Key {keyError}."
             simulation.end_date = datetime.now()
 
             try:

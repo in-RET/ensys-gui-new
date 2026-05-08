@@ -35,8 +35,7 @@ def check_flow_investment(flow_data):
             lifetime=flow_data["lifetime"],
             age=flow_data["age"],
             interest_rate=flow_data["interest_rate"],
-            fixed_costs=flow_data["fixed_costs"],
-            # custom_attributes="to be done"
+            fixed_costs=flow_data["fixed_costs"]
         )
     else:
         return flow_data["nominal_value"]
@@ -66,7 +65,26 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                 # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
                 for node_input in component_data["connections"]["inputs"]:
                     flow_data = node_input["formInfo"]
+                    flow_data["custom_properties"] = {}
+
+                    print(flow_data.keys())
+
                     flow_data["nominal_value"] = check_flow_investment(flow_data)
+
+                    # Replace constraint shit with custom_attributes
+                    del_list = []
+                    constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
+                    for key in constraint_filter_flow_data_keys:
+                        print(f"Check {key} for constraint.")
+                        if key.startswith("constraint_") and flow_data[key] is not None:
+                            flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
+                        del_list.append(key)
+
+                    if flow_data["custom_properties"] == {}:
+                        del_list.append("custom_properties")
+
+                    for key in del_list:
+                        del flow_data[key]
 
                     input_data[target_bus_name] = EnFlow(**flow_data)
 
@@ -77,7 +95,26 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                 target_bus_name = flowchart_data[target_bus_id]["name"]
 
                 for output in component_data["connections"]["outputs"]:
-                    flow_data = output["formInfo"]
+                    flow_data: dict = output["formInfo"]
+                    flow_data["custom_properties"] = {}
+
+                    print(flow_data.keys())
+
+                    # Replace constraint shit with custom_attributes
+                    del_list = []
+                    constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
+                    for key in constraint_filter_flow_data_keys:
+                        print(f"Check {key} for constraint.")
+                        if key.startswith("constraint_") and flow_data[key] is not None:
+                            flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
+                        del_list.append(key)
+
+                    if flow_data["custom_properties"] == {}:
+                        del_list.append("custom_properties")
+
+                    for key in del_list:
+                        del flow_data[key]
+
                     flow_data["nominal_value"] = check_flow_investment(flow_data)
 
                     output_data[target_bus_name] = EnFlow(**flow_data)

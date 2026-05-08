@@ -103,7 +103,6 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
         if result_component_data != {}:
             result_components.append(result_component_data)
 
-    costs = None
     costs = cost_calculation_from_energysystem(es)
     print(f"Costs: {costs}")
 

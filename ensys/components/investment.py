@@ -35,7 +35,7 @@ class EnInvestment(EnBaseModel):
         model; defaults to the model's discount rate if unspecified.
     :ivar fixed_costs: Fixed costs per period in nominal terms, applicable to
         multi-period models.
-    :ivar custom_attributes: Dictionary of custom constraints or attributes for
+    :ivar custom_properties: Dictionary of custom constraints or attributes for
         investment.
     :type maximum: float | None
     :type minimum: float
@@ -49,7 +49,7 @@ class EnInvestment(EnBaseModel):
     :type age: int | None
     :type interest_rate: float | None
     :type fixed_costs: float | None
-    :type custom_attributes: dict | None
+    :type custom_properties: dict | None
     """
     maximum: float | None = Field(
         default=float("+inf"),  # eigtl. float("+inf"),
@@ -125,9 +125,9 @@ class EnInvestment(EnBaseModel):
         description='Fixed costs in each period (given in nominal terms); only applicable for multi-period models'
     )
 
-    custom_attributes: dict | None = Field(
+    custom_properties: dict | None = Field(
         default=None,
-        title="Custom Attributes",
+        title="Custom Properties",
         description="Custom Attributes as dictionary for custom investment limits."
     )
 
