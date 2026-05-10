@@ -73,6 +73,8 @@ export class EnergyDrawflowComponent {
     } = {
         isOpen: false,
     };
+    canMoveDrawflow: boolean = false;
+    isDragging: boolean = false;
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild(ModalComponent)
@@ -92,6 +94,8 @@ export class EnergyDrawflowComponent {
     private cdr = inject(ChangeDetectorRef);
     private modalStateService = inject(ModalStateService);
     private scenarioStateService = inject(ScenarioStateService);
+
+    drawflowMovementState$ = this.scenarioStateService.drawflowMovementState;
 
     ngAfterViewInit() {
         setTimeout(() => {
@@ -223,6 +227,8 @@ export class EnergyDrawflowComponent {
         });
 
         this.connectionMagneticSnap();
+
+        this.manageDrawflowMovementPossibility();
     }
 
     private loadCurrentDrawflow() {
@@ -295,6 +301,30 @@ export class EnergyDrawflowComponent {
                     portEl.classList.remove('disabled');
                 }
             });
+        });
+    }
+
+    private manageDrawflowMovementPossibility() {
+        this.renderer.listen(this.editor.container, 'mousedown', (e: any) => {
+            const port_in = e.target.classList.contains('input');
+            const port_out = e.target.classList.contains('output');
+
+            if (port_in || port_out) {
+                this.scenarioStateService.setDrawflowMovementState(true);
+            }
+
+            const target = e.target as HTMLElement;
+            const clickedNode = target.closest('.drawflow-node');
+
+            if (clickedNode) {
+                this.scenarioStateService.setDrawflowMovementState(true);
+            }
+        });
+
+        this.renderer.listen(this.editor.container, 'mouseup', (e: any) => {
+            if (!this.canMoveDrawflow) {
+                this.scenarioStateService.setDrawflowMovementState(false);
+            }
         });
     }
 
@@ -627,10 +657,16 @@ export class EnergyDrawflowComponent {
     }
 
     allowDrop(ev: any) {
+        this.isDragging = true;
         ev.preventDefault();
     }
 
     onDrop(ev: any) {
+        this.isDragging = false;
+        // this.canMoveDrawflow = false;
+        if (!this.canMoveDrawflow)
+            this.scenarioStateService.setDrawflowMovementState(false);
+
         ev.preventDefault();
 
         const nodeType = ev.dataTransfer.getData('id');
@@ -1520,6 +1556,16 @@ export class EnergyDrawflowComponent {
     onColorPicker(e: any) {
         if (!this.contextmenu) return;
         this.contextmenu.showColorPicker = true;
+    }
+
+    toggleDrawflowMovement() {
+        const currentState = this.canMoveDrawflow;
+        this.canMoveDrawflow = !currentState;
+        this.scenarioStateService.setDrawflowMovementState(!currentState);
+
+        this.toastService.info(
+            `Drawflow movement ${!currentState ? 'enabled' : 'disabled'}!`,
+        );
     }
 }
 

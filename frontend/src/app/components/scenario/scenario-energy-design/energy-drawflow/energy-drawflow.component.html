@@ -5,7 +5,12 @@
             editor && (editor.drawflow.drawflow.Home.data | json) === '{}',
     }"
 >
-    <div id="drawflow" (drop)="onDrop($event)" (dragover)="allowDrop($event)">
+    <div
+        id="drawflow"
+        (drop)="onDrop($event)"
+        (dragover)="allowDrop($event)"
+        [ngClass]="(drawflowMovementState$ | async) ? 'pe-all' : 'pe-none'"
+    >
         <div class="tools-box shadow rounded">
             <div class="d-flex gap-2 __all" *ngIf="toolBar.isOpen">
                 <div class="__controlling d-flex gap-2">
@@ -33,6 +38,19 @@
                         class="delete-all"
                         title="Delete All"
                         (click)="clearGridModel()"
+                        *ngIf="
+                            editor &&
+                            (editor.drawflow.drawflow.Home.data | json) !== '{}'
+                        "
+                    ></i>
+                    <i
+                        [ngClass]="
+                            (drawflowMovementState$ | async) ? 'unlock' : 'lock'
+                        "
+                        [title]="
+                            (drawflowMovementState$ | async) ? 'lock' : 'unlock'
+                        "
+                        (click)="toggleDrawflowMovement()"
                         *ngIf="
                             editor &&
                             (editor.drawflow.drawflow.Home.data | json) !== '{}'

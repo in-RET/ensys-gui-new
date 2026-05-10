@@ -1415,8 +1415,6 @@ export class EnergyDesignService {
         },
     ) {
         const getFields = async () => {
-            console.log(data);
-
             switch (name) {
                 case 'genericstorage':
                     return {
