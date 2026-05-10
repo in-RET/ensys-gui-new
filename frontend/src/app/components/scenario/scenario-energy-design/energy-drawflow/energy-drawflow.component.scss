@@ -209,6 +209,14 @@
         &.list {
             background-image: url("../../../../../static/assets/icons/feather/white/list.svg");
         }
+
+        &.lock {
+            background-image: url("../../../../../static/assets/icons/feather/white/lock.svg");
+        }
+
+        &.unlock {
+            background-image: url("../../../../../static/assets/icons/feather/white/unlock.svg");
+        }
     }
 
     .__all {
@@ -220,4 +228,9 @@
             padding-right: 0.5rem;
         }
     }
+}
+
+::ng-deep .drawflow-node,
+.tools-box {
+    pointer-events: all !important;
 }

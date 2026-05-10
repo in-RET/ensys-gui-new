@@ -34,14 +34,11 @@ export class ScenarioStateService {
         return this.userModelingState$.asObservable();
     }
 
-    // private _drawflowData$ = new BehaviorSubject<{
-    //     [nodeKey: string]: DrawflowNode;
-    // } | null>(null);
-    // readonly drawflowData$ = this._drawflowData$.asObservable();
-
-    // readonly isDrawflowEmpty$: Observable<boolean> = this.scenarioState$.pipe(
-    //     map((data) => data === null),
-    // );
+    private drawflowMovementState$: BehaviorSubject<boolean> =
+        new BehaviorSubject<boolean>(false);
+    get drawflowMovementState(): Observable<boolean> {
+        return this.drawflowMovementState$.asObservable();
+    }
 
     setScenarioData(data: ScenarioStateModel) {
         console.log('Set scenario data:', data);
@@ -106,5 +103,12 @@ export class ScenarioStateService {
 
     clearUserModelingState() {
         this.userModelingState$.next(null);
+    }
+
+    setDrawflowMovementState(isMoving: boolean) {
+        this.drawflowMovementState$.next(isMoving);
+    }
+    getDrawflowMovementState(): boolean {
+        return this.drawflowMovementState$.value;
     }
 }
