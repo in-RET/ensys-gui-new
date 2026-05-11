@@ -220,6 +220,14 @@ def simulation_task(scenario_id: int, simulation_id: int):
         oemof_es.results["main"] = solph.processing.results(oemof_model)
         oemof_es.results["meta"] = solph.processing.meta_results(oemof_model)
 
+        # Todo: Bei mehreren Constraints ist das hier eine Falle!
+
+        if constraints_json is not None:
+            for single_constraint in constraints_json:
+                if single_constraint["type"] == "emission_limit" and single_constraint["enabled"]:
+                    print(oemof_model.integral_limit_emission_factor())
+                    oemof_es.results["emissions"] = oemof_model.integral_limit_emission_factor()
+
         task_logger.info("dump results")
         oemof_es.dump(dpath=dump_path, filename="oemof_es.dump")
 

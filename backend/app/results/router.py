@@ -8,10 +8,12 @@ from sqlmodel import Session
 from starlette import status
 
 from .automatic_cost_calc import cost_calculation_from_energysystem
-from .model import EnDataFrame, EnTimeSeries, EnInvestResult, ResultDataModel
+from .model import EnDataFrame, EnTimeSeries, EnTableResult, ResultDataModel
 from ..db import get_db_session, SessionLocal
 from ..models.base import GeneralDataModel, ErrorModel
 from ..models.response import ErrorResponse, ResultResponse
+from ..project.model import EnProjectDB
+from ..scenario.model import EnScenarioDB
 from ..security import oauth2_scheme
 from ..simulation.model import EnSimulationDB, Status
 
@@ -30,6 +32,8 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     - raises: HTTPException 404 when simulation or dump is missing
     """
     simulation = db.get(EnSimulationDB, simulation_id)
+    sim_scenario = db.get(EnScenarioDB, simulation.scenario_id)
+    sim_project = db.get(EnProjectDB, sim_scenario.project_id)
 
     if not simulation:
         raise HTTPException(
@@ -87,18 +91,32 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
         component_data = solph.views.node(es.results["main"], node=component)
 
         if "scalars" in component_data:
-            if type(component) == solph.components.GenericStorage:
-                result_component_data = EnInvestResult(
-                    name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000, 2),
-                    unit="kWh",
-                )
+            if sim_project.unit_energy == "MW/MWh":
+                if type(component) == solph.components.GenericStorage:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0], 2),
+                        unit="MWh"
+                    )
+                else:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0], 2),
+                        unit="MW"
+                    )
             else:
-                result_component_data = EnInvestResult(
-                    name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000, 2),
-                    unit="kW",
-                )
+                if type(component) == solph.components.GenericStorage:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        unit="kWh"
+                    )
+                else:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        unit="kW"
+                    )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
@@ -111,15 +129,20 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     #         data = costs.loc[index, key]
     #
     #         if not math.isnan(data):
-    #             result_components.append(EnInvestResult(
+    #             result_components.append(EnTableResult(
     #                 name=f"{index} ({key})",
     #                 value=round(data, 2),
     #                 unit="EUR"
     #             ))
 
     result_components.append(
-        EnInvestResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a")
+        EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a")
     )
+
+    if "Emissions" in es.results.keys():
+        result_components.append(
+            EnTableResult(name="Emissions", value=round(es.results["emissions"], 2), unit=sim_project.unit_co2)
+        )
 
     return_data = [ResultDataModel(static=result_components, graphs=result_data)]
 

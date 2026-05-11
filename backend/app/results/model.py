@@ -16,10 +16,10 @@ class EnTimeSeries(BaseModel):
     data: list[float]
 
 
-class EnInvestResult(BaseModel):
+class EnTableResult(BaseModel):
     """Investment result entry with name/value/unit."""
     name: str
-    value: float
+    value: float | str
     unit: str
 
 
@@ -35,5 +35,5 @@ class EnDataFrame(BaseModel):
 
 class ResultDataModel(BaseModel):
     """Aggregated results split into static and graph data."""
-    static: list[EnInvestResult]
+    static: list[EnTableResult]
     graphs: list[EnDataFrame]
