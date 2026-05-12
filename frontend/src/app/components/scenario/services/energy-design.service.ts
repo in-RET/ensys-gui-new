@@ -1346,11 +1346,7 @@ export class EnergyDesignService {
         if (!currntConstraints || currntConstraints.length == 0) return [];
 
         return currntConstraints
-            .filter(
-                (constraint) =>
-                    constraint.enabled &&
-                    constraint.type !== 'investment_limit',
-            )
+            .filter((constraint) => constraint.type !== 'investment_limit')
             .map((constraint: ConstraintRow) => {
                 const val: Record<string, any> = constraint.values;
                 const fieldName = (val['keyword'] || val['name']).trim();
@@ -1374,6 +1370,7 @@ export class EnergyDesignService {
                             { name: 'Flows 1', value: 'flows_1' },
                             { name: 'Flows 2', value: 'flows_2' },
                         ],
+                        !constraint.enabled,
                     );
                 else if (
                     constraint.type === 'limit_active_flow_count_by_keyword'
@@ -1387,6 +1384,10 @@ export class EnergyDesignService {
                         '6',
                         editMode,
                         data,
+                        undefined,
+                        undefined,
+                        undefined,
+                        !constraint.enabled,
                     );
                 else
                     return this.getField(
@@ -1398,6 +1399,10 @@ export class EnergyDesignService {
                         '6',
                         editMode,
                         data,
+                        undefined,
+                        undefined,
+                        undefined,
+                        !constraint.enabled,
                     );
             });
     }

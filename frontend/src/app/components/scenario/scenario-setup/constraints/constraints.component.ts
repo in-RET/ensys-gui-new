@@ -29,17 +29,13 @@ import { ConstraintRow } from './models/constraints.model';
 export class ConstraintsComponent {
     constraintList: ConstraintRow[] = [];
     selectedConstraint!: ConstraintRow | null;
-    // constraintFormInfo!: {
-    //     show: boolean;
-    // };
+
     private _constraintFormInfo: { show: boolean } = { show: false };
-
-    get constraintFormInfo(): { show: boolean } {
-        return this._constraintFormInfo;
-    }
-
     set constraintFormInfo(value: { show: boolean }) {
         this._constraintFormInfo = value;
+    }
+    get constraintFormInfo(): { show: boolean } {
+        return this._constraintFormInfo;
     }
 
     private _data: ConstraintRow[] | null = null;
@@ -54,6 +50,10 @@ export class ConstraintsComponent {
         new EventEmitter<string>();
     @Output() addConstraintToFlow: EventEmitter<string> =
         new EventEmitter<string>();
+    @Output() toggleConstraintOnFlow: EventEmitter<{
+        name: string;
+        status: boolean;
+    }> = new EventEmitter<{ name: string; status: boolean }>();
     @Output() editConstraintOnFlow: EventEmitter<{ old: string; new: string }> =
         new EventEmitter<{ old: string; new: string }>();
 
@@ -142,31 +142,20 @@ export class ConstraintsComponent {
 
         if (i > -1) {
             this.constraintList[i].enabled = !this.constraintList[i].enabled;
-            const fieldName = (
-                (this.constraintList[i].values['keyword'] as string) ||
-                (this.constraintList[i].values['name'] as string)
-            )
-                .trim()
-                .replace(/\s+/g, '_');
+            // const fieldName = (
+            //     (this.constraintList[i].values['keyword'] as string) ||
+            //     (this.constraintList[i].values['name'] as string)
+            // )
+            //     .trim()
+            //     .replace(/\s+/g, '_');
 
-            if (this.constraintList[i].enabled)
-                this.onAddConstraintToFlow(fieldName);
-            else this.onRemoveConstraintFromFlow(fieldName);
+            // if (this.constraintList[i].enabled)
+            //     this.onEnableConstraintFromFlow(fieldName);
+            // else this.onDisableConstraintToFlow(fieldName);
         }
     }
 
     getConstraintData(): ConstraintRow[] {
-        // const _sampleD: ConstraintModel[] = [
-        //     {
-        //         key: 'a',
-        //         label: 'A',
-        //     },
-        //     {
-        //         key: 'b',
-        //         label: 'B',
-        //     },
-        // ];
-        // return _sampleD;
         return this.constraintList;
     }
 
@@ -176,6 +165,10 @@ export class ConstraintsComponent {
     onAddConstraintToFlow(constraintName: string): void {
         this.addConstraintToFlow.emit(constraintName);
     }
+
+    onEnableConstraintFromFlow(constraintName: string): void {}
+    onDisableConstraintToFlow(constraintName: string): void {}
+
     onEditConstraintOnFlow(
         old_constraintName: string,
         new_constraintName: string,
