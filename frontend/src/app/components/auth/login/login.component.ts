@@ -66,7 +66,7 @@ export class LoginComponent {
             )
             .subscribe({
                 next: () => {
-                    this.router.navigate(['/projects']);
+                    this.router.navigate(['/explore']);
                 },
 
                 error: (err) => {

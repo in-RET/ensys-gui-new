@@ -10,7 +10,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import L from 'leaflet';
 import { map, Observable } from 'rxjs';
-import { RegionService } from '../../../shared/services/region.service';
+import { ToastService } from '../../../shared/services/toast.service';
 import { ProjectService } from '../services/project.service';
 
 @Component({
@@ -114,22 +114,21 @@ export class ProjectCreateComponent implements OnInit {
     constructor(
         private projectService: ProjectService,
         private route: ActivatedRoute,
-        private regionService: RegionService,
         private router: Router,
+        private toastService: ToastService,
     ) {}
 
     ngOnInit() {
         this.getRegions();
 
-        if (this.route.snapshot.fragment) {
-            if (this.route.snapshot.fragment == 'update') {
-                this.mode = 'update';
-                this.form.patchValue({
-                    id: this.route.snapshot.params['id'],
-                });
+        if (this.route.snapshot.paramMap.get('id')) {
+            this.mode = 'update';
 
-                this.loadProject(this.route.snapshot.params['id']);
-            }
+            this.form.patchValue({
+                id: this.route.snapshot.params['id'],
+            });
+
+            this.loadProject(this.route.snapshot.params['id']);
         } else this.initMap(51.495258, 10.808557);
     }
 
@@ -195,7 +194,7 @@ export class ProjectCreateComponent implements OnInit {
 
                 .subscribe({
                     next: (value) => {
-                        this.router.navigate(['projects']);
+                        this.router.navigate(['/explore']);
                     },
 
                     error: (err) => {
@@ -215,7 +214,7 @@ export class ProjectCreateComponent implements OnInit {
 
                 .subscribe({
                     next: (value) => {
-                        this.router.navigate(['projects']);
+                        this.router.navigate(['/explore']);
                     },
 
                     error: (err) => {
@@ -239,13 +238,20 @@ export class ProjectCreateComponent implements OnInit {
         this.getProjectById(id)
             .pipe(
                 map((res: any) => {
-                    this.formUpdate(res);
                     this.initMap(res.latitude, res.longitude);
                     this.setMapMarker(res.latitude, res.longitude);
                     return res;
                 }),
             )
-            .subscribe();
+            .subscribe({
+                next: (value) => {
+                    this.formUpdate(value);
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error('Failed to load project data');
+                },
+            });
     }
 
     formUpdate(data: any) {

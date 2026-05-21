@@ -51,7 +51,7 @@ export class TemplateItemComponent {
             next: (value) => {
                 if (value.success) {
                     this.toastService.success('Project created from template.');
-                    this.router.navigate(['/projects/explore']).then();
+                    this.router.navigate(['/explore']).then();
                 } else this.toastService.error('An error occured.');
             },
             error: (err) => {
@@ -61,29 +61,6 @@ export class TemplateItemComponent {
                 );
             },
         });
-    }
-
-    async onDeleteTemplate(id: number) {
-        if (
-            await this.alertService.confirm(
-                'Are you sure delete this template?',
-                'Delete',
-                undefined,
-                undefined,
-                'error',
-            )
-        )
-            this.deleteTemplate.emit(id);
-    }
-
-    async onDuplicateTemplate(id: number) {
-        if (
-            await this.alertService.confirm(
-                `Are you sure duplicate scenario ${this.template.name}?`,
-                'Duplicate',
-            )
-        )
-            this.duplicateTemplate.emit(id);
     }
 
     toggleCollapse() {

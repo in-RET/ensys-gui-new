@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -11,7 +10,7 @@ import { ProjectItemComponent } from './project-item/project-item.component';
 
 @Component({
     selector: 'app-project-explore',
-    imports: [CommonModule, RouterLink, ProjectItemComponent],
+    imports: [CommonModule, ProjectItemComponent],
     templateUrl: './project-explore.component.html',
     styleUrl: './project-explore.component.scss',
 })

@@ -17,8 +17,7 @@
             <div class="actions">
                 <a
                     class="btn btn--action action d-flex"
-                    [routerLink]="['../update/', project.id]"
-                    fragment="update"
+                    [routerLink]="['/project/', project.id]"
                 >
                     <span class="icon icon-edit p-2" aria-hidden="true"></span>
                 </a>
@@ -28,7 +27,7 @@
                     style="margin-top: 0.25rem"
                     class="btn btn--action action d-flex"
                     type="button"
-                    value="Delete"
+                    value="Duplicate"
                     (click)="onDuplicateProject(project.id)"
                 >
                     <span
