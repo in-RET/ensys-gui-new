@@ -71,12 +71,6 @@ export class ScenarioBaseComponent implements OnInit {
             .pipe(
                 map((res: any) => {
                     if (res) {
-                        // const {
-                        //     currentProject,
-                        // }: {
-                        //     currentProject: ScenarioBaseInfoModel_project | null;
-                        // } = res;
-
                         return res;
                     }
                 }),

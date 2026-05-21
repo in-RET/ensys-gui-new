@@ -28,7 +28,7 @@ export interface ScenarioResModel {
     time_steps: number;
     user_id?: number;
     modeling_data: string; // looks like JSON stored as string
-    constraints: string;
+    constraints: string | null | {};
 }
 
 export interface ScenarioModel {

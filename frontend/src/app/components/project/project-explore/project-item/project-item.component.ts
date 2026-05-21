@@ -83,12 +83,15 @@ export class ProjectItemComponent implements OnInit {
                                 simulation_year: element.simulation_year,
                                 sDate: element.start_date,
                                 timeStep: element.time_steps,
-                                constraints: element.constraints
-                                    ? (JSON.parse(
-                                          element.constraints as unknown as string,
-                                      ) as ConstraintRow[])
-                                    : [],
+                                constraints:
+                                    element.constraints &&
+                                    typeof element.constraints === 'string'
+                                        ? (JSON.parse(
+                                              element.constraints,
+                                          ) as ConstraintRow[])
+                                        : [],
                             };
+
                             _res.push(_data);
                         });
 
@@ -173,12 +176,8 @@ export class ProjectItemComponent implements OnInit {
     duplicateScenario(e: {
         projectId: number;
         scenarioId: number;
-        newScenario: string;
+        newScenario: ScenarioModel;
     }) {
-        // const baseScenario = this.project.scenarioList?.find(
-        //     (x: ScenarioModel) => x.id === e.scenarioId,
-        // );
-        // baseScenario?.name
-        // this.project.scendarioList?.push(e.newScenario);
+        this.project.scenarioList?.push(e.newScenario);
     }
 }

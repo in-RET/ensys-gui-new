@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '../core/guards/auth-guard.service';
 import { LocalStorageProjectResolver } from '../shared/resolvers/project.resolver';
+import { regionsResolver } from '../shared/resolvers/regions.resolver';
 
 export const routes: Routes = [
     {
@@ -49,12 +50,35 @@ export const routes: Routes = [
                         (c) => c.PrivacyComponent,
                     ),
             },
-
             {
-                path: 'projects',
+                path: 'explore',
                 canActivate: [AuthGuard],
                 loadChildren: () =>
-                    import('./project.routes').then((r) => r.routes),
+                    import('./explore.routes').then((r) => r.routes),
+            },
+
+            {
+                path: 'project',
+                canActivate: [AuthGuard],
+                loadComponent: () =>
+                    import('../components/project/project-create/project-create.component').then(
+                        (c) => c.ProjectCreateComponent,
+                    ),
+                resolve: {
+                    regionList: regionsResolver,
+                },
+            },
+
+            {
+                path: 'project/:id',
+                canActivate: [AuthGuard],
+                loadComponent: () =>
+                    import('../components/project/project-create/project-create.component').then(
+                        (c) => c.ProjectCreateComponent,
+                    ),
+                resolve: {
+                    regionList: regionsResolver,
+                },
             },
 
             {
@@ -74,13 +98,6 @@ export const routes: Routes = [
                 canActivate: [AuthGuard],
                 loadChildren: () =>
                     import('./simulation.routes').then((r) => r.routes),
-            },
-
-            {
-                path: 'templates',
-                canActivate: [AuthGuard],
-                loadChildren: () =>
-                    import('./template.routes').then((r) => r.routes),
             },
         ],
     },

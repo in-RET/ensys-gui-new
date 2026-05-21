@@ -7,34 +7,6 @@
     "
     [hidden]="loading.projects"
 >
-    <!-- action btns -->
-    <section class="d-flex mt-3 mb-3 gap-1 justify-content-center p-3">
-        <button
-            type="button"
-            class="btn btn--medium"
-            [routerLink]="['../create']"
-            aria-label="Create project"
-        >
-            <img
-                src="static/assets/icons/feather/white/plus.svg"
-                alt=""
-                height="20"
-                width="20"
-                loading="lazy"
-            />
-            <span>Create project</span>
-        </button>
-
-        <button
-            type="button"
-            class="btn btn--hollow"
-            [routerLink]="['../../templates']"
-            aria-label="Browse templates"
-        >
-            Templates
-        </button>
-    </section>
-
     <ng-container *ngIf="project_list && project_list.length >= 0">
         <div class="p-3 overflow-y-auto">
             <div class="row" style="overflow-x: hidden; overflow-y: auto">
