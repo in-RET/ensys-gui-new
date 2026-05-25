@@ -317,7 +317,7 @@ export class OrderListComponent {
                     this.data[i].id += 1;
                     this.data[i + 1].id -= 1;
 
-                    var element = this.data[i];
+                    let element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i + 1, 0, element);
 
@@ -334,7 +334,7 @@ export class OrderListComponent {
                     this.data[i].id -= 1;
                     this.data[i - 1].id += 1;
 
-                    var element = this.data[i];
+                    let element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i - 1, 0, element);
 

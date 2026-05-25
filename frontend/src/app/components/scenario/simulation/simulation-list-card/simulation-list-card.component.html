@@ -1,0 +1,101 @@
+<div
+    class="border border-primary-subtle rounded-3 border-opacity-25 p-2"
+    style="max-height: 100%; overflow-y: auto"
+    *ngIf="(data && data.length > 0) || loading"
+>
+    <div class="d-flex justify-content-center" *ngIf="loading">
+        <div
+            class="spinner-border text-primary"
+            style="width: 3rem; height: 3rem"
+            role="status"
+        >
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <ul
+        class="d-flex flex-column list-unstyled small simulations w-100"
+        style="max-height: 100%"
+        *ngIf="!loading && data && data.length > 0"
+    >
+        <li
+            class="w-100 py-3 d-flex flex-row g-2"
+            *ngFor="let item of data; trackBy: identify"
+        >
+            <!-- statuses  -->
+            <div class="flex-row-center col-1">
+                <div
+                    class="spinner-border text-primary"
+                    role="status"
+                    *ngIf="item.status === SimulationStatus.STARTED"
+                >
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+
+                <img
+                    alt=""
+                    class="x error"
+                    *ngIf="item.status === SimulationStatus.STOPPED"
+                    height="35"
+                />
+
+                <img
+                    alt=""
+                    class="alert-triangle error"
+                    *ngIf="item.status === SimulationStatus.FAILED"
+                    height="35"
+                />
+
+                <img
+                    alt=""
+                    class="check green"
+                    *ngIf="item.status === SimulationStatus.FINISHED"
+                    height="35"
+                />
+            </div>
+
+            <div
+                class="detail px-3"
+                [ngClass]="{
+                    'col-10': item.status === SimulationStatus.STARTED,
+                    'col-11': item.status !== SimulationStatus.STARTED,
+                    clickable: item.status === SimulationStatus.FINISHED,
+                }"
+                (click)="openSimulation(item)"
+            >
+                <h5 class="mb-0 title">
+                    {{ item.id }}
+                    <small> - {{ item.start_date | date: "short" }} </small>
+                </h5>
+
+                <span *ngIf="item.status_message" class="label">
+                    <strong>
+                        {{ item.status_message }}
+                    </strong>
+                </span>
+
+                <span class="text-black-50">
+                    <b style="font-size: 0.75em">{{ item.sim_token }}</b>
+                </span>
+            </div>
+
+            <div
+                class="flex-row-center col-1"
+                *ngIf="item.status === SimulationStatus.STARTED"
+            >
+                <img
+                    alt=""
+                    class="action stop"
+                    *ngIf="true"
+                    title="stop"
+                    (click)="stopSimulation(item.id)"
+                    height="35"
+                />
+            </div>
+        </li>
+    </ul>
+</div>
+
+<h3 class="text-center" *ngIf="(!data || data.length == 0) && !loading">
+    No Simulations found!
+</h3>

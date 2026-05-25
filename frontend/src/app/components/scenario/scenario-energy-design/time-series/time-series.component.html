@@ -254,11 +254,16 @@
 
             <!-- plot graph -->
             <div>
-                <div
+                <!-- <div
                     id="plot_timeSeries"
                     class="plot_timeSeries"
                     *ngIf="modalInfo.showPlot"
-                ></div>
+                ></div> -->
+                <canvas
+                    id="plot_timeSeries"
+                    class="plot_timeSeries"
+                    *ngIf="modalInfo.showPlot"
+                ></canvas>
             </div>
 
             <!-- loading -->

@@ -1,0 +1,92 @@
+.simulations {
+    .detail {
+        display: flex;
+        flex-direction: column;
+
+        .title {
+            color: #000000a1;
+        }
+
+        .label {
+            display: block;
+            width: 100%;
+            overflow-wrap: break-word;
+
+            font-size: 0.9rem;
+            color: #6c757d;
+
+            strong {
+                color: #ff9100;
+            }
+        }
+
+        &.clickable {
+            cursor: pointer;
+        }
+    }
+
+    .flex-row-center {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+img {
+    width: 100%;
+
+    &.check {
+        mask: url("/../../../../../static/assets/icons/feather/black/check-circle.svg")
+            no-repeat center;
+        mask-size: contain;
+
+        -webkit-mask: url("/../../../../../static/assets/icons/feather/black/check-circle.svg")
+            no-repeat center;
+        -webkit-mask-size: contain;
+    }
+
+    &.alert-triangle {
+        mask: url("/../../../../../static/assets/icons/feather/black/alert-triangle.svg")
+            no-repeat center;
+        mask-size: contain;
+
+        -webkit-mask: url("/../../../../../static/assets/icons/feather/black/alert-triangle.svg")
+            no-repeat center;
+        -webkit-mask-size: contain;
+    }
+
+    &.x {
+        mask: url("/../../../../../static/assets/icons/feather/black/x.svg")
+            no-repeat center;
+        mask-size: contain;
+
+        -webkit-mask: url("/../../../../../static/assets/icons/feather/black/x.svg")
+            no-repeat center;
+        -webkit-mask-size: contain;
+    }
+
+    &.green {
+        background-color: #5ad03f82;
+    }
+
+    &.error {
+        background-color: #dab80e82;
+    }
+}
+
+.action {
+    cursor: pointer;
+
+    &.stop {
+        background-color: #6c757d82;
+
+        mask: url("/../../../../../static/assets/icons/feather/black/stop-circle.svg")
+            no-repeat center;
+        mask-size: contain;
+
+        -webkit-mask: url("/../../../../../static/assets/icons/feather/black/stop-circle.svg")
+            no-repeat center;
+        -webkit-mask-size: contain;
+    }
+}
