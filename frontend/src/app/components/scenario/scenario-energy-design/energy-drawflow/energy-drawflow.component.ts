@@ -855,8 +855,8 @@ export class EnergyDrawflowComponent {
         output_port: string;
         input_port: string;
     }) {
-        var nodeIn = this.editor.getNodeFromId(connection.input_node);
-        var nodeOut = this.editor.getNodeFromId(connection.output_node);
+        let nodeIn = this.editor.getNodeFromId(connection.input_node);
+        let nodeOut = this.editor.getNodeFromId(connection.output_node);
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
         const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
 

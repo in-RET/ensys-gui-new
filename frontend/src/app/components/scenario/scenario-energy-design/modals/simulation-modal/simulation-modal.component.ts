@@ -1,15 +1,7 @@
 import { CommonModule } from '@angular/common';
-import {
-    ChangeDetectorRef,
-    Component,
-    EventEmitter,
-    inject,
-    Input,
-    Output,
-} from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import {
     catchError,
-    finalize,
     interval,
     of,
     startWith,
@@ -17,9 +9,12 @@ import {
     switchMap,
 } from 'rxjs';
 import { ResDataModel } from '../../../../../shared/models/http.model';
-import { SimulationResModel } from '../../../simulation/models/simulation.model';
+import {
+    SimulationResModel,
+    SimulationStatus,
+} from '../../../simulation/models/simulation.model';
 import { SimulationService } from '../../../simulation/services/simulation.service';
-import { SimulationListCardComponent } from '../../../simulation/simulation-list/simulation-list-card/simulation-list-card.component';
+import { SimulationListCardComponent } from '../../../simulation/simulation-list-card/simulation-list-card.component';
 import { ModalComponent } from '../../modal/modal.component';
 
 @Component({
@@ -33,7 +28,6 @@ export class SimulationModalComponent {
     simulationList!: SimulationResModel[];
     private subscriptionSimulation!: Subscription;
 
-    // @Input() modalInfo!: { scenarioId: number } | null;
     private _modalInfo!: { scenarioId: number } | null;
     @Input()
     set modalInfo(d: { scenarioId: number } | null) {
@@ -51,7 +45,6 @@ export class SimulationModalComponent {
     @Output() modalClosed = new EventEmitter<void>();
 
     simulationService = inject(SimulationService);
-    cdr = inject(ChangeDetectorRef);
 
     loadSimulations() {
         this.loadSimulationsLoading = true;
@@ -72,45 +65,20 @@ export class SimulationModalComponent {
                             }),
                         ),
                 ),
-                finalize(() => {
-                    this.loadSimulationsLoading = false;
-                }),
             )
             .subscribe((value: ResDataModel<SimulationResModel>) => {
                 this.simulationList = value.items;
                 this.loadSimulationsLoading = false;
+
+                // check if all simulations are in final state, if so, stop subscribe
+                if (
+                    !this.simulationList.some(
+                        (sim) => sim.status === SimulationStatus.STARTED,
+                    )
+                ) {
+                    this.subscriptionSimulation.unsubscribe();
+                }
             });
-
-        // this.simulationService
-        //     .loadSimulations(this.modalInfo.scenarioId)
-        //     .subscribe({
-        //         next: (value: ResDataModel<SimulationResModel>) => {
-        //             this.simulationList = value.items;
-        //             this.loadSimulationsLoading = false;
-        //             this.cdr.detectChanges();
-
-        //             this.subscriptionSimulation = interval(1000) // every 1 second
-        //                 .pipe(
-        //                     switchMap(() => {
-        //                         return this.simulationService.loadSimulations(
-        //                             this.modalInfo.scenarioId,
-        //                         );
-        //                     }),
-        //                 )
-        //                 .subscribe({
-        //                     next: (value: ResDataModel<SimulationResModel>) => {
-        //                         this.simulationList = value.items;
-        //                         this.loadSimulationsLoading = false;
-        //                     },
-        //                     error: (err) => {
-        //                         console.error(err);
-        //                     },
-        //                 });
-        //         },
-        //         error: (err) => {
-        //             console.error(err);
-        //         },
-        //     });
     }
 
     closeSimulationModal() {
@@ -118,5 +86,10 @@ export class SimulationModalComponent {
             this.subscriptionSimulation.unsubscribe();
 
         this.modalClosed.emit();
+    }
+
+    ngOnDestroy() {
+        if (this.subscriptionSimulation)
+            this.subscriptionSimulation.unsubscribe();
     }
 }
