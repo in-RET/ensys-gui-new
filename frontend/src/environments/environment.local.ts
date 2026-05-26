@@ -3,5 +3,5 @@ export const environment = {
     dev_on_server_build: false,
     apiUrl: 'http://localhost:20002/dev/api/',
     isDevelopingMode: true,
-    version: '1.1.2',
+    version: '1.0.0',
 };

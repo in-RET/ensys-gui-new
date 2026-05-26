@@ -11,7 +11,9 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import * as Plotly from 'plotly.js-dist-min';
+import { Chart } from 'chart.js/auto';
+import zoomPlugin from 'chartjs-plugin-zoom';
+
 import {
     ScenarioStateModel,
     ScenarioStateService,
@@ -244,18 +246,20 @@ export class TimeSeriesComponent {
         const generateHourlyList = (year: number): string[] => {
             const result: string[] = [];
 
-            const date = new Date(year, 0, 1, 0, 0, 0); // Jan 1, 00:00
-            const end = new Date(year + 1, 0, 1, 0, 0, 0); // Jan 1 next year
+            let time = Date.UTC(year, 0, 1, 0, 0, 0); // Jan 1, 00:00
+            const end = Date.UTC(year + 1, 0, 1, 0, 0, 0); // Jan 1 next year
 
-            while (date < end) {
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
-                const h = String(date.getHours()).padStart(2, '0');
+            while (time < end) {
+                const date = new Date(time);
+
+                const y = date.getUTCFullYear();
+                const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+                const d = String(date.getUTCDate()).padStart(2, '0');
+                const h = String(date.getUTCHours()).padStart(2, '0');
 
                 result.push(`${y}-${m}-${d} ${h}:00`);
 
-                date.setHours(date.getHours() + 1);
+                time += 60 * 60 * 1000;
             }
 
             return result;
@@ -267,7 +271,6 @@ export class TimeSeriesComponent {
         if (scenarioData && scenarioData.scenario) {
             const curentScenario = scenarioData.scenario;
             const xVal = generateHourlyList(curentScenario.simulationYear);
-
             const yVal: number[] = [];
 
             switch (this.modalInfo.selectedType) {
@@ -300,43 +303,110 @@ export class TimeSeriesComponent {
 
     chart_timeSeries_initial(xVal: string[], yVal: number[]) {
         this.modalInfo.showPlot = true;
-
-        const timeSeriesData: any = {
-            x: xVal, // 8760 time: 2025-01-01 to 2025-12-31
-            y: yVal, // 8760 values
-            type: 'scatter',
-            mode: 'lines',
-            fill: 'tozeroy',
-            line: { color: '#1f77b4' },
-            fillcolor: 'rgba(31, 119, 180, 0.3)',
-        };
-
-        const layout: any = {
-            title: 'Time Series (Filled Area)',
-            xaxis: {
-                type: 'date',
-                title: 'Date',
-            },
-            yaxis: {
-                title: 'Value',
-            },
-            margin: { t: 50, l: 50, r: 20, b: 50 },
-            responsive: true,
-        };
-
-        const config = {
-            displayModeBar: false,
-            responsive: true,
-        };
+        Chart.register(zoomPlugin);
 
         setTimeout(() => {
-            Plotly.newPlot('plot_timeSeries', [timeSeriesData], layout, config)
-                .then(() => {
-                    this.modalInfo.data = yVal;
-                })
-                .catch((error) => {
-                    console.error('Error creating plot:', error);
-                });
+            const canvas: any = document.getElementById('plot_timeSeries');
+
+            if (!canvas) return;
+
+            new Chart(canvas, {
+                type: 'line',
+                data: {
+                    labels: xVal,
+                    datasets: [
+                        {
+                            label: 'Value',
+                            data: yVal,
+
+                            borderColor: '#1f77b4',
+                            backgroundColor: 'rgba(31, 119, 180, 0.3)',
+
+                            fill: true,
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            borderWidth: 1,
+                            tension: 0,
+                        },
+                    ],
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 600,
+                        easing: 'easeOutQuart',
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false,
+                        axis: 'x',
+                    },
+                    elements: {
+                        point: {
+                            radius: 0,
+                            hoverRadius: 0,
+                            hitRadius: 0,
+                        },
+                        line: {
+                            tension: 0,
+                            borderWidth: 1,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Time Series (Filled Area)',
+                        },
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        decimation: {
+                            enabled: true,
+                            algorithm: 'lttb',
+                            samples: 800,
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true,
+                                },
+                                mode: 'x',
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: false,
+                                text: 'Date',
+                            },
+                            display: false,
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                            },
+                        },
+                    },
+                },
+            });
+
+            this.modalInfo.data = yVal;
         }, 0);
     }
 

@@ -33,14 +33,13 @@
                         ],
                         "styles": [
                             "node_modules/bootstrap/dist/css/bootstrap.min.css",
-                            "https://cdn.jsdelivr.net/npm/aos/dist/aos.css",
+
                             "node_modules/leaflet/dist/leaflet.css",
                             "node_modules/drawflow/dist/drawflow.min.css",
                             "src/styles.scss"
                         ],
                         "scripts": [
-                            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
-                            "node_modules/plotly.js/dist/plotly.min.js"
+                            "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
                         ],
                         "allowedCommonJsDependencies": [
                             "leaflet",

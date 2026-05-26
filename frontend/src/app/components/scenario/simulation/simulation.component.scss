@@ -41,3 +41,27 @@
     justify-content: center;
     margin: 1rem;
 }
+
+//==================
+.charts-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.chart-card {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.chart-title {
+    margin-bottom: 0.75rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 320px;
+    width: 100%;
+}

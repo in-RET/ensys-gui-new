@@ -1,0 +1,13 @@
+.scenario-item {
+    .__actions button {
+        display: flex;
+        visibility: hidden;
+    }
+
+    &:hover {
+        .__actions button {
+            display: flex;
+            visibility: visible;
+        }
+    }
+}

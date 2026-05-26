@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { environment } from '../../../../../../environments/environment';
-import { ResDataModel } from '../../../../../shared/models/http.model';
-import { AlertService } from '../../../../../shared/services/alert.service';
-import { ScenarioBaseInfoModel } from '../../../models/scenario.model';
+import { environment } from '../../../../../environments/environment';
+import { ResDataModel } from '../../../../shared/models/http.model';
+import { AlertService } from '../../../../shared/services/alert.service';
+import { ScenarioBaseInfoModel } from '../../models/scenario.model';
 import {
     SimulationResModel,
     SimulationStatus,
-} from '../../models/simulation.model';
-import { SimulationService } from '../../services/simulation.service';
+} from '../models/simulation.model';
+import { SimulationService } from '../services/simulation.service';
 
 @Component({
     selector: 'app-simulation-list-card',
@@ -30,21 +30,23 @@ export class SimulationListCardComponent {
     cdr = inject(ChangeDetectorRef);
 
     identify(index: any, item: any) {
-        return item.name;
+        return item.id;
     }
 
-    openSimulation(simId: number) {
-        if (environment.dev_on_server_build) {
-            const url = this.router.serializeUrl(
-                this.router.createUrlTree(['/dev/simulation', simId]),
-            );
-            window.open(url, '_blank');
-        } else {
-            const url = this.router.serializeUrl(
-                this.router.createUrlTree(['/simulation', simId]),
-            );
+    openSimulation(simItem: SimulationResModel) {
+        if (simItem.status === SimulationStatus.FINISHED) {
+            if (environment.dev_on_server_build) {
+                const url = this.router.serializeUrl(
+                    this.router.createUrlTree(['/dev/simulation', simItem.id]),
+                );
+                window.open(url, '_blank');
+            } else {
+                const url = this.router.serializeUrl(
+                    this.router.createUrlTree(['/simulation', simItem.id]),
+                );
 
-            window.open(url, '_blank');
+                window.open(url, '_blank');
+            }
         }
     }
 

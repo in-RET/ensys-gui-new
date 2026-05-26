@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
+import { ResModel } from '../../../../shared/models/http.model';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { PublicService } from '../../../../shared/services/public.service';
 import { ToastService } from '../../../../shared/services/toast.service';
@@ -64,9 +66,11 @@ export class ProjectScenarioItemComponent {
                             timeStep: 8760,
                             interval: data.interval,
                             simulationYear: data.simulation_year,
-                            constraints: data.constraints
-                                ? JSON.parse(data.constraints)
-                                : null,
+                            constraints:
+                                data.constraints &&
+                                typeof data.constraints === 'string'
+                                    ? JSON.parse(data.constraints)
+                                    : null,
                             modeling_data: modeling_data
                                 ? JSON.parse(modeling_data)
                                 : null,
@@ -87,9 +91,11 @@ export class ProjectScenarioItemComponent {
                             timeStep: 8760,
                             interval: data.interval,
                             simulationYear: data.simulation_year,
-                            constraints: data.constraints
-                                ? JSON.parse(data.constraints)
-                                : null,
+                            constraints:
+                                data.constraints &&
+                                typeof data.constraints === 'string'
+                                    ? JSON.parse(data.constraints)
+                                    : null,
                             modeling_data: modeling_data
                                 ? JSON.parse(modeling_data)
                                 : null,
@@ -148,26 +154,39 @@ export class ProjectScenarioItemComponent {
                 'Duplicate',
             )
         ) {
-            this.scenarioService.duplicateScenario(scenarioId).subscribe({
-                next: (value) => {
-                    if (value.success) {
+            this.scenarioService
+                .duplicateScenario(scenarioId)
+                .pipe(
+                    map((res: ResModel<ScenarioResModel>) => {
+                        if (res.success) {
+                            return res.data.items[0];
+                        }
+                        throw new Error('Unknown API error');
+                    }),
+                    catchError((err: any) => {
+                        console.error(err);
+                        return of({} as ScenarioResModel);
+                    }),
+                )
+                .subscribe({
+                    next: (value: ScenarioResModel) => {
                         this.toastService.success(
-                            `Scenario ${this.scenario.name} duplicated.`,
+                            `Scenario "${this.scenario.name}" successfully duplicated.`,
                         );
+
                         this.duplicateScenario.emit({
                             projectId: this.scenario.project_id,
                             scenarioId: scenarioId,
-                            newScenario: value.data,
+                            newScenario: value,
                         });
-                    } else this.toastService.error('An error occured.');
-                },
-                error: (err) => {
-                    this.toastService.error(
-                        err.error.detail ||
-                            'An error occured while duplicating scenario.',
-                    );
-                },
-            });
+                    },
+                    error: (err) => {
+                        this.toastService.error(
+                            err.error.detail ||
+                                'An error occured while duplicating scenario.',
+                        );
+                    },
+                });
         }
     }
 }
