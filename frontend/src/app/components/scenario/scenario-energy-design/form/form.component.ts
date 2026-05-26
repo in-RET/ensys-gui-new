@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -7,6 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
 import { FileUploaderComponent } from '../file-uploader/file-uploader.component';
 
 @Component({
@@ -16,19 +17,20 @@ import { FileUploaderComponent } from '../file-uploader/file-uploader.component'
         FormsModule,
         ReactiveFormsModule,
         FileUploaderComponent,
+        NumberOnlyDirective,
     ],
     templateUrl: './form.component.html',
     styleUrl: './form.component.scss',
 })
 export class FormComponent {
     form!: FormGroup;
-    formVisible = false;
+    formVisible: boolean = false;
 
     _formData: any;
     @Input() set formData(d: any) {
         if (d) {
             this._formData = d;
-            this.initForm(this.formData);
+            this.initForm();
         } else this._formData = null;
     }
     get formData() {
@@ -37,20 +39,21 @@ export class FormComponent {
 
     @Output('onSubmit') _onSubmit: EventEmitter<any> = new EventEmitter<any>();
 
-    initForm(formData: any) {
-        this.form = new FormGroup({});
+    ngOnInit() {}
 
-        formData.sections.forEach((section: any) => {
+    initForm() {
+        this.form = new FormGroup({});
+        this.formData.sections.forEach((section: any) => {
             if (section.name !== 'Ports' && section.fields)
                 section.fields.forEach((field: any) => {
-                    const fControl: FormControl = new FormControl(
+                    let fControl: FormControl = new FormControl(
                         {
                             value: field['value'] ? field['value'] : null,
-                            disabled: Object.prototype.hasOwnProperty.call(field, 'disabled')
+                            disabled: field.hasOwnProperty('disabled')
                                 ? field['disabled']
                                 : null,
                         },
-                        []
+                        [],
                     );
 
                     if (field.isReq)
@@ -64,7 +67,7 @@ export class FormComponent {
         this.formVisible = true;
     }
 
-    submit(checkFormValidation = true) {
+    submit(checkFormValidation: boolean = true) {
         if (checkFormValidation) return this.checkFormValidation();
         else return this.form.getRawValue();
     }

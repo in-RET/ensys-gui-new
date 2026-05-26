@@ -1,8 +1,8 @@
 services:
-    db:
+    db-dev:
         image: postgres:17-alpine
-        container_name: ensys-new-db
-        env_file: .env.dev
+        container_name: ensys-dev-db
+        env_file: .env
         restart: always
         networks:
             - local
@@ -11,12 +11,12 @@ services:
         volumes:
             - ./storage/db:/var/lib/postgresql/data
 
-    frontend:
+    frontend-dev:
         build:
             context: ./frontend
-            dockerfile: frontend/docker/dockerfile.local
-        container_name: ensys-new-frontend
-        env_file: .env.dev
+            dockerfile: docker/dockerfile.local
+        container_name: ensys-dev-frontend
+        env_file: .env
         command: sh -c "npm start"
         working_dir: /app
         restart: no
@@ -28,17 +28,16 @@ services:
         networks:
             - local
         depends_on:
-            - db
-            - frontend
+            - db-dev
 
-    backend:
+    backend-dev:
         build:
             context: backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-backend
-        env_file: .env.dev
+        container_name: ensys-dev-backend
+        env_file: .env
         command: sh -c "alembic upgrade head && uvicorn app.main:fastapi_app --forwarded-allow-ips="*" --host 0.0.0.0 --port 8001"
         restart: no
         volumes:
@@ -52,30 +51,29 @@ services:
         networks:
             - local
         depends_on:
-            - db
-            - flower
-            - celery
+            - db-dev
+            - flower-dev
+            - celery-dev
 
-    redis:
+    redis-dev:
         image: redis:alpine
-        container_name: ensys-new-redis
+        container_name: ensys-dev-redis
         restart: always
-        env_file: .env.dev
-        command: [ "redis-server", "--bind", "redis", "--port", "${REDIS_PORT}" ]
+        env_file: .env
+        command: [ "redis-server", "--bind", "redis-dev", "--port", "${REDIS_PORT_DEV}" ]
         networks:
-            - ensys
-            - backend
+            - local
         volumes:
             - cache:/data
 
-    celery:
+    celery-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-celery
-        env_file: .env.dev
+        container_name: ensys-dev-celery
+        env_file: .env
         command: celery --app=app.celery.celery_app worker --concurrency=4 -E -n docker-develop@localhost --loglevel=INFO
         volumes:
             - ./backend/app:/backend/app
@@ -87,16 +85,16 @@ services:
         networks:
             - local
         depends_on:
-            - redis
+            - redis-dev
 
-    flower:
+    flower-dev:
         build:
             context: ./backend
             dockerfile: docker/dockerfile
             args:
                 os_version: ${OS_VERSION}
-        container_name: ensys-new-flower
-        env_file: .env.dev
+        container_name: ensys-dev-flower
+        env_file: .env
         command: celery --app=app.celery.celery_app flower --port=8002
         volumes:
             - ./backend/app:/backend/app
@@ -108,7 +106,7 @@ services:
         networks:
             - local
         depends_on:
-            - redis
+            - redis-dev
 
 networks:
     local:
@@ -117,5 +115,4 @@ volumes:
     static_volume:
     node_modules:
     cache:
-    grafana_storage:
 

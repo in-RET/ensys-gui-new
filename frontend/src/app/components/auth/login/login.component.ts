@@ -1,10 +1,17 @@
-import {CommonModule} from '@angular/common';
-import {Component} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router, RouterModule} from '@angular/router';
-import {environment} from '../../../../environments/environment';
-import {AuthCoreService} from '../../../core/auth/auth.service';
-import {AuthService} from '../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { finalize, tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthCoreService } from '../../../core/auth/auth.service';
+import { AuthService } from '../services/auth.service';
 
 @Component({
     selector: 'app-login',
@@ -27,29 +34,47 @@ export class LoginComponent {
         return this.form.get('pass');
     }
 
-    error!: { messge: string };
+    error!: { message: string };
+    loading = false;
 
-    constructor(
-        private authService: AuthService,
-        private authCoreService: AuthCoreService,
-        private router: Router
-    ) {
-    }
+    private authService = inject(AuthService);
+    private authCoreService = inject(AuthCoreService);
+    private router = inject(Router);
 
     logIn() {
-        this.authService.logIn(this.user?.value, this.pass?.value).subscribe({
-            next: (value: any) => {
-                this.authCoreService.saveTokenToStorage(value.access_token);
-                this.authCoreService.saveToken(value.access_token);
-                this.router.navigate(['/projects']);
-            },
+        this.loading = true;
 
-            error: (err) => {
-                console.error(err);
-                this.error = {
-                    messge: err.error.detail,
-                };
-            },
-        });
+        this.authService
+            .logIn(this.user?.value, this.pass?.value)
+            .pipe(
+                tap((res: any) => {
+                    if (res.success) {
+                        this.authCoreService.saveTokenToStorage(
+                            res.access_token,
+                        );
+                        this.authCoreService.saveToken(res.access_token);
+
+                        res = res.data.items[0];
+                        this.authCoreService.saveUserInfoInStorage(res);
+                        this.authCoreService.saveUser(res);
+                    } else {
+                        throw new Error(res.message);
+                    }
+                }),
+
+                finalize(() => (this.loading = false)),
+            )
+            .subscribe({
+                next: () => {
+                    this.router.navigate(['/explore']);
+                },
+
+                error: (err) => {
+                    console.error(err);
+                    this.error = {
+                        message: err.error.detail,
+                    };
+                },
+            });
     }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
@@ -8,27 +8,27 @@ import { BaseHttpService } from '../../../core/base-http/base-http.service';
     providedIn: 'root',
 })
 export class AuthService {
-    private baseUrl: string = environment.apiUrl + 'user/auth/';
-    // private baseUrl: string = '/api/user/auth/';
-
-    constructor(
-        private baseHttp: BaseHttpService,
-        private authCoreService: AuthCoreService
-    ) {}
+    private baseUrl: string = environment.apiUrl + 'user';
+    private baseHttp: BaseHttpService = inject(BaseHttpService);
+    private authCoreService: AuthCoreService = inject(AuthCoreService);
 
     logIn(username: string, password: string): Observable<any> {
         const formData: FormData = new FormData();
         formData.append('username', username);
         formData.append('password', password);
 
-        return this.baseHttp.post(`${this.baseUrl}login`, formData, {});
-        // return this.baseHttp.post(`/login`, formData, {});
+        return this.baseHttp.post(`${this.baseUrl}/auth/login`, formData, {});
+    }
+
+    getCurrentUser(): Observable<any> {
+        return this.baseHttp.get(`${this.baseUrl}`);
     }
 
     logOut() {
         // clear authorizition data
         this.authCoreService.removeTokenToStorage();
         this.authCoreService.removeToken();
+        this.authCoreService.removeUserInfoFromStorage();
     }
 
     signup(
@@ -36,9 +36,13 @@ export class AuthService {
         firstname: string,
         lastname: string,
         password: string,
-        mail: string
+        mail: string,
     ): Observable<any> {
         const data = { username, firstname, lastname, password, mail };
-        return this.baseHttp.post(`${this.baseUrl}register`, data);
+        return this.baseHttp.post(`${this.baseUrl}/auth/register`, data);
+    }
+
+    resetPassword(email: string): Observable<any> {
+        return this.baseHttp.post(`${this.baseUrl}/reset_password/${email}`);
     }
 }

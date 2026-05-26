@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {
     FormControl,
     FormGroup,
@@ -11,14 +11,17 @@ import {
 export interface OrderItem {
     id: number;
     name?: string;
-    number?: number;
+    number?: number | null;
     type?: OrderType;
+    timeSeries?: number | number[];
 }
 
 class OrderType {
-    id = -1;
-    name = '';
+    id: number = -1;
+    name: string = '';
 }
+
+export type FieldName = 'name' | 'num' | 'typ' | 'timeSeries';
 
 @Component({
     selector: 'app-order-list',
@@ -26,11 +29,10 @@ class OrderType {
     templateUrl: './order-list.component.html',
     styleUrl: './order-list.component.scss',
 })
-export class OrderListComponent implements OnInit {
+export class OrderListComponent {
     selectedItem!: number | null;
-    editableMode = false;
+    editableMode: boolean = false;
     message!: { type: 'error'; txt: string } | null;
-
     form!: FormGroup;
 
     get name() {
@@ -42,14 +44,41 @@ export class OrderListComponent implements OnInit {
     get typ() {
         return this.form.controls['typ'];
     }
+    get timeSeries() {
+        return this.form.controls['timeSeries'];
+    }
 
-    @Input() fields!: ('name' | 'num' | 'typ')[];
+    // @Input() fields!: ('name' | 'num' | 'typ' | 'timeSeries')[];
+    @Input()
+    set fields(value: FieldName[] | null | undefined) {
+        this._fields = value?.length ? value : [];
+        // initForm
+        this.form = new FormGroup({});
+
+        this._fields.forEach((field) => {
+            this.form.addControl(
+                field,
+                new FormControl(null, Validators.required),
+            );
+        });
+    }
+
+    get fields(): FieldName[] {
+        return this._fields;
+    }
+
+    private _fields: FieldName[] = [];
+
     @Input() label!: string;
-    @Input() editable = true;
+    @Input() editable: boolean = true;
 
     @Input() typeList!: OrderType[];
     @Input() typeLabel!: string;
-    @Input() acceptDuplicate = true;
+    @Input() acceptDuplicate: boolean = true;
+    @Input() options!: {
+        id: string;
+        group: string;
+    };
 
     private _data!: OrderItem[];
     @Input() set data(value: OrderItem[] | null) {
@@ -67,19 +96,10 @@ export class OrderListComponent implements OnInit {
         return this._data;
     }
 
-    ngOnInit() {
-        this.initialForm();
-    }
-
-    initialForm() {
-        this.form = new FormGroup({});
-        this.fields.forEach((element) => {
-            this.form.addControl(
-                element,
-                new FormControl(null, [Validators.required])
-            );
-        });
-    }
+    @Output() showModal_TimeSeries = new EventEmitter<{
+        controlName: 'timeSeries';
+        options: any;
+    }>();
 
     addItem() {
         if (this.form.valid) {
@@ -88,12 +108,18 @@ export class OrderListComponent implements OnInit {
             this.addNewItemToList(
                 this.name?.value,
                 this.num?.value,
-                this.typ?.value
+                this.typ?.value,
+                this.timeSeries?.value,
             );
         }
     }
 
-    addNewItemToList(name?: string, number?: number, type?: OrderType) {
+    addNewItemToList(
+        name?: string,
+        number?: number,
+        type?: OrderType,
+        timeSeries?: number[],
+    ) {
         const checkDuplicate = (orderList: OrderItem[], itemName: string) => {
             const arr = new Set(orderList.map((item: OrderItem) => item.name));
             const isDuplicate = arr.has(itemName);
@@ -114,11 +140,22 @@ export class OrderListComponent implements OnInit {
             const isDuplicate = checkDuplicate(this.data, this.name.value);
 
             if (!isDuplicate) {
+                let obj: OrderItem = {
+                    id: this.data.length,
+                    name: name,
+                };
+
+                if (this.fields.includes('num')) obj.number = number;
+                if (this.fields.includes('typ')) obj.type = type;
+                if (this.fields.includes('timeSeries'))
+                    obj.timeSeries = timeSeries;
+
                 this.data.push({
                     id: this.data.length,
                     name: name,
                     number: number,
                     type: type,
+                    timeSeries: timeSeries,
                 });
 
                 this.clearMessage();
@@ -128,6 +165,8 @@ export class OrderListComponent implements OnInit {
                 this.name.setErrors({ incorrect: true });
             }
         }
+
+        console.log(this.data);
     }
 
     clearForms() {
@@ -141,24 +180,20 @@ export class OrderListComponent implements OnInit {
 
     selectItem(id: number) {
         if (!this.editableMode && this.editable) {
-            if (id === this.selectedItem) {
-                this.selectedItem = null;
-            } else {
-                this.selectedItem = id;
-            }
+            id === this.selectedItem
+                ? (this.selectedItem = null)
+                : (this.selectedItem = id);
         }
     }
 
     deleteItem() {
         const foundItemIndex = this.data.findIndex(
-            (x) => x.id == this.selectedItem
+            (x) => x.id == this.selectedItem,
         );
 
         // decrease id
         this.data.forEach((element, index) => {
-            if (index > foundItemIndex) {
-                element.id -= 1;
-            }
+            index > foundItemIndex ? (element.id -= 1) : null;
         });
 
         this.data.splice(foundItemIndex, 1);
@@ -174,6 +209,11 @@ export class OrderListComponent implements OnInit {
 
         if (this.fields.includes('typ')) this.typ.setValue(this.data[i].type);
 
+        if (this.fields.includes('timeSeries')) {
+            if (this.data[i].number)
+                this.timeSeries.patchValue(this.data[i].number);
+            else this.timeSeries.setValue(this.data[i].timeSeries);
+        }
         this.editableMode = true;
     }
 
@@ -181,14 +221,14 @@ export class OrderListComponent implements OnInit {
         const checkDuplicate = (
             orderList: OrderItem[],
             itemName: string,
-            itemId: number
+            itemId: number,
         ) => {
             const arr = new Set(
                 orderList
                     .filter((item: OrderItem) => {
                         return item.id != itemId;
                     })
-                    .map((item: OrderItem) => item.name || '')
+                    .map((item: OrderItem) => item.name || ''),
             );
 
             const isDuplicate = arr.has(itemName);
@@ -208,6 +248,11 @@ export class OrderListComponent implements OnInit {
                     if (this.fields.includes('typ'))
                         this.data[i].type = this.typ.value;
 
+                    if (this.fields.includes('timeSeries')) {
+                        this.data[i].number = null;
+                        this.data[i].timeSeries = this.timeSeries.value;
+                    }
+
                     this.clearEditMode();
                     this.clearForms();
                     this.clearMessage();
@@ -215,7 +260,7 @@ export class OrderListComponent implements OnInit {
                     const isDuplicate = checkDuplicate(
                         this.data,
                         this.name.value,
-                        this.data[i].id
+                        this.data[i].id,
                     );
 
                     if (!isDuplicate) {
@@ -226,6 +271,11 @@ export class OrderListComponent implements OnInit {
 
                         if (this.fields.includes('typ'))
                             this.data[i].type = this.typ.value;
+
+                        if (this.fields.includes('timeSeries')) {
+                            this.data[i].number = null;
+                            this.data[i].timeSeries = this.timeSeries.value;
+                        }
 
                         this.clearEditMode();
                         this.clearForms();
@@ -254,7 +304,6 @@ export class OrderListComponent implements OnInit {
     }
 
     moveItemUpDown(direction: 'down' | 'up') {
-        let element;
         switch (direction) {
             case 'down':
                 if (
@@ -262,13 +311,13 @@ export class OrderListComponent implements OnInit {
                     this.selectedItem < this.data.length - 1
                 ) {
                     const i = this.data.findIndex(
-                        (x) => x.id == this.selectedItem
+                        (x) => x.id == this.selectedItem,
                     );
 
                     this.data[i].id += 1;
                     this.data[i + 1].id -= 1;
 
-                    element = this.data[i];
+                    let element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i + 1, 0, element);
 
@@ -279,13 +328,13 @@ export class OrderListComponent implements OnInit {
             case 'up':
                 if (this.selectedItem && this.selectedItem > 0) {
                     const i = this.data.findIndex(
-                        (x) => x.id == this.selectedItem
+                        (x) => x.id == this.selectedItem,
                     );
 
                     this.data[i].id -= 1;
                     this.data[i - 1].id += 1;
 
-                    element = this.data[i];
+                    let element = this.data[i];
                     this.data.splice(i, 1);
                     this.data.splice(i - 1, 0, element);
 
@@ -305,5 +354,16 @@ export class OrderListComponent implements OnInit {
 
     clearMessage() {
         this.message = null;
+    }
+
+    openTimeSeriesModal() {
+        this.showModal_TimeSeries.emit({
+            controlName: 'timeSeries',
+            options: this.options,
+        });
+    }
+
+    submitTimeSeriesData(data: number | number[]) {
+        this.timeSeries.setValue(data);
     }
 }

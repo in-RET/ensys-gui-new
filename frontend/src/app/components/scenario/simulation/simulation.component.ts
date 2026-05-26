@@ -1,11 +1,13 @@
-import {CommonModule} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {environment} from '../../../../environments/environment';
-import {AlertService} from '../../../shared/services/alert.service';
-// import Plotly from 'plotly.js';
-declare const Plotly: any;
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Chart } from 'chart.js/auto';
+import zoomPlugin from 'chartjs-plugin-zoom';
+
+import { tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
     selector: 'app-simulation',
@@ -19,29 +21,31 @@ export class SimulationComponent implements OnInit {
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
-    http = inject(HttpClient);
+    httpService = inject(HttpClient);
 
     ngOnInit() {
-        this.loading = true;
         const simulationId = +this.route.snapshot.params['id'];
 
-        if (simulationId) this.loadSimulation(simulationId);
-    }
+        if (simulationId) {
+            this.loading = true;
 
-    loadSimulation(simulationId: number) {
-        this.http
-            .get(environment.apiUrl + 'results/' + simulationId)
-            .subscribe({
-                next: (value: any) => {
-                    this.loadGraphs(value.data.items[0].graphs);
-                    this.loadStatic(value.data.items[0].static);
-                },
-                error: (err) => {
-                    console.error('Failed to load JSON', err);
-
-                    this.alertService.error(err.detail);
-                },
-            });
+            this.httpService
+                .get(environment.apiUrl + 'results/' + simulationId)
+                .pipe(tap(() => (this.loading = false)))
+                .subscribe({
+                    next: (value: any) => {
+                        this.loadStatic(value.data.items[0].static);
+                        this.loadGraphs(value.data.items[0].graphs);
+                    },
+                    error: (err) => {
+                        console.error('Failed to load JSON', err);
+                        this.alertService.error(
+                            err.error.detail ||
+                                'Failed to load simulation results! Check Logs for more details.',
+                        );
+                    },
+                });
+        }
     }
 
     loadStatic(value: any) {
@@ -74,42 +78,264 @@ export class SimulationComponent implements OnInit {
         });
     }
 
-    loadGraphs(value: any) {
+    _loadGraphs(value: any) {
+        // value.forEach((bus: any) => {
+        //     const x: any = bus.index;
+        //     const y: any = {};
+        //     if (bus.data.length === 0) return;
+        //     bus.data.forEach((lineplot: any) => {
+        //         y[lineplot.name] = lineplot.data;
+        //     });
+        //     const fig: any = {
+        //         data: Object.keys(y).map((key) => ({
+        //             x: x,
+        //             y: y[key],
+        //             type: 'scatter',
+        //             mode: 'lines',
+        //             name: key,
+        //         })),
+        //         layout: {
+        //             title: 'Hallo Welt',
+        //             autosize: true,
+        //         },
+        //     };
+        //     const plotly_main_div: any = document.getElementById('plotly_div');
+        //     const plot_heading: any = document.createElement('h3');
+        //     const plot_div: any = document.createElement('div');
+        //     plot_heading.innerHTML = bus.name;
+        //     plot_heading.className = 'plot_heading';
+        //     plot_div.id = bus.name;
+        //     plot_div.name = bus.name;
+        //     plotly_main_div.appendChild(plot_heading);
+        //     plotly_main_div.appendChild(plot_div);
+        //     Plotly.newPlot(bus.name, fig.data, fig.layout, {
+        //         responsive: true,
+        //     });
+        // });
+    }
+
+    async __loadGraphs(value: any) {
+        Chart.register(zoomPlugin);
+
         value.forEach((bus: any) => {
-            // const plotname: any = bus.name;
             const x: any = bus.index;
-            const y: any = {};
 
             if (bus.data.length === 0) return;
 
-            bus.data.forEach((lineplot: any) => {
-                y[lineplot.name] = lineplot.data;
-            });
-            const fig: any = {
-                data: Object.keys(y).map((key) => ({
-                    x: x,
-                    y: y[key],
-                    type: 'scatter',
-                    mode: 'lines',
-                    name: key,
-                })),
-                layout: {
-                    title: 'Hallo Welt',
-                },
-            };
+            const datasets = bus.data.map((lineplot: any) => ({
+                label: lineplot.name,
+                data: lineplot.data,
+                borderWidth: 2,
+                fill: false,
+                tension: 0.2,
+            }));
 
             const plotly_main_div: any = document.getElementById('plotly_div');
             const plot_heading: any = document.createElement('h3');
-            const plot_div: any = document.createElement('div');
+            const canvas: any = document.createElement('canvas');
+
             plot_heading.innerHTML = bus.name;
             plot_heading.className = 'plot_heading';
-            plot_div.id = bus.name;
-            plot_div.name = bus.name;
-            plotly_main_div.appendChild(plot_heading);
-            plotly_main_div.appendChild(plot_div);
 
-            this.loading = false;
-            Plotly.newPlot(bus.name, fig.data, fig.layout);
+            canvas.id = bus.name;
+
+            plotly_main_div.appendChild(plot_heading);
+            plotly_main_div.appendChild(canvas);
+
+            new Chart(canvas, {
+                type: 'line',
+
+                data: {
+                    labels: x,
+                    datasets: datasets,
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 600,
+                        easing: 'easeOutQuart',
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false,
+                        axis: 'x',
+                    },
+                    elements: {
+                        point: {
+                            radius: 0,
+                            hoverRadius: 0,
+                            hitRadius: 0,
+                        },
+                        line: {
+                            tension: 0,
+                            borderWidth: 1,
+                        },
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Time Series (Filled Area)',
+                        },
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        decimation: {
+                            enabled: true,
+                            algorithm: 'lttb',
+                            samples: 800,
+                        },
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true,
+                                },
+                                mode: 'x',
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: false,
+                                text: 'Date',
+                            },
+                            display: false,
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Value',
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    }
+
+    private charts: Chart[] = [];
+    async loadGraphs(value: any) {
+        const mainDiv = document.getElementById('plotly_div');
+
+        if (!mainDiv) return;
+
+        this.charts.forEach((chart) => chart.destroy());
+        this.charts = [];
+        mainDiv.innerHTML = '';
+
+        value.forEach((bus: any, index: number) => {
+            if (!bus.data?.length) return;
+
+            const card = document.createElement('div');
+            const title = document.createElement('h3');
+            const chartContainer = document.createElement('div');
+            const canvas = document.createElement('canvas');
+
+            card.className = 'chart-card';
+            title.className = 'chart-title';
+            chartContainer.className = 'chart-container';
+
+            title.textContent = bus.name;
+            canvas.id = `chart_${index}_${bus.name}`;
+
+            chartContainer.appendChild(canvas);
+            card.appendChild(title);
+            card.appendChild(chartContainer);
+            mainDiv.appendChild(card);
+
+            const chart = new Chart(canvas, {
+                type: 'line',
+
+                data: {
+                    labels: bus.index,
+                    datasets: bus.data.map((lineplot: any) => ({
+                        label: lineplot.name,
+                        data: lineplot.data,
+                        borderWidth: 1,
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        hitRadius: 0,
+                    })),
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    animation: {
+                        duration: 500,
+                        easing: 'easeOutQuart',
+                    },
+
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                        axis: 'x',
+                    },
+
+                    plugins: {
+                        title: {
+                            display: false,
+                        },
+
+                        legend: {
+                            display: bus.data.length > 1,
+                        },
+
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                        },
+
+                        decimation: {
+                            enabled: true,
+                            algorithm: 'lttb',
+                            samples: 800,
+                        },
+
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'x',
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true,
+                                },
+                                pinch: {
+                                    enabled: true,
+                                },
+                                mode: 'x',
+                            },
+                        },
+                    },
+
+                    scales: {
+                        x: {
+                            display: false,
+                        },
+                    },
+                },
+            });
+
+            this.charts.push(chart);
         });
     }
 }

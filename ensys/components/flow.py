@@ -58,9 +58,9 @@ class EnFlow(EnBaseModel):
     :ivar age: Age of a flow (in years). When reached (considering the initial age),
         the flow is forced to 0. Applicable only for a multi-period model.
     :type age: int | None
-    :ivar custom_attributes: Custom attributes provided as a dictionary for customized
+    :ivar custom_properties: Custom attributes provided as a dictionary for customized
         investment limits or additional properties.
-    :type custom_attributes: dict | None
+    :type custom_properties: dict | None
     """
     nominal_value: float | EnInvestment = Field(
         default=None,
@@ -152,9 +152,9 @@ class EnFlow(EnBaseModel):
         description='The age of a flow (usually given in years); once it reaches its age (considering also an initial age), the flow is forced to 0. Note: Only applicable for a multi-period model.'
     )
 
-    custom_attributes: dict | None = Field(
+    custom_properties: dict | None = Field(
         default=None,
-        title="Custom Attributes",
+        title="Custom Properties",
         description="Custom Attributes as dictionary for custom investment limits."
     )
 

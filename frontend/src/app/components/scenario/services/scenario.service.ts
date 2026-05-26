@@ -1,10 +1,19 @@
-import {inject, Injectable} from '@angular/core';
-import {BehaviorSubject, map, Observable} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {BaseHttpService} from '../../../core/base-http/base-http.service';
-import {ResModel} from '../../../shared/models/http.model';
-import {AlertService} from '../../../shared/services/alert.service';
-import {ScenarioBaseInfoModel, ScenarioReqModel, ScenarioResModel,} from '../models/scenario.model';
+import { inject, Injectable } from '@angular/core';
+import { DrawflowNode } from 'drawflow';
+import { map, Observable, throwError } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { BaseHttpService } from '../../../core/base-http/base-http.service';
+import { ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
+import {
+    ScenarioBaseInfoModel,
+    ScenarioReqModel,
+    ScenarioResModel,
+    UserModelingStateModel,
+} from '../models/scenario.model';
+import { ModalStateService } from '../scenario-energy-design/modals/modal-state.service';
+import { ScenarioStateService } from './scenario-state.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,12 +22,13 @@ export class ScenarioService {
     private baseUrl: string = environment.apiUrl + 'scenario';
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
-
-    private readonly _isDrawflowEmpty$ = new BehaviorSubject<boolean>(true);
-    readonly isDrawflowEmpty$ = this._isDrawflowEmpty$.asObservable();
+    private user_modeling_state = 'user_modeling_state';
 
     alertService = inject(AlertService);
+    toastService = inject(ToastService);
     baseHttp = inject(BaseHttpService);
+    private modalStateService = inject(ModalStateService);
+    private scenarioStateService = inject(ScenarioStateService);
 
     getScenario(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
@@ -48,8 +58,13 @@ export class ScenarioService {
     saveBaseInfo_Storage(data: ScenarioBaseInfoModel) {
         localStorage.setItem(
             this.scenario_localstorage_name,
-            JSON.stringify(data)
+            JSON.stringify(data),
         );
+    }
+
+    replaceBaseInfo_Storage(data: ScenarioBaseInfoModel) {
+        this.removeBaseInfo_Storage();
+        this.saveBaseInfo_Storage(data);
     }
 
     removeBaseInfo_Storage() {
@@ -58,7 +73,7 @@ export class ScenarioService {
 
     restoreBaseInfo_Storage(): ScenarioBaseInfoModel | null {
         const BaseInfoData: string | null = localStorage.getItem(
-            this.scenario_localstorage_name
+            this.scenario_localstorage_name,
         );
 
         if (BaseInfoData && BaseInfoData.trim() != '')
@@ -67,143 +82,216 @@ export class ScenarioService {
         return null;
     }
 
-    updateBaseInfo_Scenario(d: ScenarioBaseInfoModel) {
-        localStorage.setItem(
-            `${this.scenario_localstorage_name}`,
-            JSON.stringify(d)
-        );
-    }
-
     //====================  draw flow   ====================
-    saveDrawflow_Storage(data: any, needStringify = true) {
+    saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
+        if (!data) return;
+
         localStorage.setItem(
             this.scenario_drawflow_localstorage_name,
-            needStringify ? JSON.stringify(data) : data
+            JSON.stringify(data),
         );
-
-        this._isDrawflowEmpty$.next(false);
     }
 
-    restoreDrawflow_Storage(mustResultString = false): string | false | any {
+    restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
         const DrawflowData: string | null = localStorage.getItem(
-            this.scenario_drawflow_localstorage_name
+            this.scenario_drawflow_localstorage_name,
         );
 
         if (DrawflowData && DrawflowData.trim() != '') {
-            this._isDrawflowEmpty$.next(false);
-            return mustResultString ? DrawflowData : JSON.parse(DrawflowData);
-        } else return false;
+            return JSON.parse(DrawflowData);
+        } else return null;
     }
 
-    removeDrawflow_Storage() {
+    removeDrawflow_Data() {
         localStorage.removeItem(this.scenario_drawflow_localstorage_name);
-        this._isDrawflowEmpty$.next(true);
+        this.scenarioStateService.clearDrawflowData();
     }
 
     //====================  draw flow   ====================
 
     getPreDefinedList(type: string) {
         return this.baseHttp.get(
-            environment.apiUrl + `oep/local_schemas/${type}`
+            environment.apiUrl + `oep/local_schemas/${type}`,
         );
     }
 
-    getPreDefinedData(option: string, simulationYear: number) {
+    getPreDefinedData_node(option: string, simulationYear: number) {
         return this.baseHttp.get(
-            environment.apiUrl + `oep/local_data/${option}/${simulationYear}`
+            environment.apiUrl +
+                `oep/local_data/${option}/${simulationYear}/node_data`,
+        );
+    }
+
+    getPreDefinedData_ports(option: string, simulationYear: number) {
+        return this.baseHttp.get(
+            environment.apiUrl +
+                `oep/local_data/${option}/${simulationYear}/ports_data`,
         );
     }
 
     //====================  local  ====================
-    onSaveScenario(): Observable<ScenarioResModel> | undefined {
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.restoreBaseInfo_Storage();
-
+    saveCurrentScenario(
+        scenarioData: ScenarioBaseInfoModel,
+    ): Observable<ScenarioResModel> {
         if (!scenarioData || !scenarioData.scenario) {
-            this.alertService.warning('There is no data to save!');
-            return;
-        }
-
-        const drawflowData = this.restoreDrawflow_Storage(true);
-
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return;
+            return throwError(() => new Error('There is no data to save!'));
         }
 
         const newScenarioData: ScenarioReqModel = {
-            name: scenarioData.scenario?.name,
-            start_date: scenarioData.scenario?.sDate,
+            name: scenarioData.scenario.name,
+            start_date: scenarioData.scenario.sDate,
             time_steps: scenarioData.scenario.timeStep,
-            project_id: scenarioData.project.id,
+            project_id: scenarioData.project?.id,
             interval: 1,
-            modeling_data: drawflowData,
+            modeling_data: scenarioData.scenario.modeling_data
+                ? JSON.stringify(scenarioData.scenario.modeling_data)
+                : '',
+            constraints:
+                scenarioData.scenario.constraints &&
+                scenarioData.scenario.constraints.length > 0
+                    ? JSON.stringify(scenarioData.scenario.constraints)
+                    : '',
         };
 
         return this.createScenario(newScenarioData).pipe(
             map((res: ResModel<ScenarioResModel>) => {
                 if (res.success) return res.data.items[0];
-
-                //  if (res.error.status == 409) {
-                //                 const confirmed = await this.alertService.confirm(
-                //                     'Do you want change the name? Or Update current?',
-                //                     'Duplicate Scenario!',
-                //                     '< Step',
-                //                     'Update',
-                //                     'error'
-                //                 );
-
-                //                 if (confirmed) {
-                //                     this.prevtStep();
-                //                 } else {
-                //                     this.updateScenario();
-                //                 }
-                //             } else
-                // this.alertService.error(err.message || 'Save failed');
                 throw new Error('Unknown API error');
-            })
+            }),
         );
     }
 
-    onUpdateScenario(): Observable<ScenarioResModel> | undefined {
-        const scenarioData: ScenarioBaseInfoModel | null =
-            this.restoreBaseInfo_Storage();
+    updateCurrentScenario(
+        scenarioData: ScenarioBaseInfoModel,
+    ): Observable<ScenarioResModel> {
+        if (scenarioData.scenario && scenarioData.scenario.id) {
+            const newScenarioData: ScenarioReqModel = {
+                name: scenarioData.scenario.name,
+                start_date: scenarioData.scenario.sDate,
+                time_steps: scenarioData.scenario.timeStep,
+                interval: 1,
+                modeling_data: scenarioData.scenario.modeling_data
+                    ? JSON.stringify(scenarioData.scenario.modeling_data)
+                    : '',
+                constraints:
+                    scenarioData.scenario.constraints &&
+                    scenarioData.scenario.constraints.length > 0
+                        ? JSON.stringify(scenarioData.scenario.constraints)
+                        : '',
+            };
 
-        if (!scenarioData || !scenarioData.scenario) {
-            this.alertService.warning('There is no data to save!');
-            return;
+            return this.updateScenario(
+                newScenarioData,
+                scenarioData.scenario.id,
+            ).pipe(
+                map((res: ResModel<ScenarioResModel>) => {
+                    if (res.success) {
+                        return res.data.items[0];
+                    }
+                    throw new Error('Unknown API error');
+                }),
+            );
+        } else {
+            return throwError(() => new Error('No scenario data to update!'));
+        }
+    }
+
+    getEntityInfoUrl(nodeName: string) {
+        switch (nodeName) {
+            case 'source':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._source';
+
+            case 'transformer':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._converter';
+
+            case 'genericStorage':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#module-oemof.solph.components._generic_storage';
+
+            case 'sink':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.components.html#oemof.solph.components._sink.Sink';
+
+            case 'bus':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.busses.html';
+
+            case 'flow':
+                return 'https://oemof-solph.readthedocs.io/en/v0.5.7/reference/oemof.solph.flow.html#module-oemof.solph.flows';
+
+            default:
+                return 'https://oemof-solph.readthedocs.io';
+        }
+    }
+
+    checkNodeDuplication(nodeName: string, nodeId: number) {
+        const currentDrawflowData:
+            | string
+            | {
+                  [nodeKey: string]: DrawflowNode;
+              }
+            | null = this.scenarioStateService.getDrawflowData();
+
+        if (
+            currentDrawflowData == null ||
+            Object.keys(currentDrawflowData).length == 0
+        )
+            return false;
+
+        if (
+            !currentDrawflowData ||
+            JSON.stringify(currentDrawflowData) === '{}' ||
+            Object.keys(currentDrawflowData).length == 0
+        ) {
+            return false;
         }
 
-        if (!scenarioData.scenario.id) {
-            this.alertService.warning('Error: Id not found!');
-            return;
-        }
+        for (const key in currentDrawflowData) {
+            if (
+                Object.prototype.hasOwnProperty.call(currentDrawflowData, key)
+            ) {
+                const node = currentDrawflowData[key];
 
-        const newScenarioData: ScenarioReqModel = {
-            name: scenarioData.scenario?.name,
-            start_date: scenarioData.scenario?.sDate,
-            time_steps: scenarioData.scenario?.timeStep,
-            interval: 1,
-            modeling_data: this.restoreDrawflow_Storage(true),
-        };
-
-        const drawflowData = this.restoreDrawflow_Storage();
-
-        if (!drawflowData) {
-            this.alertService.warning('Drawflow data missing!');
-            return;
-        }
-
-        return this.updateScenario(
-            newScenarioData,
-            scenarioData.scenario.id
-        ).pipe(
-            map((res: ResModel<ScenarioResModel>) => {
-                if (res.success) {
-                    return res.data.items[0];
+                if (node.id != nodeId || !nodeId) {
+                    if (node.name === nodeName || node.data.name === nodeName) {
+                        return true;
+                    }
                 }
-                throw new Error('Unknown API error');
-            })
+            }
+        }
+
+        return false;
+    }
+
+    saveUserModelingState(userModelingState: UserModelingStateModel) {
+        localStorage.setItem(
+            this.user_modeling_state,
+            JSON.stringify(userModelingState),
         );
+    }
+
+    updateUserModelingState(updates: Partial<UserModelingStateModel>) {
+        const currentStateStr = localStorage.getItem(this.user_modeling_state);
+        let currentState: UserModelingStateModel = currentStateStr
+            ? JSON.parse(currentStateStr)
+            : ({} as UserModelingStateModel);
+
+        const newState = { ...currentState, ...updates };
+
+        localStorage.setItem(
+            this.user_modeling_state,
+            JSON.stringify(newState),
+        );
+    }
+
+    removeUserModelingState() {
+        localStorage.removeItem(this.user_modeling_state);
+    }
+
+    restoreUserModelingState(): UserModelingStateModel | null {
+        const stateStr = localStorage.getItem(this.user_modeling_state);
+
+        if (stateStr && stateStr.trim() != '') {
+            return JSON.parse(stateStr);
+        }
+
+        return null;
     }
 }

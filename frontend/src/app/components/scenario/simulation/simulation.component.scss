@@ -1,20 +1,15 @@
 #wrapper {
-    border: 1px solid black;
-    width: 100%;
-    height: 100%;
-    padding: 1rem;
+    // width: 100%;
+    overflow-y: auto;
+    height: 87vh;
 }
 
 #header {
-    border: 1px solid black;
-    text-align: center;
     font-size: 12pt;
-    padding: 0.5em;
     margin: 5px;
 }
 
 .plot_heading {
-    border: 1px solid black;
     text-align: center;
     margin: 5px;
     padding: 0.5em;
@@ -45,4 +40,28 @@
     align-items: center;
     justify-content: center;
     margin: 1rem;
+}
+
+//==================
+.charts-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.chart-card {
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.75rem;
+    background: #fff;
+}
+
+.chart-title {
+    margin-bottom: 0.75rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 320px;
+    width: 100%;
 }

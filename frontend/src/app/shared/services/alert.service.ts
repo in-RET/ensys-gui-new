@@ -57,8 +57,12 @@ export class AlertService {
         title: string = 'Are you sure?',
         confirmButtonText: string = 'Yes',
         cancelButtonText: string = 'Cancel',
-        icon: SweetAlertIcon = 'question'
+        icon: SweetAlertIcon = 'question',
     ): Promise<boolean> {
+        if (document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
+
         const result = await Swal.fire({
             title,
             text: message,

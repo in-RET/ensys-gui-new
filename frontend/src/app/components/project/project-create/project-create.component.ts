@@ -1,12 +1,17 @@
-import {CommonModule} from '@angular/common';
-import {Component, OnInit} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import * as L from 'leaflet';
-import {map, Observable} from 'rxjs';
-import {RegionService} from '../../../shared/services/region.service';
-import {ProjectService} from '../services/project.service';
-
+import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import L from 'leaflet';
+import { map, Observable } from 'rxjs';
+import { ToastService } from '../../../shared/services/toast.service';
+import { ProjectService } from '../services/project.service';
 
 @Component({
     selector: 'app-project-create',
@@ -15,25 +20,43 @@ import {ProjectService} from '../services/project.service';
     styleUrl: './project-create.component.scss',
 })
 export class ProjectCreateComponent implements OnInit {
+    defaultMapAddress: { lat: number; lng: number } = {
+        lat: 51.495258,
+        lng: 10.808557,
+    };
+
     form: FormGroup = new FormGroup({
         id: new FormControl(null),
         name: new FormControl(null, [Validators.required]),
         country: new FormControl('', [Validators.required]),
         description: new FormControl(null, [Validators.required]),
-        latitude: new FormControl(null, [Validators.required]),
-        longitude: new FormControl(null, [Validators.required]),
-        currency: new FormControl({
-            value: 'EUR',
-            disabled: true,
-        }, [Validators.required]),
-        unit_energy: new FormControl({
-            value: 'MW/MWh',
-            disabled: true,
-        }, [Validators.required]),
-        unit_co2: new FormControl({
-            value: 't CO2',
-            disabled: true
-        }, [Validators.required]),
+        latitude: new FormControl(this.defaultMapAddress.lat, [
+            Validators.required,
+        ]),
+        longitude: new FormControl(this.defaultMapAddress.lng, [
+            Validators.required,
+        ]),
+        currency: new FormControl(
+            {
+                value: 'EUR',
+                disabled: true,
+            },
+            [Validators.required],
+        ),
+        unit_energy: new FormControl(
+            {
+                value: 'MW/MWh',
+                disabled: false,
+            },
+            [Validators.required],
+        ),
+        unit_co2: new FormControl(
+            {
+                value: 't CO2',
+                disabled: true,
+            },
+            [Validators.required],
+        ),
     });
 
     get name() {
@@ -91,24 +114,22 @@ export class ProjectCreateComponent implements OnInit {
     constructor(
         private projectService: ProjectService,
         private route: ActivatedRoute,
-        private regionService: RegionService,
-        private router: Router
-    ) {
-    }
+        private router: Router,
+        private toastService: ToastService,
+    ) {}
 
     ngOnInit() {
         this.getRegions();
 
-        if (this.route.snapshot.fragment) {
-            if (this.route.snapshot.fragment == 'update') {
-                this.mode = 'update';
-                this.form.patchValue({
-                    id: this.route.snapshot.params['id'],
-                });
+        if (this.route.snapshot.paramMap.get('id')) {
+            this.mode = 'update';
 
-                this.loadProject(this.route.snapshot.params['id']);
-            }
-        } else this.initMap(49.45, 13.89);
+            this.form.patchValue({
+                id: this.route.snapshot.params['id'],
+            });
+
+            this.loadProject(this.route.snapshot.params['id']);
+        } else this.initMap(51.495258, 10.808557);
     }
 
     getRegions() {
@@ -116,7 +137,7 @@ export class ProjectCreateComponent implements OnInit {
             .pipe(
                 map((res: any) => {
                     return res.regionList;
-                })
+                }),
             )
             .subscribe((res: any) => {
                 this.regionList = [];
@@ -125,18 +146,20 @@ export class ProjectCreateComponent implements OnInit {
     }
 
     initMap(lat: any, lang: any) {
-        const baseMapURl =
-            'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
-        this.map = L.map('mapFrame').setView([lat, lang], 5);
+        const accessToken =
+            'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw';
+        const baseMapURl = `https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=${accessToken}`;
+
+        this.map = L.map('mapFrame').setView([lat, lang], 50);
 
         L.tileLayer(baseMapURl, {
             maxZoom: 18,
             id: 'mapbox/streets-v11',
             tileSize: 512,
             zoomOffset: -1,
-            accessToken:
-                'pk.eyJ1IjoidmFsa2FsYWlzIiwiYSI6ImNrZGhpZ29peTFnMjIycG5ybWR3aG4yeHIifQ.L4y4PQjkIdO1c7pvzOr2kw',
         }).addTo(this.map);
+
+        this.marker = L.marker([lat, lang], this.markerIcon).addTo(this.map);
 
         // this.map.invalidateSize();
 
@@ -145,7 +168,7 @@ export class ProjectCreateComponent implements OnInit {
 
             this.marker = L.marker(
                 [e.latlng.lat, e.latlng.lng],
-                this.markerIcon
+                this.markerIcon,
             ).addTo(this.map);
 
             this.form.patchValue({
@@ -166,12 +189,12 @@ export class ProjectCreateComponent implements OnInit {
                 .pipe(
                     map((res: any) => {
                         if (res.success) return res.data;
-                    })
+                    }),
                 )
 
                 .subscribe({
                     next: (value) => {
-                        this.router.navigate(['projects']);
+                        this.router.navigate(['/explore']);
                     },
 
                     error: (err) => {
@@ -186,12 +209,12 @@ export class ProjectCreateComponent implements OnInit {
                 .pipe(
                     map((res: any) => {
                         if (res.success) return res.data;
-                    })
+                    }),
                 )
 
                 .subscribe({
                     next: (value) => {
-                        this.router.navigate(['projects']);
+                        this.router.navigate(['/explore']);
                     },
 
                     error: (err) => {
@@ -206,8 +229,8 @@ export class ProjectCreateComponent implements OnInit {
             .getProject(id)
             .pipe(
                 map((res: any) =>
-                    res && res.data.items ? (res = res.data.items[0]) : false
-                )
+                    res && res.data.items ? (res = res.data.items[0]) : false,
+                ),
             );
     }
 
@@ -215,13 +238,20 @@ export class ProjectCreateComponent implements OnInit {
         this.getProjectById(id)
             .pipe(
                 map((res: any) => {
-                    this.formUpdate(res);
                     this.initMap(res.latitude, res.longitude);
                     this.setMapMarker(res.latitude, res.longitude);
                     return res;
-                })
+                }),
             )
-            .subscribe();
+            .subscribe({
+                next: (value) => {
+                    this.formUpdate(value);
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error('Failed to load project data');
+                },
+            });
     }
 
     formUpdate(data: any) {

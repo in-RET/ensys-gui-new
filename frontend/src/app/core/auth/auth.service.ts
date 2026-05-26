@@ -1,18 +1,25 @@
-import { HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import {HttpParams} from '@angular/common/http';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+
 const ACCESS_TOKEN = 'access_token';
 const REFRESH_TOKEN = 'refresh_token';
+const USER_INFO = 'user_info';
 
 @Injectable()
 export class AuthCoreService {
     public redirectUrl: string | null = null;
 
     private readonly _token = new BehaviorSubject<string | undefined | null>(
-        undefined
+        undefined,
     );
+    private readonly _user = new BehaviorSubject<any | undefined | null>(
+        undefined,
+    );
+
     currentToken: Observable<string | undefined | null> =
         this._token.asObservable();
+    currentUser: Observable<any | undefined | null> = this._user.asObservable();
 
     /** Return token if exists */
     public getAuthorizationToken(): string {
@@ -25,7 +32,7 @@ export class AuthCoreService {
     /** Return token and menu if exists */
     public getHasAccess(): boolean {
         // return localStorage.getItem(ACCESS_TOKEN) ? true : false;
-        return this.getToken() ? true : false;
+        return !!this.getToken();
     }
 
     getTokenFromStorage(): string | null {
@@ -47,6 +54,27 @@ export class AuthCoreService {
 
     saveTokenToStorage(token: any) {
         localStorage.setItem(ACCESS_TOKEN, token);
+    }
+
+    saveUserInfoInStorage(userData: any) {
+        localStorage.setItem(USER_INFO, JSON.stringify(userData));
+    }
+
+    getUserInfoFromStorage(): any {
+        const userData = localStorage.getItem(USER_INFO);
+        return userData ? JSON.parse(userData) : null;
+    }
+
+    removeUserInfoFromStorage() {
+        localStorage.removeItem(USER_INFO);
+    }
+
+    saveUser(userInfo: any) {
+        this._user.next(userInfo);
+    }
+
+    getUser(): any | undefined | null {
+        return this._user.getValue();
     }
 
     saveToken(token: any) {

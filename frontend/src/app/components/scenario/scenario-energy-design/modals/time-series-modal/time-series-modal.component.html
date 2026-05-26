@@ -1,0 +1,7 @@
+<app-time-series
+    *ngIf="modalInfo"
+    [maxRecords_TimeSeries]="8760"
+    [modes]="modalInfo.modes"
+    (dataSubmit)="onDataSubmitted($event)"
+    (closeModal_TimeSeries)="closeModal($event)"
+/>

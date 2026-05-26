@@ -1,96 +1,77 @@
-<section class="project" id="project-{{ project.id }}">
-    <div class="project-item">
-        <div class="project__top">
-            <a>
-                <h2 class="name">{{ project.name }}</h2>
-            </a>
+<section
+    class="project border border-secondary-subtle rounded-3"
+    id="project-{{ project.id }}"
+>
+    <div class="project">
+        <div class="details">
+            <h2 class="name text-break">{{ project.name }}</h2>
+            <span class="icon-pin" aria-hidden="true"></span>
+            <span>{{ project.country }}</span>
 
-            <a class="location">
-                <span class="icon-pin" aria-hidden="true"></span>
-                {{ project.country }}
-            </a>
-        </div>
+            <br />
 
-        <div class="project__details">
-            <div class="details">
-                <div class="detail">
-                    <span class="detail__property">Created</span>
-
-                    <span class="detail__value">
-                        {{ project.date_created || "{not defined}" | date }}
-                    </span>
-                </div>
-            </div>
+            <span class="property">
+                {{ project.date_created || "{not defined}" | date }}
+            </span>
 
             <div class="actions">
                 <a
-                    class="btn btn--action action"
-                    [routerLink]="['../update/', project.id]"
-                    fragment="update"
+                    class="btn btn--action action d-flex"
+                    [routerLink]="['/project/', project.id]"
                 >
-                    <span class="icon icon-edit" aria-hidden="true"></span>
+                    <span class="icon icon-edit p-2" aria-hidden="true"></span>
                 </a>
 
                 <button
                     id="duplicate_{{ project.id }}"
                     style="margin-top: 0.25rem"
-                    class="btn btn--action action"
+                    class="btn btn--action action d-flex"
                     type="button"
-                    value="Delete"
-                    (click)="duplicate_modal(project.id)"
+                    value="Duplicate"
+                    (click)="onDuplicateProject(project.id)"
                 >
-                    <span class="icon icon-duplicate" aria-hidden="true"></span>
+                    <span
+                        class="icon icon-duplicate p-2"
+                        aria-hidden="true"
+                    ></span>
                 </button>
 
                 <button
                     id="delete_{{ project.id }}"
                     style="margin-top: 0.25rem"
-                    class="btn btn--action action"
+                    class="btn btn--action action d-flex"
                     type="button"
                     value="Delete"
-                    (click)="delete_modal(project.id)"
+                    (click)="onDeleteProject(project.id)"
                 >
-                    <span class="icon icon-delete" aria-hidden="true"></span>
+                    <span
+                        class="icon icon-delete p-2"
+                        aria-hidden="true"
+                    ></span>
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="project__scenarios">
-            <div class="toggle d-flex gap-2">
-                <button
-                    class="btn btn--action border p-2"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    [attr.data-bs-target]="'#scenario_list_' + project.id"
-                    aria-expanded="false"
-                    [attr.aria-controls]="'scenario_list_' + project.id"
-                    *ngIf="project.scenarioList && project.scenarioList.length"
+    <!-- Scenario List -->
+    <div class="project__scenarios text-center">
+        <div
+            class="collapse"
+            #collapse="ngbCollapse"
+            [(ngbCollapse)]="isCollapsed"
+        >
+            <ng-container *ngIf="loading.scenarios; else dataBlock">
+                <span class="text-muted p-2"> Loading scenarios... </span>
+            </ng-container>
+
+            <ng-template #dataBlock>
+                <ng-container
+                    *ngIf="
+                        project.scenarioList && project.scenarioList.length > 0;
+                        else noData
+                    "
                 >
-                    <span
-                        class="icon-i_arrow_down icon icon--small js-toggle-scenario-icon"
-                        aria-hidden="true"
-                    >
-                    </span>
-
-                    <span class="js-toggle-scenario-name">Show scenarios</span>
-                </button>
-
-                <button
-                    class="btn btn--success action border p-2"
-                    type="button"
-                    (click)="newScenario(+project.id, project.name)"
-                >
-                    New Scenario
-                </button>
-            </div>
-
-            <div
-                class="collapse row"
-                [id]="'scenario_list_' + project.id"
-                *ngIf="project.scenarioList && project.scenarioList.length > 0"
-            >
-                <div class="card card-body scenario_list col-4">
-                    <ul class="list-group border">
+                    <ul class="list-group rounded-0">
                         <li
                             class="list-group-item scenario_item"
                             *ngFor="let scenario of project.scenarioList"
@@ -103,8 +84,53 @@
                             />
                         </li>
                     </ul>
-                </div>
-            </div>
+                </ng-container>
+
+                <ng-template #noData>
+                    <span class="text-muted p-2">No scenarios available!</span>
+                </ng-template>
+            </ng-template>
+        </div>
+
+        <!-- scenario actions -->
+        <div class="d-flex scenario-actions">
+            <!-- show Scenarios -->
+            <button
+                type="button"
+                class="btn btn-outline-primary action"
+                [attr.aria-expanded]="!isCollapsed"
+                aria-controls="collapseExample"
+                [disabled]="loading.scenarios"
+                (click)="toggleCollapse()"
+            >
+                <span
+                    class="icon icon--small js-toggle-scenario-icon"
+                    aria-hidden="true"
+                    [ngClass]="{
+                        'icon-i_arrow_down': isCollapsed,
+                        'icon-i_arrow_up': !isCollapsed,
+                    }"
+                >
+                </span>
+                <span class="js-toggle-scenario-name"> Scenarios </span>
+            </button>
+
+            <!-- new Scenario -->
+            <button
+                class="btn btn--success action"
+                type="button"
+                [disabled]="loading.scenarios"
+                (click)="newScenario(+project.id, project.name)"
+            >
+                <img
+                    src="static/assets/icons/feather/white/plus.svg"
+                    alt=""
+                    height="20"
+                    width="20"
+                    loading="lazy"
+                />
+                <span>Scenario</span>
+            </button>
         </div>
     </div>
 </section>

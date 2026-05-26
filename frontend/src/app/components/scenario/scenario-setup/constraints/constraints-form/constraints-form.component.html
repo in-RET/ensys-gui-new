@@ -1,0 +1,49 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="d-flex flex-column gap-3">
+    <div>
+        <label class="form-label"> Type</label>
+        <select class="form-select" formControlName="type">
+            <option [ngValue]="null" disabled>Select</option>
+            <option *ngFor="let def of definitions" [ngValue]="def.type">
+                {{ def.label }}
+            </option>
+        </select>
+    </div>
+
+    <div formGroupName="dynamicFields" *ngIf="selectedDefinition">
+        <div class="row g-3">
+            <div
+                *ngFor="let field of selectedDefinition.fields"
+                class="col-12 col-md-6"
+            >
+                <label class="form-label">{{ field.label }}</label>
+
+                <input
+                    *ngIf="field.type === 'text' || field.type === 'number'"
+                    class="form-control"
+                    [type]="field.type"
+                    [formControlName]="field.key"
+                />
+
+                <textarea
+                    *ngIf="field.type === 'textarea'"
+                    class="form-control"
+                    rows="3"
+                    [formControlName]="field.key"
+                ></textarea>
+
+                <select
+                    *ngIf="field.type === 'select'"
+                    class="form-select"
+                    [formControlName]="field.key"
+                >
+                    <option
+                        *ngFor="let op of field.options"
+                        [ngValue]="op.value"
+                    >
+                        {{ op.label }}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </div>
+</form>

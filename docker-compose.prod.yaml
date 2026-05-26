@@ -38,7 +38,7 @@ services:
         container_name: ensys-prod-redis
         restart: always
         env_file: .env
-        command: [ "redis-server", "--bind", "redis-prod", "--port", "${REDIS_PORT_PROD}" ]
+        command: [ "redis-server", "--bind", "${REDIS_HOST}", "--port", "${REDIS_PORT_DEV}" ]
         networks:
             - ensys-prod
         volumes:

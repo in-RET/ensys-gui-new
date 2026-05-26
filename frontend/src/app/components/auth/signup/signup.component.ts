@@ -1,30 +1,53 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject} from '@angular/core';
-import {FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router} from '@angular/router';
-import {AuthService} from '../services/auth.service';
-import {ValidateService} from '../services/validate.service';
+import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
+import {
+    FormControl,
+    FormGroup,
+    FormsModule,
+    ReactiveFormsModule,
+    Validators,
+} from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
+import { finalize } from 'rxjs';
+import { AuthService } from '../services/auth.service';
+import { ValidateService } from '../services/validate.service';
 
 @Component({
     selector: 'app-signup',
-    imports: [CommonModule, FormsModule, ReactiveFormsModule],
+    imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
     templateUrl: './signup.component.html',
     styleUrl: './signup.component.scss',
 })
 export class SignupComponent {
+    authService = inject(AuthService);
+    router = inject(Router);
     validateService = inject(ValidateService);
 
     form: FormGroup = new FormGroup(
         {
-            email: new FormControl(null, Validators.required),
+            email: new FormControl(null, [
+                Validators.required,
+                Validators.minLength(8),
+                Validators.email,
+            ]),
             fName: new FormControl(null, Validators.required),
             lName: new FormControl(null, Validators.required),
             user: new FormControl(null, Validators.required),
-            pass: new FormControl(null, Validators.required),
-            confirmPass: new FormControl(null, Validators.compose([Validators.required])),
+            pass: new FormControl(null, [
+                Validators.required,
+                Validators.minLength(8),
+                this.validateService.strongPasswordValidator,
+            ]),
+            confirmPass: new FormControl(
+                null,
+                Validators.compose([
+                    Validators.required,
+                    Validators.minLength(8),
+                ]),
+            ),
             consentOpt: new FormControl(false, Validators.required),
         },
-        this.validateService.passwordMatch('pass', 'confirmPass')
+        this.validateService.passwordMatch('pass', 'confirmPass'),
     );
 
     get email() {
@@ -55,22 +78,24 @@ export class SignupComponent {
         return this.form.get('consentOpt');
     }
 
-    errorList!: { messge: string }[];
-
-    constructor(private authService: AuthService, private router: Router) {
-    }
+    errMsg: string = '';
+    loading: boolean = false;
 
     signup() {
+        this.loading = true;
+        this.errMsg = '';
+
         this.authService
             .signup(
                 this.user?.value,
                 this.fName?.value,
                 this.lName?.value,
                 this.pass?.value,
-                this.email?.value
+                this.email?.value,
             )
+            .pipe(finalize(() => (this.loading = false)))
             .subscribe({
-                next: (value: any) => {
+                next: () => {
                     this.goLogin();
                 },
 
@@ -78,11 +103,7 @@ export class SignupComponent {
                     console.error(err);
 
                     if (err.error.detail) {
-                        this.errorList = [];
-
-                        err.error.detail.forEach((element: any) => {
-                            this.errorList.push(element.msg);
-                        });
+                        this.errMsg = err.error.detail;
                     }
                 },
             });

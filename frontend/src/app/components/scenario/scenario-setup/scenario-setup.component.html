@@ -1,17 +1,17 @@
 <div class="scenario-main">
     <form [formGroup]="form">
+        <!-- basic fields -->
         <div class="row g-2">
             <!-- project -->
             <div class="col-auto" formGroupName="project">
                 <div class="form-floating mb-3">
                     <select
-                        id="project"
                         class="form-select"
                         formControlName="id"
                         [ngClass]="{
                             'is-invalid':
                                 projectId!.invalid &&
-                                (projectId!.dirty || projectId!.touched)
+                                (projectId!.dirty || projectId!.touched),
                         }"
                         tabindex="1"
                     >
@@ -21,12 +21,12 @@
 
                         <option
                             [value]="project.id"
-                            *ngFor="let project of projectList"
+                            *ngFor="let project of projects"
                         >
                             {{ project.name }}
                         </option>
                     </select>
-                    <label for="project">Project</label>
+                    <label>Project</label>
                 </div>
             </div>
 
@@ -34,7 +34,6 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
-                        id="name"
                         type="text"
                         class="form-control"
                         formControlName="name"
@@ -42,11 +41,11 @@
                         required
                         [ngClass]="{
                             'is-invalid':
-                                name!.invalid && (name!.dirty || name!.touched)
+                                name!.invalid && (name!.dirty || name!.touched),
                         }"
                         tabindex="2"
                     />
-                    <label for="name">Name</label>
+                    <label>Name</label>
                 </div>
             </div>
 
@@ -54,14 +53,13 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <select
-                        id="simulation_year"
                         class="form-select"
                         formControlName="simulationYear"
                         [ngClass]="{
                             'is-invalid':
                                 simulationYear!.invalid &&
                                 (simulationYear!.dirty ||
-                                    simulationYear!.touched)
+                                    simulationYear!.touched),
                         }"
                         tabindex="6"
                     >
@@ -72,15 +70,14 @@
                             <option [value]="item">{{ item }}</option>
                         </ng-container>
                     </select>
-                    <label for="simulation_year">Simulation year</label>
+                    <label>Simulation year</label>
                 </div>
             </div>
 
-            <!-- datepicker -->
+            <!-- datepiocker -->
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
-                        id="date"
                         type="date"
                         class="form-control date"
                         [value]="unixToDateString(sDate?.value)"
@@ -89,12 +86,12 @@
                         [ngClass]="{
                             'is-invalid':
                                 sDate!.invalid &&
-                                (sDate!.dirty || sDate!.touched)
+                                (sDate!.dirty || sDate!.touched),
                         }"
                         tabindex="3"
                         disabled
                     />
-                    <label for="date">Start Date</label>
+                    <label>Start Date</label>
                 </div>
             </div>
 
@@ -102,7 +99,6 @@
             <div class="col-2">
                 <div class="form-floating mb-3">
                     <input
-                        id="simulation_period"
                         type="number"
                         class="form-control"
                         formControlName="simulationPeriod"
@@ -112,11 +108,11 @@
                             'is-invalid':
                                 simulationPeriod!.invalid &&
                                 (simulationPeriod!.dirty ||
-                                    simulationPeriod!.touched)
+                                    simulationPeriod!.touched),
                         }"
                         tabindex="4"
                     />
-                    <label for="simulation_period">Simulation period</label>
+                    <label>Simulation period</label>
                 </div>
             </div>
 
@@ -124,13 +120,12 @@
             <div class="col-auto">
                 <div class="form-floating mb-3">
                     <select
-                        id="time_step"
                         class="form-select"
                         formControlName="timeStep"
                         [ngClass]="{
                             'is-invalid':
                                 timeStep!.invalid &&
-                                (timeStep!.dirty || timeStep!.touched)
+                                (timeStep!.dirty || timeStep!.touched),
                         }"
                         tabindex="5"
                     >
@@ -140,97 +135,42 @@
                         <option value="8760">60 min</option>
                         <option value="15">15 min</option>
                     </select>
-                    <label for="time_step">Time Step</label>
+                    <label>Time Step</label>
                 </div>
             </div>
         </div>
 
-        <div class="row g-auto"></div>
+        <ng-container
+            *ngIf="scenarioStateService.scenarioState | async as scenarioData"
+        >
+            <!-- constraints -->
+            <app-constraints
+                [data]="scenarioData.scenario?.constraints || []"
+                (editConstraintOnFlow)="editConstraintOnFlow($event)"
+                #constraints
+            />
 
-        <section style="display: none">
-            <!-- <hr />
-            <h4>Constraints</h4>
+            <!-- <div class="d-flex" style="justify-content: center">
+                <button
+                    class="btn btn--medium"
+                    *ngIf="scenarioData && !scenarioData.scenario"
+                    (click)="onSaveScenario()"
+                >
+                    Save
+                </button>
 
-            <div class="math_wrapper">
-                <p>
-                    'Bilanziell erneuerbar'/Bilanzielle Autarkie [MWh] (factor)
-                    -
-
-                    <img
-                        src="/static/assets/illustrations/bilanziellErneuerbar.svg"
-                    /><br />
-                </p>
-            </div>
-
-            <div class="row g-2">
-                <div class="col-3">
-                    <div class="form-check form-switch">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            role="switch"
-                            formControlName="minimal_renewable_factor_active"
-                            (change)="
-                                minimal_renewable_factor_active?.value
-                                    ? minimal_renewable_factor?.enable()
-                                    : minimal_renewable_factor?.disable()
-                            "
-                        />
-                        <label for="">X</label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <input
-                            type="number"
-                            class="form-control"
-                            formControlName="minimal_renewable_factor"
-                            placeholder="Value"
-                            required
-                            [ngClass]="{
-                                'is-invalid':
-                                    minimal_renewable_factor!.invalid &&
-                                    (minimal_renewable_factor!.dirty ||
-                                        minimal_renewable_factor!.touched)
-                            }"
-                        />
-                        <label>Value</label>
-                    </div>
-                </div>
-
-                <div class="col-4">
-                    <div class="form-check form-switch">
-                        <input
-                            class="form-check-input"
-                            type="checkbox"
-                            role="switch"
-                            formControlName="maximum_emissions_active"
-                            (change)="
-                                maximum_emissions_active?.value
-                                    ? maximum_emissions?.enable()
-                                    : maximum_emissions?.disable()
-                            "
-                        />
-                        <label for="">Maximal CO2 emissions (kgCO2eq/a) </label>
-                    </div>
-
-                    <div class="form-floating mb-3">
-                        <input
-                            type="number"
-                            class="form-control"
-                            formControlName="maximum_emissions"
-                            placeholder="Value"
-                            required
-                            [ngClass]="{
-                                'is-invalid':
-                                    maximum_emissions!.invalid &&
-                                    (maximum_emissions!.dirty ||
-                                        maximum_emissions!.touched)
-                            }"
-                        />
-                        <label>Value</label>
-                    </div>
-                </div>
+                <button
+                    class="btn btn--medium"
+                    *ngIf="
+                        scenarioData &&
+                        scenarioData.scenario &&
+                        scenarioData.scenario.id
+                    "
+                    (click)="onUpdateScenario()"
+                >
+                    Update
+                </button>
             </div> -->
-        </section>
+        </ng-container>
     </form>
 </div>

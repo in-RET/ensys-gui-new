@@ -4,49 +4,50 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
+from sqladmin import Admin
+from sqlalchemy import create_engine
+from starlette.middleware.gzip import GZipMiddleware
 
-from .admin.router import admin_router
+from .core.config import get_settings
 from .oep.router import oep_router
+from .project.model import ProjectAdmin
 from .project.router import projects_router
 from .results.router import results_router
+from .scenario.model import ScenarioAdmin
 from .scenario.router import scenario_router
+from .simulation.model import SimulationAdmin
 from .simulation.router import simulation_router
+from .templates.model import TemplateScenarioAdmin, TemplateAdmin
+from .templates.router import templates_router
+from .user.model import UserAdmin
 from .user.router import users_router
+
+"""EnSys GUI backend entrypoint.
+
+- Configures FastAPI with middleware, admin views, and all routers
+- Serves OpenAPI docs at `/docs` and `/redoc`
+"""
 
 tags_metadata = [
     {
         "name": "user",
-        "description": "Operations with users. The **login** logic is also here."
+        "description": "Operations with users. The **login** logic is also here.",
     },
     {
         "name": "project",
         "description": "Manage projects.",
     },
-    {
-        "name": "admin",
-        "description": "Just a Teapot."
-    },
-    {
-        "name": "scenario",
-        "description": "Manage scenarios."
-    },
-    {
-        "name": "default",
-        "description": "The root of all evil."
-    },
-    {
-        "name": "simulation",
-        "description": "Manage simulations."
-    },
-    {
-        "name": "results",
-        "description": "Get results."
-    }
+    {"name": "scenario", "description": "Manage scenarios."},
+    {"name": "default", "description": "The root of all evil."},
+    {"name": "simulation", "description": "Manage simulations."},
+    {"name": "results", "description": "Get results."},
+    {"name": "templates", "description": "Manage templates."},
 ]
 
+_settings = get_settings()
+
 fastapi_app = FastAPI(
-    root_path="/api",
+    root_path=_settings.root_path,
     title="EnSys Backend",
     summary="The API and backend for the software package 'EnSys by in.RET'",
     version="0.2.0dev",
@@ -59,77 +60,62 @@ fastapi_app = FastAPI(
         "name": "GNU AFFERO GENERAL PUBLIC LICENSE aGPL",
         "identifier": "aGPL",
     },
-    openapi_tags=tags_metadata,
-    # servers=[
-    #     {"url": "/api/", "description": "Production environment"},
-    #     # {"url": "https://ensys.hs-nordhausen.de", "description": "Production environment"}
-    # ],
-    root_path_in_servers=True
+    openapi_tags=tags_metadata
 )
 
-fastapi_app.mount("/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static")
-templates = Jinja2Templates(directory=os.path.join("templates", "html"))
+admin_engine = create_engine(_settings.database_url)
+admin = Admin(
+    app=fastapi_app,
+    engine=admin_engine
+)
 
-origins = [
-    "http://localhost:9004",
-    "http://localhost:20001",
-    "http://localhost:20002",
-    "https://ensys.hs-nordhausen.de"
-]
+admin.add_view(UserAdmin)
+admin.add_view(ProjectAdmin)
+admin.add_view(ScenarioAdmin)
+admin.add_view(SimulationAdmin)
+admin.add_view(TemplateAdmin)
+admin.add_view(TemplateScenarioAdmin)
+
+fastapi_app.mount(
+    "/static", StaticFiles(directory=os.path.join("templates", "assets")), name="static"
+)
+templates = Jinja2Templates(directory=os.path.join("templates", "html"))
 
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # origins,
-    allow_credentials=True,
+    allow_origins=_settings.cors_origins,
+    allow_credentials=_settings.allow_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-routers = [users_router, admin_router, projects_router, scenario_router, simulation_router, results_router, oep_router]
-for router in routers:
-    fastapi_app.include_router(
-        router=router
-    )
+# Enable gzip compression for larger responses to reduce bandwidth
+fastapi_app.add_middleware(GZipMiddleware, minimum_size=1024)
 
+routers = [
+    users_router,
+    projects_router,
+    scenario_router,
+    simulation_router,
+    results_router,
+    oep_router,
+    templates_router,
+]
+for router in routers:
+    fastapi_app.include_router(router=router)
+
+
+@fastapi_app.middleware("http")
+async def fix_admin_root_path(request, call_next):
+    if request.url.path.startswith("/admin/"):
+        request.scope["path"] = fastapi_app.root_path + request.url.path
+    return await call_next(request)
 
 @fastapi_app.get("")
 async def root(request: Request):
-    """
-    Handles the root endpoint of the FastAPI application, which responds with an HTML page
-    providing a welcome message and links to documentation.
+    """Serve the landing page with links to the API docs.
 
-    Provides a simple HTML-based response notifying users about the available documentation
-    resources. The background and content are customized with inline CSS styling for user
-    visual experience.
-
-    :return: HTMLResponse containing the welcome page content and HTTP status code 200.
-    :rtype: HTMLResponse
+    - returns: HTMLResponse with the main template
     """
 
-    return templates.TemplateResponse(
-        request=request,
-        name="main_response.html"
-    )
-
-# @app.exception_handler(CustomException)
-# async def custom_exceptions_handler(request: Request, exc: CustomException):
-#     return CustomResponse(
-#         data=None,
-#         success=False,
-#         errors=[ErrorModel(
-#             code=exc.code,
-#             message=exc.message
-#         )]
-#     )
-
-# @app.exception_handler(RequestValidationError)
-# async def validation_exception_handler(request: Request, exc: RequestValidationError):
-#     #print(exc.errors())
-#     return CustomResponse(
-#         data=None,
-#         success=False,
-#         errors=[ErrorModel(
-#             code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-#             message=repr(exc.errors())
-#         )]
-#     )
+    return templates.TemplateResponse(request=request, name="main_response.html")

@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {environment} from '../../../../environments/environment';
 import {BaseHttpService} from '../../../core/base-http/base-http.service';
 
@@ -7,14 +7,14 @@ import {BaseHttpService} from '../../../core/base-http/base-http.service';
 })
 export class ProjectService {
     private baseUrl: string = environment.apiUrl + 'project';
-    private baseHttp: BaseHttpService = inject(BaseHttpService);
+
+    constructor(private baseHttp: BaseHttpService) {}
 
     getProject(id: number) {
         return this.baseHttp.get(`${this.baseUrl}/${id}`);
     }
 
     getProjects() {
-
         return this.baseHttp.get(`${this.baseUrl}s`);
     }
 

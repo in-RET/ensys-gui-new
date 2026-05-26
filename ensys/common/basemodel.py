@@ -1,6 +1,5 @@
 from oemof import solph
 from pydantic import BaseModel, model_validator, ConfigDict
-from pyomo.core import sequence
 
 
 ## Container for a configuration
@@ -18,12 +17,9 @@ class EnBaseModel(BaseModel):
     """
 
     ## pydantic subclass to add special configurations.
-    model_config = ConfigDict(
-        extra='ignore',  # 'allow'
-        arbitrary_types_allowed=True
-    )
+    model_config = ConfigDict(extra="ignore", arbitrary_types_allowed=True)  # 'allow'
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     def remove_empty(self):
         """
         Removes attributes with `None` values from the object.
@@ -39,7 +35,7 @@ class EnBaseModel(BaseModel):
         """
         items_to_remove = []
 
-        if type(self) == dict:
+        if isinstance(self, dict):
             for attribute in self:
                 if self[attribute] is None:
                     items_to_remove.append(attribute)
@@ -81,7 +77,9 @@ class EnBaseModel(BaseModel):
 
                     for io_key in io_keys:
                         bus = energysystem.groups[io_key]
-                        if isinstance(attr_value[io_key], float) or isinstance(attr_value[io_key], list):
+                        if isinstance(attr_value[io_key], float) or isinstance(
+                            attr_value[io_key], list
+                        ):
                             oemof_io[bus] = attr_value[io_key]
                         else:
                             oemof_io[bus] = attr_value[io_key].to_oemof(energysystem)
@@ -89,7 +87,10 @@ class EnBaseModel(BaseModel):
                     kwargs[attr_key] = oemof_io
                 elif attr_key in ["nonconvex"] and not isinstance(attr_value, bool):
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)
-                elif attr_key in ["nominal_value", "nominal_storage_capacity"] and not isinstance(attr_value, float):
+                elif attr_key in [
+                    "nominal_value",
+                    "nominal_storage_capacity",
+                ] and not isinstance(attr_value, float):
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)
                 else:
                     kwargs[attr_key] = attr_value

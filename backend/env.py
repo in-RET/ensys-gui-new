@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from logging.config import fileConfig
 
 from alembic import context
@@ -7,8 +8,9 @@ from sqlmodel import SQLModel
 
 from app.project.model import EnProjectDB
 from app.scenario.model import EnScenarioDB
-from app.user.model import EnUserDB
 from app.simulation.model import EnSimulationDB
+from app.templates.model import EnTemplateDB, EnTemplateScenarioDB
+from app.user.model import EnUserDB
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,11 +27,72 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 target_metadata = SQLModel.metadata
 
-
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
+
+black_placeholder_user = EnUserDB(
+    id=1,
+    username="placeholder_user",
+    firstname="",
+    lastname="",
+    password="",
+    mail="",
+    date_joined=datetime.now(),
+    last_login=None,
+    is_active=True,
+    is_staff=False,
+)
+
+black_placeholder_project = EnProjectDB(
+    id=1,
+    user_id=1,
+    name="black_placeholder_project",
+    description="",
+    country="Anywhere",
+    longitude=243.2,
+    latitude=54.1,
+    is_favorite=False,
+)
+
+black_placeholder_scenario = EnScenarioDB(
+    id=1,
+    name="black_placeholder_scenario",
+    start_date=datetime.now(),
+    time_steps=8760,
+    interval=1.0,
+    project_id=1,
+    user_id=1,
+    modeling_data="",
+)
+
+black_placeholder_template = EnTemplateDB(
+    id=1,
+    name="black_placeholder_template",
+    description="",
+    country="Nowhere",
+    longitude=45.2,
+    latitude=345.1,
+)
+
+black_placeholder_simulation = EnSimulationDB(
+    id=1,
+    sim_token="black_placeholder_simulation",
+    start_date=datetime.now(),
+    end_date=None,
+    scenario_id=1,
+)
+
+black_placeholder_template_scenario = EnTemplateScenarioDB(
+    id=1,
+    name="black_placeholder_template_scenario",
+    start_date=datetime.now(),
+    time_steps=8760,
+    interval=1.0,
+    template_id=1,
+    modeling_data="",
+)
 
 
 def run_migrations_offline() -> None:
@@ -73,9 +136,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+        context.configure(connection=connection, target_metadata=target_metadata)
 
         with context.begin_transaction():
             context.run_migrations()

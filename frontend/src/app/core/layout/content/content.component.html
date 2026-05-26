@@ -1,7 +1,9 @@
-<section [ngClass]="{ fullscreen: isFullscreen }">
-    <app-navbar />
+<div class="content-component">
+    <app-navbar [user]="user" />
 
-    <main class="main-section">
+    <div class="__main-content">
         <router-outlet />
-    </main>
-</section>
+    </div>
+
+    <app-footer [user]="user" />
+</div>

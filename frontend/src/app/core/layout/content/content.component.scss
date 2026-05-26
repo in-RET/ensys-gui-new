@@ -1,15 +1,12 @@
-main {
-    height: 92vh;
-}
+.content-component {
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
-::ng-deep .fullscreen {
-    app-navbar,
-    app-scenario-footer,
-    app-scenario-progression {
-        display: none;
-    }
-
-    .main-section {
-        height: 100vh !important;
+    .__main-content {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
     }
 }

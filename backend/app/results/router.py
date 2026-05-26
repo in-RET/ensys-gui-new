@@ -1,4 +1,3 @@
-import math
 import os
 from typing import Annotated
 
@@ -9,10 +8,12 @@ from sqlmodel import Session
 from starlette import status
 
 from .automatic_cost_calc import cost_calculation_from_energysystem
-from .model import EnDataFrame, EnTimeSeries, ResultDataModel, EnInvestResult
-from ..data.model import GeneralDataModel
-from ..db import get_db_session
-from ..responses import ErrorModel, ErrorResponse, ResultResponse
+from .model import EnDataFrame, EnTimeSeries, EnTableResult, ResultDataModel
+from ..db import get_db_session, SessionLocal
+from ..models.base import GeneralDataModel, ErrorModel
+from ..models.response import ErrorResponse, ResultResponse
+from ..project.model import EnProjectDB
+from ..scenario.model import EnScenarioDB
 from ..security import oauth2_scheme
 from ..simulation.model import EnSimulationDB, Status
 
@@ -22,42 +23,36 @@ results_router = APIRouter(
 )
 
 
-def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
-    """
-    Fetches results from a simulation dump file based on the simulation ID. This function
-    retrieves the energy system data from a serialized dump file stored in the local directory
-    based on a simulation token. It processes the dump files, restores the energy system,
-    and aggregates result sequences for each identified energy bus into structured data.
-    The results are returned in the form of a ResultDataModel.
+def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> GeneralDataModel:
+    """Load simulation results from the dump on disk.
 
-    :param simulation_id: ID of the simulation for which results are being fetched
-    :type simulation_id: int
-    :param db: Database session used to query the simulation information
-    :type db: Session
-    :return: A ResultDataModel containing the result data extracted from the dump and the
-        total count of data entries
-    :rtype: ResultDataModel
-
-    :raises HTTPException: Raised with status code 404 if the simulation ID does not exist
-        or if the required dump file is not found
+    - param simulation_id: simulation id whose dump to read
+    - param db: Session for fetching simulation metadata
+    - returns: GeneralDataModel with ResultDataModel entries
+    - raises: HTTPException 404 when simulation or dump is missing
     """
     simulation = db.get(EnSimulationDB, simulation_id)
+    sim_scenario = db.get(EnScenarioDB, simulation.scenario_id)
+    sim_project = db.get(EnProjectDB, sim_scenario.project_id)
 
     if not simulation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found"
+        )
 
     simulation_token = simulation.sim_token
-    simulations_path = os.path.abspath(os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump"))
+    simulations_path = os.path.abspath(
+        os.path.join(os.getenv("LOCAL_DATADIR"), simulation_token, "dump")
+    )
     print(f"simulations_path: {simulations_path}")
 
     if not os.path.isfile(os.path.join(simulations_path, "oemof_es.dump")):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dumpfile not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Dumpfile not found"
+        )
 
     es = solph.EnergySystem()
-    es.restore(
-        dpath=simulations_path,
-        filename='oemof_es.dump'
-    )
+    es.restore(dpath=simulations_path, filename="oemof_es.dump")
 
     busses = []
     components = []
@@ -79,16 +74,13 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
 
             series_name = str(t[0][0]) + " > " + str(t[0][1])
             time_series = EnTimeSeries(
-                name=series_name,
-                data=nan_to_num(g.values) * pow(-1, idx_asset)
+                name=series_name, data=nan_to_num(g.values) * pow(-1, idx_asset)
             )
 
             graph_data.append(time_series)
 
         bus_data: EnDataFrame = EnDataFrame(
-            name=f"{bus}",
-            index=es.timeindex.to_pydatetime(),
-            data=graph_data
+            name=f"{bus}", index=es.timeindex.to_pydatetime(), data=graph_data
         )
 
         result_data.append(bus_data)
@@ -99,23 +91,36 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
         component_data = solph.views.node(es.results["main"], node=component)
 
         if "scalars" in component_data:
-            if type(component) == solph.components.GenericStorage:
-                result_component_data = EnInvestResult(
-                    name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000, 2),
-                    unit="kWh"
-                )
+            if sim_project.unit_energy == "MW/MWh":
+                if type(component) == solph.components.GenericStorage:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0], 2),
+                        unit="MWh"
+                    )
+                else:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0], 2),
+                        unit="MW"
+                    )
             else:
-                result_component_data = EnInvestResult(
-                    name=str(component),
-                    value=round(list(component_data["scalars"])[0] * 1000, 2),
-                    unit="kW"
-                )
+                if type(component) == solph.components.GenericStorage:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        unit="kWh"
+                    )
+                else:
+                    result_component_data = EnTableResult(
+                        name=str(component),
+                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        unit="kW"
+                    )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
 
-    costs = None
     costs = cost_calculation_from_energysystem(es)
     print(f"Costs: {costs}")
 
@@ -124,90 +129,84 @@ def get_results_from_dump(simulation_id: int, db: Session) -> GeneralDataModel:
     #         data = costs.loc[index, key]
     #
     #         if not math.isnan(data):
-    #             result_components.append(EnInvestResult(
+    #             result_components.append(EnTableResult(
     #                 name=f"{index} ({key})",
     #                 value=round(data, 2),
     #                 unit="EUR"
     #             ))
 
     result_components.append(
-        EnInvestResult(
-            name="Costs",
-            value=round(costs.sum().sum(), 2),
-            unit="EUR/a"
+        EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a")
+    )
+
+    if "Emissions" in es.results.keys():
+        result_components.append(
+            EnTableResult(name="Emissions", value=round(es.results["emissions"], 2), unit=sim_project.unit_co2)
         )
-    )
 
-    return_data = [ResultDataModel(
-        static=result_components,
-        graphs=result_data
-    )]
+    return_data = [ResultDataModel(static=result_components, graphs=result_data)]
 
-    return GeneralDataModel(
-        items=return_data,
-        totalCount=len(return_data)
-    )
+    return GeneralDataModel(items=return_data, totalCount=len(return_data))
 
 
 @results_router.get("/{simulation_id}", response_model=ResultResponse | ErrorResponse)
 async def get_results(
-    simulation_id: int, token: Annotated[str, Depends(oauth2_scheme)],
-    db: Session = Depends(get_db_session)
+    simulation_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session),
 ) -> ResultResponse | ErrorResponse:
-    """
-    Retrieve the results of a simulation based on the given simulation id. This endpoint checks
-    the current status of the simulation and provides appropriate responses based on that status.
-    If the simulation is finished, the results are returned. If the status indicates in-progress,
-    failed, or canceled, it responds with corresponding error messages. Errors are also returned
-    if the simulation does not exist or if the request is unauthenticated.
+    """Return simulation results or status-aware errors.
 
-    :param simulation_id: The unique identifier of the simulation.
-    :type simulation_id: int
-    :param token: The OAuth2 token for authentication.
-    :type token: str
-    :param db: Database session dependency, used to query the database.
-    :type db: Session
-    :return: A ResultResponse object containing simulation results if successful, or an
-             ErrorResponse object containing error details if an error occurs.
-    :rtype: ResultResponse | ErrorResponse
-
-    :raises HTTPException: If the request is unauthenticated.
-    :raises HTTPException: If the simulation does not exist.
-    :raises HTTPException: If the simulation status is unknown.
+    - param simulation_id: simulation id to inspect
+    - param token: bearer token from OAuth2
+    - param db: SQLModel session dependency
+    - returns: ResultResponse on finished, ErrorResponse otherwise
+    - raises: HTTPException 401/404 on auth or missing simulation
     """
     if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
+        )
 
     simulation = db.get(EnSimulationDB, simulation_id)
     if not simulation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found"
+        )
 
     if simulation.status == Status.STARTED.value:
         return ErrorResponse(
-            errors=[ErrorModel(
-                code=status.HTTP_425_TOO_EARLY,
-                message=f"Simulation {simulation_id} has not finished yet."
-            )]
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_425_TOO_EARLY,
+                    message=f"Simulation {simulation_id} has not finished yet.",
+                )
+            ]
         )
     elif simulation.status == Status.FAILED.value:
         # TODO: Bessere Rückgabe von Fehlern bei "failed"
         return ErrorResponse(
-            errors=[ErrorModel(
-                code=status.HTTP_409_CONFLICT,
-                message=f"Simulation {simulation_id} has failed."
-            )]
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_409_CONFLICT,
+                    message=f"Simulation {simulation_id} has failed.",
+                )
+            ]
         )
     elif simulation.status == Status.STOPPED.value:
         return ErrorResponse(
-            errors=[ErrorModel(
-                code=status.HTTP_409_CONFLICT,
-                message=f"Simulation {simulation_id} has stopped."
-            )]
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_409_CONFLICT,
+                    message=f"Simulation {simulation_id} has stopped.",
+                )
+            ]
         )
     elif simulation.status == Status.FINISHED.value:
         return ResultResponse(
-            data=get_results_from_dump(simulation.id, db),
-            success=True
+            data=get_results_from_dump(simulation.id, db), success=True
         )
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Simulation unknown status.")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation unknown status."
+        )

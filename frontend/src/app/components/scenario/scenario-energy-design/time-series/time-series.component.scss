@@ -1,0 +1,41 @@
+// time-series data table
+.frame {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+}
+
+.column-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.upload-section {
+    margin-bottom: 20px;
+}
+
+::ng-deep .highlight-col {
+    background-color: rgba(255, 193, 7, 0.35) !important;
+    color: #000 !important;
+}
+::ng-deep tbody .emptyCell {
+    border-bottom: 1px solid #ff5252 !important;
+}
+
+th:first-child,
+td:first-child {
+    width: 60px;
+}
+
+.plot_timeSeries {
+    min-height: 400px;
+}
+
+.time_series_modal {
+    max-height: 70vh;
+}

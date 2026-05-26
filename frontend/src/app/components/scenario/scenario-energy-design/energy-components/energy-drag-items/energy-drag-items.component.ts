@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
+import { ScenarioStateService } from '../../../services/scenario-state.service';
 
 @Component({
     selector: 'app-energy-drag-items',
@@ -14,12 +15,16 @@ export class EnergyDragItemsComponent {
     @Input() group!: string;
     @Input() id: any;
 
-    @Output('touchEnd') _touchEnd = new EventEmitter<any>();
+    @Output('touchEnd') _touchEnd: EventEmitter<any> = new EventEmitter();
+
+    private scenarioStateService = inject(ScenarioStateService);
 
     drag(ev: DragEvent) {
         ev.dataTransfer?.setData('id', this.id);
         ev.dataTransfer?.setData('node', this.name);
         ev.dataTransfer?.setData('group', this.group);
+
+        this.scenarioStateService.setDrawflowMovementState(true);
     }
 
     touchStart(ev: TouchEvent) {
@@ -36,7 +41,7 @@ export class EnergyDragItemsComponent {
 
         const touchedElement = document.elementFromPoint(
             this.touchedItem.clientX,
-            this.touchedItem.clientY
+            this.touchedItem.clientY,
         );
 
         if (

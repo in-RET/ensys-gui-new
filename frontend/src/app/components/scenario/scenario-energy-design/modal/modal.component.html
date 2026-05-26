@@ -32,7 +32,7 @@
                 <ng-content select="[modal-body]" />
             </div>
 
-            <div class="modal-footer justify-content-center">
+            <div class="modal-footer justify-content-center" *ngIf="hasActions">
                 <ng-content select="[modal-actions]" />
             </div>
         </div>

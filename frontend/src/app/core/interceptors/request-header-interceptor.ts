@@ -5,7 +5,7 @@ import {
     HttpRequest,
 } from '@angular/common/http';
 
-import {inject, Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 import { Observable } from 'rxjs';
 
@@ -14,9 +14,7 @@ import { AuthCoreService } from '../auth/auth.service';
 
 @Injectable()
 export class RequestHeaderInterceptor implements HttpInterceptor {
-
-    authService = inject(AuthCoreService);
-    router = inject(Router);
+    constructor(private authService: AuthCoreService, private router: Router) {}
 
     intercept(
         request: HttpRequest<any>,

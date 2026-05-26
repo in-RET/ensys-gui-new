@@ -32,6 +32,7 @@
                     'is-invalid':
                         user!.invalid && (user!.dirty || user!.touched)
                 }"
+                id="floatingInput"
             />
             <label for="floatingInput">Username</label>
 
@@ -59,6 +60,7 @@
                     'is-invalid':
                         pass!.invalid && (pass!.dirty || pass!.touched)
                 }"
+                id="floatingPassword"
             />
             <label for="floatingPassword">Password</label>
 
@@ -79,14 +81,21 @@
             class="btn btn--large"
             type="submit"
             (click)="logIn()"
-            [disabled]="!form.valid"
+            [disabled]="!form.valid || loading"
         >
             Login
+            <div
+                class="spinner-border spinner-border-sm"
+                role="status"
+                [hidden]="!loading"
+            >
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </button>
 
-        <div class="mt-1 text-danger" *ngIf="error && error.messge">
+        <div class="mt-1 text-danger" *ngIf="error && error.message">
             Error:
-            <span> {{ error.messge }}</span>
+            <span> {{ error.message }}</span>
         </div>
 
         <div class="signup-frame__subheading">

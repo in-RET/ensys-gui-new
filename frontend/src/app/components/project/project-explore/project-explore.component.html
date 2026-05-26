@@ -1,34 +1,122 @@
-<section class="project d-flex p-2 mb-3">
-    <button class="btn btn--medium" [routerLink]="['../create']">
-        <img
-            src="../../../../../static/assets/icons/feather/white/plus.svg"
-            alt=""
-            height="20px"
-        />
-        <span> Project</span>
-    </button>
-</section>
-
-<app-project-item
-    [project]="project"
-    *ngFor="let project of project_list"
-    (deleteProject)="deleteProject($event)"
-    (duplicateProject)="duplicateProject($event)"
-/>
-
-<section class="projects-empty" *ngIf="!project_list || !project_list.length">
-    <div>
-        <div class="projects-empty__img">
-            <img
-                src="./static/assets/illustrations/empty_folder.svg"
-                alt="Empty folder"
-            />
+<div
+    style="
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    "
+    [hidden]="loading.projects"
+>
+    <ng-container *ngIf="project_list && project_list.length >= 0">
+        <div class="p-3 overflow-y-auto">
+            <div class="row" style="overflow-x: hidden; overflow-y: auto">
+                <app-project-item
+                    class="col-4 mb-3"
+                    *ngFor="
+                        let project of project_list;
+                        trackBy: trackByProjectId
+                    "
+                    [project]="project"
+                    (deleteProject)="deleteProject($event)"
+                    (duplicateProject)="duplicateProject($event)"
+                />
+            </div>
         </div>
 
-        <div class="projects-empty__text">There are no projects yet</div>
-    </div>
-</section>
+        <section
+            class="projects-empty"
+            role="status"
+            aria-live="polite"
+            *ngIf="project_list.length === 0"
+        >
+            <div>
+                <div class="projects-empty__img">
+                    <img
+                        src="static/assets/illustrations/empty_folder.svg"
+                        alt="Empty folder"
+                        width="160"
+                        height="120"
+                        loading="lazy"
+                    />
+                </div>
 
-<section class="d-flex footer border-top fixed-bottom">
-    <app-footer />
-</section>
+                <div class="projects-empty__text">
+                    There are no projects yet
+                </div>
+            </div>
+        </section>
+    </ng-container>
+</div>
+
+<!-- placeholders while loading -->
+<div class="row mt-3 mb-3 justify-content-center p-3" *ngIf="loading.projects">
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card" aria-hidden="true">
+            <div class="card-body">
+                <h5 class="card-title placeholder-glow">
+                    <span class="placeholder col-6"></span>
+                </h5>
+                <p class="card-text placeholder-glow">
+                    <span class="placeholder col-7"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-4"></span>
+                    <span class="placeholder col-6"></span>
+                    <span class="placeholder col-8"></span>
+                </p>
+                <a
+                    class="btn btn-primary disabled placeholder col-6"
+                    aria-disabled="true"
+                ></a>
+            </div>
+
+            <div class="col-4"></div>
+            <div class="col-4"></div>
+        </div>
+    </div>
+</div>

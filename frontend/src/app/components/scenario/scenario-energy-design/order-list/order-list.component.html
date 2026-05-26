@@ -19,8 +19,13 @@
         {{ message.txt }}
     </p>
 
-    <form class="d-flex flex-row" [formGroup]="form" *ngIf="editable">
-        <div class="d-flex gap-1">
+    <form
+        class="d-flex flex-row"
+        [formGroup]="form"
+        *ngIf="editable"
+        style="gap: 10px"
+    >
+        <div class="d-flex gap-1 w-100">
             <!-- inp text -->
             <input
                 type="text"
@@ -28,7 +33,7 @@
                 placeholder="Name"
                 formControlName="name"
                 [ngClass]="{
-                    'is-invalid': name.invalid && (name.dirty || name.touched)
+                    'is-invalid': name.invalid && (name.dirty || name.touched),
                 }"
                 *ngIf="name"
             />
@@ -40,7 +45,7 @@
                 placeholder="Number"
                 formControlName="num"
                 [ngClass]="{
-                    'is-invalid': num.invalid && (num.dirty || num.touched)
+                    'is-invalid': num.invalid && (num.dirty || num.touched),
                 }"
                 *ngIf="num"
             />
@@ -50,7 +55,7 @@
                 class="form-select"
                 formControlName="typ"
                 [ngClass]="{
-                    'is-invalid': typ.invalid && (typ.dirty || typ.touched)
+                    'is-invalid': typ.invalid && (typ.dirty || typ.touched),
                 }"
                 *ngIf="typ"
             >
@@ -61,6 +66,39 @@
                     {{ type.name }}
                 </option>
             </select>
+
+            <!-- time series -->
+            <div
+                class="d-flex justify-content-ceneter align-items-center gap-1 w-100"
+                *ngIf="timeSeries"
+            >
+                <input
+                    type="text"
+                    class="form-control w-100"
+                    placeholder="Time Series"
+                    formControlName="timeSeries"
+                    [ngClass]="{
+                        'is-invalid':
+                            timeSeries.invalid &&
+                            (timeSeries.dirty || timeSeries.touched),
+                    }"
+                    readonly
+                    style="cursor: pointer"
+                    (click)="openTimeSeriesModal()"
+                />
+                <button
+                    type="button"
+                    class="btn-close"
+                    aria-label="Close"
+                    *ngIf="
+                        timeSeries &&
+                        timeSeries.value &&
+                        timeSeries.value.length > 0
+                    "
+                    (click)="timeSeries.setValue(null)"
+                    title="Clear data"
+                ></button>
+            </div>
         </div>
 
         <!-- actions -->
@@ -114,17 +152,21 @@
                     *ngFor="let item of data"
                     [ngClass]="{
                         active: selectedItem === item.id,
-                        disabled: !editable
+                        disabled: !editable,
                     }"
                     (click)="selectItem(item.id)"
                 >
                     <span>{{ item.name }}</span>
 
-                    <span *ngIf="fields.includes('num')">
+                    <span class="__val" *ngIf="item.number">
                         : {{ item.number }}
                     </span>
 
-                    <span *ngIf="fields.includes('typ') && item.type">
+                    <span class="__val" *ngIf="item.timeSeries">
+                        : {{ item.timeSeries }}
+                    </span>
+
+                    <span class="__val" *ngIf="item.type">
                         : {{ item.type.name }}
                     </span>
                 </div>

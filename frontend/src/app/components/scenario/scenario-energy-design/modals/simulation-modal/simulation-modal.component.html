@@ -1,0 +1,14 @@
+<app-modal
+    *ngIf="modalInfo"
+    title="Simulations"
+    (closeModal)="closeSimulationModal()"
+    [size]="''"
+    [hasActions]="false"
+>
+    <div modal-body>
+        <app-simulation-list-card
+            [data]="simulationList"
+            [loading]="loadSimulationsLoading"
+        />
+    </div>
+</app-modal>

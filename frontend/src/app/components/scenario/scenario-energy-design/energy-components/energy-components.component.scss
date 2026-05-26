@@ -1,17 +1,6 @@
 .components__content {
     overflow-y: hidden;
 
-    &:hover {
-        overflow-y: scroll;
-        &::-webkit-scrollbar {
-            background-color: #7bf1a8;
-            width: 1px !important;
-        }
-        &::-webkit-scrollbar-thumb {
-            background-color: #c94aff;
-        }
-    }
-
     .section {
         &.section--production .section__title {
             h6 {
@@ -73,4 +62,19 @@
 
 .components nav.navbar {
     position: relative;
+}
+
+::ng-deep i {
+    display: block;
+    background-repeat: no-repeat;
+    width: 24px;
+    height: 24px;
+
+    &.back {
+        background-image: url("/static/assets/icons/feather/black/arrow-left.svg");
+    }
+}
+
+.cursor-pointer {
+    cursor: pointer;
 }
