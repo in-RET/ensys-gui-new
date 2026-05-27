@@ -57,9 +57,12 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     es = solph.EnergySystem()
     es.restore(dpath=simulations_path, filename="oemof_es.dump")
 
+    es_results = es.results["main"]
+
     busses = []
     components = []
     result_data = []
+    result_components = []
 
     for node in es.nodes:
         if isinstance(node, solph.Bus):
@@ -72,12 +75,28 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     for bus in busses:
         graph_data = []
 
-        for t, g in solph.views.node(es.results["main"], node=bus)["sequences"].items():
+        for t, g in solph.views.node(es_results, node=bus)["sequences"].items():
             idx_asset = abs(t[0].index(bus) - 1)
 
             series_name = str(t[0][0]) + " > " + str(t[0][1])
+
+            if sim_project.unit_energy == "MW/MWh":
+                time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
+                time_series_unit = "MWh"
+            else:
+                time_series_data = nan_to_num(g.values) * pow(-1, idx_asset) * 1000
+                time_series_unit = "kWh"
+
             time_series = EnTimeSeries(
-                name=series_name, data=nan_to_num(g.values) * pow(-1, idx_asset)
+                name=series_name, data=time_series_data
+            )
+
+            result_components.append(
+                EnTableResult(
+                    name=series_name,
+                    value=round(time_series_data.sum(), 4),
+                    unit=time_series_unit
+                )
             )
 
             graph_data.append(time_series)
@@ -88,7 +107,6 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
 
         result_data.append(bus_data)
 
-    result_components = []
     for component in components:
         result_component_data = {}
         component_data = solph.views.node(es.results["main"], node=component)
