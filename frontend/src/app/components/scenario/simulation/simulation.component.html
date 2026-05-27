@@ -1,5 +1,13 @@
 <section class="px-3">
     <p class="h1 text-center p-1">Results Prototyping</p>
+    <div class="d-flex justify-content-center">
+        <button
+            class="btn btn-primary m-1"
+            (click)="downloadDump()"
+        >
+            Download Dump
+        </button>
+    </div>
 
     <div id="wrapper" class="p-3 border border-secondary rounded">
         <div class="loading" [hidden]="!loading">

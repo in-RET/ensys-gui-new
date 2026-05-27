@@ -8,7 +8,8 @@ It handles the business logic for simulation operations including:
 - Status monitoring
 - Simulation data management
 """
-
+import os
+import shutil
 from datetime import datetime
 
 from fastapi import HTTPException
@@ -19,8 +20,10 @@ from starlette import status
 
 from .model import EnSimulationDB, Status
 from ..celery import start_task, celery_app
+from ..core.config import get_settings
 from ..user.model import EnUserDB
 
+_settings = get_settings()
 
 def create_and_start_simulation(
     user: EnUserDB,
@@ -140,6 +143,22 @@ def stop_simulation(
 
     return simulation
 
+def clean_up_simulation(scenario_id: int, user: EnUserDB, db: Session) -> list[EnSimulationDB]:
+    simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
+    simulations.sort(key=lambda sim: sim.id, reverse=True)
+
+    filtered_simulations = simulations[0:5]
+    to_delete_simulations = simulations[5:]
+
+    print(f"Found {len(filtered_simulations)} simulations to hold.")
+    print(f"Found {len(to_delete_simulations)} simulations to delete.")
+
+    for simulation in to_delete_simulations:
+        stop_simulation(simulation_id=simulation.id, user=user, db=db)
+        delete_simulation(simulation_id=simulation.id, user=user, db=db)
+
+    return filtered_simulations
+
 
 def stop_simulations_for_scenario(
     scenario_id: int, user: EnUserDB, db: Session, simulation_id: int = None
@@ -156,10 +175,14 @@ def stop_simulations_for_scenario(
     simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
 
     if simulations is not None:
+        print(f"There are {len(simulations)} simulations.")
+        if len(simulations) > 6:
+            simulations = clean_up_simulation(scenario_id=scenario_id, user=user, db=db)
+
         for simulation in simulations:
             if simulation.status is Status.STARTED.value:
                 stop_simulation(simulation_id=simulation.id, user=user, db=db)
-                
+
             try:
                 db.commit()
             except Exception as exc:
@@ -184,10 +207,22 @@ def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> bool:
     simulation = read_simulation(simulation_id=simulation_id, user=user, db=db)
     if simulation:
         db.delete(simulation)
+
+        simulation_dir = os.path.abspath(
+            os.path.join(_settings.local_datadir, simulation.sim_token)
+        )
+
+        print(f"Simulation dir: {simulation_dir}")
+        shutil.rmtree(
+            path=simulation_dir,
+        )
+
         try:
             db.commit()
         except IntegrityError as exc:
+            print(exc)
             db.rollback()
             return False
 
     return True
+

@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Chart } from 'chart.js/auto';
+import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Chart} from 'chart.js/auto';
 import zoomPlugin from 'chartjs-plugin-zoom';
 
-import { tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AlertService } from '../../../shared/services/alert.service';
+import {tap} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {AlertService} from '../../../shared/services/alert.service';
 
 @Component({
     selector: 'app-simulation',
@@ -337,5 +337,18 @@ export class SimulationComponent implements OnInit {
 
             this.charts.push(chart);
         });
+    }
+
+    protected downloadDump() {
+        return this.httpService
+            .get(environment.apiUrl + 'results/' + this.route.snapshot.params['id'] + '/dump', {responseType: 'blob'})
+            .subscribe(blob => {
+                const url = URL.createObjectURL(blob)
+                const anchor = document.createElement('a')
+                anchor.href = url
+                anchor.download = 'simulation_' + this.route.snapshot.params['id'] + '.zip';
+                anchor.click()
+                URL.revokeObjectURL(url)
+            });
     }
 }
