@@ -109,6 +109,7 @@ def clone_template_to_project(
                 project_id=new_project.id,
                 user_id=user_id,
                 modeling_data=linked_scenario.modeling_data,
+                constraints=linked_scenario.constraints
             )
         )
 
