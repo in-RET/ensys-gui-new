@@ -117,14 +117,14 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                 if type(component) == solph.components.GenericStorage:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0], 2),
+                        value=round(list(component_data["scalars"])[0], 4),
                         unit="MWh",
                         type="Power"
                     )
                 else:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0], 2),
+                        value=round(list(component_data["scalars"])[0], 4),
                         unit="MW",
                         type="Power"
                     )
@@ -132,14 +132,14 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                 if type(component) == solph.components.GenericStorage:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        value=round(list(component_data["scalars"])[0] * 1000, 4),
                         unit="kWh",
                         type="Power"
                     )
                 else:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0] * 1000, 2),
+                        value=round(list(component_data["scalars"])[0] * 1000, 4),
                         unit="kW",
                         type="Power"
                     )
@@ -167,7 +167,7 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
 
     if "Emissions" in es.results.keys():
         result_components.append(
-            EnTableResult(name="Emissions", value=round(es.results["emissions"], 2), unit=sim_project.unit_co2, type="Emissions")
+            EnTableResult(name="Emissions", value=round(es.results["emissions"], 4), unit=sim_project.unit_co2, type="Emissions")
         )
 
     return_data = [ResultDataModel(static=result_components, graphs=result_data)]
