@@ -50,8 +50,51 @@ export class SimulationComponent implements OnInit {
 
     loadStatic(value: any) {
         value.forEach((static_data: any) => {
-            const static_data_table: HTMLElement | null =
-                document.getElementById('static_table');
+            let static_data_table: HTMLElement | null = null;
+
+            if (static_data.type == "Power") {
+                static_data_table = document.getElementById('power_table');
+
+                const power_table = document.getElementById('power_div');
+                if (power_table != null) {
+                    power_table.hidden = false;
+                }
+
+                const power_heading = document.getElementById('power_heading');
+                if (power_heading != null) {
+                    power_heading.hidden = false;
+                }
+
+            } else if (static_data.type == "Energy") {
+                static_data_table = document.getElementById('energy_table');
+
+                const energy_table = document.getElementById('energy_div');
+                if (energy_table != null) {
+                    energy_table.hidden = false
+                }
+
+                const energy_heading = document.getElementById('energy_heading');
+                if (energy_heading != null) {
+                    energy_heading.hidden = false
+                }
+
+            } else if ((static_data.type == "Costs") || (static_data.type == "Emissions")) {
+                static_data_table = document.getElementById('cost_table');
+
+                if (static_data.value > 0) {
+                    const cost_table = document.getElementById('cost_div');
+                    if (cost_table != null) {
+                        cost_table.hidden = false
+                    }
+
+                    const cost_heading = document.getElementById('cost_heading');
+                    if (cost_heading != null) {
+                        cost_heading.hidden = false
+                    }
+                }
+            } else {
+                console.log("Unknown static data type: " + static_data.type);
+            }
 
             const data_row: HTMLTableRowElement = document.createElement('tr');
 
@@ -70,9 +113,7 @@ export class SimulationComponent implements OnInit {
             data_row.appendChild(data_cell_value);
             data_row.appendChild(data_cell_unit);
 
-            if (static_data_table === null) {
-                return;
-            } else {
+            if (static_data_table != null) {
                 static_data_table.appendChild(data_row);
             }
         });

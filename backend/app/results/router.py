@@ -95,7 +95,8 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                 EnTableResult(
                     name=series_name,
                     value=round(time_series_data.sum(), 4),
-                    unit=time_series_unit
+                    unit=time_series_unit,
+                    type="Energy"
                 )
             )
 
@@ -117,26 +118,30 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                     result_component_data = EnTableResult(
                         name=str(component),
                         value=round(list(component_data["scalars"])[0], 2),
-                        unit="MWh"
+                        unit="MWh",
+                        type="Power"
                     )
                 else:
                     result_component_data = EnTableResult(
                         name=str(component),
                         value=round(list(component_data["scalars"])[0], 2),
-                        unit="MW"
+                        unit="MW",
+                        type="Power"
                     )
             else:
                 if type(component) == solph.components.GenericStorage:
                     result_component_data = EnTableResult(
                         name=str(component),
                         value=round(list(component_data["scalars"])[0] * 1000, 2),
-                        unit="kWh"
+                        unit="kWh",
+                        type="Power"
                     )
                 else:
                     result_component_data = EnTableResult(
                         name=str(component),
                         value=round(list(component_data["scalars"])[0] * 1000, 2),
-                        unit="kW"
+                        unit="kW",
+                        type="Power"
                     )
 
         if result_component_data != {}:
@@ -157,12 +162,12 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     #             ))
 
     result_components.append(
-        EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a")
+        EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a", type="Costs")
     )
 
     if "Emissions" in es.results.keys():
         result_components.append(
-            EnTableResult(name="Emissions", value=round(es.results["emissions"], 2), unit=sim_project.unit_co2)
+            EnTableResult(name="Emissions", value=round(es.results["emissions"], 2), unit=sim_project.unit_co2, type="Emissions")
         )
 
     return_data = [ResultDataModel(static=result_components, graphs=result_data)]

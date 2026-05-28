@@ -19,8 +19,9 @@ class EnTimeSeries(BaseModel):
 class EnTableResult(BaseModel):
     """Investment result entry with name/value/unit."""
     name: str
-    value: float | str
-    unit: str
+    value: float | str | int | None
+    unit: str | None
+    type: str
 
 
 class EnDataFrame(BaseModel):
