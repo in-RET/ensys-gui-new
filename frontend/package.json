@@ -29,6 +29,7 @@
         "@types/feather-icons": "^4.29.4",
         "bootstrap": "^5.3.7",
         "chart.js": "^4.5.1",
+        "chartjs-adapter-date-fns": "^3.0.0",
         "chartjs-plugin-zoom": "^2.2.0",
         "d3": "^7.9.0",
         "drawflow": "^0.0.60",
