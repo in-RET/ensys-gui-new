@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Chart } from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
 
 import { tap } from 'rxjs';
@@ -17,6 +18,7 @@ import { AlertService } from '../../../shared/services/alert.service';
 })
 export class SimulationComponent implements OnInit {
     loading = false;
+    private charts: Chart[] = [];
 
     router = inject(Router);
     route = inject(ActivatedRoute);
@@ -50,8 +52,54 @@ export class SimulationComponent implements OnInit {
 
     loadStatic(value: any) {
         value.forEach((static_data: any) => {
-            const static_data_table: HTMLElement | null =
-                document.getElementById('static_table');
+            let static_data_table: HTMLElement | null = null;
+
+            if (static_data.type == 'Power') {
+                static_data_table = document.getElementById('power_table');
+
+                const power_table = document.getElementById('power_div');
+                if (power_table != null) {
+                    power_table.hidden = false;
+                }
+
+                const power_heading = document.getElementById('power_heading');
+                if (power_heading != null) {
+                    power_heading.hidden = false;
+                }
+            } else if (static_data.type == 'Energy') {
+                static_data_table = document.getElementById('energy_table');
+
+                const energy_table = document.getElementById('energy_div');
+                if (energy_table != null) {
+                    energy_table.hidden = false;
+                }
+
+                const energy_heading =
+                    document.getElementById('energy_heading');
+                if (energy_heading != null) {
+                    energy_heading.hidden = false;
+                }
+            } else if (
+                static_data.type == 'Costs' ||
+                static_data.type == 'Emissions'
+            ) {
+                static_data_table = document.getElementById('cost_table');
+
+                if (static_data.value > 0) {
+                    const cost_table = document.getElementById('cost_div');
+                    if (cost_table != null) {
+                        cost_table.hidden = false;
+                    }
+
+                    const cost_heading =
+                        document.getElementById('cost_heading');
+                    if (cost_heading != null) {
+                        cost_heading.hidden = false;
+                    }
+                }
+            } else {
+                console.log('Unknown static data type: ' + static_data.type);
+            }
 
             const data_row: HTMLTableRowElement = document.createElement('tr');
 
@@ -70,165 +118,13 @@ export class SimulationComponent implements OnInit {
             data_row.appendChild(data_cell_value);
             data_row.appendChild(data_cell_unit);
 
-            if (static_data_table === null) {
-                return;
-            } else {
+            if (static_data_table != null) {
                 static_data_table.appendChild(data_row);
             }
         });
     }
 
-    _loadGraphs(value: any) {
-        // value.forEach((bus: any) => {
-        //     const x: any = bus.index;
-        //     const y: any = {};
-        //     if (bus.data.length === 0) return;
-        //     bus.data.forEach((lineplot: any) => {
-        //         y[lineplot.name] = lineplot.data;
-        //     });
-        //     const fig: any = {
-        //         data: Object.keys(y).map((key) => ({
-        //             x: x,
-        //             y: y[key],
-        //             type: 'scatter',
-        //             mode: 'lines',
-        //             name: key,
-        //         })),
-        //         layout: {
-        //             title: 'Hallo Welt',
-        //             autosize: true,
-        //         },
-        //     };
-        //     const plotly_main_div: any = document.getElementById('plotly_div');
-        //     const plot_heading: any = document.createElement('h3');
-        //     const plot_div: any = document.createElement('div');
-        //     plot_heading.innerHTML = bus.name;
-        //     plot_heading.className = 'plot_heading';
-        //     plot_div.id = bus.name;
-        //     plot_div.name = bus.name;
-        //     plotly_main_div.appendChild(plot_heading);
-        //     plotly_main_div.appendChild(plot_div);
-        //     Plotly.newPlot(bus.name, fig.data, fig.layout, {
-        //         responsive: true,
-        //     });
-        // });
-    }
-
-    async __loadGraphs(value: any) {
-        Chart.register(zoomPlugin);
-
-        value.forEach((bus: any) => {
-            const x: any = bus.index;
-
-            if (bus.data.length === 0) return;
-
-            const datasets = bus.data.map((lineplot: any) => ({
-                label: lineplot.name,
-                data: lineplot.data,
-                borderWidth: 2,
-                fill: false,
-                tension: 0.2,
-            }));
-
-            const plotly_main_div: any = document.getElementById('plotly_div');
-            const plot_heading: any = document.createElement('h3');
-            const canvas: any = document.createElement('canvas');
-
-            plot_heading.innerHTML = bus.name;
-            plot_heading.className = 'plot_heading';
-
-            canvas.id = bus.name;
-
-            plotly_main_div.appendChild(plot_heading);
-            plotly_main_div.appendChild(canvas);
-
-            new Chart(canvas, {
-                type: 'line',
-
-                data: {
-                    labels: x,
-                    datasets: datasets,
-                },
-
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 600,
-                        easing: 'easeOutQuart',
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false,
-                        axis: 'x',
-                    },
-                    elements: {
-                        point: {
-                            radius: 0,
-                            hoverRadius: 0,
-                            hitRadius: 0,
-                        },
-                        line: {
-                            tension: 0,
-                            borderWidth: 1,
-                        },
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Time Series (Filled Area)',
-                        },
-                        legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        decimation: {
-                            enabled: true,
-                            algorithm: 'lttb',
-                            samples: 800,
-                        },
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'x',
-                            },
-                            zoom: {
-                                wheel: {
-                                    enabled: true,
-                                },
-                                pinch: {
-                                    enabled: true,
-                                },
-                                mode: 'x',
-                            },
-                        },
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                                text: 'Date',
-                            },
-                            display: false,
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Value',
-                            },
-                        },
-                    },
-                },
-            });
-        });
-    }
-
-    private charts: Chart[] = [];
-    async loadGraphs(value: any) {
+    loadGraphs(value: any) {
         const mainDiv = document.getElementById('plotly_div');
 
         if (!mainDiv) return;
@@ -236,6 +132,8 @@ export class SimulationComponent implements OnInit {
         this.charts.forEach((chart) => chart.destroy());
         this.charts = [];
         mainDiv.innerHTML = '';
+
+        Chart.register(zoomPlugin);
 
         value.forEach((bus: any, index: number) => {
             if (!bus.data?.length) return;
@@ -257,36 +155,61 @@ export class SimulationComponent implements OnInit {
             card.appendChild(chartContainer);
             mainDiv.appendChild(card);
 
+            const allYValues = bus.data.flatMap(
+                (lineplot: any) => lineplot.data,
+            );
+
+            const minY = Math.min(...allYValues);
+            const maxY = Math.max(...allYValues);
+
             const chart = new Chart(canvas, {
                 type: 'line',
 
                 data: {
-                    labels: bus.index,
                     datasets: bus.data.map((lineplot: any) => ({
-                        label: lineplot.name,
-                        data: lineplot.data,
+                        // label: lineplot.name,
+                        label: 'Large Dataset',
+                        // data: lineplot.data,
+                        data: bus.index.map((date: string, i: number) => ({
+                            x: date.replace(' ', 'T'),
+                            y: lineplot.data[i],
+                        })),
                         borderWidth: 1,
-                        fill: false,
-                        tension: 0,
-                        pointRadius: 0,
-                        pointHoverRadius: 0,
-                        hitRadius: 0,
+                        // fill: false,
+                        // tension: 0,
+                        // pointRadius: 0,
+                        // pointHoverRadius: 0,
+                        // hitRadius: 0,
+                        radius: 0,
                     })),
                 },
 
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-
-                    animation: {
-                        duration: 500,
-                        easing: 'easeOutQuart',
-                    },
+                    normalized: true,
+                    animation: false,
 
                     interaction: {
                         mode: 'index',
                         intersect: false,
                         axis: 'x',
+                    },
+
+                    elements: {
+                        point: {
+                            radius: 0,
+                            hoverRadius: 0,
+                            hitRadius: 0,
+                        },
+                        line: {
+                            tension: 0,
+                            borderWidth: 1,
+                        },
+                    },
+
+                    hover: {
+                        mode: undefined,
                     },
 
                     plugins: {
@@ -302,12 +225,39 @@ export class SimulationComponent implements OnInit {
                             enabled: true,
                             mode: 'index',
                             intersect: false,
+                            animation: false,
+
+                            backgroundColor: '#111827',
+                            titleColor: '#ffffff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#374151',
+                            borderWidth: 1,
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true,
+
+                            callbacks: {
+                                title: (items) => {
+                                    const rawX = items[0].raw as any;
+                                    const date = new Date(rawX.x);
+
+                                    return date.toLocaleString('en-GB', {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: '2-digit',
+                                        hour: '2-digit',
+                                        minute: '2-digit',
+                                    });
+                                },
+                                label: (context) => {
+                                    const value = context.parsed.y;
+                                    return `${context.dataset.label}: ${value?.toFixed(8)}`;
+                                },
+                            },
                         },
 
                         decimation: {
-                            enabled: true,
-                            algorithm: 'lttb',
-                            samples: 800,
+                            enabled: false,
                         },
 
                         zoom: {
@@ -318,6 +268,7 @@ export class SimulationComponent implements OnInit {
                             zoom: {
                                 wheel: {
                                     enabled: true,
+                                    speed: 0.05,
                                 },
                                 pinch: {
                                     enabled: true,
@@ -329,7 +280,35 @@ export class SimulationComponent implements OnInit {
 
                     scales: {
                         x: {
-                            display: false,
+                            type: 'time',
+                            time: {
+                                tooltipFormat: 'yyyy-MM-dd HH:mm',
+                                displayFormats: {
+                                    hour: 'HH:mm',
+                                    day: 'MMM d',
+                                    month: 'MMM',
+                                    quarter: 'QQQ',
+                                    year: 'yyyy',
+                                },
+                            },
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 0,
+                                maxTicksLimit: 12,
+                            },
+                        },
+
+                        y: {
+                            min: minY,
+                            max: maxY,
+
+                            grace: 0,
+
+                            bounds: 'ticks',
+
+                            ticks: {
+                                callback: (value) => Number(value).toFixed(8),
+                            },
                         },
                     },
                 },
@@ -337,5 +316,25 @@ export class SimulationComponent implements OnInit {
 
             this.charts.push(chart);
         });
+    }
+
+    protected downloadDump() {
+        return this.httpService
+            .get(
+                environment.apiUrl +
+                    'results/' +
+                    this.route.snapshot.params['id'] +
+                    '/dump',
+                { responseType: 'blob' },
+            )
+            .subscribe((blob) => {
+                const url = URL.createObjectURL(blob);
+                const anchor = document.createElement('a');
+                anchor.href = url;
+                anchor.download =
+                    'simulation_' + this.route.snapshot.params['id'] + '.zip';
+                anchor.click();
+                URL.revokeObjectURL(url);
+            });
     }
 }

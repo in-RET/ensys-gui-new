@@ -84,6 +84,7 @@ class EnTemplateScenario(BaseModel):
     time_steps: int = Field(default=8760)  # number
     interval: float = Field(default=1.0)  # interval
     template_id: int = Field(nullable=False)
+    constraints: str = Field(default="")
     modeling_data: str = Field(default="")
 
     def model_dump(self, *args, **kwargs) -> dict:
@@ -116,6 +117,7 @@ class EnTemplateScenarioDB(SQLModel, table=True):
     description: str = Field(default="", nullable=True)
     interval: float = Field(default=1)
     template_id: int = Field(foreign_key="templates.id")
+    constraints: str = Field(sa_column=Column(JSONB), default={})
     modeling_data: str = Field(sa_column=Column(JSONB), default={})
 
     def model_dump(self, *args, **kwargs) -> dict:
