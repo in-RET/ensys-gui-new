@@ -19,35 +19,34 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
 
     for x in range(0, len(NODE_LIST)):
         for item in NODE_LIST[x].outputs.data.values():
-            if not isinstance(
-                NODE_LIST[x], solph.components._generic_storage.GenericStorage
-            ):
-                if item.investment:
-                    # Speicher wird zweimal aufgeführt, weil invest nicht im Flow() steht
-                    # jetzt nur noch einmal
-                    print(f"Investment {item.investment}")
-                    inst_leistung = solph.views.node(results, item.input)[
-                        "scalars"
-                    ].iloc[0]
+            if item.investment:
+                # Speicher wird zweimal aufgeführt, weil invest nicht im Flow() steht
+                # jetzt nur noch einmal
+                print(f"Investment {item.investment}")
+                inst_leistung = solph.views.node(results, item.input)["scalars"].iloc[0]
 
-                    ep_costs = item.investment.ep_costs[0]
+                ep_costs = item.investment.ep_costs[0]
 
-                    if item.investment.offset is not None:
-                        offset = item.investment.offset[0]
+                if item.investment.offset is not None:
+                    offset = item.investment.offset[0]
+                else:
+                    offset = 0
 
-                    investcosts = ep_costs * inst_leistung + offset
+                investcosts = ep_costs * inst_leistung + offset
 
-                    if isinstance(item.input, solph.buses.Bus):
-                        dict_costs["investment costs"].update(
-                            {str(item.input): investcosts}
-                        )
-                    elif isinstance(item.output, solph.buses.Bus):
-                        dict_costs["investment costs"].update(
-                            {str(item.output): investcosts}
-                        )
-                    else:
-                        print("Error")
-                    # sum_investcosts += investcosts
+                if isinstance(item.input, solph.buses.Bus):
+                    print(f"Bus {item.input}")
+                    dict_costs["investment costs"].update(
+                        {str(item.output): investcosts}
+                    )
+                elif isinstance(item.output, solph.buses.Bus):
+                    print(f"Bus {item.output}")
+                    dict_costs["investment costs"].update(
+                        {str(item.input): investcosts}
+                    )
+                else:
+                    print("Error")
+                # sum_investcosts += investcosts
 
             if hasattr(item, "variable_costs"):
                 if not all(v == 0 for v in item.variable_costs):
@@ -56,9 +55,9 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                             np.array(
                                 solph.views.node(results, item.output)["sequences"][
                                     (item.input, item.output), "flow"
-                                ][:8759]
+                                ][:8760]
                             ),
-                            np.array(pd.Series(item.variable_costs)[:8759]),
+                            np.array(pd.Series(item.variable_costs)[:8760]),
                         )
 
                         if isinstance(item.input, solph.buses.Bus):
@@ -78,9 +77,9 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                             np.array(
                                 solph.views.node(results, item.output)["sequences"][
                                     (item.input, item.output), "flow"
-                                ][:8759]
+                                ][:8760]
                             ),
-                            np.array(pd.Series(item.variable_costs)[:8759]),
+                            np.array(pd.Series(item.variable_costs)[:8760]),
                         )
 
                         if isinstance(item.input, solph.buses.Bus):
