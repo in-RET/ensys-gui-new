@@ -206,50 +206,12 @@ export class EnergyDesignService {
                 numberOnlyAllowed: true,
             },
             {
-                name: 'nonconvex',
-                placeholder: 'nonconvex',
-                label: 'nonconvex',
-                type: 'text',
-                span: 'auto',
-            },
-            {
                 name: 'offset',
                 placeholder: 'offset',
                 label: 'offset',
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
-            },
-            {
-                name: 'overall_maximum',
-                placeholder: 'overall_maximum',
-                label: 'overall_maximum',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'overall_minimum',
-                placeholder: 'overall_minimum',
-                label: 'overall_minimum',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'interest_rate',
-                placeholder: 'interest_rate',
-                label: 'interest_rate',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'lifetime',
-                placeholder: 'lifetime',
-                label: 'lifetime',
-                type: 'number',
-                span: 'auto',
             },
         ].map((item: any) => {
             if (data) {
@@ -332,50 +294,12 @@ export class EnergyDesignService {
                 numberOnlyAllowed: true,
             },
             {
-                name: 'nonconvex',
-                placeholder: 'nonconvex',
-                label: 'nonconvex',
-                type: 'text',
-                span: 'auto',
-            },
-            {
                 name: 'offset',
                 placeholder: 'offset',
                 label: 'offset',
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
-            },
-            {
-                name: 'overall_maximum',
-                placeholder: 'overall_maximum',
-                label: 'overall_maximum',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'overall_minimum',
-                placeholder: 'overall_minimum',
-                label: 'overall_minimum',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'interest_rate',
-                placeholder: 'interest_rate',
-                label: 'interest_rate',
-                type: 'text',
-                span: 'auto',
-                numberOnlyAllowed: true,
-            },
-            {
-                name: 'lifetime',
-                placeholder: 'lifetime',
-                label: 'lifetime',
-                type: 'number',
-                span: 'auto',
             },
         ].map((item: any) => {
             if (data) {
@@ -500,48 +424,7 @@ export class EnergyDesignService {
                     },
                 },
             },
-            {
-                name: 'positive_gradient_limit',
-                placeholder: 'positive_gradient_limit',
-                label: 'positive_gradient_limit',
-                type: 'time-series',
-                span: 'auto',
-                action: {
-                    name: 'time_series_range',
-                    label: '',
-                    icon: '',
-                    onClick: () => {
-                        callback['showModal_TimeSeries']({
-                            controlName: 'positive_gradient_limit',
-                            modes: [
-                                { value: 'file', label: 'Time Series' },
-                                { value: 'number', label: 'Fixed Value' },
-                            ],
-                        });
-                    },
-                },
-            },
-            {
-                name: 'negative_gradient_limit',
-                placeholder: 'negative_gradient_limit',
-                label: 'negative_gradient_limit',
-                type: 'time-series',
-                span: 'auto',
-                action: {
-                    name: 'time_series_range',
-                    label: '',
-                    icon: '',
-                    onClick: () => {
-                        callback['showModal_TimeSeries']({
-                            controlName: 'negative_gradient_limit',
-                            modes: [
-                                { value: 'file', label: 'Time Series' },
-                                { value: 'number', label: 'Fixed Value' },
-                            ],
-                        });
-                    },
-                },
-            },
+
             {
                 name: 'fixed_costs',
                 placeholder: 'fixed_costs',
@@ -582,28 +465,7 @@ export class EnergyDesignService {
                 name: 'integer',
                 placeholder: 'integer',
                 label: 'integer',
-                type: 'number',
-                span: 'auto',
-            },
-            {
-                name: '_nonconvex',
-                placeholder: 'nonconvex',
-                label: 'nonconvex',
-                type: 'number',
-                span: 'auto',
-            },
-            {
-                name: '_lifetime',
-                placeholder: 'lifetime',
-                label: 'lifetime',
-                type: 'number',
-                span: 'auto',
-            },
-            {
-                name: 'age',
-                placeholder: 'age',
-                label: 'age',
-                type: 'number',
+                type: 'switch',
                 span: 'auto',
             },
         ].map((item: any) => {
