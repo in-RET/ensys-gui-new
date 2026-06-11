@@ -170,6 +170,7 @@ export class FlowFormModalComponent {
     private defineCallbackFlowForm() {
         return {
             toggleInvestFields: this.toggleInvestFields.bind(this),
+            toggleNonConvexFields: this.toggleNonConvexFields.bind(this),
             toggleFomFields: this.toggleFomFields.bind(this),
             toggleVisibilitySection: this.toggleVisibilitySection.bind(this),
             showModal_EpCostsCalculator:
@@ -178,10 +179,10 @@ export class FlowFormModalComponent {
         };
     }
 
-    private toggleInvestFields(investmentFields: string[]) {
+    private toggleInvestFields(fields: string[]) {
         this.formComponent.toggleControl('nominal_value');
 
-        investmentFields.forEach((fieldName: string) => {
+        fields.forEach((fieldName: string) => {
             if (
                 fieldName !== 'overall_maximum' &&
                 fieldName !== 'overall_minimum' &&
@@ -189,6 +190,12 @@ export class FlowFormModalComponent {
                 fieldName !== 'lifetime'
             )
                 this.formComponent.toggleControl(fieldName);
+        });
+    }
+
+    private toggleNonConvexFields(fields: string[]) {
+        fields.forEach((fieldName: string) => {
+            this.formComponent.toggleControl(fieldName);
         });
     }
 

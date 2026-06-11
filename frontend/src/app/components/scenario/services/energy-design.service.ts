@@ -213,6 +213,217 @@ export class EnergyDesignService {
                 span: 'auto',
                 numberOnlyAllowed: true,
             },
+            {
+                name: 'nonconvex_investment',
+                placeholder: 'Nonconvex Investment',
+                label: 'Nonconvex Investment',
+                type: 'switch',
+                span: 'auto',
+            },
+        ].map((item: any) => {
+            if (data) {
+                if (preDefData?.hasChanged) {
+                    if (oep) {
+                        item['disabled'] = true;
+                        item['value'] = data[item.name.toLocaleLowerCase()];
+                    } else {
+                        item['disabled'] = false;
+                        item['value'] = data[item.name.toLocaleLowerCase()];
+                    }
+                } else {
+                    item['disabled'] = false;
+                    item['value'] = data[item.name.toLocaleLowerCase()];
+                }
+            } else {
+                item['disabled'] = false;
+                item['value'] = null;
+            }
+
+            item['label'] = this.generalService.convertText_uppercaseAt0(
+                item['label'],
+            );
+
+            return item;
+        });
+    }
+
+    getNonConvexFields(
+        data?: any,
+        callback?: any,
+        preDefData?: {
+            name: string;
+            simulationYear: number;
+            hasChanged: boolean;
+        },
+        oep?: boolean,
+    ) {
+        return [
+            // Time-series fields
+            {
+                name: 'startup_costs',
+                placeholder: 'Startup Costs',
+                label: 'Startup Costs',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'startup_costs',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'shutdown_costs',
+                placeholder: 'Shutdown Costs',
+                label: 'Shutdown Costs',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'shutdown_costs',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'activity_costs',
+                placeholder: 'Activity Costs',
+                label: 'Activity Costs',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'activity_costs',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'inactivity_costs',
+                placeholder: 'Inactivity Costs',
+                label: 'Inactivity Costs',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'inactivity_costs',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'negative_gradient_limit',
+                placeholder: 'Negative Gradient Limit',
+                label: 'Negative Gradient Limit',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'negative_gradient_limit',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'positive_gradient_limit',
+                placeholder: 'Positive Gradient Limit',
+                label: 'Positive Gradient Limit',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'positive_gradient_limit',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+
+            // Integer fields
+            {
+                name: 'minimum_uptime',
+                placeholder: 'Minimum Uptime',
+                label: 'Minimum Uptime',
+                type: 'number',
+                span: '4',
+            },
+            {
+                name: 'minimum_downtime',
+                placeholder: 'Minimum Downtime',
+                label: 'Minimum Downtime',
+                type: 'number',
+                span: '4',
+            },
+            {
+                name: 'maximum_startups',
+                placeholder: 'Maximum Startups',
+                label: 'Maximum Startups',
+                type: 'number',
+                span: '4',
+            },
+            {
+                name: 'maximum_shutdowns',
+                placeholder: 'Maximum Shutdowns',
+                label: 'Maximum Shutdowns',
+                type: 'number',
+                span: '4',
+            },
+
+            // Boolean field
+            {
+                name: 'initial_status',
+                placeholder: 'Initial Status',
+                label: 'Initial Status',
+                type: 'switch',
+                span: 'auto',
+            },
         ].map((item: any) => {
             if (data) {
                 if (preDefData?.hasChanged) {
@@ -1328,7 +1539,6 @@ export class EnergyDesignService {
 
                                             callback['toggleInvestFields'](
                                                 InvestmentFields,
-                                                'nominal_value',
                                             );
                                         },
                                         undefined,
@@ -1588,6 +1798,80 @@ export class EnergyDesignService {
 
                                     return elm;
                                 }),
+                            },
+
+                            this.dividerSec(),
+
+                            {
+                                name: 'non-convex',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    this.getField(
+                                        'non_convex',
+                                        '',
+                                        'Non-Convex Flow',
+                                        false,
+                                        'switch',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        'my-3',
+                                        () => {
+                                            const Non_convexFields =
+                                                this.getNonConvexFields(
+                                                    data,
+                                                    callback,
+                                                ).map((elm: any) => elm.name);
+
+                                            callback['toggleNonConvexFields'](
+                                                Non_convexFields,
+                                            );
+                                        },
+                                        undefined,
+                                        oep,
+                                        data ? data.investment : null,
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'non-convex-fields',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    ...this.getNonConvexFields(
+                                        data,
+                                        callback,
+                                        preDefData,
+                                        oep,
+                                    ).map((elm: any) => {
+                                        const isInvSelected: boolean =
+                                            this.getFieldData(
+                                                'non_convex',
+                                                {
+                                                    mode: editMode,
+                                                    data,
+                                                },
+                                                data ? data.investment : null,
+                                            );
+
+                                        if (!oep)
+                                            elm['disabled'] = !isInvSelected;
+                                        else elm['disabled'] = true;
+
+                                        if (elm.actions) {
+                                            elm.actions.forEach(
+                                                (element: any) => {
+                                                    element['disabled'] =
+                                                        !isInvSelected;
+                                                },
+                                            );
+                                        }
+
+                                        return elm;
+                                    }),
+                                ],
                             },
                         ],
                     };
