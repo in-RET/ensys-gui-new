@@ -2,10 +2,10 @@
 Scenario data models for storing and updating scenarios.
 """
 
+import math
 from datetime import datetime
 from typing import TYPE_CHECKING, Annotated
 
-import math
 from pydantic import BaseModel
 from sqladmin import ModelView
 from sqlalchemy import Column
@@ -20,6 +20,8 @@ class EnScenario(BaseModel):
     start_date: int = Field()  # start
     time_steps: int = Field(default=8760)  # number
     interval: float = Field(default=1.0)  # interval
+    date_created: datetime = Field(default_factory=datetime.now)
+    date_updated: datetime | None = Field(default_factory=datetime.now)
     project_id: int = Field()
     constraints: str = Field(default="")
     modeling_data: str = Field(default="")
@@ -48,6 +50,8 @@ class EnScenarioDB(SQLModel, table=True):
     start_date: datetime = Field()
     time_steps: int = Field(default=8760)
     interval: float = Field(default=1)
+    date_created: datetime = Field(default_factory=datetime.now)
+    date_updated: datetime | None = Field(default_factory=datetime.now)
     project_id: int = Field(foreign_key="projects.id")
     user_id: int = Field(foreign_key="users.id")
     constraints: str = Field(sa_column=Column(JSONB), default={})
@@ -72,6 +76,7 @@ class EnScenarioUpdate(EnScenario):
         str | None, Field(default=None, min_length=1, max_length=100, nullable=True)
     ]
     interval: Annotated[float | None, Field(default=1, nullable=True)]
+    date_updated: datetime | None = Field(default=datetime.now, nullable=True)
     start_date: Annotated[int | None, Field(default=None, nullable=True)]
     time_steps: Annotated[int | None, Field(default=8760, nullable=True)]
     modeling_data: Annotated[str | None, Field(default=None, nullable=True)]
@@ -88,11 +93,15 @@ if TYPE_CHECKING:
 
 
 class ScenarioAdmin(ModelView, model=EnScenarioDB):
+    """Admin view for scenarios."""
+
     column_list = [
         "id",
         "name",
         "start_date",
         "time_steps",
+        "date_created",
+        "date_updated",
         "interval",
         "project_id",
         "user_id",

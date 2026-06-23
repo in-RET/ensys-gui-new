@@ -1,3 +1,5 @@
+"""Model module."""
+
 from pydantic import Field, field_validator
 
 from .energysystem import EnEnergysystem

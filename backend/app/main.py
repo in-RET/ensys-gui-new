@@ -1,3 +1,5 @@
+"""Main module."""
+
 import os
 
 from fastapi import FastAPI, Request
@@ -22,11 +24,6 @@ from .templates.router import templates_router
 from .user.model import UserAdmin
 from .user.router import users_router
 
-"""EnSys GUI backend entrypoint.
-
-- Configures FastAPI with middleware, admin views, and all routers
-- Serves OpenAPI docs at `/docs` and `/redoc`
-"""
 
 tags_metadata = [
     {
@@ -107,6 +104,8 @@ for router in routers:
 
 @fastapi_app.middleware("http")
 async def fix_admin_root_path(request, call_next):
+    """Adjust the admin path behind the configured root path."""
+
     if request.url.path.startswith("/admin/"):
         request.scope["path"] = fastapi_app.root_path + request.url.path
     return await call_next(request)

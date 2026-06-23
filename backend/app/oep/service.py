@@ -1,3 +1,5 @@
+"""Service module."""
+
 import os
 
 from oep_client import OepClient

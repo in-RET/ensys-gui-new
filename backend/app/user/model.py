@@ -206,6 +206,8 @@ class EnUserUpdate(BaseModel):
 
 
 class UserAdmin(ModelView, model=EnUserDB):
+    """Admin view for users."""
+
     column_list = [
         "id",
         "username",

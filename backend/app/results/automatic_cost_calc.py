@@ -1,9 +1,13 @@
+"""Automatic Cost Calc module."""
+
 import numpy as np
 import pandas as pd
 from oemof import solph
 
 
 def __cost_calculation(energysystem, results) -> pd.DataFrame:
+    """Calculate investment, variable, and profit costs."""
+
     dict_costs = {"investment costs": {}, "variable costs": {}, "profits": {}}
 
     # % FIXME: Es liegt ein Problem damit vor, das es abhängig von der Berechnung des Systems ist.
@@ -35,12 +39,10 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
                 investcosts = ep_costs * inst_leistung + offset
 
                 if isinstance(item.input, solph.buses.Bus):
-                    print(f"Bus {item.input}")
                     dict_costs["investment costs"].update(
                         {str(item.output): investcosts}
                     )
                 elif isinstance(item.output, solph.buses.Bus):
-                    print(f"Bus {item.output}")
                     dict_costs["investment costs"].update(
                         {str(item.input): investcosts}
                     )
@@ -99,6 +101,8 @@ def __cost_calculation(energysystem, results) -> pd.DataFrame:
 
 
 def cost_calculation_from_dump(dump_path: str, dump_file: str) -> pd.DataFrame:
+    """Calculate costs from a restored energy system dump."""
+
     energysystem = solph.EnergySystem()
     energysystem.restore(filename=dump_file, dpath=dump_path)
 
@@ -106,8 +110,12 @@ def cost_calculation_from_dump(dump_path: str, dump_file: str) -> pd.DataFrame:
 
 
 def cost_calculation_from_energysystem(energysystem) -> pd.DataFrame:
+    """Calculate costs from an energy system result object."""
+
     return __cost_calculation(energysystem, energysystem.results["main"])
 
 
 def cost_calculation_from_es_and_results(energysystem, results) -> pd.DataFrame:
+    """Calculate costs from an energy system and a result set."""
+
     return __cost_calculation(energysystem, results)

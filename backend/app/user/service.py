@@ -237,6 +237,8 @@ def reset_password(
     mail: str,
     db: Session
 ) -> EnUserDB:
+    """Reset the password for a user account."""
+
     user = read_user_by_email(db=db, email=mail)
     new_password = user.reset_password()
     try:

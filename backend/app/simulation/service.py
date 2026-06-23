@@ -144,6 +144,8 @@ def stop_simulation(
     return simulation
 
 def clean_up_simulation(scenario_id: int, user: EnUserDB, db: Session) -> list[EnSimulationDB]:
+    """Remove temporary files for a simulation run."""
+
     simulations = read_scenario_simulations(scenario_id=scenario_id, user=user, db=db)
     simulations.sort(key=lambda sim: sim.id, reverse=True)
 
