@@ -1,2 +1,2 @@
-#!/bin/bash
-docker compose --file=docker-compose.dev.yaml --env-file=.env up --build -d
+!/bin/bash
+docker compose --file=docker-compose.prod.yaml --env-file=.env up --build -d
