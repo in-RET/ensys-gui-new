@@ -1,3 +1,5 @@
+"""  Init   module."""
+
 from .bus import EnBus
 from .constraints import EnConstraints
 from .converter import EnConverter

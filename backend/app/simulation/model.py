@@ -40,6 +40,8 @@ class EnSimulationDB(SQLModel, table=True):
     end_date: datetime | None = Field(default=None)
 
     class Config:
+        """Represent the Config model."""
+
         arbitrary_types_allowed = True
 
     def model_dump(self, *args, **kwargs) -> dict:
@@ -64,6 +66,8 @@ class EnSimulationUpdate(BaseModel):
     end_date: int | None = Field(default=None, nullable=True)
 
 class SimulationAdmin(ModelView, model=EnSimulationDB):
+    """Admin view for simulations."""
+
     column_list = [
         "id",
         "sim_token",

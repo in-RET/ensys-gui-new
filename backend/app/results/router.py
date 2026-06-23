@@ -1,3 +1,5 @@
+"""Router module."""
+
 import os
 import zipfile
 from typing import Annotated

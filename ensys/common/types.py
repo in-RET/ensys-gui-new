@@ -1,3 +1,5 @@
+"""Types module."""
+
 from enum import Enum
 
 

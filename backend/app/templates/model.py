@@ -133,6 +133,8 @@ class EnTemplateScenarioDB(SQLModel, table=True):
 
 
 class TemplateAdmin(ModelView, model=EnTemplateDB):
+    """Admin view for templates."""
+
     column_list = [
         "id",
         "name",
@@ -158,6 +160,8 @@ class TemplateAdmin(ModelView, model=EnTemplateDB):
 
 
 class TemplateScenarioAdmin(ModelView, model=EnTemplateScenarioDB):
+    """Admin view for template scenarios."""
+
     column_list = [
         "id",
         "name",

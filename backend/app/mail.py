@@ -10,6 +10,8 @@ from .user.model import EnUserDB
 
 
 def get_mail_account():
+    """Return the configured mail account."""
+
     exchange_user = os.getenv("EMAIL_HOST_USER")
     exchange_pass = os.getenv("EMAIL_HOST_PASSWORD")
     exchange_server = os.getenv("EMAIL_HOST_IP")

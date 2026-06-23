@@ -1,3 +1,5 @@
+"""Modelbuilder module."""
+
 import json
 import logging
 import os.path
@@ -98,8 +100,14 @@ class ModelBuilder:
         else:
             cmdline_opts = {}
 
-        self.BuildEnergySystem(model.energysystem, DumpFile, model.solver, model.solver_verbose,
-                               cmdline_opts=cmdline_opts, only_lp=only_lp)
+        self.BuildEnergySystem(
+            es=model.energysystem,
+            file=DumpFile,
+            solver=model.solver,
+            solver_verbose=model.solver_verbose,
+            cmdline_opts=cmdline_opts,
+            only_lp=only_lp
+        )
 
     def BuildEnergySystem(self, es: EnEnergysystem, file: str, solver: Solver, solver_verbose: bool, cmdline_opts: dict,
                           only_lp: bool):

@@ -1,14 +1,14 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
-import { Chart } from 'chart.js/auto';
+import {CommonModule} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {Chart} from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 import zoomPlugin from 'chartjs-plugin-zoom';
 
-import { tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { AlertService } from '../../../shared/services/alert.service';
+import {tap} from 'rxjs';
+import {environment} from '../../../../environments/environment';
+import {AlertService} from '../../../shared/services/alert.service';
 
 @Component({
     selector: 'app-simulation',
@@ -167,8 +167,8 @@ export class SimulationComponent implements OnInit {
 
                 data: {
                     datasets: bus.data.map((lineplot: any) => ({
-                        // label: lineplot.name,
-                        label: 'Large Dataset',
+                        label: lineplot.name,
+                        // label: 'Large Dataset',
                         // data: lineplot.data,
                         data: bus.index.map((date: string, i: number) => ({
                             x: date.replace(' ', 'T'),

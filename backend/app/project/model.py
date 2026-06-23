@@ -1,8 +1,8 @@
 """Project data models for creation, storage, and updates."""
 
+import math
 from datetime import datetime
 
-import math
 from pydantic import BaseModel
 from sqladmin import ModelView
 from sqlmodel import Field, SQLModel
@@ -13,7 +13,7 @@ class EnProject(BaseModel):
 
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(
-        default=None, min_length=1, max_length=255, nullable=True
+        default=None, min_length=1, max_length=600, nullable=True
     )
     country: str = Field(min_length=1, max_length=40)
     longitude: float | None = Field(nullable=True)
@@ -33,7 +33,7 @@ class EnProjectDB(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(
-        default=None, min_length=1, max_length=255, nullable=True
+        default=None, min_length=1, max_length=600, nullable=True
     )
     country: str = Field(min_length=1, max_length=40)
     longitude: float | None = Field(nullable=True)
@@ -82,6 +82,8 @@ class EnProjectUpdate(BaseModel):
 
 
 class ProjectAdmin(ModelView, model=EnProjectDB):
+    """Admin view for projects."""
+
     column_list = [
         "id",
         "user_id",

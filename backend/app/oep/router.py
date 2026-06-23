@@ -1,13 +1,13 @@
+"""Router module."""
+
 import os
-from typing import Annotated
+from typing import Annotated, Any
 
 import pandas as pd
 from fastapi import APIRouter, Depends, HTTPException, Path
-from oep_client.oep_client import OepClient
 from sqlmodel import Session
 from starlette import status
 
-from .service import get_oep_client
 from ..app_types import oemofBlockTypes, oepTypes, oepTypesData
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
@@ -19,71 +19,6 @@ oep_router = APIRouter(
     prefix="/oep",
     tags=["oep"],
 )
-
-
-@oep_router.get("/{table_name}", response_model=DataResponse)
-async def get_oep_data(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    table_name: str,
-    oep_cli: Annotated[OepClient, Depends(get_oep_client)],
-    db: Session = Depends(get_db_session)
-) -> DataResponse:
-    """
-    Get OEP Data from a specified table.
-
-    This endpoint retrieves data from a specified table using the provided `table_name`.
-    The OEP client instance is used to interact with the database, and token-based
-    authentication is required for accessing the endpoint. The data response includes
-    the retrieved items, their total count, and a success status indicator.
-
-    :param db:
-    :param token: A bearer token for authentication.
-    :type token: str
-    :param table_name: The name of the table to retrieve data from.
-    :type table_name: str
-    :param oep_cli: An instance of the OEP client to interact with the backend database. Dependency injection.
-    :type oep_cli: OepClient
-    :return: A `DataResponse` object containing the data, total count, and success status.
-    :rtype: DataResponse
-
-    :raises HTTPException: If the token is invalid or not provided.
-    """
-    read_user_by_token(token=token, db=db)
-    data = oep_cli.select_from_table(table=table_name)
-
-    return DataResponse(
-        data=GeneralDataModel(items=data, totalCount=len(data)), success=True
-    )
-
-
-@oep_router.get("/meta/{table_name}", response_model=DataResponse)
-async def get_oep_metadata(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    table_name: str,
-    oep_cli: Annotated[OepClient, Depends(get_oep_client)],
-    db: Session = Depends(get_db_session),
-) -> DataResponse:
-    """
-    Retrieve metadata for a specific table.
-
-    This endpoint fetches metadata for the provided table name using the OEP client.
-    It requires authentication via the provided token. If the token is invalid or
-    not provided, an authentication error will be raised.
-
-    :param token: The authentication token obtained via the OAuth2 scheme.
-    :param table_name: The name of the table for which metadata is to be retrieved.
-    :param oep_cli: Instance of the OepClient dependency for interacting with the OEP API. Dependency injection.
-    :return: A DataResponse containing the retrieved metadata and its total count.
-    :rtype: DataResponse
-
-    :raises HTTPException: If the token is invalid or not provided.
-    """
-    read_user_by_token(token=token, db=db)
-    data = oep_cli.get_metadata(table=table_name)
-
-    return DataResponse(
-        data=GeneralDataModel(items=data, totalCount=len(data)), success=True
-    )
 
 
 @oep_router.get("/local_schemas/{block_type}")
@@ -114,7 +49,9 @@ async def get_local_oep_schemas(
     )
 
 
-def calc_annuity(capex, wacc, n, u=None) -> float:
+def calc_annuity(capex: float, wacc: float, n: int, u: int | None = None) -> float:
+    """Calculate the annuity for an investment."""
+
     if u is None:
         u = n
 
@@ -135,7 +72,8 @@ async def get_local_oep_data_node(
     oep_name: Annotated[
         str,
         Path(
-            enum=list(oepTypes), description="Selected parameter set for the OEP data."
+            enum=list(oepTypes),
+            description="Selected parameter set for the OEP data."
         ),
     ],
     simulation_year: Annotated[
@@ -170,11 +108,15 @@ async def get_local_oep_data_node(
     :raises HTTPException: If the token is invalid, the simulation year is unsupported, or any required file is missing.
     """
 
-    read_user_by_token(token=token, db=db)
+    read_user_by_token(
+        token=token,
+        db=db
+        )
 
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid simulation year."
         )
 
     oep_type = None
@@ -189,24 +131,29 @@ async def get_local_oep_data_node(
 
     if oep_type is None:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid OEP type."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid OEP type."
         )
 
     root_path = os.path.abspath(
         os.path.join(os.getcwd(), "data", "oep", oep_type.lower())
     )
 
-    port_data_path = os.path.join(root_path, "ports", f"{oep_name.lower()}.csv")
+    port_data_path = os.path.join(
+        root_path, "ports", f"{oep_name.lower()}.csv")
     # Einlesen der Portdaten
     if not os.path.isfile(port_data_path):
         raise HTTPException(
-            status_code=404, detail="File with port specification not found."
+            status_code=404,
+            detail="File with port specification not found."
         )
     else:
-        with open(port_data_path, "r") as f:
-            ports_data = pd.read_csv(
-                f, index_col=0, decimal=",", delimiter=";"
-            ).to_dict(orient="records")
+        ports_data = pd.read_csv(
+            filepath_or_buffer=port_data_path,
+            index_col=0,
+            decimal=",",
+            delimiter=";"
+        ).to_dict(orient="records")
 
     parameter_data_path = os.path.join(
         root_path, "parameter", f"{oep_name.lower()}.csv"
@@ -217,12 +164,14 @@ async def get_local_oep_data_node(
             status_code=404, detail="File with parameter data not found."
         )
     else:
-        with open(parameter_data_path, "r") as f:
-            parameter_data = pd.read_csv(
-                f, index_col=0, decimal=",", delimiter=";"
-            ).to_dict(orient="index")
+        parameter_data = pd.read_csv(
+            filepath_or_buffer=parameter_data_path,
+            index_col=0,
+            decimal=",",
+            delimiter=";"
+        ).to_dict(orient="index")
 
-    parameter_year_select: dict = parameter_data[simulation_year]
+    parameter_year_select = parameter_data[simulation_year]
     print(f"parameter_year_select: {parameter_year_select}")
 
     # Hier hat man die Parameter für das ausgewählte Jahr eingelesen
@@ -317,7 +266,7 @@ async def get_local_oep_data_node(
             del parameter_year_select[key]
 
     # Ab hier starten die Sonderwünsche
-    sorted_port_data = {"inputs": [], "outputs": []}
+    sorted_port_data: dict[str, list[Any]] = {"inputs": [], "outputs": []}
 
     for item in ports_data:
         tmp_type = item["type"]
@@ -328,7 +277,8 @@ async def get_local_oep_data_node(
         elif tmp_type == "output":
             sorted_port_data["outputs"].append(item)
 
-    return_data = [{"node_data": parameter_year_select, "ports_data": sorted_port_data}]
+    return_data: list[dict[str, Any]] = [{"node_data": parameter_year_select,
+                    "ports_data": sorted_port_data}]
 
     return DataResponse(
         data=GeneralDataModel(items=return_data, totalCount=len(return_data)),
@@ -339,12 +289,6 @@ async def get_local_oep_data_node(
 @oep_router.get("/local_data/{oep_name}/{simulation_year}/ports_data", response_model=DataResponse)
 async def get_local_oep_data_ports(
     token: Annotated[str, Depends(oauth2_scheme)],
-    oep_name: Annotated[
-        str,
-        Path(
-            enum=list(oepTypes), description="Selected parameter set for the OEP data."
-        ),
-    ],
     simulation_year: Annotated[
         int,
         Path(
@@ -352,13 +296,27 @@ async def get_local_oep_data_ports(
             description="Simulation year from the scenario.",
         ),
     ],
+    oep_name: Annotated[
+        str | None,
+        Path(
+            enum=list(oepTypes),
+            description="Selected parameter set for the OEP data."
+        ),
+    ],
     db: Session = Depends(get_db_session)
 ) -> DataResponse:
+    """Return the local OEP data ports."""
+
     read_user_by_token(token=token, db=db)
 
     if simulation_year not in [2025, 2030, 2035, 2040, 2045, 2050]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid simulation year."
+        )
+
+    if oep_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="OEP name must be provided."
         )
 
     for type in oepTypesData.keys():
@@ -373,7 +331,8 @@ async def get_local_oep_data_ports(
         os.path.join(os.getcwd(), "data", "oep", oep_type.lower())
     )
 
-    port_data_path = os.path.join(root_path, "ports", f"{oep_name.lower()}.csv")
+    port_data_path = os.path.join(
+        root_path, "ports", f"{oep_name.lower()}.csv")
     # Einlesen der Portdaten
     if not os.path.isfile(port_data_path):
         raise HTTPException(
@@ -397,7 +356,8 @@ async def get_local_oep_data_ports(
             )
         else:
             with open(timeseries_data_path, "r") as f:
-                timeseries_df = pd.read_csv(f, index_col=0, decimal=",", delimiter=";")
+                timeseries_df = pd.read_csv(
+                    f, index_col=0, decimal=",", delimiter=";")
 
                 timeseries_data = list(timeseries_df[str(simulation_year)])
     else:
