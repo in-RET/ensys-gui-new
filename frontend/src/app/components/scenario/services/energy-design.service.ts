@@ -260,7 +260,7 @@ export class EnergyDesignService {
         return [
             // Time-series fields
             {
-                name: 'startup_costs',
+                name: 'non_convex_startup_costs',
                 placeholder: 'Startup Costs',
                 label: 'Startup Costs',
                 type: 'time-series',
@@ -281,7 +281,7 @@ export class EnergyDesignService {
                 },
             },
             {
-                name: 'shutdown_costs',
+                name: 'non_convex_shutdown_costs',
                 placeholder: 'Shutdown Costs',
                 label: 'Shutdown Costs',
                 type: 'time-series',
@@ -302,7 +302,7 @@ export class EnergyDesignService {
                 },
             },
             {
-                name: 'activity_costs',
+                name: 'non_convex_activity_costs',
                 placeholder: 'Activity Costs',
                 label: 'Activity Costs',
                 type: 'time-series',
@@ -323,7 +323,7 @@ export class EnergyDesignService {
                 },
             },
             {
-                name: 'inactivity_costs',
+                name: 'non_convex_inactivity_costs',
                 placeholder: 'Inactivity Costs',
                 label: 'Inactivity Costs',
                 type: 'time-series',
@@ -344,7 +344,7 @@ export class EnergyDesignService {
                 },
             },
             {
-                name: 'negative_gradient_limit',
+                name: 'non_convex_negative_gradient_limit',
                 placeholder: 'Negative Gradient Limit',
                 label: 'Negative Gradient Limit',
                 type: 'time-series',
@@ -365,7 +365,7 @@ export class EnergyDesignService {
                 },
             },
             {
-                name: 'positive_gradient_limit',
+                name: 'non_convex_positive_gradient_limit',
                 placeholder: 'Positive Gradient Limit',
                 label: 'Positive Gradient Limit',
                 type: 'time-series',
@@ -388,28 +388,28 @@ export class EnergyDesignService {
 
             // Integer fields
             {
-                name: 'minimum_uptime',
+                name: 'non_convex_minimum_uptime',
                 placeholder: 'Minimum Uptime',
                 label: 'Minimum Uptime',
                 type: 'number',
                 span: '4',
             },
             {
-                name: 'minimum_downtime',
+                name: 'non_convex_minimum_downtime',
                 placeholder: 'Minimum Downtime',
                 label: 'Minimum Downtime',
                 type: 'number',
                 span: '4',
             },
             {
-                name: 'maximum_startups',
+                name: 'non_convex_maximum_startups',
                 placeholder: 'Maximum Startups',
                 label: 'Maximum Startups',
                 type: 'number',
                 span: '4',
             },
             {
-                name: 'maximum_shutdowns',
+                name: 'non_convex_maximum_shutdowns',
                 placeholder: 'Maximum Shutdowns',
                 label: 'Maximum Shutdowns',
                 type: 'number',
@@ -418,7 +418,7 @@ export class EnergyDesignService {
 
             // Boolean field
             {
-                name: 'initial_status',
+                name: 'non_convex_initial_status',
                 placeholder: 'Initial Status',
                 label: 'Initial Status',
                 type: 'switch',
@@ -626,12 +626,51 @@ export class EnergyDesignService {
                     label: '',
                     icon: '',
                     onClick: () => {
-                        callback['showModal_TimeSeries'](
-                            // ('fix');
-                            {
-                                controlName: 'fix',
-                            },
-                        );
+                        callback['showModal_TimeSeries']({
+                            controlName: 'fix',
+                        });
+                    },
+                },
+            },
+            {
+                name: 'positive_gradient_limit',
+                placeholder: 'Positive Gradient Limit',
+                label: 'Positive Gradient Limit',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'positive_gradient_limit',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
+                    },
+                },
+            },
+            {
+                name: 'negative_gradient_limit',
+                placeholder: 'Negative Gradient Limit',
+                label: 'Negative Gradient Limit',
+                type: 'time-series',
+                span: 'auto',
+                action: {
+                    name: 'time_series_range',
+                    label: '',
+                    icon: '',
+                    onClick: () => {
+                        callback['showModal_TimeSeries']({
+                            controlName: 'negative_gradient_limit',
+                            modes: [
+                                { value: 'file', label: 'Time Series' },
+                                { value: 'number', label: 'Fixed Value' },
+                            ],
+                        });
                     },
                 },
             },
@@ -1808,7 +1847,7 @@ export class EnergyDesignService {
                                 visible: true,
                                 fields: [
                                     this.getField(
-                                        'non_convex',
+                                        'non_convex_flow',
                                         '',
                                         'Non-Convex Flow',
                                         false,
@@ -1848,7 +1887,7 @@ export class EnergyDesignService {
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData(
-                                                'non_convex',
+                                                'non_convex_flow',
                                                 {
                                                     mode: editMode,
                                                     data,
