@@ -1,3 +1,5 @@
+"""Flow module."""
+
 from oemof import solph
 from pydantic import Field
 
@@ -62,7 +64,7 @@ class EnFlow(EnBaseModel):
         investment limits or additional properties.
     :type custom_properties: dict | None
     """
-    nominal_value: float | EnInvestment = Field(
+    nominal_capacity: float | EnInvestment | None = Field(
         default=None,
         title='Nominal Value',
         description='The nominal value of the flow. If this value is set the corresponding optimization variable of '
@@ -138,18 +140,6 @@ class EnFlow(EnBaseModel):
         default=None,
         title='Fixed Costs',
         description='The fixed costs associated with a flow. Note: These are only applicable for a multi-period model and given on a yearly basis.'
-    )
-
-    lifetime: int | None = Field(
-        default=None,
-        title='Lifetime',
-        description='The lifetime of a flow (usually given in years); once it reaches its lifetime (considering also an initial age), the flow is forced to 0. Note: Only applicable for a multi-period model.'
-    )
-
-    age: int | None = Field(
-        default=None,
-        title='Age',
-        description='The age of a flow (usually given in years); once it reaches its age (considering also an initial age), the flow is forced to 0. Note: Only applicable for a multi-period model.'
     )
 
     custom_properties: dict | None = Field(

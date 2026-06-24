@@ -1,3 +1,5 @@
+"""Genericstorage module."""
+
 from oemof import solph
 from pydantic import Field
 
@@ -80,8 +82,8 @@ class EnGenericStorage(EnBaseModel):
         title='Outputs',
         description='Dictionary with outflows. Keys must be the ending node(s) of the outflow(s)'
     )
-    nominal_storage_capacity: float | EnInvestment = Field(
-        ...,
+    nominal_capacity: float | EnInvestment | None = Field(
+        default=None,
         title='nominal storage capacity',
         description='object Absolute nominal capacity of the storage, fixed value or object describing parameter of investment optimisations.'
     )
@@ -147,13 +149,13 @@ class EnGenericStorage(EnBaseModel):
     )
 
     min_storage_level: float | list[float] = Field(
-        default=0,
+        default=0.0,
         title='Minimum storage level',
         description='The normed minimum storage content as fraction of the nominal storage capacity or the capacity that has been invested into (between 0 and 1). To set different values in every time step use a sequence.'
     )
 
     max_storage_level: float | list[float] = Field(
-        default=1,
+        default=1.0,
         title='Maximum storage level',
         description='The normed maximum storage content as fraction of the nominal storage capacity or the capacity that has been invested into (between 0 and 1). To set different values in every time step use a sequence.'
     )

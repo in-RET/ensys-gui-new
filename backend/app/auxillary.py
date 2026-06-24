@@ -28,14 +28,8 @@ def check_flow_investment(flow_data):
             minimum=flow_data["minimum"],
             ep_costs=flow_data["ep_costs"],
             existing=flow_data["existing"],
-            nonconvex=flow_data["nonconvex"],
-            offset=flow_data["offset"],
-            overall_maximum=flow_data["overall_maximum"],
-            overalL_minimum=flow_data["overall_minimum"],
-            lifetime=flow_data["lifetime"],
-            age=flow_data["age"],
-            interest_rate=flow_data["interest_rate"],
-            fixed_costs=flow_data["fixed_costs"]
+            nonconvex=flow_data["nonconvex_investment"],
+            offset=flow_data["offset"]
         )
     else:
         return flow_data["nominal_value"]
@@ -57,7 +51,8 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     if component_data["connections"] is not None:
         # build component_data["inputs"]
         for input_name in flowchart_component["inputs"]:
-            print(len(flowchart_component["inputs"][input_name]['connections']))
+            # print(len(flowchart_component["inputs"][input_name]['connections']))
+
             if len(flowchart_component["inputs"][input_name]['connections']) > 0:
                 target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
                 target_bus_name = flowchart_data[target_bus_id]["name"]
@@ -66,10 +61,7 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                 for node_input in component_data["connections"]["inputs"]:
                     flow_data = node_input["formInfo"]
                     flow_data["custom_properties"] = {}
-
-                    print(flow_data.keys())
-
-                    flow_data["nominal_value"] = check_flow_investment(flow_data)
+                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
 
                     # Replace constraint shit with custom_attributes
                     del_list = []
@@ -78,6 +70,13 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                         print(f"Check {key} for constraint.")
                         if key.startswith("constraint_") and flow_data[key] is not None:
                             flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
+                        del_list.append(key)
+
+                    nonconvex_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("non_convex_")]
+                    for key in nonconvex_filter_flow_data_keys:
+                        print(f"Check {key} for nonconvex.")
+                        if key.startswith("non_convex_") and flow_data[key] is not None:
+                            flow_data["custom_properties"][key.replace("non_convex_", "")] = float(flow_data[key])
                         del_list.append(key)
 
                     if flow_data["custom_properties"] == {}:
@@ -98,11 +97,10 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                     flow_data: dict = output["formInfo"]
                     flow_data["custom_properties"] = {}
 
-                    print(flow_data.keys())
-
                     # Replace constraint shit with custom_attributes
                     del_list = []
                     constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
+
                     for key in constraint_filter_flow_data_keys:
                         print(f"Check {key} for constraint.")
                         if key.startswith("constraint_") and flow_data[key] is not None:
@@ -115,7 +113,8 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                     for key in del_list:
                         del flow_data[key]
 
-                    flow_data["nominal_value"] = check_flow_investment(flow_data)
+                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
+                    del flow_data["nominal_value"]
 
                     output_data[target_bus_name] = EnFlow(**flow_data)
 
@@ -131,8 +130,6 @@ def build_conversion_factors(flowchart_data, flowchart_component) -> dict:
     """
     component_ports = flowchart_component["data"]["ports"]
     conversion_factors = {}
-
-    print(component_ports)
 
     # build conversion_factors
     for input_port in component_ports["inputs"]:
@@ -170,8 +167,11 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
     ensys_es = EnEnergysystem()
 
     for flowchart_index in flowchart_data:
+
         ensys_data = {}
         flowchart_component = flowchart_data[flowchart_index]
+        # print(f"Converting {flowchart_component}.")
+
         component_data = flowchart_component["data"]
 
         if flowchart_component["class"] != "bus":
@@ -199,14 +199,10 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
         elif flowchart_component["class"] == "genericStorage":
             if component_data["investment"] is True:
 
-                investment_dict = {
-                    "overall_maximum": component_data["overall_maximum"] if component_data["overall_maximum"] else None,
-                    "overalL_minimum": component_data["overall_minimum"] if component_data["overall_minimum"] else None
-                }
+                investment_dict = {}
 
                 if component_data["maximum"] is not None:
                     investment_dict["maximum"] = component_data["maximum"]
-
                 if component_data["minimum"] is not None:
                     investment_dict["minimum"] = component_data["minimum"]
                 if component_data["offset"] is not None:
@@ -215,12 +211,15 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
                     investment_dict["ep_costs"] = component_data["ep_costs"]
                 if component_data["existing"] is not None:
                     investment_dict["existing"] = component_data["existing"]
-                if component_data["nonconvex"] is not None:
-                    investment_dict["nonconvex"] = component_data["nonconvex"]
+                if component_data["nonconvex_investment"] is not None:
+                    investment_dict["nonconvex"] = component_data["nonconvex_investment"]
 
-                ensys_data["nominal_storage_capacity"] = EnInvestment(**investment_dict)
+                ensys_data["nominal_capacity"] = EnInvestment(**investment_dict)
             else:
-                ensys_data["nominal_storage_capacity"] = component_data["nominal_storage_capacity"]
+                ensys_data["nominal_capacity"] = component_data["nominal_storage_capacity"]
+
+            if "nominal_storage_capacity" in component_data.keys():
+                del component_data["nominal_storage_capacity"]
 
             ensys_data["invest_relation_input_capacity"] = component_data["invest_relation_input_capacity"] if component_data["invest_relation_input_capacity"] else None
             ensys_data["invest_relation_output_capacity"] = component_data["invest_relation_output_capacity"] if component_data["invest_relation_output_capacity"] else None
@@ -231,8 +230,8 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
             ensys_data["fixed_losses_absolute"] = component_data["fixed_losses_absolute"] if component_data["fixed_losses_absolute"] else None
             ensys_data["inflow_conversion_factor"] = component_data["inflow_conversion_factor"] if component_data["inflow_conversion_factor"] else None
             ensys_data["outflow_conversion_factor"] = component_data["outflow_conversion_factor"] if component_data["outflow_conversion_factor"] else None
-            ensys_data["min_storage_level"] = component_data["min_storage_level"] if component_data["min_storage_level"] else None
-            ensys_data["max_storage_level"] = component_data["max_storage_level"] if component_data["max_storage_level"] else None
+            ensys_data["min_storage_level"] = float(component_data["min_storage_level"]) if component_data["min_storage_level"] else None
+            ensys_data["max_storage_level"] = float(component_data["max_storage_level"]) if component_data["max_storage_level"] else None
             ensys_data["storage_costs"] = component_data["storage_costs"] if component_data["storage_costs"] else None
 
             ensys_component = EnGenericStorage(**ensys_data)
