@@ -187,6 +187,34 @@ def simulation_task(scenario_id: int, simulation_id: int):
                             limit=float(constraint["values"]["limit"]),
                         )
                     # elif weitere constraints
+                    # elif constraint["type"] == "additional_investment_flow_limit":
+                    #     print(oemof_model)
+                    #     print(f"Keyword: {constraint['type']} with value: {constraint['values']["keyword"]}")
+                    #     print(f"Limit: {constraint['values']['limit']}")
+                    #     oemof_model = solph.constraints.additional_investment_flow_limit(
+                    #         model=oemof_model,
+                    #         keyword=constraint['values']['keyword'].replace("invest_limit_",""),
+                    #         limit=float(constraint['values']['limit']),
+                    #     )
+                    elif constraint["type"] == "investment_limit":
+                        oemof_model = solph.constraints.investment_limit(
+                            model=oemof_model,
+                            limit=float(constraint["values"]["limit"]),
+                        )
+                    elif constraint["type"] == "general_integral_limit":
+                        oemof_model = solph.constraints.generic_integral_limit(
+                            om=oemof_model,
+                            keyword=constraint['values']['keyword'],
+                            upper_limit=float(constraint["values"]["upper_limit"]),
+                            lower_limit=float(constraint["values"]["lower_limit"]),
+                        )
+                    # elif constraint["type"] == "limit_active_flow_count_by_keyword":
+                    #     oemof_model = solph.constraints.limit_active_flow_count_by_keyword(
+                    #         model=oemof_model,
+                    #         keyword=constraint["values"]["keyword"],
+                    #         upper_limit=int(constraint["values"]["upper_limit"]),
+                    #         lower_limit=int(constraint["values"]["lower_limit"]),
+                    #     )
                     else:
                         task_logger.warning(f"Constraint type {constraint['type']} not recognized or implemented.")
 
@@ -223,10 +251,14 @@ def simulation_task(scenario_id: int, simulation_id: int):
         # Todo: Bei mehreren Constraints ist das hier eine Falle!
 
         if constraints_json is not None:
+            print(constraints_json)
             for single_constraint in constraints_json:
                 if single_constraint["type"] == "emission_limit" and single_constraint["enabled"]:
-                    print(oemof_model.integral_limit_emission_factor())
+                    # print(oemof_model.integral_limit_emission_factor())
                     oemof_es.results["emissions"] = oemof_model.integral_limit_emission_factor()
+                elif single_constraint["type"] == "investment_limit" and single_constraint["enabled"]:
+                    # oemof_es.results["investment_limit"] = oemof_model.invest_limit_{keyword}()
+                    pass
 
         task_logger.info("dump results")
         oemof_es.dump(dpath=dump_path, filename="oemof_es.dump")

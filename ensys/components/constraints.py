@@ -1,3 +1,5 @@
+"""Constraints module."""
+
 from pydantic import Field
 
 from ..common.basemodel import EnBaseModel

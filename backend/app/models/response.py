@@ -1,3 +1,5 @@
+"""Response module."""
+
 from pydantic import BaseModel, Field
 
 from ..models.base import ErrorModel, GeneralDataModel
@@ -6,35 +8,51 @@ from ..models.base import ErrorModel, GeneralDataModel
 class GeneralResponse(BaseModel):
     """Standard API envelope with data, success flag, and errors."""
 
-    data: None = Field(default=None, description="Data returned by the request.")
+    data: None = Field(
+        default=None,
+        description="The data returned by the request, if any."
+    )
     success: bool = Field(
-        default=True, description="Indicates whether the request was successful or not."
+        default=True,
+        description="Indicates whether the request was successful or not."
     )
     errors: list[ErrorModel] | None = Field(
-        default=None, description="List of errors encountered during the request."
+        default=None,
+        description="List of errors encountered during the request."
     )
 
 
 class DataResponse(GeneralResponse):
     """Response containing a populated `GeneralDataModel`."""
 
-    data: GeneralDataModel = Field(...)
+    data: GeneralDataModel = Field(
+        description="The data returned by the request, if any."
+    )
+
 
 class AuthResponse(GeneralResponse):
-    data: GeneralDataModel = Field(...)
+    """Authentication response payload."""
+
+    data: GeneralDataModel = Field(
+        description="The data returned by the request, if any."
+    )
     access_token: str = Field(...)
+
 
 class MessageResponse(GeneralResponse):
     """Response carrying a message string."""
 
-    data: str = Field(...)
+    data: str = Field(
+        description="The data returned by the request, if any."
+    )
 
 
 class ErrorResponse(GeneralResponse):
     """Error response with success False and optional data payload."""
 
     data: GeneralDataModel | None = Field(
-        default=None, description="Data returned by the request."
+        default=None,
+        description="Data returned by the request."
     )
     success: bool = Field(
         default=False,
@@ -46,8 +64,9 @@ class ResultResponse(GeneralResponse):
     """Success response carrying result data."""
 
     data: GeneralDataModel = Field(
-        ..., description="The result data returned by the request."
+        description="The result data returned by the request."
     )
     success: bool = Field(
-        default=True, description="Indicates whether the request was successful or not."
+        default=True,
+        description="Indicates whether the request was successful or not."
     )

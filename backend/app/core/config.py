@@ -23,7 +23,7 @@ from functools import lru_cache
 from typing import List, Optional
 
 # Third Party
-from pydantic import Field, field_validator, model_validator
+from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -37,11 +37,13 @@ class Settings(BaseSettings):
     # App Settings
     # Beispiel (Pydantic Settings, Name ggf. an deine Klasse anpassen)
     app_base_url: str = Field(
-        default="http://localhost:9004/dev", description="Base URL for the application"
+        default="http://localhost:9004/dev",
+        description="Base URL for the application"
     )
 
     app_name: str = Field(
-        default="EnSys Backend", description="Name of the application"
+        default="EnSys Backend",
+        description="Name of the application"
     )
 
     environment: str = Field(
@@ -54,55 +56,63 @@ class Settings(BaseSettings):
         description="Base path for API endpoints",
     )
 
-    log_level: str = Field(default="INFO", description="Logging level")
+    log_level: str = Field(
+        default="INFO",
+        description="Logging level")
 
     # CORS Settings
     cors_origins: List[str] = Field(
-        default_factory=lambda: ["*"], description="List of allowed CORS origins"
+        default_factory=lambda: ["*"],
+        description="List of allowed CORS origins"
     )
     allow_credentials: bool = Field(
-        default=True, description="Allow credentials in CORS"
+        default=True,
+        description="Allow credentials in CORS"
     )
 
     # Database Settings
     database_url: str = Field(
-        validation_alias="DATABASE_URL", description="Database connection URL", default=os.getenv("DATABASE_URL")
+        default=os.getenv("DATABASE_URL", ""),
+        validation_alias="DATABASE_URL",
+        description="Database connection URL",
     )
+
     sqlalchemy_echo: bool = Field(
-        default=False, description="Enable SQLAlchemy query logging"
+        default=False,
+        description="Enable SQLAlchemy query logging"
     )
-    pool_size: int = Field(default=5, description="Database connection pool size")
+    pool_size: int = Field(
+        default=5,
+        description="Database connection pool size")
+
     max_overflow: int = Field(
-        default=10, description="Maximum pool overflow connections"
+        default=10,
+        description="Maximum pool overflow connections"
     )
     pool_recycle: int = Field(
-        default=1800, description="Connection recycle time in seconds"
+        default=1800,
+        description="Connection recycle time in seconds"
     )
 
     # Redis / Celery Settings
-    redis_host: str = Field(default="redis", description="Redis server hostname")
-    redis_port: int = Field(default=6379, description="Redis server port")
+    redis_host: str = Field(
+        default="redis",
+        description="Redis server hostname")
+
+    redis_port: int = Field(
+        default=6379,
+        description="Redis server port")
+
     redis_url: Optional[str] = Field(
-        default=None, description="Complete Redis URL (auto-generated if not set)"
+        default=None,
+        description="Complete Redis URL (auto-generated if not set)"
     )
 
     # File System Settings
     local_datadir: str = Field(
-        default="/backend/data", description="Local directory for data storage"
+        default="/backend/data",
+        description="Local directory for data storage"
     )
-
-    @field_validator("cors_origins", mode="before")
-    @classmethod
-    def split_cors_origins(cls, v):  # noqa: N805
-        """Normalize CORS origins to a list of strings.
-
-        - accepts comma/space separated input
-        - returns: list of allowed origins
-        """
-        if isinstance(v, str):
-            parts = [s.strip() for s in v.replace(" ", ",").split(",") if s.strip()]
-            return parts or ["*"]
-        return v
 
     @model_validator(mode="after")
     def set_redis_url(self):
@@ -113,12 +123,15 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def set_root_path(self):
+        """Implement set root path."""
+
         if not self.root_path:
             self.root_path = {
                 "development": "/dev/api",
                 "production": "/api"
             }.get(self.environment, "/api")
         return self
+
 
 @lru_cache()
 def get_settings() -> Settings:
@@ -135,7 +148,7 @@ def get_settings() -> Settings:
     return Settings(
         cors_origins=origins,
         redis_host=str(os.getenv("REDIS_HOST")),
-        redis_port=int(os.getenv("REDIS_PORT_DEV")),
+        redis_port=int(os.getenv("REDIS_PORT_DEV", 6379)),
         environment=str(os.getenv("ENVIRONMENT")),
         app_base_url=str(os.getenv("BASE_URL")),
     )

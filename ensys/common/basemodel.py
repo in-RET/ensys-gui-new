@@ -1,3 +1,5 @@
+"""Basemodel module."""
+
 from oemof import solph
 from pydantic import BaseModel, model_validator, ConfigDict
 
@@ -87,10 +89,9 @@ class EnBaseModel(BaseModel):
                     kwargs[attr_key] = oemof_io
                 elif attr_key in ["nonconvex"] and not isinstance(attr_value, bool):
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)
-                elif attr_key in [
-                    "nominal_value",
-                    "nominal_storage_capacity",
-                ] and not isinstance(attr_value, float):
+                elif attr_key in ["nominal_capacity"] and not isinstance(attr_value, float):
+                    print(f"{attr_key} is not a float")
+                    print(f"{attr_value}")
                     kwargs[attr_key] = attr_value.to_oemof(energysystem)
                 else:
                     kwargs[attr_key] = attr_value

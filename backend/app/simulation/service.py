@@ -217,6 +217,7 @@ def delete_simulation(simulation_id: int, user: EnUserDB, db: Session) -> bool:
         print(f"Simulation dir: {simulation_dir}")
         shutil.rmtree(
             path=simulation_dir,
+            ignore_errors=True,
         )
 
         try:

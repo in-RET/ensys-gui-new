@@ -1,3 +1,5 @@
+"""Energysystem module."""
+
 from oemof import solph
 from pydantic import Field
 

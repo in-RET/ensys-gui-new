@@ -1,3 +1,5 @@
+"""Investment module."""
+
 from oemof import solph
 from pydantic import Field
 
@@ -24,17 +26,6 @@ class EnInvestment(EnBaseModel):
     :ivar nonconvex: Flag to enable binary variables for investment status, allowing offset
         costs independent of invested flow capacity.
     :ivar offset: Fixed costs for nonconvex investments.
-    :ivar overall_maximum: Overall maximum capacity investment, applicable to
-        multi-period models.
-    :ivar overalL_minimum: Overall minimum capacity investment, applicable to
-        multi-period models.
-    :ivar lifetime: Lifetime of the unit in years, applicable to multi-period models.
-    :ivar age: Start age of the unit in years at the beginning of optimization,
-        applicable to multi-period models.
-    :ivar interest_rate: Interest rate for annuities calculation in a multi-period
-        model; defaults to the model's discount rate if unspecified.
-    :ivar fixed_costs: Fixed costs per period in nominal terms, applicable to
-        multi-period models.
     :ivar custom_properties: Dictionary of custom constraints or attributes for
         investment.
     :type maximum: float | None
@@ -45,10 +36,6 @@ class EnInvestment(EnBaseModel):
     :type offset: float
     :type overall_maximum: float | None
     :type overalL_minimum: float | None
-    :type lifetime: int | None
-    :type age: int | None
-    :type interest_rate: float | None
-    :type fixed_costs: float | None
     :type custom_properties: dict | None
     """
     maximum: float | None = Field(
@@ -87,42 +74,6 @@ class EnInvestment(EnBaseModel):
         default=0.0,
         title='Offset',
         description='Additional fixed investment costs. Only applicable if nonconvex is set to True.'
-    )
-
-    overall_maximum: float | None = Field(
-        default=None,
-        title='Overall Maximum',
-        description='Overall maximum capacity investment, i.e. the amount of capacity that can be totally installed at maximum in any period (taking into account decommissionings); only applicable for multi-period models'
-    )
-
-    overalL_minimum: float | None = Field(
-        default=None,
-        title='Overall Minimum',
-        description='Overall minimum capacity investment, i.e. the amount of capacity that can be totally installed at minimum in any period (taking into account decommissionings); only applicable for multi-period models'
-    )
-
-    lifetime: int | None = Field(
-        default=None,
-        title='Lifetime',
-        description='Units lifetime, given in years; only applicable for multi-period models'
-    )
-
-    age: int | None = Field(
-        default=None,
-        title='Age',
-        description='Units start age, given in years at the beginning of the optimization; only applicable for multi-period models'
-    )
-
-    interest_rate: float | None = Field(
-        default=None,
-        title='Interest Rate',
-        description='Interest rate for calculating annuities when investing in a particular unit; only applicable for multi-period models. If nothing else is specified, the interest rate is the same as the model discount rate of the multi-period model.'
-    )
-
-    fixed_costs: float | None = Field(
-        default=None,
-        title='Fixed Costs',
-        description='Fixed costs in each period (given in nominal terms); only applicable for multi-period models'
     )
 
     custom_properties: dict | None = Field(
