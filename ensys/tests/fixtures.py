@@ -1,9 +1,13 @@
+"""Fixtures module."""
+
 import pytest
 from oemof import solph
 
 
 @pytest.fixture
 def sample_oe_energysystem() -> solph.EnergySystem:
+    """Return a sample Open Energy System."""
+
     bus1 = solph.Bus(label="Bus1")
     bus2 = solph.Bus(label="Bus2")
 
@@ -40,6 +44,8 @@ def sample_oe_energysystem() -> solph.EnergySystem:
 
 @pytest.fixture
 def mock_oe_energysystem():
+    """Return a mock Open Energy System."""
+
     bus1 = solph.Bus(label="Bus1")
     bus2 = solph.Bus(label="Bus2")
 

@@ -1,3 +1,5 @@
+"""Test Nonconvex module."""
+
 import pytest
 from oemof import solph
 from oemof.solph._plumbing import _FakeSequence
@@ -7,6 +9,8 @@ from ensys.components import EnNonConvex
 
 @pytest.fixture
 def oe_nonconvex() -> solph.NonConvex:
+    """Return a sample Open Energy non-convex configuration."""
+
     return solph.NonConvex(initial_status=0,
                            minimum_uptime=12,
                            minimum_downtime=6,
@@ -16,6 +20,8 @@ def oe_nonconvex() -> solph.NonConvex:
 
 @pytest.fixture
 def ie_nonconvex() -> EnNonConvex:
+    """Return a sample input-energy non-convex configuration."""
+
     return EnNonConvex(initial_status=0,
                        minimum_uptime=12,
                        minimum_downtime=6,
@@ -24,6 +30,8 @@ def ie_nonconvex() -> EnNonConvex:
 
 
 def test_nonconvex(oe_nonconvex: solph.NonConvex, ie_nonconvex: EnNonConvex):
+    """Test the described behavior."""
+
     assert isinstance(oe_nonconvex, solph.NonConvex)
     assert isinstance(ie_nonconvex, EnNonConvex)
 

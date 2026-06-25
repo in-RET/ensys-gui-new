@@ -1,3 +1,5 @@
+"""Test Fixtures module."""
+
 import pytest
 from jose import jwt
 from sqlmodel import Session, select
@@ -18,6 +20,8 @@ TEST_USER_DATA = {
 
 @pytest.fixture()
 def client():
+    """Return a test client."""
+
     from fastapi.testclient import TestClient
 
     return TestClient(fastapi_app)
@@ -25,6 +29,8 @@ def client():
 
 @pytest.fixture
 def get_test_user():
+    """Return a test user payload."""
+
     test_user = EnUser(**TEST_USER_DATA)
     test_token = jwt.encode(test_user.get_token_information(), token_secret, algorithm="HS256")
 
@@ -33,6 +39,8 @@ def get_test_user():
 
 @pytest.fixture
 def get_test_user_db():
+    """Return a test user database record."""
+
     db: Session = get_db_session()
 
     statement = select(EnUserDB).where(EnUserDB.username == TEST_USER_DATA["username"])
