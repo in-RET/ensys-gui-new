@@ -211,8 +211,8 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
                     investment_dict["ep_costs"] = component_data["ep_costs"]
                 if component_data["existing"] is not None:
                     investment_dict["existing"] = component_data["existing"]
-                if component_data["nonconvex_investment"] is not None:
-                    investment_dict["nonconvex"] = component_data["nonconvex_investment"]
+                #if component_data["nonconvex_investment"] is not None:
+                #    investment_dict["nonconvex"] = component_data["nonconvex_investment"]
 
                 ensys_data["nominal_capacity"] = EnInvestment(**investment_dict)
             else:
