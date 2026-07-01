@@ -28,9 +28,13 @@ def check_flow_investment(flow_data):
             "minimum": flow_data["minimum"],
             "ep_costs": flow_data["ep_costs"],
             "existing": flow_data["existing"],
-            "nonconvex": flow_data["nonconvex_investment"] if flow_data["nonconvex_investment"] in flow_data.keys() else False,
             "offset": flow_data["offset"]
         }
+
+        if "nonconvex_investment" in flow_data.keys():
+            investment_dict["nonconvex"] = flow_data["nonconvex_investment"]
+        else:
+            investment_dict["nonconvex"] = False
 
         return EnInvestment(**investment_dict)
     else:
