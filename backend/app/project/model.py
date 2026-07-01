@@ -71,7 +71,7 @@ class EnProjectUpdate(BaseModel):
         default=None, min_length=1, max_length=100, nullable=True
     )
     description: str | None = Field(
-        default=None, min_length=1, max_length=255, nullable=True
+        default=None, min_length=1, max_length=600, nullable=True
     )
     longitude: float | None = Field(default=None, nullable=True)
     latitude: float | None = Field(default=None, nullable=True)
