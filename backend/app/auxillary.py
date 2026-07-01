@@ -23,14 +23,16 @@ def check_flow_investment(flow_data):
     if flow_data["investment"] is True:
         del flow_data["investment"]
 
-        return EnInvestment(
-            maximum=flow_data["maximum"],
-            minimum=flow_data["minimum"],
-            ep_costs=flow_data["ep_costs"],
-            existing=flow_data["existing"],
-            nonconvex=flow_data["nonconvex_investment"],
-            offset=flow_data["offset"]
-        )
+        investment_dict = {
+            "maximum": flow_data["maximum"],
+            "minimum": flow_data["minimum"],
+            "ep_costs": flow_data["ep_costs"],
+            "existing": flow_data["existing"],
+            "nonconvex": flow_data["nonconvex_investment"] if flow_data["nonconvex_investment"] is not None else False,
+            "offset": flow_data["offset"]
+        }
+
+        return EnInvestment(**investment_dict)
     else:
         return flow_data["nominal_value"]
 

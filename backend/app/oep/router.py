@@ -49,20 +49,30 @@ async def get_local_oep_schemas(
     )
 
 
-def calc_annuity(capex: float, wacc: float, n: int, u: int | None = None) -> float:
-    """Calculate the annuity for an investment."""
+def calc_annuity(capex: float, wacc: float, lifetime: int, depreciation: int | None = None) -> float:
+    """Calculate the annuity for an investment.
+    :argument capex: Capital expenditure
+    :type capex: float
+    :argument wacc: Weighted average cost of capital
+    :type wacc: float
+    :argument lifetime: Number of years
+    :type lifetime: int
+    :argument depreciation: Number of years until depreciation
+    :type depreciation: int | None
+    """
 
-    if u is None:
-        u = n
+    # Wenn kein anderer Betrachtungszeitraum / Abschreibedauer gesetzt wurde wird dieser von der Lebenszeit übernommen
+    if depreciation is None:
+        depreciation = lifetime
 
-    if (n < 1) or (wacc < 0 or wacc > 1) or (u < 1):
+    if (lifetime < 1) or (wacc < 0 or wacc > 1) or (depreciation < 1):
         raise ValueError("Input arguments for 'annuity' out of bounds!")
 
     return (
         capex
-        * (wacc * (1 + wacc) ** n)
-        / ((1 + wacc) ** n - 1)
-        * (1 - (u - n) / (u * (1 + wacc) ** n))
+        * (wacc * (1 + wacc) ** lifetime)
+        / ((1 + wacc) ** lifetime - 1)
+        * (1 - (depreciation - lifetime) / (depreciation * (1 + wacc) ** lifetime))
     )
 
 
@@ -396,7 +406,7 @@ async def get_local_oep_data_ports(
         interest_rate = parameter_year_select["interest_rate"] / 100
 
         annuity = calc_annuity(
-            capex=capex, wacc=interest_rate, n=parameter_year_select["lifetime"]
+            capex=capex, wacc=interest_rate, lifetime=parameter_year_select["lifetime"]
         )
         flow_ep_costs = annuity + opex
     else:
