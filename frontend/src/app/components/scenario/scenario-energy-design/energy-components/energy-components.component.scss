@@ -2,7 +2,7 @@
     overflow-y: hidden;
 
     .section {
-        &.section--production .section__title {
+        &.section--source .section__title {
             h6 {
                 text-shadow: #ffef9f 1px 0 10px;
             }
@@ -14,13 +14,13 @@
             }
         }
 
-        &.section--storage .section__title {
+        &.section--genericStorage .section__title {
             h6 {
                 text-shadow: #90f1ef 1px 0 10px;
             }
         }
 
-        &.section--demand .section__title {
+        &.section--sink .section__title {
             h6 {
                 text-shadow: #ffd6e0 1px 0 10px;
             }

@@ -5,6 +5,7 @@ import { FlowData } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 import { FlowService } from './flow.service';
+import { NodeService } from './node.service';
 import { ScenarioStateService } from './scenario-state.service';
 import { ScenarioService } from './scenario.service';
 
@@ -38,6 +39,7 @@ export class EnergyDesignService {
     };
 
     constructor(
+        private nodeService: NodeService,
         private flowService: FlowService,
         private generalService: GeneralService,
         private scenarioService: ScenarioService,
@@ -938,7 +940,7 @@ export class EnergyDesignService {
                     false,
                 ),
                 this.getField(
-                    name,
+                    'source',
                     'Source',
                     '',
                     true,
@@ -961,7 +963,9 @@ export class EnergyDesignService {
         };
 
         const getFields = async () => {
-            switch (name) {
+            // const iconList  :IconType[] = this.nodeService.getNodeIconsByType(name);
+
+            switch (name.toLocaleLowerCase()) {
                 case 'source':
                     preDefinedList =
                         await this.flowService.getPreDefinedsByName(name);
@@ -970,7 +974,7 @@ export class EnergyDesignService {
                         sections: [
                             {
                                 name: 'OEP',
-                                class: 'col-12',
+                                class: 'col-8',
                                 visible: true,
                                 fields: getPredefinedOEP(
                                     name,
@@ -980,7 +984,31 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            this.dividerSec(),
+                            {
+                                name: 'icon',
+                                class: 'col-4',
+                                fields: [
+                                    this.getField(
+                                        'icon',
+                                        'Icon',
+                                        '',
+                                        true,
+                                        'icon',
+                                        '',
+                                        editMode,
+                                        data,
+                                        undefined,
+                                        () => {
+                                            callback['showModal_IconPicker'](
+                                                name,
+                                            );
+                                        },
+                                        undefined,
+                                        false,
+                                        name + ' default',
+                                    ),
+                                ],
+                            },
 
                             {
                                 name: 'info',
@@ -1040,7 +1068,7 @@ export class EnergyDesignService {
                         sections: [
                             {
                                 name: 'OEP',
-                                class: 'col-12',
+                                class: 'col-8',
                                 visible: true,
                                 fields: getPredefinedOEP(
                                     name,
@@ -1050,7 +1078,31 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            this.dividerSec(),
+                            {
+                                name: 'icon',
+                                class: 'col-4',
+                                fields: [
+                                    this.getField(
+                                        'icon',
+                                        'Icon',
+                                        '',
+                                        true,
+                                        'icon',
+                                        '',
+                                        editMode,
+                                        data,
+                                        undefined,
+                                        () => {
+                                            callback['showModal_IconPicker'](
+                                                name,
+                                            );
+                                        },
+                                        undefined,
+                                        false,
+                                        name + ' default',
+                                    ),
+                                ],
+                            },
 
                             {
                                 name: 'Name',
@@ -1087,7 +1139,7 @@ export class EnergyDesignService {
                         sections: [
                             {
                                 name: 'OEP',
-                                class: 'col-12',
+                                class: 'col-8',
                                 visible: true,
                                 fields: getPredefinedOEP(
                                     name,
@@ -1097,7 +1149,31 @@ export class EnergyDesignService {
                                 ),
                             },
 
-                            this.dividerSec(),
+                            {
+                                name: 'icon',
+                                class: 'col-4',
+                                fields: [
+                                    this.getField(
+                                        'icon',
+                                        'Icon',
+                                        '',
+                                        true,
+                                        'icon',
+                                        '',
+                                        editMode,
+                                        data,
+                                        undefined,
+                                        () => {
+                                            callback['showModal_IconPicker'](
+                                                name,
+                                            );
+                                        },
+                                        undefined,
+                                        false,
+                                        name + ' default',
+                                    ),
+                                ],
+                            },
 
                             {
                                 name: 'info',
@@ -1281,60 +1357,41 @@ export class EnergyDesignService {
                         sections: [
                             {
                                 name: 'OEP',
-                                class: 'col-12',
+                                class: 'col-8',
                                 visible: true,
+                                fields: getPredefinedOEP(
+                                    name,
+                                    editMode,
+                                    data,
+                                    callback,
+                                ),
+                            },
+
+                            {
+                                name: 'icon',
+                                class: 'col-4',
                                 fields: [
                                     this.getField(
-                                        'oep',
-                                        'Switch On/Off',
-                                        'OEP',
-                                        false,
-                                        'switch',
-                                        'auto',
-                                        editMode,
-                                        data,
-                                        'pt-3',
-                                        () => {
-                                            callback['toggleOEP'](name);
-                                        },
-                                        undefined,
-                                        this.getFieldData(
-                                            name,
-                                            {
-                                                mode: editMode,
-                                                data,
-                                            },
-                                            'user_defined',
-                                        ) == 'user_defined'
-                                            ? true
-                                            : false,
-                                        false,
-                                    ),
-
-                                    this.getField(
-                                        name,
-                                        'Source',
+                                        'icon',
+                                        'Icon',
                                         '',
                                         true,
-                                        'select',
-                                        '8',
+                                        'icon',
+                                        '',
                                         editMode,
                                         data,
-                                        '',
-                                        (e: any) => {
-                                            callback['onChangePreDefined']({
-                                                option: e,
-                                                type: name,
-                                            });
+                                        undefined,
+                                        () => {
+                                            callback['showModal_IconPicker'](
+                                                name,
+                                            );
                                         },
-                                        preDefinedList,
+                                        undefined,
                                         false,
-                                        'user_defined',
+                                        name + ' default',
                                     ),
                                 ],
                             },
-
-                            this.dividerSec(),
 
                             {
                                 name: 'info',
@@ -1446,7 +1503,6 @@ export class EnergyDesignService {
         };
 
         let fields: any = null;
-        name = name.toLocaleLowerCase();
         fields = getFields();
         return fields;
     }
@@ -1532,7 +1588,7 @@ export class EnergyDesignService {
         },
     ) {
         const getFields = async () => {
-            switch (name) {
+            switch (name.toLocaleLowerCase()) {
                 case 'genericstorage':
                     return {
                         sections: [
@@ -1920,7 +1976,6 @@ export class EnergyDesignService {
         };
 
         let fields: any = null;
-        name = name.toLocaleLowerCase();
         fields = getFields();
         return fields;
     }
@@ -2054,7 +2109,7 @@ export class EnergyDesignService {
     getEnergyComponents() {
         return [
             {
-                group_name: 'production',
+                group_name: 'source',
                 group_components: [
                     {
                         id: 'source',
@@ -2063,7 +2118,7 @@ export class EnergyDesignService {
                 ],
             },
             {
-                group_name: 'conversion',
+                group_name: 'transformer',
                 group_components: [
                     {
                         id: 'transformer',
@@ -2072,7 +2127,7 @@ export class EnergyDesignService {
                 ],
             },
             {
-                group_name: 'storage',
+                group_name: 'genericStorage',
                 group_components: [
                     {
                         id: 'genericStorage',
@@ -2081,7 +2136,7 @@ export class EnergyDesignService {
                 ],
             },
             {
-                group_name: 'demand',
+                group_name: 'sink',
                 group_components: [
                     {
                         id: 'sink',
@@ -2159,7 +2214,10 @@ export class EnergyDesignService {
         for (const key in currentData) {
             const val = currentData[key];
 
-            if (val['class'].toLocaleLowerCase() === nodeType) {
+            if (
+                val['class'].split(' ')[0]?.toLocaleLowerCase() ===
+                nodeType.toLocaleLowerCase()
+            ) {
                 results.push(val);
             }
         }

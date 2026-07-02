@@ -6,7 +6,8 @@
 
 hr.dashed {
     height: 4px;
-    background-image: linear-gradient(
+    background-image:
+        linear-gradient(
             90deg,
             transparent,
             transparent 50%,
@@ -14,7 +15,9 @@ hr.dashed {
             #fff 100%
         ),
         linear-gradient(90deg, #69d2e7, #a7dbd8, #e0e4cc, #f38630, #fa6900);
-    background-size: 20px 3px, 100% 3px;
+    background-size:
+        20px 3px,
+        100% 3px;
     border: none;
 }
 
@@ -70,4 +73,47 @@ button.btn-close {
     //set color red
     filter: invert(30%) sepia(100%) saturate(500%) hue-rotate(297deg)
         brightness(90%) contrast(85%);
+}
+
+.icon-circle {
+    width: 4rem;
+    height: 4rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+    border: 1px solid #7373737b;
+
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 70%;
+    background-color: #fff; // optional
+
+    &:has(.clickable) {
+        &:hover {
+            cursor: pointer;
+
+            .img {
+                background: unset;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &::after {
+                    content: "Change";
+                    color: #fff;
+                }
+            }
+            background-color: #1f567d;
+            border-color: #000000;
+        }
+    }
+
+    .img {
+        width: 70%;
+        height: 70%;
+        object-fit: contain;
+    }
 }

@@ -200,22 +200,21 @@
         <!-- flows -->
         <!-- in -->
         <div
-            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2 gap-1"
             *ngFor="let item of contextmenu.nodeConnections?.in; let i = index"
         >
-            <span *ngIf="contextmenu.direction === 'left'">
-                <i class="arrow-left"></i>
-            </span>
-            <span>
-                <img
-                    src="../../../../../static/assets/icons/node-port/port-in.svg"
-                    alt="port-in"
-                />
+            <i class="arrow-left" *ngIf="contextmenu.direction === 'left'"></i>
+
+            <img
+                src="../../../../../static/assets/icons/node-port/port-in.svg"
+                alt="port-in"
+            />
+            <span class="flow-info w-100">
                 {{ item.source.node.name }}
             </span>
-            <span *ngIf="contextmenu.direction === 'right'">
-                <i class="arrow-right"> </i>
-            </span>
+
+            <i class="arrow-right" *ngIf="contextmenu.direction === 'right'">
+            </i>
 
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"
@@ -258,22 +257,21 @@
 
         <!-- out -->
         <div
-            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2 gap-1"
             *ngFor="let item of contextmenu.nodeConnections?.out"
         >
-            <span *ngIf="contextmenu.direction === 'left'">
-                <i class="arrow-left"></i>
-            </span>
-            <span>
+            <i class="arrow-left" *ngIf="contextmenu.direction === 'left'"></i>
+
+            <span class="flow-info w-100">
                 {{ item.destination.node.name }}
-                <img
-                    src="../../../../../static/assets/icons/node-port/port-out.svg"
-                    alt="port-out"
-                />
             </span>
-            <span *ngIf="contextmenu.direction === 'right'">
-                <i class="arrow-right"> </i>
-            </span>
+            <img
+                src="../../../../../static/assets/icons/node-port/port-out.svg"
+                alt="port-out"
+            />
+
+            <i class="arrow-right" *ngIf="contextmenu.direction === 'right'">
+            </i>
 
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"

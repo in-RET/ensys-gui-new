@@ -20,6 +20,7 @@
         (updateNode)="updateNode($event.data, $event.nodeId, $event.nodeType)"
         (onShowModal_EpCostsCalculator)="onCalculatorOpened($event)"
         (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
+        (onShowModal_IconPicker)="onShowModal_IconPicker($event)"
     />
 
     <app-flow-form-modal
@@ -45,6 +46,12 @@
     <app-simulation-modal
         [modalInfo]="modalState.simulation"
         (modalClosed)="onSimulationClosed()"
+    />
+
+    <app-icon-picker-modal
+        [modalInfo]="modalState.iconPicker"
+        (submitIcon)="submitIcon($event)"
+        (modalClosed)="onCloseModal_IconPicker()"
     />
 
     <!-- <app-setup-modal

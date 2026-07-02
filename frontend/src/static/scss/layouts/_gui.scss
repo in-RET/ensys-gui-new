@@ -165,13 +165,11 @@
         border-left: none;
         border-right: none;
         border-top: none;
-        border-bottom: 4px solid #a4adfb;
+        border-bottom: 1.2rem solid;
         cursor: move;
-        padding: 0 0.5rem 0.5rem;
+        padding: 0 0.5rem;
 
         &:hover {
-            // warrning
-            // background-color: darken($primary-gray-color-1, 2%);
             background-color: color.mix(
                 black,
                 $primary-gray-color-1,
@@ -179,15 +177,33 @@
             ) !important;
         }
 
-        &.selected {
-            background-color: $primary-gray-color-2;
-        }
+        // &.selected {
+        //     background-color: $primary-gray-color-2;
+        // }
 
         .drawflow_content_node {
             height: 100%;
             @include flex-column;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
+
+            .drawflow-node__name {
+                position: absolute;
+                bottom: -1.1rem;
+                line-height: 1;
+
+                width: 100% !important;
+                display: flex;
+
+                span {
+                    width: 100% !important;
+                    text-align: center;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    padding: 0 10px 0 10px;
+                }
+            }
         }
 
         .inputs {
@@ -238,7 +254,7 @@
             @if $component-category ==
                 "providers" or
                 $component-category ==
-                "production"
+                "source"
             {
                 &.#{$component-name} .input {
                     display: none;
@@ -249,20 +265,12 @@
         @each $component-name,
             $component-category in $component-categories-mapping
         {
-            @if $component-category == "demand" {
+            @if $component-category == "sink" {
                 &.#{$component-name} .output {
                     display: none;
                 }
             }
         }
-
-        // .img {
-        //     position: relative;
-        //     width: $gui-component-bg-size;
-        //     height: $gui-component-bg-size;
-        //     background-color: $white;
-        //     border-radius: 100%;
-        // }
 
         /* section colors */
 
@@ -277,11 +285,34 @@
                 );
             }
 
-            &.#{$component-name} .img::before {
-                @include gui-component-image(
-                    url("/static/assets/gui/#{$component-name}.svg")
-                );
+            &.#{$component-name} {
+                background-color: hsl(32 20% 90% / 1);
             }
+        }
+
+        @each $type, $variants in $component-categories-mapping-icons {
+            @each $variant, $icon in $variants {
+                &.#{$type}.#{$variant} .img {
+                    @include gui-component-image(
+                        url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+                    );
+                }
+            }
+        }
+    }
+}
+
+@each $type, $variants in $component-categories-mapping-icons {
+    @each $variant, $icon in $variants {
+        img.#{$type}.#{$variant} {
+            @include gui-component-icon(
+                url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+            );
+        }
+        .img.#{$type}.#{$variant} {
+            @include gui-component-icon(
+                url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+            );
         }
     }
 }
@@ -308,22 +339,6 @@
     display: none;
 }
 
-.system-design .drawflow .drawflow-node {
-    position: absolute;
-    height: 8rem;
-    width: 9.5rem;
-    border-radius: 8px;
-    background-color: #f4f7f9;
-    font-size: 12px;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    border-bottom: 4px solid #a4adfb;
-    cursor: move;
-    padding: 0 0.5rem 0.5rem;
-    /* section colors */
-}
-
 .system-design .drawflow .drawflow-node:hover {
     background-color: #edf2f5;
     box-shadow: 0 0 1rem 0.3rem #d4d4d4;
@@ -331,18 +346,6 @@
 
 .system-design .drawflow .drawflow-node {
     box-shadow: 0 0 0.5rem 0.3rem #d4d4d4;
-}
-
-.system-design .drawflow .drawflow-node.selected {
-    background-color: #e3eaee;
-}
-
-.system-design .drawflow .drawflow-node .drawflow_content_node {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
 }
 
 .system-design .drawflow .drawflow-node .inputs {
@@ -358,24 +361,6 @@
     position: relative;
     top: 0.4rem;
 }
-
-// .system-design .drawflow .drawflow-node .inputs .input,
-// .system-design .drawflow .drawflow-node .inputs .output,
-// .system-design .drawflow .drawflow-node .outputs .input,
-// .system-design .drawflow .drawflow-node .outputs .output {
-//     width: 0.75rem;
-//     height: 0.75rem;
-//     border-radius: 100%;
-//     margin: 0.25rem 0;
-//     border: 1px solid #fff;
-//     cursor: pointer;
-// }
-
-// .system-design .drawflow .drawflow-node .inputs .input,
-// .system-design .drawflow .drawflow-node .outputs .input {
-//     background-color: #4ec4c4;
-//     left: -22px;
-// }
 
 .system-design .drawflow .drawflow-node .inputs .input.mirrored,
 .system-design .drawflow .drawflow-node .outputs .input.mirrored {
@@ -395,117 +380,9 @@
     right: 5px;
 }
 
-.system-design .drawflow .drawflow-node .img {
-    position: relative;
-    width: 4.5rem;
-    height: 4.5rem;
-    background-color: #fff;
-    border-radius: 100%;
-}
-
-.system-design .drawflow .drawflow-node.source,
-.system-design .drawflow .drawflow-node.predefinedSource {
-    border-bottom-color: hsl(50, 100%, 81%);
-    background-color: hsl(50 20% 90% / 1);
-}
-
-.system-design .drawflow {
-    .drawflow-node.source {
-        .img::before {
-            background-image: url("/static/assets/gui/source.svg");
-        }
-    }
-}
-
-.system-design .drawflow .drawflow-node.source .img::before,
-.system-design .drawflow .drawflow-node.predefinedSource .img::before {
-    content: "";
-    position: absolute;
-    top: calc(4.5rem / 2);
-    right: calc((4.5rem - 3rem) / 2);
-    transform: translateY(-50%);
-    background-image: url("/static/assets/gui/source.svg");
-    background-size: cover;
-    height: 3rem;
-    width: 3rem;
-}
-
-.system-design .drawflow .drawflow-node.transformer,
-.system-design .drawflow .drawflow-node.predefinedTransformer {
-    border-bottom-color: hsl(143, 81%, 71%);
-    background-color: hsl(143 20% 90% / 1);
-}
-
-.system-design .drawflow .drawflow-node.transformer .img::before,
-.system-design .drawflow .drawflow-node.predefinedTransformer .img::before {
-    content: "";
-    position: absolute;
-    top: calc(4.5rem / 2);
-    right: calc((4.5rem - 3rem) / 2);
-    transform: translateY(-50%);
-    background-image: url("/static/assets/gui/transformer.svg");
-    background-size: cover;
-    height: 3rem;
-    width: 3rem;
-}
-
-.system-design .drawflow .drawflow-node.genericStorage,
-.system-design .drawflow .drawflow-node.predefinedStorage {
-    border-bottom-color: hsl(179, 78%, 75%);
-    background-color: hsl(179 20% 90% / 1);
-}
-
-.system-design .drawflow .drawflow-node.genericStorage .img::before,
-.system-design .drawflow .drawflow-node.predefinedStorage .img::before {
-    content: "";
-    position: absolute;
-    top: calc(4.5rem / 2);
-    right: calc((4.5rem - 3rem) / 2);
-    transform: translateY(-50%);
-    background-image: url("/static/assets/gui/genericStorage.svg");
-    background-size: cover;
-    height: 3rem;
-    width: 3rem;
-}
-
-.system-design .drawflow .drawflow-node.sink,
-.system-design .drawflow .drawflow-node.predefinedSink,
-.system-design .drawflow .drawflow-node.OEP,
-.system-design .drawflow .drawflow-node.excess,
-.system-design .drawflow .drawflow-node.export {
-    border-bottom-color: hsl(345, 100%, 92%);
-    background-color: hsl(345 20% 90% / 1);
-}
-
-.system-design .drawflow .drawflow-node.sink .img::before,
-.system-design .drawflow .drawflow-node.predefinedSink .img::before,
-.system-design .drawflow .drawflow-node.OEP .img::before,
-.system-design .drawflow .drawflow-node.excess .img::before,
-.system-design .drawflow .drawflow-node.export .img::before {
-    content: "";
-    position: absolute;
-    top: calc(4.5rem / 2);
-    right: calc((4.5rem - 3rem) / 2);
-    transform: translateY(-50%);
-    background-image: url("/static/assets/gui/sink.svg");
-    background-size: cover;
-    height: 3rem;
-    width: 3rem;
-}
-
-.system-design .drawflow .drawflow-node.bus {
-    border-bottom-color: hsl(32, 80%, 79%);
-    background-color: hsl(32 20% 90% / 1);
-}
-
-.system-design .drawflow .drawflow-node.bus .img::before {
-    content: "";
-    position: absolute;
-    top: calc(4.5rem / 2);
-    right: calc((4.5rem - 3rem) / 2);
-    transform: translateY(-50%);
-    background-image: url("/static/assets/gui/bus.svg");
-    background-size: cover;
-    height: 3rem;
-    width: 3rem;
-}
+// .system-design .drawflow .drawflow-node .img {
+//     position: relative;
+//     display: flex;
+//     align-items: center;
+//     justify-content: center;
+// }

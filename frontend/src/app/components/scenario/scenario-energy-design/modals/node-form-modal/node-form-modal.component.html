@@ -4,12 +4,22 @@
     (closeModal)="closeModal(false)"
     [show]="modalInfo.show"
 >
+    <div class="node-info" modal-header-center-icon>
+        <button
+            title="Info"
+            (click)="openInfoUrl(modalInfo.url)"
+            class="btn btn--info btn--icon"
+            role="button"
+        ></button>
+    </div>
+
     <div modal-form>
         <app-form
             #form
             [formData]="modalInfo.formData"
             (onSubmit)="submitForm()"
         />
+
         <!-- ports -->
         <!-- transformer -->
         <div

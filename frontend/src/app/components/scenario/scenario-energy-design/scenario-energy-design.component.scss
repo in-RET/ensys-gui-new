@@ -174,23 +174,6 @@
     display: none;
 }
 
-.node-info {
-    display: flex;
-    align-items: center;
-
-    button {
-        background: url("/static/assets/icons/feather/black/info.svg") no-repeat
-            center / contain;
-        width: 1.5rem;
-        height: 1.5rem;
-        border: unset;
-        display: flex;
-        filter: invert(84%) sepia(47%) saturate(195%) hue-rotate(142deg)
-            brightness(95%) contrast(96%);
-        padding: 0;
-    }
-}
-
 .simulation_results {
     max-height: 70%;
 }

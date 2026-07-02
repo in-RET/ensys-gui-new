@@ -3,3 +3,9 @@
         width: 14rem;
     }
 }
+
+.modal-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

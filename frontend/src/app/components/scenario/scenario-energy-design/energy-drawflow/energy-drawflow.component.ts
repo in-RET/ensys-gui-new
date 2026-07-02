@@ -12,6 +12,7 @@ import Drawflow, { DrawflowNode } from 'drawflow';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
+    ScenarioBaseInfoModel,
     ScenarioUpdatedModel,
     ScenarioUpdatedModel_project,
     ScenarioUpdatedModel_scenario,
@@ -663,7 +664,6 @@ export class EnergyDrawflowComponent {
 
     onDrop(ev: any) {
         this.isDragging = false;
-        // this.canMoveDrawflow = false;
         if (!this.canMoveDrawflow)
             this.scenarioStateService.setDrawflowMovementState(false);
 
@@ -712,6 +712,14 @@ export class EnergyDrawflowComponent {
 
         this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
         this.scenarioStateService.setDrawflowData(CURRENT_DRAWFLOW);
+
+        const currentScenarioData: ScenarioBaseInfoModel | null =
+            this.scenarioService.restoreBaseInfo_Storage();
+
+        if (currentScenarioData && currentScenarioData.scenario) {
+            currentScenarioData.scenario.modeling_data = CURRENT_DRAWFLOW;
+            this.scenarioService.saveBaseInfo_Storage(currentScenarioData);
+        }
     }
 
     getNodePosition(position: number, type: 'x' | 'y') {
@@ -741,6 +749,7 @@ export class EnergyDrawflowComponent {
     drawflow_node_add(
         nodeId: string,
         nodeName: string,
+        className: string,
         connectionInputs: any,
         connectionOutputs: any,
         nodeData: any = {},
@@ -748,15 +757,12 @@ export class EnergyDrawflowComponent {
         pos_y: any,
     ) {
         const source_html = `
-            <div class="box" ${this.ASSET_TYPE_NAME}="${nodeName}"></div>
-
+            <div class="img"></div>
             <div class="drawflow-node__name nodeName">
                 <span>
                 ${nodeName}
                 </span>
             </div>
-
-            <div class="img"></div>
         `;
 
         this.editor.addNode(
@@ -765,7 +771,7 @@ export class EnergyDrawflowComponent {
             connectionOutputs,
             pos_x,
             pos_y,
-            nodeId,
+            className,
             nodeData,
             source_html,
             false,
@@ -778,8 +784,6 @@ export class EnergyDrawflowComponent {
 
         currentNode.name = data.name;
         currentNode.html = `
-            <div class="box" ${this.ASSET_TYPE_NAME}=" ${data.name}"></div>
-
             <div class="drawflow-node__name nodeName">
                 <span>
                     ${currentNode.name}
@@ -788,6 +792,8 @@ export class EnergyDrawflowComponent {
 
             <div class="img"></div>
         `;
+        currentNode.class = data.icon;
+        // debugger;
         this.editor.updateNodeDataFromId(nodeId, data);
 
         this.toastService.success(
@@ -990,6 +996,9 @@ export class EnergyDrawflowComponent {
 
             if (type == 'node') {
                 if (selectedNode) {
+                    // split main class
+                    selectedNode.class = selectedNode.class.split(' ')[0] ?? '';
+
                     const nodeData: EditFormModalInfo = {
                         node: selectedNode,
                         id: selectedNode.class.toLocaleLowerCase(),
@@ -1086,6 +1095,9 @@ export class EnergyDrawflowComponent {
 
             this.unShowConextMenu();
         } else if (type == 'node' && node) {
+            // split main class
+            node.class = node.class.split(' ')[0] ?? '';
+
             const nodeData: EditFormModalInfo = {
                 id: node.class.toLocaleLowerCase(),
                 node: node,
