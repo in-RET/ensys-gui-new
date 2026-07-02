@@ -1,0 +1,29 @@
+<app-modal
+    *ngIf="modalInfo"
+    [title]="'Select Icon'"
+    (closeModal)="closeModal(false)"
+>
+    <div modal-form>
+        <app-icon-picker [icon]="modalInfo" />
+    </div>
+
+    <div modal-actions>
+        <button
+            type="submit"
+            class="btn btn--success btn--medium"
+            (click)="onSubmitIcon()"
+        >
+            <span>Submit</span>
+        </button>
+    </div>
+
+    <ng-template #empty_form_actions>
+        <button
+            type="button"
+            class="btn btn--primary btn--medium"
+            (click)="closeModal(false)"
+        >
+            <span>Close</span>
+        </button>
+    </ng-template>
+</app-modal>

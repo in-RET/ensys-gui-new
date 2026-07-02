@@ -22,3 +22,13 @@ export interface FlowData {
     };
     [key: string]: any; // allow for other flow_data keys (variable_costs, max, etc.)
 }
+
+export type IconType = {
+    name: string;
+    label: string;
+    icon: string;
+};
+
+export type SelectedIconType = IconType & {
+    origin: string;
+};

@@ -103,13 +103,6 @@ export class FormComponent {
     }
 
     fileUploaderChange(e: any, fControlName: any) {
-        // if (e) {
-        //     this.form.controls[fControlName].disabled
-        //         ? this.form.controls[fControlName].enable()
-        //         : this.form.controls[fControlName].disable();
-        // } else {
-        //     this.form.controls[fControlName].enable();
-        // }
         if (this.form.controls[fControlName.toLocaleLowerCase()])
             this.form.controls[fControlName.toLocaleLowerCase()].setValue(e);
     }

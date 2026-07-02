@@ -99,6 +99,14 @@ export const routes: Routes = [
                 loadChildren: () =>
                     import('./simulation.routes').then((r) => r.routes),
             },
+
+            {
+                path: 'icon-picker',
+                loadComponent: () =>
+                    import('../shared/components/icon-picker/icon-picker.component').then(
+                        (c) => c.IconPickerComponent,
+                    ),
+            },
         ],
     },
 ];

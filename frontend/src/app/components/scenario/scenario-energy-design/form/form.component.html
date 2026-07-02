@@ -113,7 +113,6 @@
                         >
                             <select
                                 class="form-select"
-                                id="floatingSelect"
                                 [formControlName]="field.name"
                                 [ngClass]="{
                                     'is-invalid':
@@ -141,9 +140,7 @@
                                 </option>
                             </select>
 
-                            <label for="floatingSelect">{{
-                                field.placeholder
-                            }}</label>
+                            <label>{{ field.placeholder }}</label>
                         </div>
 
                         <!-- checkbox -->
@@ -192,6 +189,7 @@
                             </div>
                         </div>
 
+                        <!-- toggler -->
                         <div *ngIf="field.type == 'toggle'">
                             <input
                                 type="checkbox"
@@ -310,6 +308,7 @@
                             </div>
                         </div>
 
+                        <!-- radio list -->
                         <div
                             *ngIf="field.type == 'options_radio'"
                             class="d-flex"
@@ -344,6 +343,22 @@
                                         </label>
                                     </div>
                                 </ng-container>
+                            </div>
+                        </div>
+
+                        <!-- icon -->
+                        <div
+                            class="d-flex justify-content-center"
+                            *ngIf="field.type == 'icon'"
+                        >
+                            <div class="icon-circle" (click)="field.onClick()">
+                                <div
+                                    class="img"
+                                    [class]="form.value.icon"
+                                    [ngClass]="{
+                                        clickable: field && field.onClick,
+                                    }"
+                                ></div>
                             </div>
                         </div>
                     </div>

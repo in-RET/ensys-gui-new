@@ -10,6 +10,8 @@ import {
     ScenarioBaseInfoModel,
     ScenarioResModel,
     ScenarioUpdatedModel,
+    ScenarioUpdatedModel_project,
+    ScenarioUpdatedModel_scenario,
     UserModelingStateModel,
     UserModelingSTEP,
 } from '../models/scenario.model';
@@ -202,7 +204,6 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     goToSetupPage() {
-        // this.updateScenario()
         this.goToStep(UserModelingSTEP.SCENARIO_SETUP);
     }
 
@@ -352,6 +353,19 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     ngOnDestroy() {
+        // save all the last changes
+        const currentScenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
+        const scenarioBaseInfoData: ScenarioUpdatedModel = {
+            project:
+                currentScenarioData?.project as ScenarioUpdatedModel_project,
+            scenario:
+                currentScenarioData?.scenario as ScenarioUpdatedModel_scenario,
+        };
+
+        this.updateScenario(scenarioBaseInfoData);
+        //--------------------------------------------------
+
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioStateService.clearScenarioData();
 

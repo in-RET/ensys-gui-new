@@ -107,55 +107,83 @@ $space-between-project-elements-small: 0.5rem;
 
 // GUI
 $gui-component-radius: 8px;
-$component-border-color--providers: #a4adfb;
-$component-border-color--production: #ffef9f;
+$component-border-color--source: #ffef9f;
+$component-border-color--providers: #90f1ef;
 $component-border-color--conversion: #7bf1a8;
-$component-border-color--storage: #90f1ef;
-$component-border-color--demand: #ffd6e0;
+$component-border-color--storage: #a4adfb;
+$component-border-color--sink: #ffd6e0;
 $component-border-color--bus: #f4cc9e;
 $component-categories: (
-    "providers": $component-border-color--providers,
-    "production": $component-border-color--production,
-    "conversion": $component-border-color--conversion,
-    "storage": $component-border-color--storage,
-    "demand": $component-border-color--demand,
+    "source": $component-border-color--source,
+    "transformer": $component-border-color--conversion,
+    "genericStorage": $component-border-color--storage,
+    "sink": $component-border-color--sink,
     "bus": $component-border-color--bus,
 );
 
 $component-categories-mapping: (
-    "dso": "providers",
-    "gas_dso": "providers",
-    "h2_dso": "providers",
-    "heat_dso": "providers",
-    "pv_plant": "production",
-    "wind_plant": "production",
-    "biogas_plant": "production",
-    "geothermal_conversion": "production",
-    "solar_thermal_plant": "production",
-    "transformer_station_in": "conversion",
-    "transformer_station_out": "conversion",
-    "storage_charge_controller_in": "conversion",
-    "storage_charge_controller_out": "conversion",
-    "solar_inverter": "conversion",
-    "diesel_generator": "conversion",
-    "fuel_cell": "conversion",
-    "gas_boiler": "conversion",
-    "electrolyzer": "conversion",
-    "heat_pump": "conversion",
-    "chp": "conversion",
-    "chp_fixed_ratio": "conversion",
-    "bess": "storage",
-    "gess": "storage",
-    "h2ess": "storage",
-    "hess": "storage",
-    "demand": "demand",
-    "gas_demand": "demand",
-    "h2_demand": "demand",
-    "heat_demand": "demand",
+    "source": "source",
+    "transformer": "transformer",
+    "genericStorage": "genericStorage",
+    "sink": "sink",
     "bus": "bus",
+);
+
+$component-categories-mapping-icons: (
+    "source": (
+        default: "default.svg",
+        power_plant_wind_onshore: "power_plant_wind_onshore.png",
+        power_plant_river_run: "power_plant_river_run.png",
+        power_plant_photovoltaic_rooftop: "power_plant_photovoltaic_rooftop.png",
+        power_plant_photovoltaic_openfield:
+            "power_plant_photovoltaic_openfield.png",
+        power_plant_solar_thermal: "power_plant_solar_thermal.png",
+    ),
+    "transformer": (
+        default: "default.svg",
+        power_to_liquid: "power_to_liquid.png",
+        combined_heat_and_power_plant_biogas:
+            "combined_heat_and_power_plant_biogas.png",
+        combined_heat_and_power_plant_biomass:
+            "combined_heat_and_power_plant_biomass.png",
+        heating_plant_biomass: "heating_plant_biomass.png",
+        power_plant_biomass: "power_plant_biomass.png",
+        biomass_to_liquid_system_substrat:
+            "biomass_to_liquid_system_substrat.png",
+        biomethane_injection_plant: "biomethane_injection_plant.png",
+        combined_heat_and_power_generating_unit:
+            "combined_heat_and_power_generating_unit.png",
+        electrical_heater: "electrical_heater.png",
+        heat_pump_air_waste_heat: "heat_pump_air_waste_heat.png",
+        heat_pump_air_ambient_heat: "heat_pump_air_ambient_heat.png",
+        methanation: "methanation.png",
+    ),
+    "genericStorage": (
+        default: "default.svg",
+        electricity_storage_generic: "electricity_storage_generic.png",
+        electricity_storage_li_ion: "electricity_storage_li_ion.png",
+        gas_storage: "gas_storage.png",
+        heat_storage_district_heating: "heat_storage_district_heating.png",
+        heat_storage_seasonal: "heat_storage_seasonal.png",
+        heat_storage_household: "heat_storage_household.png",
+        hydrogen_storage: "hydrogen_storage.png",
+    ),
+    "sink": (
+        default: "default.svg",
+        electricity_demand_sfh: "electricity_demand_sfh.png",
+        electricity_demand_electric_car: "electricity_demand_electric_car.png",
+        electricity_demand_industry: "electricity_demand_industry.png",
+        heat_demand_sfh: "heat_demand_sfh.png",
+        heat_demand_industry_room: "heat_demand_industry_room.png",
+        heat_demand_industry_process: "heat_demand_industry_process.png",
+    ),
+    "bus": (
+        default: "default.svg",
+    ),
 );
 $gui-component-bg-size: 4.5rem;
 $gui-component-img-size: 3rem;
+$gui-component-img-size-large: 100%; //5rem;
 $gui-component-node-size: 0.75rem;
 $gui-component-position-btm: 2rem;
 $gui-component-position-side: 0.9rem;

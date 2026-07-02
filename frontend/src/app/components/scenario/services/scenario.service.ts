@@ -12,7 +12,6 @@ import {
     ScenarioResModel,
     UserModelingStateModel,
 } from '../models/scenario.model';
-import { ModalStateService } from '../scenario-energy-design/modals/modal-state.service';
 import { ScenarioStateService } from './scenario-state.service';
 
 @Injectable({
@@ -27,7 +26,6 @@ export class ScenarioService {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     baseHttp = inject(BaseHttpService);
-    private modalStateService = inject(ModalStateService);
     private scenarioStateService = inject(ScenarioStateService);
 
     getScenario(id: number) {

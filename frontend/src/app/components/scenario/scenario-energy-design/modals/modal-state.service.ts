@@ -16,6 +16,7 @@ export interface ModalState {
         modes: ModeOption[] | null;
     } | null;
     simulation: any | null;
+    iconPicker: { iconOrigin: string; iconName: string } | null;
     setup: boolean | null;
 }
 
@@ -29,6 +30,7 @@ export class ModalStateService {
         calculator: null,
         timeSeries: null,
         simulation: null,
+        iconPicker: null,
         setup: null,
     });
 
@@ -127,6 +129,20 @@ export class ModalStateService {
         this.modalState$.next({
             ...this.modalState$.value,
             simulation: null,
+        });
+    }
+
+    openIconPicker(d: { iconOrigin: string; iconName: string }) {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            iconPicker: d,
+        });
+    }
+
+    closeIconPicker() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            iconPicker: null,
         });
     }
 

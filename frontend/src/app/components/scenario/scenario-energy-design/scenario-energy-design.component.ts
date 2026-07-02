@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import Drawflow from 'drawflow';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { IconType } from '../models/node.model';
 import { ScenarioUpdatedModel } from '../models/scenario.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
@@ -20,6 +21,7 @@ import { FormComponent } from './form/form.component';
 import { ModalComponent } from './modal/modal.component';
 import { CalculatorModalComponent } from './modals/calculator-modal/calculator-modal.component';
 import { FlowFormModalComponent } from './modals/flow-form-modal/flow-form-modal.component';
+import { IconPickerModalComponent } from './modals/icon-picker-modal/icon-picker-modal.component';
 import { ModalState, ModalStateService } from './modals/modal-state.service';
 import { NodeFormModalComponent } from './modals/node-form-modal/node-form-modal.component';
 import { SimulationModalComponent } from './modals/simulation-modal/simulation-modal.component';
@@ -39,6 +41,7 @@ import { ModeOption } from './time-series/time-series.component';
         CalculatorModalComponent,
         TimeSeriesModalComponent,
         SimulationModalComponent,
+        IconPickerModalComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -106,14 +109,11 @@ export class ScenarioEnergyDesignComponent {
         return this.energyDrawflowComponent.getData();
     }
 
-    openInfoUrl(url: string | undefined) {
-        if (url) window.open(url, '_blank')?.focus();
-    }
-
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
         this.energyDrawflowComponent.drawflow_node_add(
             formModalInfo.node.class,
             formValue.name,
+            formValue.icon,
             formValue.inp,
             formValue.out,
             formValue,
@@ -310,6 +310,27 @@ export class ScenarioEnergyDesignComponent {
 
     onGoToSetupPage() {
         this.goToSetupPage.emit();
+    }
+
+    onShowModal_IconPicker(e: {
+        action: any;
+        icon: { origin: string; name: string };
+    }) {
+        this.modalStateService.toggleNodeForm();
+
+        this.modalStateService.openIconPicker({
+            iconOrigin: e.icon.origin,
+            iconName: e.icon.name,
+        });
+    }
+
+    submitIcon(icon: IconType) {
+        this.nodeFormModalComponent.setIconData(icon);
+    }
+
+    onCloseModal_IconPicker() {
+        this.modalStateService.closeIconPicker();
+        this.modalStateService.toggleNodeForm();
     }
 
     ngOnDestroy() {

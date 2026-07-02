@@ -49,12 +49,13 @@
 }
 
 ::ng-deep #contextmenu i {
+    display: block;
     width: 24px;
     height: 24px;
-    // margin-right: 0.5rem;
-    cursor: pointer;
-    display: block;
+    background-position: center;
+    background-size: cover;
     background-repeat: no-repeat;
+    cursor: pointer;
 
     &.edit {
         background-image: url("../../../../../static/assets/icons/feather/black/edit.svg");
@@ -89,6 +90,15 @@
 
 .submenu-parent {
     cursor: pointer;
+    position: relative;
+
+    &.list-group-item {
+        .flow-info {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
 }
 
 .nested-menu {
@@ -129,10 +139,6 @@
 .context-menu {
     z-index: 1000;
     width: 160px;
-}
-
-.submenu-parent {
-    position: relative;
 }
 
 .nested-menu {
@@ -233,4 +239,11 @@
 ::ng-deep .drawflow-node,
 .tools-box {
     pointer-events: all !important;
+}
+
+::ng-deep .drawflow_content_node {
+    .nodeName {
+        font-size: 1rem;
+        font-weight: 600;
+    }
 }
