@@ -1497,6 +1497,28 @@ export class EnergyDesignService {
                                     ),
                                 ],
                             },
+                            {
+                                name: 'icon',
+                                class: 'col-4',
+                                visible: false,
+                                fields: [
+                                    this.getField(
+                                        'icon',
+                                        'Icon',
+                                        '',
+                                        true,
+                                        'icon',
+                                        '',
+                                        editMode,
+                                        data,
+                                        undefined,
+                                        undefined,
+                                        undefined,
+                                        false,
+                                        name + ' default',
+                                    ),
+                                ],
+                            },
                         ],
                     };
             }
