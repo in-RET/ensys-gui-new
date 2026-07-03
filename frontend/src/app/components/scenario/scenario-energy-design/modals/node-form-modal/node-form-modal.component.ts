@@ -491,7 +491,7 @@ export class NodeFormModalComponent {
                                 inputs: [],
                                 outputs: [],
                             };
-                        // debugger;
+
                         this.makeNode.emit({
                             formValue: formData,
                             formModalInfo: this.modalInfo,

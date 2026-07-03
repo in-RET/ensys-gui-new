@@ -793,7 +793,6 @@ export class EnergyDrawflowComponent {
             <div class="img"></div>
         `;
         currentNode.class = data.icon;
-        // debugger;
         this.editor.updateNodeDataFromId(nodeId, data);
 
         this.toastService.success(
