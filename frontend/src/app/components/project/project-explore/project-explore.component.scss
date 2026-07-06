@@ -43,7 +43,9 @@
         transform: translateY(0px);
         pointer-events: none;
 
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
 
         .btn {
             .icon {

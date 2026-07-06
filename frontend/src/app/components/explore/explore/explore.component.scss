@@ -1,0 +1,10 @@
+::ng-deep app-explore {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+::ng-deep app-project-explore,
+::ng-deep app-template-explore {
+    height: 91%;
+}
