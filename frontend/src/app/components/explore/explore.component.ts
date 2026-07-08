@@ -1,13 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import {
-    ActivatedRoute,
-    NavigationEnd,
-    Router,
-    RouterLink,
-    RouterOutlet,
-} from '@angular/router';
-import { filter, startWith } from 'rxjs';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {ActivatedRoute, NavigationEnd, Router, RouterLink, RouterOutlet,} from '@angular/router';
+import {filter, startWith} from 'rxjs';
 
 @Component({
     selector: 'app-explore',
@@ -15,13 +9,11 @@ import { filter, startWith } from 'rxjs';
     templateUrl: './explore.component.html',
     styleUrl: './explore.component.scss',
 })
-export class ExploreComponent {
-    currentExploreRoute = '';
+export class ExploreComponent implements OnInit {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-    ) {}
+    currentExploreRoute = '';
 
     ngOnInit() {
         this.router.events
