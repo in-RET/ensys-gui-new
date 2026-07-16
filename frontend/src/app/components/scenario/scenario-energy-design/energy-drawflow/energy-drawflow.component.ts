@@ -890,10 +890,7 @@ export class EnergyDrawflowComponent {
     }
 
     checkRules(connection: any, nodeIn: any, nodeOut: any) {
-        let rule_1 = this.isConnectionThroughBus(
-            nodeIn['class'].split(' ')[0],
-            nodeOut['class'].split(' ')[0],
-        );
+        let rule_1 = this.isConnectionThroughBus(nodeIn, nodeOut);
 
         if (rule_1) {
             let rule_3 = this.hasSingleConnection(connection, nodeIn, nodeOut);
@@ -919,8 +916,10 @@ export class EnergyDrawflowComponent {
     }
 
     // rule #1
-    isConnectionThroughBus(nodeIn: string, nodeOut: string) {
-        return nodeIn === 'bus' || nodeOut === 'bus' ? true : false;
+    isConnectionThroughBus(nodeIn: DrawflowNode, nodeOut: DrawflowNode) {
+        return nodeIn['class'] === 'bus' || nodeOut['class'] === 'bus'
+            ? true
+            : false;
     }
 
     // rule #3

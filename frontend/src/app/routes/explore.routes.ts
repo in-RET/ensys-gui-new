@@ -1,10 +1,10 @@
-import { Routes } from '@angular/router';
+import {Routes} from '@angular/router';
 
 export const routes: Routes = [
     {
         path: '',
         loadComponent: () =>
-            import('../components/explore/explore/explore.component').then(
+            import('../components/explore/explore.component').then(
                 (c) => c.ExploreComponent,
             ),
         children: [

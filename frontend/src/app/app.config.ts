@@ -1,25 +1,11 @@
-import {
-    HTTP_INTERCEPTORS,
-    provideHttpClient,
-    withInterceptorsFromDi,
-} from '@angular/common/http';
-import {
-    ApplicationConfig,
-    inject,
-    provideAppInitializer,
-    provideZoneChangeDetection,
-} from '@angular/core';
-import {
-    PreloadAllModules,
-    provideRouter,
-    withPreloading,
-} from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { routes } from './app.routes';
-import { AuthCoreService } from './core/auth/auth.service';
-import { RequestHeaderInterceptor } from './core/interceptors/request-header-interceptor';
+import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi,} from '@angular/common/http';
+import {ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection,} from '@angular/core';
+import {PreloadAllModules, provideRouter, withPreloading,} from '@angular/router';
+import {Observable, of} from 'rxjs';
+import {routes} from './app.routes';
+import {AuthCoreService} from './core/auth/auth.service';
+import {RequestHeaderInterceptor} from './core/interceptors/request-header-interceptor';
 
-function initializeApp() {}
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({

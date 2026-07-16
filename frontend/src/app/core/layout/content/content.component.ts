@@ -1,12 +1,11 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { switchMap } from 'rxjs';
-import { AuthService } from '../../../components/auth/services/auth.service';
-import { AuthCoreService } from '../../auth/auth.service';
-import { FooterComponent } from '../footer/footer.component';
-import { NavbarComponent } from '../navbar/navbar.component';
-import { ContentLayoutService } from '../services/content-layout.service';
+import {CommonModule} from '@angular/common';
+import {Component, inject, OnInit} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {switchMap} from 'rxjs';
+import {AuthCoreService} from '../../auth/auth.service';
+import {FooterComponent} from '../footer/footer.component';
+import {NavbarComponent} from '../navbar/navbar.component';
+import {ContentLayoutService} from '../services/content-layout.service';
 
 @Component({
     selector: 'app-content',
@@ -24,7 +23,6 @@ export class ContentComponent implements OnInit {
 
     contentLayoutService = inject(ContentLayoutService);
     authCoreService = inject(AuthCoreService);
-    authService = inject(AuthService);
 
     ngOnInit() {
         this.contentLayoutService.fullscreenStatus.subscribe(
