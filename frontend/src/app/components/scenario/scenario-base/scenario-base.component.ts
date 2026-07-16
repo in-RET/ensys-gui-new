@@ -1,10 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DrawflowNode } from 'drawflow';
 import { map, Subscription } from 'rxjs';
 import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
-import { EnergyModelConverterService } from '../../../shared/services/energy-model-converter-service/energy-model-converter.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
     ScenarioBaseInfoModel,
@@ -17,6 +17,7 @@ import {
 } from '../models/scenario.model';
 import { ScenarioEnergyDesignComponent } from '../scenario-energy-design/scenario-energy-design.component';
 import { ScenarioSetupComponent } from '../scenario-setup/scenario-setup.component';
+import { FlowService } from '../services/flow.service';
 import {
     ScenarioStateModel,
     ScenarioStateService,
@@ -52,8 +53,8 @@ export class ScenarioBaseComponent implements OnInit {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     simulationService = inject(SimulationService);
-    serv = inject(EnergyModelConverterService);
     scenarioStateService = inject(ScenarioStateService);
+    flowService = inject(FlowService);
 
     ngOnInit() {
         this.checkScenarioBaseDataAvailablity();
@@ -62,7 +63,6 @@ export class ScenarioBaseComponent implements OnInit {
         this.subscriptionScenarioState =
             this.scenarioStateService.scenarioState.subscribe(
                 (res: ScenarioStateModel | null) => {
-                    console.log('Scenario_State has changed: ', res);
                     this.currentScenario = res;
                 },
             );
@@ -175,11 +175,12 @@ export class ScenarioBaseComponent implements OnInit {
                     sDate: formData.sDate,
                     timeStep: formData.timeStep,
                     interval: 1,
-                    simulationYear: formData.simulationYear,
+                    simulationYear: +formData.simulationYear,
                     constraints: constraints,
                     modeling_data: null,
                 },
             };
+
             await this.saveScenario(data);
         } else {
             const data: ScenarioUpdatedModel = {
@@ -190,13 +191,14 @@ export class ScenarioBaseComponent implements OnInit {
                     sDate: formData.sDate,
                     timeStep: formData.timeStep,
                     interval: 1,
-                    simulationYear: formData.simulationYear,
+                    simulationYear: +formData.simulationYear,
                     constraints: constraints,
                     modeling_data:
                         this.scenarioStateService.getScenarioData()?.scenario
                             ?.modeling_data || null,
                 },
             };
+
             await this.updateScenario(data);
         }
 
@@ -247,9 +249,35 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     updateScenario(data: ScenarioUpdatedModel): Promise<void> | void {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
+            // check whether the simulationYear has changed
+            const oldSimulationYear =
+                this.scenarioStateService.getScenarioData()?.scenario
+                    ?.simulationYear;
+
+            if (oldSimulationYear !== data.scenario.simulationYear) {
+                if (
+                    await this.alertService.confirm(
+                        'Your selected Simulation Year has changed. This will update all the nodes/flows pre-defined data based on the new Simulation Year. Do you want to continue?',
+                        'Warning',
+                        undefined,
+                        undefined,
+                        'question',
+                    )
+                )
+                    // update node/flow's data (preDefData/formInfo) based on Selected Start_Date
+                    await this.updateScenario_nodes_preDefData_basedOn_simulationYear(
+                        data.scenario.simulationYear,
+                    );
+            }
+
             this.scenarioService.updateCurrentScenario(data).subscribe({
                 next: (val: ScenarioResModel) => {
+                    // update CURRENT_DRAWFLOW session storage
+                    this.scenarioService.saveDrawflow_Storage(
+                        data.scenario.modeling_data || {},
+                    );
+
                     // update session
                     this.scenarioService.replaceBaseInfo_Storage(data);
 
@@ -273,7 +301,96 @@ export class ScenarioBaseComponent implements OnInit {
         });
     }
 
-    // onUpdateScenarioDrawflow() {}
+    updateScenario_nodes_preDefData_basedOn_simulationYear(
+        simulationYear: number,
+    ): Promise<void> | void {
+        return new Promise(async (resolve, reject) => {
+            // get all the nodes in the drawflow
+            const currentDrawflowData:
+                | string
+                | {
+                      [nodeKey: string]: DrawflowNode;
+                  }
+                | null = this.scenarioStateService.getDrawflowData();
+
+            if (
+                currentDrawflowData == null ||
+                Object.keys(currentDrawflowData).length == 0
+            )
+                resolve();
+
+            if (
+                !currentDrawflowData ||
+                JSON.stringify(currentDrawflowData) === '{}' ||
+                Object.keys(currentDrawflowData).length == 0
+            ) {
+                resolve();
+            }
+            //         // update the preDefData based on the selected simulationYear
+            for (const key in currentDrawflowData) {
+                if (
+                    Object.prototype.hasOwnProperty.call(
+                        currentDrawflowData,
+                        key,
+                    )
+                ) {
+                    const node: DrawflowNode = currentDrawflowData[key];
+
+                    // update node's preDefData
+                    // 1. del prev data
+                    // 2. add new one
+                    if (
+                        node.data.type !== 'bus' &&
+                        node.data.source !== 'user_defined' &&
+                        node.data.oep == true
+                    ) {
+                        node.data.preDefData = null;
+                        const preDefData =
+                            await this.flowService.getPreDefinedValue_ports(
+                                node.data.source,
+                                simulationYear,
+                            );
+                        node.data.preDefData = preDefData;
+
+                        // update flows' in/output formInfo
+                        node.data.connections.inputs.forEach(
+                            (input: any, i: number) => {
+                                Object.keys(input.formInfo).forEach((key) => {
+                                    if (
+                                        preDefData.inputs[i].flow_data &&
+                                        key in preDefData.inputs[i].flow_data
+                                    ) {
+                                        (input.formInfo as any)[key] = (
+                                            preDefData.inputs[i]
+                                                .flow_data as any
+                                        )[key];
+                                    }
+                                });
+                            },
+                        );
+
+                        node.data.connections.outputs.forEach(
+                            (output: any, i: number) => {
+                                Object.keys(output.formInfo).forEach((key) => {
+                                    if (
+                                        preDefData.outputs[i].flow_data &&
+                                        key in preDefData.outputs[i].flow_data
+                                    ) {
+                                        (output.formInfo as any)[key] = (
+                                            preDefData.outputs[i]
+                                                .flow_data as any
+                                        )[key];
+                                    }
+                                });
+                            },
+                        );
+                    }
+                }
+            }
+
+            resolve();
+        });
+    }
 
     async startSimulation(): Promise<void> {
         if (
@@ -310,19 +427,6 @@ export class ScenarioBaseComponent implements OnInit {
                 .subscribe({
                     next: (val: any) => {
                         this.toastService.success(val);
-
-                        // const d: {
-                        //     [nodeKey: string]: DrawflowNode;
-                        // } | null =
-                        //     this.scenarioService.restoreDrawflow_Storage();
-
-                        // if (d) {
-                        //     const new_d =
-                        //         this.serv.convertDrawFlowDataToOemofModelData(
-                        //             d,
-                        //         );
-                        //     this.serv.downloadJson(new_d, 'a');
-                        // }
                     },
                     error: (err) => {
                         this.alertService.error('Failed');

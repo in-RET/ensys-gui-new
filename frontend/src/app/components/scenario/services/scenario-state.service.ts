@@ -41,7 +41,6 @@ export class ScenarioStateService {
     }
 
     setScenarioData(data: ScenarioStateModel) {
-        console.log('Set scenario data:', data);
         this.scenarioState$.next(data);
     }
 
@@ -54,8 +53,6 @@ export class ScenarioStateService {
     }
 
     setDrawflowData(data: { [nodeKey: string]: DrawflowNode } | null) {
-        console.log('Setting drawflow data:', data);
-
         if (this.scenarioState$.value)
             this.scenarioState$.next({
                 ...this.scenarioState$.value,
@@ -94,7 +91,6 @@ export class ScenarioStateService {
 
         const newState = { ...currentState, ...data };
         this.userModelingState$.next(newState);
-        console.log('set state: ', newState);
     }
 
     getUserModelingState(): UserModelingStateModel | null {

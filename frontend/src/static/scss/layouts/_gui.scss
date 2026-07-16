@@ -245,6 +245,13 @@
             .output {
                 background-color: #c46a4e;
                 right: -10px;
+
+                &.un_used {
+                    background-color: #c46a4e73 !important;
+                    cursor: crosshair !important;
+                    border: 1px solid #047cfc;
+                    pointer-events: visible;
+                }
             }
         }
 
