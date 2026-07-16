@@ -93,7 +93,7 @@ export class NodeFormModalComponent {
 
     private async initializeNodeForm() {
         if (this.modalInfo) {
-            let nodeType: string = this.modalInfo.node.class;
+            let nodeType: string = this.modalInfo.node.data.type;
 
             this.modalInfo.formData =
                 await this.energyDesignService.getFormFields_node(
@@ -343,6 +343,8 @@ export class NodeFormModalComponent {
                                 'outputPort_name',
                             );
 
+                            // should remove "if", has checked before!
+                            // get flow's data
                             if (scenarioBaseData && scenarioBaseData.scenario) {
                                 const PreDefinedData =
                                     await this.flowService.getPreDefinedValue_ports(
@@ -451,6 +453,9 @@ export class NodeFormModalComponent {
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData && this.modalInfo.node) {
+            // set type of node
+            formData.type = this.modalInfo.node.data.type;
+
             const isNodeNameDuplicate =
                 this.scenarioService.checkNodeDuplication(
                     formData.name,
@@ -463,7 +468,7 @@ export class NodeFormModalComponent {
                     | false
                     | { ports: Ports; inp: number; out: number } =
                     this.energyDesignService.getNodePorts(
-                        this.modalInfo.node.class,
+                        this.modalInfo.node.data.type,
                         {
                             inputport_name: formData.inputport_name,
                             outputport_name: formData.outputport_name,
@@ -486,7 +491,7 @@ export class NodeFormModalComponent {
                         };
 
                         // add connections if node is bus
-                        if (this.modalInfo.node?.class !== 'bus')
+                        if (this.modalInfo.node?.data.type !== 'bus')
                             formData['connections'] = {
                                 inputs: [],
                                 outputs: [],
@@ -525,8 +530,8 @@ export class NodeFormModalComponent {
 
                                             if (inputs.length > 0) {
                                                 if (
-                                                    this.modalInfo.node
-                                                        .class !== 'bus'
+                                                    this.modalInfo.node.data
+                                                        .type !== 'bus'
                                                 ) {
                                                     inputs.forEach(
                                                         (
@@ -557,7 +562,9 @@ export class NodeFormModalComponent {
                                     this.modalInfo.node.data.connections.inputs;
 
                                 if (inputs.length > 0) {
-                                    if (this.modalInfo.node.class !== 'bus') {
+                                    if (
+                                        this.modalInfo.node.data.type !== 'bus'
+                                    ) {
                                         inputs.forEach(
                                             (
                                                 inELm: {
@@ -591,8 +598,8 @@ export class NodeFormModalComponent {
 
                                             if (outputs.length > 0) {
                                                 if (
-                                                    this.modalInfo.node
-                                                        .class !== 'bus'
+                                                    this.modalInfo.node.data
+                                                        .type !== 'bus'
                                                 ) {
                                                     outputs.forEach(
                                                         (
@@ -624,7 +631,9 @@ export class NodeFormModalComponent {
                                         .outputs;
 
                                 if (outputs.length > 0) {
-                                    if (this.modalInfo.node.class !== 'bus') {
+                                    if (
+                                        this.modalInfo.node.data.type !== 'bus'
+                                    ) {
                                         outputs.forEach(
                                             (
                                                 outELm: {
@@ -651,7 +660,7 @@ export class NodeFormModalComponent {
                             this.updateNode.emit({
                                 data: formData,
                                 nodeId: this.modalInfo.node.id,
-                                nodeType: this.modalInfo.node.class,
+                                nodeType: this.modalInfo.node.data.type,
                             });
                         this.closeModal(true);
                     }
@@ -862,7 +871,7 @@ export class NodeFormModalComponent {
     setIconData(icon: IconType) {
         this.formComponent.setFieldData(
             'icon',
-            `${this.modalInfo?.node.class} ${icon.icon}`,
+            `${this.modalInfo?.node.data.type} ${icon.icon}`,
         );
     }
 

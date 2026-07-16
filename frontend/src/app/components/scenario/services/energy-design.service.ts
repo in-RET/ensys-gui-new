@@ -107,7 +107,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
         oep?: boolean,
     ) {
@@ -122,18 +121,8 @@ export class EnergyDesignService {
         ].map((item: any) => {
             // if selected a predefined
             if (data) {
-                if (preDefData?.hasChanged) {
-                    if (oep) {
-                        item['disabled'] = true;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    } else {
-                        item['disabled'] = false;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    }
-                } else {
-                    item['disabled'] = false;
-                    item['value'] = data[item.name.toLocaleLowerCase()];
-                }
+                item['disabled'] = false;
+                item['value'] = data[item.name.toLocaleLowerCase()];
             }
             // if selected user_defined
             else {
@@ -160,7 +149,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
         oep?: boolean,
     ) {
@@ -224,18 +212,8 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             if (data) {
-                if (preDefData?.hasChanged) {
-                    if (oep) {
-                        item['disabled'] = true;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    } else {
-                        item['disabled'] = false;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    }
-                } else {
-                    item['disabled'] = false;
-                    item['value'] = data[item.name.toLocaleLowerCase()];
-                }
+                item['disabled'] = false;
+                item['value'] = data[item.name.toLocaleLowerCase()];
             } else {
                 item['disabled'] = false;
                 item['value'] = null;
@@ -255,7 +233,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
         oep?: boolean,
     ) {
@@ -428,18 +405,8 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             if (data) {
-                if (preDefData?.hasChanged) {
-                    if (oep) {
-                        item['disabled'] = true;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    } else {
-                        item['disabled'] = false;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    }
-                } else {
-                    item['disabled'] = false;
-                    item['value'] = data[item.name.toLocaleLowerCase()];
-                }
+                item['disabled'] = false;
+                item['value'] = data[item.name.toLocaleLowerCase()];
             } else {
                 item['disabled'] = false;
                 item['value'] = null;
@@ -459,7 +426,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
         oep?: boolean,
     ) {
@@ -549,7 +515,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
         callback?: any,
     ) {
@@ -722,18 +687,8 @@ export class EnergyDesignService {
             },
         ].map((item: any) => {
             if (data) {
-                if (preDefData?.hasChanged) {
-                    if (oep) {
-                        item['disabled'] = true;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    } else {
-                        item['disabled'] = false;
-                        item['value'] = data[item.name.toLocaleLowerCase()];
-                    }
-                } else {
-                    item['disabled'] = false;
-                    item['value'] = data[item.name.toLocaleLowerCase()];
-                }
+                item['disabled'] = false;
+                item['value'] = data[item.name.toLocaleLowerCase()];
             } else {
                 item['disabled'] = false;
                 item['value'] = null;
@@ -928,7 +883,7 @@ export class EnergyDesignService {
                     },
                     undefined,
                     this.getFieldData(
-                        name,
+                        'source',
                         {
                             mode: editMode,
                             data,
@@ -1606,7 +1561,6 @@ export class EnergyDesignService {
         preDefData?: {
             name: string;
             simulationYear: number;
-            hasChanged: boolean;
         },
     ) {
         const getFields = async () => {

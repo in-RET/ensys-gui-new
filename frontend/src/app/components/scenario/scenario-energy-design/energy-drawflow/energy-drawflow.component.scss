@@ -115,9 +115,38 @@
 ::ng-deep .magnet-highlight {
     box-shadow: 0 0 5px 2px rgba(0, 150, 255, 0.6);
     border-radius: 50%;
-
     width: 1rem !important;
     height: 1rem !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after {
+        content: "+";
+        color: #fff;
+        font-weight: 900;
+        font-size: 1rem;
+    }
+}
+
+::ng-deep .outputs {
+    .output:hover {
+        box-shadow: 0 0 5px 2px rgba(0, 150, 255, 0.6);
+        border-radius: 50%;
+        width: 1rem !important;
+        height: 1rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::after {
+            content: "+";
+            color: #fff;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+    }
 }
 
 .left-100 {

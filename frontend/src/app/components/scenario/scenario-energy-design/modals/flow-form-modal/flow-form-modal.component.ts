@@ -70,7 +70,7 @@ export class FlowFormModalComponent {
                 ...this.modalInfo.data,
             };
 
-        let nodeType = this.modalInfo.node.class;
+        let nodeType = this.modalInfo.node.data.type;
 
         if (this.modalInfo.connection) {
             const connections: Connection = this.modalInfo.connection;
@@ -86,8 +86,14 @@ export class FlowFormModalComponent {
                 ) {
                     const currentPortNum_in =
                         +connections['input_port'].split('_')[1];
-                    this.modalInfo.data =
-                        fData.inputs[currentPortNum_in - 1]['flow_data'] || {};
+
+                    if (fData.inputs.length >= currentPortNum_in) {
+                        this.modalInfo.data =
+                            fData.inputs[currentPortNum_in - 1]['flow_data'] ||
+                            {};
+                    } else {
+                        this.modalInfo.data = {};
+                    }
                 } else if (
                     this.modalInfo.node.id === +connections.output_node &&
                     fData.outputs &&
@@ -98,6 +104,15 @@ export class FlowFormModalComponent {
                     this.modalInfo.data =
                         fData.outputs[currentPortNum_out - 1]['flow_data'] ||
                         {};
+
+                    if (fData.outputs.length >= currentPortNum_out) {
+                        this.modalInfo.data =
+                            fData.outputs[currentPortNum_out - 1][
+                                'flow_data'
+                            ] || {};
+                    } else {
+                        this.modalInfo.data = {};
+                    }
                 }
             }
         }
@@ -258,8 +273,8 @@ export class FlowFormModalComponent {
         if (this.modalInfo) {
             if (e.modes) timeSeriesData.modes = e.modes;
             else if (
-                this.modalInfo.node.class !== 'source' &&
-                this.modalInfo.node.class !== 'sink'
+                this.modalInfo.node.data.type !== 'source' &&
+                this.modalInfo.node.data.type !== 'sink'
             ) {
                 timeSeriesData.modes = [
                     { value: 'file', label: 'CSV File' },
