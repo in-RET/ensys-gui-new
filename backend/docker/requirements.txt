@@ -121,7 +121,7 @@ pandocfilters==1.5.1
 parso==0.8.7
 passlib==1.7.4
 pexpect==4.9.0
-pillow==12.2.0
+pillow==12.3.0
 Pint==0.25.2
 platformdirs==4.9.4
 plotly==6.7.0
