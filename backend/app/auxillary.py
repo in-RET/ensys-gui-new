@@ -57,8 +57,6 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     if component_data["connections"] is not None:
         # build component_data["inputs"]
         for input_name in flowchart_component["inputs"]:
-            # print(len(flowchart_component["inputs"][input_name]['connections']))
-
             if len(flowchart_component["inputs"][input_name]['connections']) > 0:
                 target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
                 target_bus_name = flowchart_data[target_bus_id]["name"]
@@ -102,6 +100,7 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                 for output in component_data["connections"]["outputs"]:
                     flow_data: dict = output["formInfo"]
                     flow_data["custom_properties"] = {}
+                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
 
                     # Replace constraint shit with custom_attributes
                     del_list = []
@@ -113,14 +112,19 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
                             flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
                         del_list.append(key)
 
+                    nonconvex_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("non_convex_")]
+                    for key in nonconvex_filter_flow_data_keys:
+                        print(f"Check {key} for nonconvex.")
+                        if key.startswith("non_convex_") and flow_data[key] is not None:
+                            flow_data["custom_properties"][key.replace("non_convex_", "")] = float(flow_data[key])
+                        del_list.append(key)
+
+
                     if flow_data["custom_properties"] == {}:
                         del_list.append("custom_properties")
 
                     for key in del_list:
                         del flow_data[key]
-
-                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
-                    del flow_data["nominal_value"]
 
                     output_data[target_bus_name] = EnFlow(**flow_data)
 
