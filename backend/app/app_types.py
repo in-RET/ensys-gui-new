@@ -72,6 +72,7 @@ class oepTypes(Enum):
     heat_pump_air_ambient_heat = "heat_pump_air_ambient_heat"
     heat_pump_ground_river_heat = "heat_pump_ground_river_heat"
     methanation = "methanation"
+    gas_condensing_boiler = "gas_condensing_boiler"
 
 
 oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
@@ -248,6 +249,15 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
             "label": "Heat Pump - Ground River Heat",
             "icon": "heat_pump_ground_river_heat",
         },
-        {"name": "methanation", "label": "Methanation", "icon": "methanation"},
+        {
+            "name": "methanation",
+            "label": "Methanation",
+            "icon": "methanation"
+        },
+        {
+            "name": "gas_condensing_boiler",
+            "label": "Gas Condensing Boiler",
+            "icon": "gas_condensing_boiler",
+        },
     ],
 }
