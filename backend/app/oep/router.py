@@ -199,9 +199,17 @@ async def get_local_oep_data_node(
         )
         interest_rate = parameter_year_select["interest_rate"] / 100
 
-        annuity = calc_annuity(
-            capex=capex, wacc=interest_rate, n=parameter_year_select["lifetime"]
-        )
+        annuity_dict = {
+            "capex": capex,
+            "wacc": interest_rate,
+            "lifetime": parameter_year_select["lifetime"]
+        }
+
+        if "deprecation" in parameter_year_select.keys():
+            annuity_dict["deprecation"] = parameter_year_select["deprecation"]
+
+        annuity = calc_annuity(**annuity_dict)
+        
         flow_ep_costs = annuity + opex
     else:
         flow_ep_costs = None

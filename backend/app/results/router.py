@@ -177,6 +177,45 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     return GeneralDataModel(items=return_data, totalCount=len(return_data))
 
 
+def check_simulation_status(simulation: EnSimulationDB) -> ErrorResponse | bool:
+    """Check if simulation is finished."""
+
+    if simulation.status == Status.STARTED.value:
+        return ErrorResponse(
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_425_TOO_EARLY,
+                    message=f"Simulation {simulation.id} has not finished yet.",
+                )
+            ]
+        )
+    elif simulation.status == Status.FAILED.value:
+        # TODO: Bessere Rückgabe von Fehlern bei "failed"
+        return ErrorResponse(
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_409_CONFLICT,
+                    message=f"Simulation {simulation.id} has failed.",
+                )
+            ]
+        )
+    elif simulation.status == Status.STOPPED.value:
+        return ErrorResponse(
+            errors=[
+                ErrorModel(
+                    code=status.HTTP_409_CONFLICT,
+                    message=f"Simulation {simulation.id} has stopped.",
+                )
+            ]
+        )
+
+    elif simulation.status == Status.FINISHED.value:
+        return True
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation unknown status."
+        )
+
 @results_router.get("/{simulation_id}", response_model=ResultResponse | ErrorResponse)
 async def get_results(
     simulation_id: int,
@@ -202,43 +241,14 @@ async def get_results(
             status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found"
         )
 
-    if simulation.status == Status.STARTED.value:
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_425_TOO_EARLY,
-                    message=f"Simulation {simulation_id} has not finished yet.",
-                )
-            ]
-        )
-    elif simulation.status == Status.FAILED.value:
-        # TODO: Bessere Rückgabe von Fehlern bei "failed"
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_409_CONFLICT,
-                    message=f"Simulation {simulation_id} has failed.",
-                )
-            ]
-        )
-    elif simulation.status == Status.STOPPED.value:
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_409_CONFLICT,
-                    message=f"Simulation {simulation_id} has stopped.",
-                )
-            ]
-        )
 
-    elif simulation.status == Status.FINISHED.value:
+    simualtion_status = check_simulation_status(simulation)
+    if simualtion_status:
         return ResultResponse(
             data=get_results_from_dump(simulation.id, db), success=True
         )
     else:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation unknown status."
-        )
+        return simualtion_status
 
 @results_router.get("/{simulation_id}/dump")
 async def get_dumpfile(
@@ -265,36 +275,8 @@ async def get_dumpfile(
             status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found"
         )
 
-    if simulation.status == Status.STARTED.value:
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_425_TOO_EARLY,
-                    message=f"Simulation {simulation_id} has not finished yet.",
-                )
-            ]
-        )
-    elif simulation.status == Status.FAILED.value:
-        # TODO: Bessere Rückgabe von Fehlern bei "failed"
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_409_CONFLICT,
-                    message=f"Simulation {simulation_id} has failed.",
-                )
-            ]
-        )
-    elif simulation.status == Status.STOPPED.value:
-        return ErrorResponse(
-            errors=[
-                ErrorModel(
-                    code=status.HTTP_409_CONFLICT,
-                    message=f"Simulation {simulation_id} has stopped.",
-                )
-            ]
-        )
-
-    elif simulation.status == Status.FINISHED.value:
+    simulation_status = check_simulation_status(simulation)
+    if simulation_status:
         simulation_token = simulation.sim_token
 
         simulations_path = os.path.abspath(
@@ -352,6 +334,29 @@ async def get_dumpfile(
 
         return FileResponse(os.path.join(simulations_path, 'simulation.zip'), media_type='application/zip', filename=f'simulation_{simulation_id}.zip')
     else:
+        return simulation_status
+
+@results_router.get("/{simulation_id}/print")
+async def get_printfile(
+    simulation_id: int,
+    token: Annotated[str, Depends(oauth2_scheme)],
+    db: Session = Depends(get_db_session),
+):
+    """Return simulation results or status-aware errors."""
+
+    if not token:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation unknown status."
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated."
         )
+
+    simulation = db.get(EnSimulationDB, simulation_id)
+    if not simulation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Simulation not found"
+        )
+
+    simulation_satus = check_simulation_status(simulation)
+    if simulation_satus:
+        pass
+    else:
+        return simulation_satus
