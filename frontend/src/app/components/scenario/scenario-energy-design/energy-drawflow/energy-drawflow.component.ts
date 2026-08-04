@@ -676,7 +676,7 @@ export class EnergyDrawflowComponent {
         const nodeType = ev.dataTransfer.getData('id');
         const nodeName = ev.dataTransfer.getData('node');
         const node: DrawflowNode = {
-            class: nodeType,
+            class: '',
             name: nodeName,
             pos_x: ev.clientX,
             pos_y: ev.clientY,
@@ -760,7 +760,7 @@ export class EnergyDrawflowComponent {
         pos_y: any,
     ) {
         const source_html = `
-            <div class="img"></div>
+            <div class="img ${nodeData.icon}"></div>
             <div class="drawflow-node__name nodeName">
                 <span>
                 ${nodeName}
@@ -793,9 +793,8 @@ export class EnergyDrawflowComponent {
                 </span>
             </div>
 
-            <div class="img"></div>
+            <div class="img ${data.icon}"></div>
         `;
-        currentNode.class = data.icon;
         this.editor.updateNodeDataFromId(nodeId, data);
 
         this.toastService.success(
@@ -917,7 +916,7 @@ export class EnergyDrawflowComponent {
 
     // rule #1
     isConnectionThroughBus(nodeIn: DrawflowNode, nodeOut: DrawflowNode) {
-        return nodeIn['class'] === 'bus' || nodeOut['class'] === 'bus'
+        return nodeIn.data['type'] === 'bus' || nodeOut.data['type'] === 'bus'
             ? true
             : false;
     }
@@ -929,7 +928,7 @@ export class EnergyDrawflowComponent {
         nodeOut: DrawflowNode,
     ) {
         // rule #5 - exception for bus
-        if (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
+        if (nodeIn.data['type'] === 'bus' && nodeOut.data['type'] === 'bus')
             return true;
         else {
             const inputConnections =
@@ -938,10 +937,10 @@ export class EnergyDrawflowComponent {
                 nodeOut.outputs[connection.output_port].connections;
 
             return (
-                (nodeIn['class'] !== 'bus' && inputConnections.length <= 1
+                (nodeIn.data['type'] !== 'bus' && inputConnections.length <= 1
                     ? true
                     : false) ||
-                (nodeOut['class'] !== 'bus' && outputConnections.length <= 1
+                (nodeOut.data['type'] !== 'bus' && outputConnections.length <= 1
                     ? true
                     : false)
             );

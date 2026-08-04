@@ -112,7 +112,7 @@ export class ScenarioEnergyDesignComponent {
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
         this.energyDrawflowComponent.drawflow_node_add(
             formValue.name,
-            formValue.icon,
+            formValue.type,
             formValue.inp,
             formValue.out,
             formValue,

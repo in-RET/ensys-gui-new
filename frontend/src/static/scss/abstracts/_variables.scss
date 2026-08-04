@@ -131,7 +131,7 @@ $component-categories-mapping: (
 
 $component-categories-mapping-icons: (
     "source": (
-        default: "default.svg",
+        default: "source-default.svg",
         power_plant_wind_onshore: "power_plant_wind_onshore.png",
         power_plant_river_run: "power_plant_river_run.png",
         power_plant_photovoltaic_rooftop: "power_plant_photovoltaic_rooftop.png",
@@ -140,7 +140,7 @@ $component-categories-mapping-icons: (
         power_plant_solar_thermal: "power_plant_solar_thermal.png",
     ),
     "transformer": (
-        default: "default.svg",
+        default: "transformer-default.svg",
         power_to_liquid: "power_to_liquid.png",
         combined_heat_and_power_plant_biogas:
             "combined_heat_and_power_plant_biogas.png",
@@ -159,7 +159,7 @@ $component-categories-mapping-icons: (
         methanation: "methanation.png",
     ),
     "genericStorage": (
-        default: "default.svg",
+        default: "genericStorage-default.svg",
         electricity_storage_generic: "electricity_storage_generic.png",
         electricity_storage_li_ion: "electricity_storage_li_ion.png",
         gas_storage: "gas_storage.png",
@@ -169,7 +169,7 @@ $component-categories-mapping-icons: (
         hydrogen_storage: "hydrogen_storage.png",
     ),
     "sink": (
-        default: "default.svg",
+        default: "sink-default.svg",
         electricity_demand_sfh: "electricity_demand_sfh.png",
         electricity_demand_electric_car: "electricity_demand_electric_car.png",
         electricity_demand_industry: "electricity_demand_industry.png",
@@ -178,7 +178,7 @@ $component-categories-mapping-icons: (
         heat_demand_industry_process: "heat_demand_industry_process.png",
     ),
     "bus": (
-        default: "default.svg",
+        default: "bus-default.svg",
     ),
 );
 $gui-component-bg-size: 4.5rem;

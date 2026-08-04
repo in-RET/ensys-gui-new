@@ -36,16 +36,16 @@
             background: var(--bs-primary);
             color: var(--bs-gray-100);
 
-            img {
+            .img {
                 filter: brightness(0) invert(1);
                 transition: filter 0.4s;
             }
         }
 
-        img {
-            width: 75px;
-            height: 75px;
-        }
+        // .img {
+        //     width: 75px;
+        //     height: 75px;
+        // }
 
         span {
             font-size: 0.7rem;
@@ -65,7 +65,7 @@
 .category-title {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #6c757d;
+    color: var(--bs-primary);
     text-transform: uppercase;
     border-bottom: 1px solid #dee2e6;
 }

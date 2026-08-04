@@ -297,17 +297,12 @@
             }
         }
 
+        // all nodes on Scenario-Page
         @each $type, $variants in $component-categories-mapping-icons {
             @each $variant, $icon in $variants {
-                &.#{$type} .img {
-                    @include gui-component-image(
-                        url("/static/assets/icons/nodes/#{$type}/default.svg")
-                    );
-                }
-
                 &.#{$type}.#{$variant} .img {
                     @include gui-component-image(
-                        url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+                        url("../../assets/icons/nodes/#{$type}/#{$icon}")
                     );
                 }
             }
@@ -315,18 +310,25 @@
     }
 }
 
+// nodes on Icon-Picker
 @each $type, $variants in $component-categories-mapping-icons {
     @each $variant, $icon in $variants {
-        img.#{$type}.#{$variant} {
-            @include gui-component-icon(
-                url("/static/assets/icons/nodes/#{$type}/#{$icon}")
-            );
-        }
         .img.#{$type}.#{$variant} {
-            @include gui-component-icon(
-                url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+            @include gui-component-image(
+                url("../../assets/icons/nodes/#{$type}/#{$icon}")
             );
         }
+
+        // img.#{$type}.#{$variant} {
+        //     @include gui-component-icon(
+        //         url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+        //     );
+        // }
+        // .img.#{$type}.#{$variant} {
+        //     @include gui-component-icon(
+        //         url("/static/assets/icons/nodes/#{$type}/#{$icon}")
+        //     );
+        // }
     }
 }
 
