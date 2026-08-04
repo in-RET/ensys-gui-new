@@ -480,6 +480,13 @@ export class EnergyDesignService {
                 span: 'auto',
                 numberOnlyAllowed: true,
             },
+            {
+                name: 'nonconvex_investment',
+                placeholder: 'Nonconvex Investment',
+                label: 'Nonconvex Investment',
+                type: 'switch',
+                span: 'auto',
+            },
         ].map((item: any) => {
             if (data) {
                 item['value'] = data[item.name.toLocaleLowerCase()];
