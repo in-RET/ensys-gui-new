@@ -13,7 +13,12 @@
             class="__list"
             *ngIf="modalStateService.modalState | async as modalState"
         >
-            <div *ngFor="let group of filteredIcons | keyvalue: keepOrder">
+            <div
+                *ngFor="let group of filteredIcons | keyvalue: keepOrder"
+                [ngClass]="{
+                    disabled: group.key !== icon?.iconOrigin,
+                }"
+            >
                 <div class="category-title mb-2">
                     {{ group.key }}
                 </div>
@@ -25,30 +30,14 @@
                             selected:
                                 (item.name === selectedIcon?.name || '') &&
                                 (group.key === selectedIcon?.origin || ''),
-                            disabled: group.key !== icon?.iconOrigin,
                         }"
                         *ngFor="let item of group.value"
                         (click)="selectIcon(item, group.key)"
                     >
-                        <img
-                            [src]="
-                                '/static/assets/icons/nodes/' +
-                                group.key +
-                                '/' +
-                                item.icon +
-                                '.png'
-                            "
-                            (error)="
-                                $any($event.target).src =
-                                    '/static/assets/icons/nodes/' +
-                                    group.key +
-                                    '/' +
-                                    item.icon +
-                                    '.svg'
-                            "
-                            width="24"
-                            height="24"
-                        />
+                        <div
+                            class="img"
+                            [ngClass]="[group.key, item.icon]"
+                        ></div>
 
                         <span>{{ item.label }}</span>
                     </div>
