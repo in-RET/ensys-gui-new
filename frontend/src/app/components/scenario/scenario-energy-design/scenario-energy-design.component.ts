@@ -250,6 +250,7 @@ export class ScenarioEnergyDesignComponent {
         }
 
         this.modalStateService.openCalculator({
+            title: 'EP Costs Calculator',
             action: e.action,
             formData: e.formData,
         });
