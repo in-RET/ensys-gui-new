@@ -11,9 +11,10 @@ import { ScenarioService } from './scenario.service';
 
 interface EPCostParams {
     capex: number;
-    zinsatz: number; // interest rate (0 <= zinsatz )
+    opex: number;
+    interest_rate: number;
     lifetime: number; // project lifetime in years
-    opexPercentage: number; // opex as a (0 <= opex)
+    maturity: number; // Number of years until maturity
 }
 
 interface Port extends OrderItem {
@@ -1975,16 +1976,24 @@ export class EnergyDesignService {
                             placeholder: 'Capex',
                             label: 'Capex',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             isReq: true,
                         },
                         {
-                            name: 'zinsatz',
-                            placeholder: 'Zinsatz',
-                            label: 'Zinsatz',
+                            name: 'opex',
+                            placeholder: 'Opex',
+                            label: 'Opex',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             step: '0.01',
+                            isReq: true,
+                        },
+                        {
+                            name: 'interest_rate',
+                            placeholder: 'Interest Rate',
+                            label: 'Interest Rate',
+                            type: 'number',
+                            span: '2',
                             isReq: true,
                         },
                         {
@@ -1992,15 +2001,15 @@ export class EnergyDesignService {
                             placeholder: 'Lifetime',
                             label: 'Lifetime',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             isReq: true,
                         },
                         {
-                            name: 'opexPercentage',
-                            placeholder: 'Opex Percentage',
-                            label: 'Opex Percentage',
+                            name: 'maturity',
+                            placeholder: 'Maturity',
+                            label: 'Maturity',
                             type: 'number',
-                            span: 'auto',
+                            span: '2',
                             isReq: true,
                         },
                     ],
@@ -2166,24 +2175,35 @@ export class EnergyDesignService {
 
     epCostsCal({
         capex,
-        zinsatz,
+        opex,
+        interest_rate,
         lifetime,
-        opexPercentage,
+        maturity,
     }: EPCostParams): number | false {
         const n = lifetime;
-        const u = n;
-        const wacc = zinsatz / 100;
+        const wacc = interest_rate / 100;
 
-        if (n < 1 || wacc < 0 || wacc > 1 || u < 0) {
+        if (
+            capex < 0 ||
+            opex < 0 ||
+            n < 1 ||
+            wacc < 0 ||
+            wacc > 1 ||
+            maturity < 0
+        ) {
             return false;
         }
 
+        // Annualized CAPEX
         const annuity =
-            ((capex * (wacc * (1 + wacc) ** n)) / ((1 + wacc) ** n - 1)) *
-            (1 - (u - n) / (u * (1 + wacc) ** n));
-        const opex_costs = (capex * opexPercentage) / 100;
+            wacc === 0
+                ? capex / n
+                : capex * ((wacc * (1 + wacc) ** n) / ((1 + wacc) ** n - 1));
 
-        return annuity + opex_costs;
+        // Annual OPEX
+        const opexCosts = capex * (opex / 100);
+
+        return annuity + opexCosts;
     }
 
     private getDrawflowData(): { [nodeKey: string]: DrawflowNode } | null {
