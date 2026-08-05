@@ -279,6 +279,8 @@ async def get_local_oep_data_node(
         "interest_rate",
         "efficiency_el",
         "efficiency_th",
+        "nonconvex_investment",
+        "non_convex_flow",
     ]:
         if key in parameter_year_select.keys():
             del parameter_year_select[key]
@@ -451,7 +453,8 @@ async def get_local_oep_data_ports(
         "full_load_time_max",
         "full_load_time_min",
         "integer",
-        "nonconvex",
+        "nonconvex_investment",
+        "non_convex_flow",
         "fixed_costs",
     ]
 
