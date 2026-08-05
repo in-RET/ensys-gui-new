@@ -8,3 +8,16 @@
 ::ng-deep app-template-explore {
     height: 91%;
 }
+
+.dropdown button {
+    max-height: 2rem;
+
+    &::after {
+        border: none;
+
+        background: url("/static/assets/icons/feather/black/align-center.svg")
+            center / contain no-repeat;
+        width: 16px;
+        height: 16px;
+    }
+}

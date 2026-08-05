@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ExploreService } from '../../explore/services/explore.service';
 import { ScenarioService } from '../../scenario/services/scenario.service';
 import { ProjectModel, ProjectResModel } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
@@ -20,6 +21,7 @@ export class ProjectExploreComponent implements OnInit {
 
     toastService = inject(ToastService);
     projectService = inject(ProjectService);
+    exploreService = inject(ExploreService);
     scenarioService = inject(ScenarioService);
 
     ngOnInit() {
@@ -29,6 +31,18 @@ export class ProjectExploreComponent implements OnInit {
 
         // Prime local list cache
         this.loadProjects();
+
+        // Subscribe to sort option changes
+        this.exploreService.exploreProject_selectedSortOption.subscribe(
+            (option: string) => {
+                if (this.project_list) {
+                    this.project_list = this.exploreService.sortData(
+                        this.project_list,
+                        option,
+                    );
+                }
+            },
+        );
     }
 
     loadProjects() {
@@ -56,6 +70,10 @@ export class ProjectExploreComponent implements OnInit {
                 shareReplay({ bufferSize: 1, refCount: true }),
             )
             .subscribe((val: ProjectModel[]) => {
+                val = this.exploreService.sortData(
+                    val,
+                    this.exploreService.getExploreProject_selectedSortOption(),
+                );
                 this.project_list = val;
             });
     }
