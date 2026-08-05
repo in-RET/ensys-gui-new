@@ -40,21 +40,21 @@ export class CalculatorModalComponent {
         let formData = this.formComponent.submit();
 
         if (formData) {
-            const epCosts: number | false = this.energyDesignService.epCostsCal(
-                {
-                    capex: formData.capex,
-                    zinsatz: formData.zinsatz,
-                    lifetime: formData.lifetime,
-                    opexPercentage: formData.opexpercentage,
-                },
-            );
-
-            if (!epCosts) {
+            if (formData.interest_rate < 0 || formData.interest_rate > 1) {
                 this.setFormError(
                     true,
-                    'zinsatz (interest rate) must be between 0 and 1!',
+                    'interest rate must be between 0 and 1!',
                 );
             } else {
+                const epCosts: number | false =
+                    this.energyDesignService.epCostsCal({
+                        capex: formData.capex,
+                        opex: formData.opex,
+                        interest_rate: formData.interest_rate,
+                        lifetime: formData.lifetime,
+                        maturity: formData.maturity,
+                    });
+
                 this.formSubmitted.emit(epCosts);
                 this.closeModal(true);
             }
