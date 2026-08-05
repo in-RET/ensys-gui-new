@@ -61,7 +61,7 @@ def calc_annuity(capex: float, wacc: float, lifetime: int, depreciation: int | N
     :type depreciation: int | None
     """
 
-    # Wenn kein anderer Betrachtungszeitraum / Abschreibedauer gesetzt wurde wird dieser von der Lebenszeit übernommen
+    # Wenn kein anderer Betrachtungszeitraum / Abschreibedauer gesetzt wurde, wird dieser von der Lebenszeit übernommen
     if depreciation is None:
         depreciation = lifetime
 
@@ -209,7 +209,7 @@ async def get_local_oep_data_node(
             annuity_dict["deprecation"] = parameter_year_select["deprecation"]
 
         annuity = calc_annuity(**annuity_dict)
-        
+
         flow_ep_costs = annuity + opex
     else:
         flow_ep_costs = None

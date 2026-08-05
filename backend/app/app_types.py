@@ -179,7 +179,7 @@ oepTypesData: dict[oemofBlockTypes, list[dict[str, str]]] = {
         },
         {
             "name": "openfield_photovoltaic_power_plant",
-            "label": "Power Plant - Photovoltaic Openfield",
+            "label": "Power Plant - Photovoltaic Open field",
             "icon": "power_plant_photovoltaic_openfield",
         },
         {

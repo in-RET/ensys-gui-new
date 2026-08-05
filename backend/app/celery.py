@@ -268,7 +268,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         try:
             db.commit()
-        except IntegrityError as exc:
+        except IntegrityError:
             db.rollback()
             # Generic handling; DB should ideally have unique constraints and proper messages
             raise HTTPException(
@@ -291,7 +291,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
@@ -315,7 +315,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
@@ -339,7 +339,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
