@@ -3,6 +3,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ExploreService } from '../../explore/services/explore.service';
 import { ScenarioService } from '../../scenario/services/scenario.service';
 import { TemplateModel, TemplateResModel } from '../models/template.model';
 import { TemplateService } from '../services/template.service';
@@ -20,6 +21,7 @@ export class TemplateExploreComponent implements OnInit {
 
     toastService = inject(ToastService);
     templateService = inject(TemplateService);
+    exploreService = inject(ExploreService);
     scenarioService = inject(ScenarioService);
 
     trackByTemplateId = (_: number, item: TemplateModel) => item.id;
@@ -27,6 +29,18 @@ export class TemplateExploreComponent implements OnInit {
     ngOnInit() {
         // Prime local list cache
         this.loadTemplates();
+
+        // Subscribe to sort option changes
+        this.exploreService.exploreTemplate_selectedSortOption.subscribe(
+            (option: string) => {
+                if (this.templateList) {
+                    this.templateList = this.exploreService.sortData(
+                        this.templateList,
+                        option,
+                    );
+                }
+            },
+        );
     }
 
     loadTemplates() {
@@ -53,6 +67,10 @@ export class TemplateExploreComponent implements OnInit {
                 shareReplay({ bufferSize: 1, refCount: true }),
             )
             .subscribe((val: TemplateModel[]) => {
+                val = this.exploreService.sortData(
+                    val,
+                    this.exploreService.getExploreTemplate_selectedSortOption(),
+                );
                 this.templateList = val;
             });
     }

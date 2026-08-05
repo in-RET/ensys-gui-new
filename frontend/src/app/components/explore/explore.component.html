@@ -43,6 +43,41 @@
             Templates
         </button>
     </div>
+
+    <div
+        ngbDropdown
+        class="d-inline-block"
+        style="position: absolute; right: 0; margin-right: 3rem"
+    >
+        <button
+            type="button"
+            class="btn btn--hollow d-flex align-items-center"
+            id="dropdownBasic1"
+            ngbDropdownToggle
+        >
+            {{
+                currentExploreRoute === "projects"
+                    ? (exploreService.exploreProject_selectedSortOption | async)
+                    : null
+            }}
+            {{
+                currentExploreRoute === "templates"
+                    ? (exploreService.exploreTemplate_selectedSortOption
+                      | async)
+                    : null
+            }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button
+                ngbDropdownItem
+                *ngFor="let option of sortOptions"
+                (click)="orderItemsBy(option)"
+                [disabled]="option !== 'A-Z' && option !== 'Z-A'"
+            >
+                {{ option }}
+            </button>
+        </div>
+    </div>
 </section>
 
 <router-outlet />
