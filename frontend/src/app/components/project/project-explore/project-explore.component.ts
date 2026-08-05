@@ -87,23 +87,28 @@ export class ProjectExploreComponent implements OnInit {
     }
 
     duplicateProject(id: number) {
-        this.projectService.duplicateProject(id).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    // Immutable update to work well with OnPush
-                    const newProject = this.project_list.find(
-                        (p) => p.id === value.data?.id,
-                    )!;
-                    this.project_list = [...this.project_list, newProject];
+        this.projectService
+            .duplicateProject(id)
+            .pipe(
+                map((res: ResModel<ProjectResModel>) => {
+                    if (res.success)
+                        return res.data.items[0] as ProjectResModel;
+                    throw new Error('Unknown API error');
+                }),
+            )
+            .subscribe({
+                next: (value: ProjectResModel) => {
+                    this.project_list.push(value);
 
                     this.toastService.success(
                         'Project duplicated successfully.',
                     );
-                } else this.toastService.error('An error occured.');
-            },
-            error: (err) => {
-                this.toastService.error(err.error.detail);
-            },
-        });
+                },
+                error: (err) => {
+                    this.toastService.error(
+                        err.error.detail || 'An error occured!',
+                    );
+                },
+            });
     }
 }
