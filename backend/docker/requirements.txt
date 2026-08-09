@@ -141,7 +141,7 @@ pydantic==2.12.5
 pydantic-settings==2.13.1
 pydantic_core==2.41.5
 Pygments==2.19.2
-pymdown-extensions==10.21.3
+pymdown-extensions==11.0.1
 pyomo==6.10.0
 pyparsing==3.3.2
 pyspnego==0.12.1
