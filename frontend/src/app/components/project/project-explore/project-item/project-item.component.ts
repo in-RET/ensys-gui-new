@@ -8,11 +8,18 @@ import {
     Output,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+    NgbCollapseModule,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
 import { catchError, map, of } from 'rxjs';
 import { ResModel } from '../../../../shared/models/http.model';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { ExploreService } from '../../../explore/services/explore.service';
 import {
     ScenarioBaseInfoModel,
     ScenarioModel,
@@ -32,6 +39,10 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
         RouterLink,
         ProjectScenarioItemComponent,
         NgbCollapseModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
     ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
@@ -43,6 +54,15 @@ export class ProjectItemComponent implements OnInit {
     } = {
         scenarios: false,
     };
+    sortOptions: string[] = [
+        'A-Z',
+        'Z-A',
+        'Created Date: Asc',
+        'Created Date: Desc',
+        'Last Modified: Asc',
+        'Last Modified: Desc',
+    ];
+    scenario_selectedSortOption: string = this.sortOptions[0];
 
     private _project!: ProjectModel;
     @Input() set project(val: ProjectModel) {
@@ -60,6 +80,7 @@ export class ProjectItemComponent implements OnInit {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     scenarioStateService = inject(ScenarioStateService);
+    exploreService = inject(ExploreService);
 
     ngOnInit() {}
 
@@ -105,9 +126,18 @@ export class ProjectItemComponent implements OnInit {
                     return of([] as ScenarioModel[]);
                 }),
             )
-            .subscribe(
-                (data: ScenarioModel[]) => (this.project.scenarioList = data),
-            );
+            .subscribe({
+                next: (data: ScenarioModel[]) => {
+                    this.project.scenarioList = data;
+
+                    if (this.project.scenarioList.length > 0)
+                        this.orderScenarioItemsBy('A-Z');
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error('Failed to load scenarios.');
+                },
+            });
     }
 
     toggleCollapse() {
@@ -179,5 +209,16 @@ export class ProjectItemComponent implements OnInit {
         newScenario: ScenarioModel;
     }) {
         this.project.scenarioList?.push(e.newScenario);
+    }
+
+    orderScenarioItemsBy(option: string): void {
+        this.scenario_selectedSortOption = option;
+
+        if (this.project.scenarioList && this.project.scenarioList.length > 0) {
+            this.project.scenarioList = this.exploreService.sortData(
+                this.project.scenarioList,
+                option,
+            );
+        }
     }
 }
