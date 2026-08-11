@@ -51,7 +51,7 @@ async def create_project_endpoint(
 
     return DataResponse(
         data=GeneralDataModel(
-            items=[project_data.model_dump_json()],
+            items=[project_data.model_dump()],
             totalCount=1),
         success=True
     )
@@ -182,7 +182,7 @@ async def duplicate_project_endpoint(
 
         return DataResponse(
             data=GeneralDataModel(
-                items=[new_proj.model_dump_json()], totalCount=0),
+                items=[new_proj.model_dump()], totalCount=1),
             success=True,
         )
     else:
