@@ -117,6 +117,10 @@ export class ProjectExploreComponent implements OnInit {
             .subscribe({
                 next: (value: ProjectResModel) => {
                     this.project_list.push(value);
+                    this.project_list = this.exploreService.sortData(
+                        this.project_list,
+                        this.exploreService.getExploreProject_selectedSortOption(),
+                    );
 
                     this.toastService.success(
                         'Project duplicated successfully.',
