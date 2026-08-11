@@ -71,6 +71,37 @@
                         else noData
                     "
                 >
+                    <!-- sort options -->
+                    <ng-container *ngIf="project.scenarioList.length > 1">
+                        <div class="py-1">
+                            <div ngbDropdown class="d-inline-block">
+                                <button
+                                    type="button"
+                                    class="btn btn--hollow d-flex align-items-center"
+                                    id="dropdownBasic1"
+                                    ngbDropdownToggle
+                                >
+                                    {{ scenario_selectedSortOption }}
+                                </button>
+                                <div
+                                    ngbDropdownMenu
+                                    aria-labelledby="dropdownBasic1"
+                                >
+                                    <button
+                                        ngbDropdownItem
+                                        *ngFor="let option of sortOptions"
+                                        (click)="orderScenarioItemsBy(option)"
+                                        [disabled]="
+                                            option !== 'A-Z' && option !== 'Z-A'
+                                        "
+                                    >
+                                        {{ option }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+
                     <ul class="list-group rounded-0">
                         <li
                             class="list-group-item scenario_item"
