@@ -3,5 +3,5 @@ export const environment = {
     dev_on_server_build: true,
     apiUrl: '/dev/api/',
     isDevelopingMode: false,
-    version: '1.0.0 Build 12',
+    version: '1.0.0 Build 12082026',
 };

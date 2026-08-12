@@ -149,7 +149,8 @@ def simulation_task(scenario_id: int, simulation_id: int):
         task_logger.info("create energysystem to be stored")
         simulation_model = EnModel(
             energysystem=converted_energy_system,
-            solver=Solver.cbc
+            #solver=Solver.cbc
+            solver=Solver.gurobi    
         )
 
         with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:

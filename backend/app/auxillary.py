@@ -20,26 +20,26 @@ def check_flow_investment(flow_data):
     - param flow_data: flow config dict with investment flags and bounds
     - returns: EnInvestment or None
     """
-    if flow_data["investment"] is True:
-        del flow_data["investment"]
+    if "investment" in flow_data.keys():
+        print("Investment flag found in flow data.")
 
-        investment_dict = {
-            "maximum": flow_data["maximum"],
-            "minimum": flow_data["minimum"],
-            "ep_costs": flow_data["ep_costs"],
-            "existing": flow_data["existing"],
-            "offset": flow_data["offset"]
-        }
+        if flow_data["investment"] is True:
+            investment_dict = {
+                "maximum": flow_data["maximum"] if "maximum" in flow_data.keys() else None,
+                "minimum": flow_data["minimum"] if "minimum" in flow_data.keys() else None,
+                "ep_costs": flow_data["ep_costs"] if "ep_costs" in flow_data.keys() else None,
+                "existing": flow_data["existing"] if "existing" in flow_data.keys() else None,
+                "offset": flow_data["offset"] if "offset" in flow_data.keys() else None,
+            }
 
-        if "nonconvex_investment" in flow_data.keys():
-            investment_dict["nonconvex"] = flow_data["nonconvex_investment"]
-        else:
-            investment_dict["nonconvex"] = False
+            if "nonconvex_investment" in flow_data.keys():
+                investment_dict["nonconvex"] = flow_data["nonconvex_investment"]
+            else:
+                investment_dict["nonconvex"] = False
 
-        return EnInvestment(**investment_dict)
+            return EnInvestment(**investment_dict)
     else:
-        return flow_data["nominal_value"]
-
+        print("No investment flag found in flow data.")
 
 def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     """Build input/output flow mappings for a flowchart component.
@@ -49,6 +49,7 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     - returns: tuple of input_data, output_data keyed by bus name
     """
     # build component_data["inputs"]
+    print(f"Create IO data for {flowchart_component["name"]}.")
     component_data = flowchart_component["data"]
 
     input_data = {}
@@ -57,75 +58,128 @@ def create_io_data(flowchart_data, flowchart_component) -> tuple[dict, dict]:
     if component_data["connections"] is not None:
         # build component_data["inputs"]
         for input_name in flowchart_component["inputs"]:
+            print(f"Input name: {input_name}")
             if len(flowchart_component["inputs"][input_name]['connections']) > 0:
                 target_bus_id = flowchart_component["inputs"][input_name]['connections'][0]["node"]
                 target_bus_name = flowchart_data[target_bus_id]["name"]
 
                 # flow_data = component_data["connections"]["inputs"][input_name]["formInfo"]
                 for node_input in component_data["connections"]["inputs"]:
-                    flow_data = node_input["formInfo"]
-                    flow_data["custom_properties"] = {}
-                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
-
+                    flow_data: dict = node_input["formInfo"]
                     # Replace constraint shit with custom_attributes
                     del_list = []
+
+                    for key in flow_data.keys():
+                        if flow_data[key] is None:
+                            del_list.append(key)
+
+                    for key in del_list:
+                        if key in flow_data.keys():
+                            del flow_data[key]
+
+                    flow_data["custom_properties"] = {}
+
+                    if "nominal_value" in flow_data.keys() and flow_data["nominal_value"] is not None:
+                        flow_data["nominal_capacity"] = flow_data["nominal_value"]
+
+                    elif "nominal_capacity" in flow_data.keys() and flow_data["nominal_capacity"] is not None:
+                        flow_data["nominal_capacity"] = flow_data["nominal_capacity"]
+
+                    elif "investment" in flow_data.keys():
+                        flow_data["nominal_capacity"] = check_flow_investment(flow_data)
+
+                        del_list.append("maximum")
+                        del_list.append("minimum")
+                        del_list.append("offset")
+                        del_list.append("ep_costs")
+                        del_list.append("existing")
+                        del_list.append("nonconvex_investment")
+                    else:
+                        flow_data["nominal_capacity"] = None
+
+                    print(f"Nominal capacity: {flow_data['nominal_capacity']}")
+
                     constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
                     for key in constraint_filter_flow_data_keys:
-                        print(f"Check {key} for constraint.")
+                        # print(f"Check {key} for constraint.")
                         if key.startswith("constraint_") and flow_data[key] is not None:
                             flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
                         del_list.append(key)
 
                     nonconvex_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("non_convex_")]
                     for key in nonconvex_filter_flow_data_keys:
-                        print(f"Check {key} for nonconvex.")
+                        # print(f"Check {key} for nonconvex.")
                         if key.startswith("non_convex_") and flow_data[key] is not None:
                             flow_data["custom_properties"][key.replace("non_convex_", "")] = float(flow_data[key])
                         del_list.append(key)
 
                     if flow_data["custom_properties"] == {}:
-                        del_list.append("custom_properties")
+                        del flow_data["custom_properties"]
 
-                    for key in del_list:
-                        del flow_data[key]
-
+                    print(f"Flow data: {flow_data}")
                     input_data[target_bus_name] = EnFlow(**flow_data)
 
         # build component_data["outputs"]
         for output_name in flowchart_component["outputs"]:
+            print(f"Output name: {output_name}")
             if len(flowchart_component["outputs"][output_name]['connections']) > 0:
                 target_bus_id = flowchart_component["outputs"][output_name]['connections'][0]["node"]
                 target_bus_name = flowchart_data[target_bus_id]["name"]
 
-                for output in component_data["connections"]["outputs"]:
-                    flow_data: dict = output["formInfo"]
-                    flow_data["custom_properties"] = {}
-                    flow_data["nominal_capacity"] = check_flow_investment(flow_data)
-
+                for node_output in component_data["connections"]["outputs"]:
+                    flow_data: dict = node_output["formInfo"]
                     # Replace constraint shit with custom_attributes
                     del_list = []
-                    constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
 
+                    for key in flow_data.keys():
+                        if flow_data[key] is None:
+                            del_list.append(key)
+
+                    for key in del_list:
+                        if key in flow_data.keys():
+                            del flow_data[key]
+
+                    flow_data["custom_properties"] = {}
+
+                    if "nominal_value" in flow_data.keys() and flow_data["nominal_value"] is not None:
+                        flow_data["nominal_capacity"] = flow_data["nominal_value"]
+
+                    elif "nominal_capacity" in flow_data.keys() and flow_data["nominal_capacity"] is not None:
+                        flow_data["nominal_capacity"] = flow_data["nominal_capacity"]
+
+                    elif "investment" in flow_data.keys():
+                        flow_data["nominal_capacity"] = check_flow_investment(flow_data)
+
+                        del_list.append("maximum")
+                        del_list.append("minimum")
+                        del_list.append("offset")
+                        del_list.append("ep_costs")
+                        del_list.append("existing")
+                        del_list.append("nonconvex_investment")
+
+                    else:
+                        flow_data["nominal_capacity"] = None
+
+                    print(f"Nominal capacity: {flow_data['nominal_capacity']}")
+
+                    constraint_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("constraint_")]
                     for key in constraint_filter_flow_data_keys:
-                        print(f"Check {key} for constraint.")
+                        # print(f"Check {key} for constraint.")
                         if key.startswith("constraint_") and flow_data[key] is not None:
                             flow_data["custom_properties"][key.replace("constraint_", "")] = float(flow_data[key])
                         del_list.append(key)
 
                     nonconvex_filter_flow_data_keys = [key for key in flow_data.keys() if key.startswith("non_convex_")]
                     for key in nonconvex_filter_flow_data_keys:
-                        print(f"Check {key} for nonconvex.")
+                        # print(f"Check {key} for nonconvex.")
                         if key.startswith("non_convex_") and flow_data[key] is not None:
                             flow_data["custom_properties"][key.replace("non_convex_", "")] = float(flow_data[key])
                         del_list.append(key)
 
-
                     if flow_data["custom_properties"] == {}:
-                        del_list.append("custom_properties")
+                        del flow_data["custom_properties"]
 
-                    for key in del_list:
-                        del flow_data[key]
-
+                    print(f"Flow data: {flow_data}")
                     output_data[target_bus_name] = EnFlow(**flow_data)
 
     return input_data, output_data
@@ -211,18 +265,18 @@ def convert_gui_json_to_ensys(flowchart_data: dict) -> EnEnergysystem:
 
                 investment_dict = {}
 
-                if component_data["maximum"] is not None:
+                if "maximum" in component_data.keys() and component_data["maximum"] is not None:
                     investment_dict["maximum"] = component_data["maximum"]
-                if component_data["minimum"] is not None:
+                if "minimum" in component_data.keys() and component_data["minimum"] is not None:
                     investment_dict["minimum"] = component_data["minimum"]
-                if component_data["offset"] is not None:
+                if "offset" in component_data.keys() and component_data["offset"] is not None:
                     investment_dict["offset"] = component_data["offset"]
-                if component_data["ep_costs"] is not None:
+                if "ep_costs" in component_data.keys() and component_data["ep_costs"] is not None:
                     investment_dict["ep_costs"] = component_data["ep_costs"]
-                if component_data["existing"] is not None:
+                if "existing" in component_data.keys() and component_data["existing"] is not None:
                     investment_dict["existing"] = component_data["existing"]
-                #if component_data["nonconvex_investment"] is not None:
-                #    investment_dict["nonconvex"] = component_data["nonconvex_investment"]
+                if "nonconvex_investment" in component_data.keys() and component_data["nonconvex_investment"] is not None:
+                    investment_dict["nonconvex"] = component_data["nonconvex_investment"]
 
                 ensys_data["nominal_capacity"] = EnInvestment(**investment_dict)
             else:
