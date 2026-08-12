@@ -1712,6 +1712,80 @@ export class EnergyDesignService {
                                     callback,
                                 ),
                             },
+
+                            this.dividerSec(),
+
+                            {
+                                name: 'non-convex',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    this.getField(
+                                        'non_convex_flow',
+                                        '',
+                                        'Non-Convex Flow',
+                                        false,
+                                        'switch',
+                                        'auto',
+                                        editMode,
+                                        data,
+                                        'my-3',
+                                        () => {
+                                            const Non_convexFields =
+                                                this.getNonConvexFields(
+                                                    data,
+                                                    callback,
+                                                ).map((elm: any) => elm.name);
+
+                                            callback['toggleNonConvexFields'](
+                                                Non_convexFields,
+                                            );
+                                        },
+                                        undefined,
+                                        oep,
+                                        data ? data['non_convex_flow'] : null,
+                                    ),
+                                ],
+                            },
+
+                            {
+                                name: 'non-convex-fields',
+                                class: 'col-12',
+                                visible: true,
+                                fields: [
+                                    ...this.getNonConvexFields(
+                                        data,
+                                        callback,
+                                        preDefData,
+                                        oep,
+                                    ).map((elm: any) => {
+                                        const isInvSelected: boolean =
+                                            this.getFieldData(
+                                                'non_convex_flow',
+                                                {
+                                                    mode: editMode,
+                                                    data,
+                                                },
+                                                data ? data.investment : null,
+                                            );
+
+                                        if (!oep)
+                                            elm['disabled'] = !isInvSelected;
+                                        else elm['disabled'] = true;
+
+                                        if (elm.actions) {
+                                            elm.actions.forEach(
+                                                (element: any) => {
+                                                    element['disabled'] =
+                                                        !isInvSelected;
+                                                },
+                                            );
+                                        }
+
+                                        return elm;
+                                    }),
+                                ],
+                            },
                         ],
                     };
 
@@ -1909,7 +1983,7 @@ export class EnergyDesignService {
                                         },
                                         undefined,
                                         oep,
-                                        data ? data.investment : null,
+                                        data ? data['non_convex_flow'] : null,
                                     ),
                                 ],
                             },
