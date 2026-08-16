@@ -10,6 +10,7 @@ import {
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import L from 'leaflet';
 import { map, Observable } from 'rxjs';
+import { GoogleAnalyticsService } from '../../../shared/services/google-analytics.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ProjectService } from '../services/project.service';
 
@@ -116,6 +117,7 @@ export class ProjectCreateComponent implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private toastService: ToastService,
+        private analytics: GoogleAnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -194,6 +196,9 @@ export class ProjectCreateComponent implements OnInit {
 
                 .subscribe({
                     next: (value) => {
+                        this.analytics.trackEvent('project_created', {
+                            project_name: newProject.name,
+                        });
                         this.router.navigate(['/explore']);
                     },
 
