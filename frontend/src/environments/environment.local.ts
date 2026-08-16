@@ -4,4 +4,5 @@ export const environment = {
     apiUrl: 'http://localhost:20002/dev/api/',
     isDevelopingMode: true,
     version: '1.0.0 Build 12082026',
+    googleAnalyticsId: 'G-S8DFNDQEJN',
 };

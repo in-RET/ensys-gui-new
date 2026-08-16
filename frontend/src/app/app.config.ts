@@ -1,10 +1,23 @@
-import {HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi,} from '@angular/common/http';
-import {ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection,} from '@angular/core';
-import {PreloadAllModules, provideRouter, withPreloading,} from '@angular/router';
-import {Observable, of} from 'rxjs';
-import {routes} from './app.routes';
-import {AuthCoreService} from './core/auth/auth.service';
-import {RequestHeaderInterceptor} from './core/interceptors/request-header-interceptor';
+import {
+    HTTP_INTERCEPTORS,
+    provideHttpClient,
+    withInterceptorsFromDi,
+} from '@angular/common/http';
+import {
+    ApplicationConfig,
+    inject,
+    provideAppInitializer,
+    provideZoneChangeDetection,
+} from '@angular/core';
+import {
+    PreloadAllModules,
+    provideRouter,
+    withPreloading,
+} from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { routes } from './app.routes';
+import { AuthCoreService } from './core/auth/auth.service';
+import { RequestHeaderInterceptor } from './core/interceptors/request-header-interceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -30,7 +43,7 @@ export const appConfig: ApplicationConfig = {
                         const USER = authService.getUserInfoFromStorage();
 
                         // no logged in before
-                        if (TOKEN && TOKEN.trim() != '') {
+                        if (TOKEN && TOKEN.trim() != '' && USER) {
                             authService.saveToken(TOKEN);
                             authService.saveUser(USER);
                         }

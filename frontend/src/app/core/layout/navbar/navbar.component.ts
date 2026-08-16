@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, inject, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from '../../../../environments/environment.local';
 import { AuthService } from '../../../components/auth/services/auth.service';
 import { ScenarioStateService } from '../../../components/scenario/services/scenario-state.service';
+import { GoogleAnalyticsService } from '../../../shared/services/google-analytics.service';
 
 @Component({
     selector: 'app-navbar',
@@ -40,14 +41,11 @@ export class NavbarComponent {
     ];
 
     authService = inject(AuthService);
-    cdr = inject(ChangeDetectorRef);
     scenarioStateService = inject(ScenarioStateService);
-
-    ngOnInit() {
-        this.cdr.markForCheck();
-    }
+    private analytics = inject(GoogleAnalyticsService);
 
     logout() {
+        this.analytics.trackEvent('logout', this.user.info.username);
         this.authService.logOut();
     }
 }
