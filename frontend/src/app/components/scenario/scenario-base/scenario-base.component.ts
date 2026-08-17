@@ -467,7 +467,9 @@ export class ScenarioBaseComponent implements OnInit {
                 currentScenarioData?.scenario as ScenarioUpdatedModel_scenario,
         };
 
-        this.updateScenario(scenarioBaseInfoData);
+        // if its not new, then shouldn't save
+        if (scenarioBaseInfoData.scenario)
+            this.updateScenario(scenarioBaseInfoData);
         //--------------------------------------------------
 
         this.scenarioService.removeBaseInfo_Storage();
