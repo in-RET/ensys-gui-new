@@ -11,8 +11,6 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import { Chart } from 'chart.js/auto';
-import zoomPlugin from 'chartjs-plugin-zoom';
 
 import {
     ScenarioStateModel,
@@ -20,6 +18,8 @@ import {
 } from '../../services/scenario-state.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { ModalComponent } from '../modal/modal.component';
+
+declare const Plotly: any;
 
 export interface ModeOption {
     value: 'list' | 'file' | 'number';
@@ -303,108 +303,71 @@ export class TimeSeriesComponent {
 
     chart_timeSeries_initial(xVal: string[], yVal: number[]) {
         this.modalInfo.showPlot = true;
-        Chart.register(zoomPlugin);
 
         setTimeout(() => {
-            const canvas: any = document.getElementById('plot_timeSeries');
+            const plotDiv = document.getElementById('plot_timeSeries');
 
-            if (!canvas) return;
+            if (!plotDiv) return;
 
-            new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: xVal,
-                    datasets: [
-                        {
-                            label: 'Value',
-                            data: yVal,
+            const trace = {
+                x: xVal,
+                y: yVal,
+                type: 'scatter',
+                mode: 'lines',
+                name: '',
 
-                            borderColor: '#1f77b4',
-                            backgroundColor: 'rgba(31, 119, 180, 0.3)',
-
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                            borderWidth: 1,
-                            tension: 0,
-                        },
-                    ],
+                line: {
+                    color: '#1f77b4',
+                    width: 1,
                 },
 
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 600,
-                        easing: 'easeOutQuart',
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false,
-                        axis: 'x',
-                    },
-                    elements: {
-                        point: {
-                            radius: 0,
-                            hoverRadius: 0,
-                            hitRadius: 0,
-                        },
-                        line: {
-                            tension: 0,
-                            borderWidth: 1,
-                        },
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Time Series (Filled Area)',
-                        },
-                        legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        decimation: {
-                            enabled: true,
-                            algorithm: 'lttb',
-                            samples: 800,
-                        },
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'x',
-                            },
-                            zoom: {
-                                wheel: {
-                                    enabled: true,
-                                },
-                                pinch: {
-                                    enabled: true,
-                                },
-                                mode: 'x',
-                            },
-                        },
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                                text: 'Date',
-                            },
-                            display: false,
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Value',
-                            },
-                        },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(31, 119, 180, 0.3)',
+
+                hovertemplate: 'Value: %{y:.8f}' + '<extra></extra>',
+            };
+
+            const layout = {
+                title: {
+                    text: '',
+                },
+
+                autosize: true,
+
+                xaxis: {
+                    type: 'date',
+                    showgrid: true,
+                    rangeslider: {
+                        visible: false,
                     },
                 },
-            });
+
+                yaxis: {
+                    title: {
+                        text: '',
+                    },
+                },
+
+                hovermode: 'x unified',
+
+                margin: {
+                    t: 50,
+                    l: 60,
+                    r: 20,
+                    b: 50,
+                },
+            };
+
+            const config = {
+                responsive: true,
+                displaylogo: false,
+
+                scrollZoom: true,
+
+                modeBarButtonsToRemove: ['select2d', 'lasso2d'],
+            };
+
+            Plotly.newPlot(plotDiv, [trace], layout, config);
 
             this.modalInfo.data = yVal;
         }, 0);
