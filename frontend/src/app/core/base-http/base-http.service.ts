@@ -1,6 +1,6 @@
-import {HttpClient, HttpHeaders} from '@angular/common/http';
-import {inject, Injectable} from '@angular/core';
-import {catchError, map, Observable, throwError} from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { catchError, map, Observable, throwError } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -12,7 +12,8 @@ export class BaseHttpService {
 
     defaultHeader: any = {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods':
+            'GET, POST, PATCH, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Origin, Content-Type, X-Auth-Token',
     };
 
@@ -28,8 +29,17 @@ export class BaseHttpService {
         this.httpOptions.headers = new HttpHeaders(this.defaultHeader);
     }
 
-    get(url: string, params?: any, headerOption?: any): Observable<any> {
+    get(
+        url: string,
+        params?: any,
+        headerOption?: any,
+        responseType: 'json' | 'blob' = 'json',
+    ): Observable<any> {
         this.setHeader(headerOption);
+        const options: any = {
+            headers: this.httpOptions.headers,
+            responseType,
+        };
 
         if (params) {
             const queryParams = new URLSearchParams();
@@ -41,33 +51,39 @@ export class BaseHttpService {
             url = url + '?' + queryParams.toString();
         }
 
-        return this.http.get<any>(url, this.httpOptions).pipe(
+        return this.http.get<any>(url, options).pipe(
             map((response: any) => {
                 return response;
             }),
-            catchError(this.errorHandler)
+            catchError(this.errorHandler),
         );
     }
 
     public post(
         url: string,
         params?: any,
-        headerOption?: any
+        headerOption?: any,
+        responseType: 'json' | 'blob' = 'json',
     ): Observable<any> {
         this.setHeader(headerOption);
 
-        return this.http.post<any>(url, params, this.httpOptions).pipe(
+        const options: any = {
+            headers: this.httpOptions.headers,
+            responseType,
+        };
+
+        return this.http.post(url, params, options).pipe(
             map((response: any) => {
                 return response;
             }),
-            catchError(this.errorHandler)
+            catchError(this.errorHandler),
         );
     }
 
     public patch(
         url: string,
         params?: any,
-        headerOption?: any
+        headerOption?: any,
     ): Observable<any> {
         this.setHeader(headerOption);
 
@@ -75,7 +91,7 @@ export class BaseHttpService {
             map((response: any) => {
                 return response;
             }),
-            catchError(this.errorHandler)
+            catchError(this.errorHandler),
         );
     }
 
@@ -85,7 +101,7 @@ export class BaseHttpService {
             map((response) => {
                 return response;
             }),
-            catchError(this.errorHandler)
+            catchError(this.errorHandler),
         );
     }
 

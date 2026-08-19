@@ -14,3 +14,15 @@ export enum SimulationStatus {
     FAILED = 3,
     STOPPED = 4,
 }
+
+export interface EnergyResultModel {
+    name: string;
+    value: number;
+    unit: string;
+    type: string;
+}
+
+export interface ResultGroup {
+    type: string;
+    items: EnergyResultModel[];
+}

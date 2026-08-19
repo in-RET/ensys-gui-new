@@ -1,38 +1,7 @@
 #wrapper {
-    // width: 100%;
     overflow-y: auto;
-    height: 87vh;
-}
-
-#header {
-    font-size: 12pt;
-    margin: 5px;
-}
-
-.plot_heading {
-    text-align: center;
-    margin: 5px;
-    padding: 0.5em;
-}
-
-.static_table {
-    width: 55%;
-    margin: auto;
-    font-size: 12pt;
-    text-align: left;
-}
-
-.static_table th {
-    border-bottom: 2px black double;
-}
-
-.static_table th:last-of-type {
-    width: 25%;
-}
-
-#static_div {
-    width: 100%;
-    margin: auto;
+    height: 94vh;
+    position: relative;
 }
 
 .loading {
@@ -42,26 +11,82 @@
     margin: 1rem;
 }
 
-//==================
+.download-btn {
+    position: absolute;
+    right: 1rem;
+
+    button {
+        width: 3rem !important;
+        height: 2.5rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 .charts-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+
+    ::ng-deep.plot_heading {
+        text-align: center;
+    }
 }
 
-.chart-card {
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 0.75rem;
-    background: #fff;
-}
+//============ Info card
+.energy-card {
+    overflow: hidden;
 
-.chart-title {
-    margin-bottom: 0.75rem;
-}
+    background-color: var(--bs-light);
+    border: 1px solid var(--bs-gray-300);
+    border-radius: 0.5rem;
 
-::ng-deep .chart-container {
-    position: relative;
-    height: 320px;
-    width: 100%;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+
+    &__title {
+        padding: 0.6rem 1rem;
+
+        background-color: var(--bs-white);
+        border-bottom: 1px solid var(--bs-gray-300);
+
+        font-weight: 600;
+        text-align: center;
+
+        color: var(--bs-primary-text-emphasis);
+    }
+
+    &__content {
+        padding: 0.5rem 1rem;
+    }
+
+    &__row {
+        display: grid;
+        grid-template-columns: 2fr 1fr auto;
+        gap: 1rem;
+        align-items: center;
+
+        padding: 0.5rem 0;
+        border-bottom: 1px solid var(--bs-gray-300);
+
+        &:last-child {
+            border-bottom: 0;
+        }
+    }
+
+    &__name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__value {
+        text-align: right;
+    }
+
+    &__unit {
+        min-width: 3rem;
+        text-align: right;
+        font-weight: 500;
+    }
 }

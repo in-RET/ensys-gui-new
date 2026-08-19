@@ -1,12 +1,6 @@
-<section class="px-3">
-    <div class="d-flex justify-content-end align-items-center">
-        <button class="btn btn-primary m-1" (click)="downloadDump()">
-            Download Dump
-        </button>
-    </div>
-
-    <div id="wrapper" class="p-3 border border-secondary rounded">
-        <div class="loading" [hidden]="!loading">
+<section>
+    <div id="wrapper" class="p-3 rounded">
+        <div class="loading" [hidden]="!loading.page">
             <div
                 class="spinner-border text-primary"
                 style="width: 3rem; height: 3rem"
@@ -15,40 +9,72 @@
             <span class="visually-hidden">Loading...</span>
         </div>
 
-        <div id="power_div" class="border-bottom border-secondary">
-            <h3 class="plot_heading">Installed Powers</h3>
-            <table class="static_table" id="power_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
+        <div class="download-btn" [hidden]="loading.page">
+            <button
+                class="btn btn-primary"
+                title="Download Dump"
+                (click)="downloadDump()"
+                [disabled]="loading.downloading"
+            >
+                <img
+                    src="static/assets/icons/feather/white/download.svg"
+                    alt=""
+                    class="btn-icon"
+                    [hidden]="loading.downloading"
+                />
+                <div
+                    class="spinner-grow spinner-grow-sm text-primary"
+                    role="status"
+                    [hidden]="!loading.downloading"
+                ></div>
+            </button>
         </div>
 
-        <div id="energy_div" class="border-bottom border-secondary">
-            <h3 class="plot_heading">Energy Quantities</h3>
-            <table class="static_table" id="energy_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
+        <!-- static cards info -->
+        <div class="d-flex justify-content-around gap-3 mb-3">
+            <div *ngFor="let static of staticList" class="energy-card">
+                <ng-container *ngIf="static.items.length > 0">
+                    <div class="energy-card__title">
+                        <span *ngIf="static.type.toLowerCase() == 'power'">
+                            Installed Powers
+                        </span>
+
+                        <span *ngIf="static.type.toLowerCase() == 'energy'">
+                            Energy Quantities
+                        </span>
+
+                        <span
+                            *ngIf="
+                                static.type.toLowerCase() == 'costs_emissions'
+                            "
+                        >
+                            Emissions and Costs
+                        </span>
+                    </div>
+
+                    <div class="energy-card__content">
+                        <div
+                            class="energy-card__row"
+                            *ngFor="let item of static.items"
+                        >
+                            <span>
+                                {{ item.name }}
+                            </span>
+
+                            <span>
+                                {{ item.value }}
+                            </span>
+
+                            <span>
+                                {{ item.unit }}
+                            </span>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
         </div>
 
-        <div id="cost_div" class="border-bottom border-secondary">
-            <h3 class="plot_heading">Emissions and Costs</h3>
-            <table class="static_table" id="cost_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
-        </div>
-
-        <div class="border-bottom border-secondary">
+        <div class="border-secondary">
             <div id="plotly_div" class="charts-wrapper"></div>
         </div>
     </div>
