@@ -4,8 +4,9 @@ import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { tap } from 'rxjs';
-import { environment } from '../../../../environments/environment';
 import { AlertService } from '../../../shared/services/alert.service';
+import { EnergyResultModel, ResultGroup } from './models/simulation.model';
+import { SimulationService } from './services/simulation.service';
 
 declare const Plotly: any;
 
@@ -16,25 +17,68 @@ declare const Plotly: any;
     styleUrl: './simulation.component.scss',
 })
 export class SimulationComponent implements OnInit {
-    loading = false;
+    staticList!: ResultGroup[];
+    loading: { page: boolean; downloading: boolean } = {
+        page: false,
+        downloading: false,
+    };
 
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
     httpService = inject(HttpClient);
+    simulationService = inject(SimulationService);
 
     ngOnInit() {
         const simulationId = +this.route.snapshot.params['id'];
 
         if (simulationId) {
-            this.loading = true;
+            this.loading.page = true;
 
-            this.httpService
-                .get(environment.apiUrl + 'results/' + simulationId)
-                .pipe(tap(() => (this.loading = false)))
+            this.simulationService
+                .getResult(simulationId)
+                .pipe(tap(() => (this.loading.page = false)))
                 .subscribe({
                     next: (value: any) => {
-                        this.loadStatic(value.data.items[0].static);
+                        const statics: EnergyResultModel[] =
+                            value.data.items[0].static;
+
+                        this.staticList = Object.values(
+                            statics.reduce<Record<string, ResultGroup>>(
+                                (acc, item) => {
+                                    if (
+                                        item.type.toLowerCase() == 'costs' ||
+                                        item.type.toLowerCase() == 'emissions'
+                                    ) {
+                                        if (!acc['costs_emissions']) {
+                                            acc['costs_emissions'] = {
+                                                type: 'costs_emissions',
+                                                items: [],
+                                            };
+                                        }
+                                    } else if (!acc[item.type.toLowerCase()]) {
+                                        acc[item.type.toLowerCase()] = {
+                                            type: item.type.toLowerCase(),
+                                            items: [],
+                                        };
+                                    }
+
+                                    if (
+                                        item.type.toLowerCase() == 'costs' ||
+                                        item.type.toLowerCase() == 'emissions'
+                                    )
+                                        acc['costs_emissions'].items.push(item);
+                                    else
+                                        acc[item.type.toLowerCase()].items.push(
+                                            item,
+                                        );
+
+                                    return acc;
+                                },
+                                {},
+                            ),
+                        );
+
                         this.loadGraphs(value.data.items[0].graphs);
                     },
                     error: (err) => {
@@ -46,80 +90,6 @@ export class SimulationComponent implements OnInit {
                     },
                 });
         }
-    }
-
-    loadStatic(value: any) {
-        value.forEach((static_data: any) => {
-            let static_data_table: HTMLElement | null = null;
-
-            if (static_data.type == 'Power') {
-                static_data_table = document.getElementById('power_table');
-
-                const power_table = document.getElementById('power_div');
-                if (power_table != null) {
-                    power_table.hidden = false;
-                }
-
-                const power_heading = document.getElementById('power_heading');
-                if (power_heading != null) {
-                    power_heading.hidden = false;
-                }
-            } else if (static_data.type == 'Energy') {
-                static_data_table = document.getElementById('energy_table');
-
-                const energy_table = document.getElementById('energy_div');
-                if (energy_table != null) {
-                    energy_table.hidden = false;
-                }
-
-                const energy_heading =
-                    document.getElementById('energy_heading');
-                if (energy_heading != null) {
-                    energy_heading.hidden = false;
-                }
-            } else if (
-                static_data.type == 'Costs' ||
-                static_data.type == 'Emissions'
-            ) {
-                static_data_table = document.getElementById('cost_table');
-
-                if (static_data.value > 0) {
-                    const cost_table = document.getElementById('cost_div');
-                    if (cost_table != null) {
-                        cost_table.hidden = false;
-                    }
-
-                    const cost_heading =
-                        document.getElementById('cost_heading');
-                    if (cost_heading != null) {
-                        cost_heading.hidden = false;
-                    }
-                }
-            } else {
-                console.log('Unknown static data type: ' + static_data.type);
-            }
-
-            const data_row: HTMLTableRowElement = document.createElement('tr');
-
-            const data_cell_name: HTMLTableCellElement =
-                document.createElement('td');
-            const data_cell_value: HTMLTableCellElement =
-                document.createElement('td');
-            const data_cell_unit: HTMLTableCellElement =
-                document.createElement('td');
-
-            data_cell_name.innerHTML = static_data.name;
-            data_cell_value.innerHTML = static_data.value;
-            data_cell_unit.innerHTML = static_data.unit;
-
-            data_row.appendChild(data_cell_name);
-            data_row.appendChild(data_cell_value);
-            data_row.appendChild(data_cell_unit);
-
-            if (static_data_table != null) {
-                static_data_table.appendChild(data_row);
-            }
-        });
     }
 
     loadGraphs(value: any) {
@@ -190,14 +160,15 @@ export class SimulationComponent implements OnInit {
         });
     }
 
-    protected downloadDump() {
-        return this.httpService
-            .get(
-                environment.apiUrl +
-                    'results/' +
-                    this.route.snapshot.params['id'] +
-                    '/dump',
-                { responseType: 'blob' },
+    downloadDump() {
+        this.loading.downloading = true;
+
+        this.simulationService
+            .downloadScenarioDump(this.route.snapshot.params['id'])
+            .pipe(
+                tap(() => {
+                    this.loading.downloading = false;
+                }),
             )
             .subscribe((blob) => {
                 const url = URL.createObjectURL(blob);
