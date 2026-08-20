@@ -27,10 +27,10 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy.exc import IntegrityError
 from starlette import status
 
-import celery
+from celery import Celery
 from ensys.common.types import Solver
 from ensys.components import EnModel
-from .auxillary import convert_gui_json_to_ensys
+from .auxiliary.service import convert_gui_json_to_ensys
 from .core.config import get_settings
 from .db import SessionLocal
 from .scenario.model import EnScenarioDB
@@ -38,7 +38,7 @@ from .simulation.model import EnSimulationDB, Status
 
 _settings = get_settings()
 
-celery_app = celery.Celery(
+celery_app = Celery(
     "Sellerie",
     broker=_settings.redis_url,
     backend=_settings.redis_url,
@@ -150,7 +150,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
         simulation_model = EnModel(
             energysystem=converted_energy_system,
             #solver=Solver.cbc
-            solver=Solver.gurobi    
+            solver=Solver.gurobi
         )
 
         with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:
