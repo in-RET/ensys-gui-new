@@ -12,9 +12,13 @@ export class GeneralService {
             .map(
                 (word: string) =>
                     word.charAt(0).toUpperCase() +
-                    word.slice(1).toLocaleLowerCase()
+                    word.slice(1).toLocaleLowerCase(),
             )
             .join(' ')
             .trim();
+    }
+
+    print() {
+        window.print();
     }
 }

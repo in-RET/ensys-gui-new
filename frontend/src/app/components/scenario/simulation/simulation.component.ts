@@ -3,8 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
 import { tap } from 'rxjs';
+import {
+    loadingModel,
+    PdfGeneratorComponent,
+} from '../../../shared/components/pdf-generator/pdf-generator.component';
 import { AlertService } from '../../../shared/services/alert.service';
+import { GeneralService } from '../../../shared/services/general.service';
 import { EnergyResultModel, ResultGroup } from './models/simulation.model';
 import { SimulationService } from './services/simulation.service';
 
@@ -12,7 +23,14 @@ declare const Plotly: any;
 
 @Component({
     selector: 'app-simulation',
-    imports: [CommonModule],
+    imports: [
+        CommonModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        PdfGeneratorComponent,
+    ],
     templateUrl: './simulation.component.html',
     styleUrl: './simulation.component.scss',
 })
@@ -22,12 +40,14 @@ export class SimulationComponent implements OnInit {
         page: false,
         downloading: false,
     };
+    saveOptions: string[] = ['Print', 'PDF'];
 
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
     httpService = inject(HttpClient);
     simulationService = inject(SimulationService);
+    generalService = inject(GeneralService);
 
     ngOnInit() {
         const simulationId = +this.route.snapshot.params['id'];
@@ -125,8 +145,16 @@ export class SimulationComponent implements OnInit {
             plot_heading.className = 'plot_heading';
             plot_div.id = bus.name;
             plot_div.name = bus.name;
-            plotly_main_div.appendChild(plot_heading);
-            plotly_main_div.appendChild(plot_div);
+
+            const chartBlock = document.createElement('div');
+            chartBlock.className = 'chart-block';
+
+            chartBlock.appendChild(plot_heading);
+            chartBlock.appendChild(plot_div);
+            plotly_main_div.appendChild(chartBlock);
+
+            // plotly_main_div.appendChild(plot_heading);
+            // plotly_main_div.appendChild(plot_div);
 
             const layout = {
                 title: bus.name,
@@ -141,14 +169,22 @@ export class SimulationComponent implements OnInit {
                     title: 'Value',
                 },
 
-                margin: {
-                    t: 50,
-                    l: 60,
-                    r: 20,
-                    b: 50,
+                hovermode: 'x unified',
+
+                legend: {
+                    orientation: 'h',
+
+                    x: 0.5,
+                    xanchor: 'center',
+
+                    y: 1.1,
+                    yanchor: 'top',
                 },
 
-                hovermode: 'x unified',
+                paper_bgcolor: '#f8f9fa',
+
+                // Background only inside x/y plotting area
+                plot_bgcolor: '#ffffff',
             };
 
             const config = {
@@ -179,5 +215,13 @@ export class SimulationComponent implements OnInit {
                 anchor.click();
                 URL.revokeObjectURL(url);
             });
+    }
+
+    onPrint() {
+        this.generalService.print();
+    }
+
+    setLoading(e: loadingModel) {
+        this.loading[e.key] = e.status;
     }
 }

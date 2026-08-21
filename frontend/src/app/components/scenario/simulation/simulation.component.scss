@@ -14,26 +14,58 @@
 .download-btn {
     position: absolute;
     right: 1rem;
+}
 
-    button {
-        width: 3rem !important;
-        height: 2.5rem !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+.dropdown-toggle {
+    width: 3rem;
+
+    &::after {
+        border: none;
     }
 }
 
 .charts-wrapper {
     display: flex;
     flex-direction: column;
+    margin-top: 3rem;
+    gap: 3rem;
 
     ::ng-deep.plot_heading {
         text-align: center;
+        border: 1px solid var(--bs-gray-300);
+        border-radius: 0.5rem;
+        background-color: var(--bs-light);
+    }
+
+    ::ng-deep.plot_heading:nth-of-type(2) {
+        margin-top: 3rem;
     }
 }
 
-//============ Info card
+::ng-deep.js-plotly-plot {
+    margin-bottom: 1rem;
+}
+
+::ng-deep.plot-container {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+
+    &.plotly {
+        border: 1px solid var(--bs-gray-300);
+        border-radius: 0.5rem;
+
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.491);
+    }
+}
+
+::ng-deep.cards-info {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
 .energy-card {
     overflow: hidden;
 
@@ -89,4 +121,113 @@
         text-align: right;
         font-weight: 500;
     }
+}
+
+//..........Save PDF
+::ng-deep .pdf-export {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+
+    width: 1085px !important;
+    max-width: 1085px !important;
+
+    .charts-wrapper,
+    .js-plotly-plot {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .download-btn {
+        display: none !important;
+    }
+
+    .charts-wrapper {
+        display: block !important;
+        margin: 0 !important;
+
+        .plot_heading + .js-plotly-plot {
+            // height: 650px !important;
+        }
+    }
+
+    .chart-block {
+        display: block !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .chart-block:not(:first-child) {
+        break-before: page;
+        page-break-before: always;
+    }
+
+    .plot_heading {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    .js-plotly-plot {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+}
+
+@media print {
+    ::ng-deep .cards-info {
+        height: 700px !important;
+    }
+
+    ::ng-deep .charts-wrapper {
+        margin: 0 !important;
+
+        .plot_heading + .js-plotly-plot {
+            height: 550px !important;
+        }
+    }
+
+    .download-btn {
+        opacity: 0 !important;
+    }
+
+    .energy-card,
+    .plot_heading {
+        break-inside: avoid;
+    }
+
+    .energy-card {
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .js-plotly-plot {
+        width: 100% !important;
+        break-inside: avoid;
+    }
+}
+
+//............ loading overlay
+.simulation-section {
+    position: relative;
+    height: 94vh;
+}
+
+.save-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+
+    background: rgba(255, 255, 255, 0.75);
+    cursor: wait;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
