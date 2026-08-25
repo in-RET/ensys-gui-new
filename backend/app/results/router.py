@@ -82,11 +82,10 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
 
             series_name = str(t[0][0]) + " > " + str(t[0][1])
 
+            time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
             if sim_project.unit_energy == "MW/MWh":
-                time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
                 time_series_unit = "MWh"
             else:
-                time_series_data = nan_to_num(g.values) * pow(-1, idx_asset) * 1000
                 time_series_unit = "kWh"
 
             time_series = EnTimeSeries(
@@ -134,14 +133,14 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                 if type(component) == solph.components.GenericStorage:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0] * 1000, 4),
+                        value=round(list(component_data["scalars"])[0], 4),
                         unit="kWh",
                         type="Power"
                     )
                 else:
                     result_component_data = EnTableResult(
                         name=str(component),
-                        value=round(list(component_data["scalars"])[0] * 1000, 4),
+                        value=round(list(component_data["scalars"])[0], 4),
                         unit="kW",
                         type="Power"
                     )
