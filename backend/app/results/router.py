@@ -162,9 +162,14 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     #                 unit="EUR"
     #             ))
 
-    result_components.append(
-        EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a", type="Costs")
-    )
+    if sim_project.unit_energy == "MW/MWh":
+        result_components.append(
+            EnTableResult(name="Costs", value=round(costs.sum().sum(), 2), unit="EUR/a", type="Costs")
+        )
+    else:
+        result_components.append(
+            EnTableResult(name="Costs", value=round((costs.sum()/1000).sum(), 2), unit="EUR/a", type="Costs")
+        )
 
     if "Emissions" in es.results.keys():
         result_components.append(
