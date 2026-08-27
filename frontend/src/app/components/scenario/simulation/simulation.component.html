@@ -1,5 +1,10 @@
-<section>
-    <div id="wrapper" class="p-3 rounded">
+<section class="simulation-section" [attr.aria-busy]="loading.downloading">
+    <div class="save-overlay" *ngIf="loading.downloading">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span>Creating File...</span>
+    </div>
+
+    <div #pdfContent id="wrapper" class="p-3 rounded">
         <div class="loading" [hidden]="!loading.page">
             <div
                 class="spinner-border text-primary"
@@ -9,29 +14,68 @@
             <span class="visually-hidden">Loading...</span>
         </div>
 
-        <div class="download-btn" [hidden]="loading.page">
-            <button
-                class="btn btn-primary"
-                title="Download Dump"
-                (click)="downloadDump()"
-                [disabled]="loading.downloading"
-            >
-                <img
-                    src="static/assets/icons/feather/white/download.svg"
-                    alt=""
-                    class="btn-icon"
-                    [hidden]="loading.downloading"
-                />
-                <div
-                    class="spinner-grow spinner-grow-sm text-primary"
-                    role="status"
-                    [hidden]="!loading.downloading"
-                ></div>
-            </button>
-        </div>
+        <!-- Save options -->
+        <ng-container *ngIf="!loading.page">
+            <div class="py-1 download-btn not-in-pdf">
+                <div ngbDropdown class="d-inline-block">
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        title="Export"
+                        id="dropdownBasic1"
+                        ngbDropdownToggle
+                    >
+                        <img
+                            src="static/assets/icons/feather/white/download.svg"
+                            alt=""
+                            class="btn-icon"
+                            [hidden]="loading.downloading"
+                        />
+                    </button>
+
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                        <div ngbDropdownItem>
+                            <button
+                                type="button"
+                                class="btn btn-primary w-100"
+                                (click)="onPrint()"
+                            >
+                                Print
+                            </button>
+                        </div>
+
+                        <app-pdf-generator
+                            *ngIf="
+                                scenarioStateService.scenarioState
+                                    | async as scenarioState
+                            "
+                            ngbDropdownItem
+                            [targetElement]="pdfContent"
+                            [btnTxt]="'PDF'"
+                            [footer]="
+                                `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
+                            "
+                            fileName="simulation-result.pdf"
+                            orientation="landscape"
+                            (setLoading)="setLoading($event)"
+                        />
+
+                        <div ngbDropdownItem>
+                            <button
+                                type="button"
+                                class="btn btn-primary w-100"
+                                (click)="downloadDump()"
+                            >
+                                Dump
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
 
         <!-- static cards info -->
-        <div class="d-flex justify-content-around gap-3 mb-3">
+        <div class="cards-info gap-3 mb-3">
             <div *ngFor="let static of staticList" class="energy-card">
                 <ng-container *ngIf="static.items.length > 0">
                     <div class="energy-card__title">
