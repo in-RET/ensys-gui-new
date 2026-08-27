@@ -283,4 +283,14 @@ export class SimulationComponent implements OnInit {
     setLoading(e: loadingModel) {
         this.loading[e.key] = e.status;
     }
+
+    ngOnDestroy() {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioStateService.clearScenarioData();
+
+        this.scenarioService.removeUserModelingState();
+        this.scenarioStateService.clearUserModelingState();
+
+        this.scenarioService.removeDrawflow_Data();
+    }
 }
