@@ -46,17 +46,23 @@ export class CalculatorModalComponent {
                     'interest rate must be between 0 and 1!',
                 );
             } else {
-                const epCosts: number | false =
-                    this.energyDesignService.epCostsCal({
+                this.energyDesignService
+                    .epCostsCal({
                         capex: formData.capex,
                         opex: formData.opex,
                         interest_rate: formData.interest_rate,
                         lifetime: formData.lifetime,
                         maturity: formData.maturity,
+                    })
+                    .subscribe({
+                        next: (value: number) => {
+                            this.formSubmitted.emit(value);
+                            this.closeModal(true);
+                        },
+                        error(err) {
+                            console.error(err);
+                        },
                     });
-
-                this.formSubmitted.emit(epCosts);
-                this.closeModal(true);
             }
         } else this.setFormError(true, ' * The form is not completed!');
     }

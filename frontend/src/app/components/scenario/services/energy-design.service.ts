@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { GeneralService } from '../../../shared/services/general.service';
 import { FlowData } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
@@ -2253,31 +2254,22 @@ export class EnergyDesignService {
         interest_rate,
         lifetime,
         maturity,
-    }: EPCostParams): number | false {
-        const n = lifetime;
-        const wacc = interest_rate / 100;
+    }: EPCostParams): Observable<number> {
+        return this.scenarioService
+            .calculateEpCosts(capex, opex, interest_rate, lifetime, maturity)
+            .pipe(
+                map((res: any) => {
+                    if (!res.success) {
+                        throw new Error(res.message);
+                    }
+                    return res.data.items[0]['ep_costs'];
+                }),
+                catchError((err) => {
+                    console.error('EP cost calculation failed:', err);
 
-        if (
-            capex < 0 ||
-            opex < 0 ||
-            n < 1 ||
-            wacc < 0 ||
-            wacc > 1 ||
-            maturity < 0
-        ) {
-            return false;
-        }
-
-        // Annualized CAPEX
-        const annuity =
-            wacc === 0
-                ? capex / n
-                : capex * ((wacc * (1 + wacc) ** n) / ((1 + wacc) ** n - 1));
-
-        // Annual OPEX
-        const opexCosts = capex * (opex / 100);
-
-        return annuity + opexCosts;
+                    return throwError(() => err);
+                }),
+            );
     }
 
     private getDrawflowData(): { [nodeKey: string]: DrawflowNode } | null {

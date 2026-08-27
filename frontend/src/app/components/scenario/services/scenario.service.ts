@@ -22,6 +22,7 @@ export class ScenarioService {
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
     private user_modeling_state = 'user_modeling_state';
+    private baseUrl_auxiliary: string = environment.apiUrl + 'auxiliary/';
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
@@ -293,5 +294,24 @@ export class ScenarioService {
         }
 
         return null;
+    }
+
+    calculateEpCosts(
+        capex: number,
+        opex: number,
+        interest_rate: number,
+        lifetime: number,
+        maturity: number,
+    ) {
+        return this.baseHttp.get(
+            this.baseUrl_auxiliary + `calculate_ep_costs`,
+            {
+                capex,
+                opex,
+                interest_rate,
+                lifetime,
+                maturity,
+            },
+        );
     }
 }

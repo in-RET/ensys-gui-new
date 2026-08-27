@@ -10,13 +10,6 @@ export interface Position {
     y: number;
 }
 
-// export interface NodeModel {
-//     class: string;
-//     name: string;
-//     position: Position;
-//     data?: any;
-// }
-
 export interface FormModalInfo {
     title: string;
     action: Action;
@@ -44,33 +37,3 @@ interface FormNode {
     oep: boolean;
     preDefData?: any | undefined;
 }
-
-// class FormModalInfo {
-//     id?: number;
-//     title: string = '';
-//     formData: any | undefined;
-//     action: any | undefined;
-//     data: any | undefined;
-//     type: 'node' | 'flow' | undefined;
-//     editMode: boolean = false;
-//     hide: boolean = false;
-//     show: boolean = false;
-//     node?: FormNode;
-//     preDefData!: { inputs: []; outputs: [] } | undefined;
-//     flowData: { inputs: FlowData[]; outputs: FlowData[] } | undefined;
-//     url: string = '';
-//     connection!: Connection;
-// }
-
-// timeSeriesModal: any = {
-//     id: '',
-//     group: {},
-//     show: false,
-//     title: 'Time Series Data',
-//     action: {
-//         label: 'Import',
-//         fn: undefined,
-//     },
-//     data: undefined,
-//     modes: undefined,
-// };
