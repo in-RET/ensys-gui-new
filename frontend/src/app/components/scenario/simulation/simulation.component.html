@@ -1,7 +1,7 @@
 <section class="simulation-section" [attr.aria-busy]="loading.downloading">
     <div class="save-overlay" *ngIf="loading.downloading">
         <div class="spinner-border text-primary" role="status"></div>
-        <span>Creating PDF...</span>
+        <span>Creating File...</span>
     </div>
 
     <div #pdfContent id="wrapper" class="p-3 rounded">
@@ -52,6 +52,16 @@
                             orientation="landscape"
                             (setLoading)="setLoading($event)"
                         />
+
+                        <div ngbDropdownItem>
+                            <button
+                                type="button"
+                                class="btn btn-primary w-100"
+                                (click)="downloadDump()"
+                            >
+                                Dump
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
