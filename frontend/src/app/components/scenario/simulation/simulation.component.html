@@ -21,7 +21,7 @@
                     <button
                         type="button"
                         class="btn btn-primary"
-                        title="Download Dump"
+                        title="Export"
                         id="dropdownBasic1"
                         ngbDropdownToggle
                     >
@@ -45,9 +45,16 @@
                         </div>
 
                         <app-pdf-generator
+                            *ngIf="
+                                scenarioStateService.scenarioState
+                                    | async as scenarioState
+                            "
                             ngbDropdownItem
                             [targetElement]="pdfContent"
-                            [btnTxt]="'Download PDF'"
+                            [btnTxt]="'PDF'"
+                            [footer]="
+                                `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
+                            "
                             fileName="simulation-result.pdf"
                             orientation="landscape"
                             (setLoading)="setLoading($event)"

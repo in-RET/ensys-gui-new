@@ -22,6 +22,8 @@ export class PdfGeneratorComponent {
     btnTxt: string = 'Download As PDF';
     @Input()
     orientation: 'portrait' | 'landscape' = 'portrait';
+    @Input()
+    footer!: string;
 
     @Output() setLoading: EventEmitter<loadingModel> =
         new EventEmitter<loadingModel>();
@@ -109,6 +111,11 @@ export class PdfGeneratorComponent {
                             align: 'right',
                         },
                     );
+
+                    if (this.footer)
+                        pdf.text(this.footer, 10, pageHeight - 10, {
+                            align: 'left',
+                        });
                 }
             });
 

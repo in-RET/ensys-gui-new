@@ -16,6 +16,12 @@ import {
 } from '../../../shared/components/pdf-generator/pdf-generator.component';
 import { AlertService } from '../../../shared/services/alert.service';
 import { GeneralService } from '../../../shared/services/general.service';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../services/scenario-state.service';
+import { ScenarioService } from '../services/scenario.service';
 import { EnergyResultModel, ResultGroup } from './models/simulation.model';
 import { SimulationService } from './services/simulation.service';
 
@@ -48,8 +54,12 @@ export class SimulationComponent implements OnInit {
     httpService = inject(HttpClient);
     simulationService = inject(SimulationService);
     generalService = inject(GeneralService);
+    scenarioService = inject(ScenarioService);
+    scenarioStateService = inject(ScenarioStateService);
 
     ngOnInit() {
+        this.loadCurrentScenarioData();
+
         const simulationId = +this.route.snapshot.params['id'];
 
         if (simulationId) {
@@ -109,6 +119,55 @@ export class SimulationComponent implements OnInit {
                         );
                     },
                 });
+        }
+    }
+
+    private loadCurrentScenarioData() {
+        const currentScenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
+
+        if (!currentScenarioData) {
+            const currentScenarioData_storage: ScenarioBaseInfoModel | null =
+                this.scenarioService.restoreBaseInfo_Storage();
+
+            if (currentScenarioData_storage) {
+                let scenarioStateData: ScenarioBaseInfoModel | null = null;
+
+                if (currentScenarioData_storage.project) {
+                    scenarioStateData = {
+                        project: {
+                            id: currentScenarioData_storage.project.id,
+                            name: currentScenarioData_storage.project?.name,
+                        },
+                    };
+
+                    if (currentScenarioData_storage.scenario) {
+                        scenarioStateData.scenario = {
+                            id: currentScenarioData_storage.scenario.id,
+                            name: currentScenarioData_storage.scenario.name,
+                            sDate: currentScenarioData_storage.scenario.sDate,
+                            timeStep:
+                                currentScenarioData_storage.scenario.timeStep,
+                            interval:
+                                currentScenarioData_storage.scenario.interval,
+                            simulationYear:
+                                currentScenarioData_storage.scenario
+                                    .simulationYear,
+                            modeling_data:
+                                currentScenarioData_storage.scenario
+                                    .modeling_data,
+                            constraints:
+                                currentScenarioData_storage.scenario
+                                    .constraints,
+                        };
+                    }
+                }
+
+                if (scenarioStateData)
+                    this.scenarioStateService.setScenarioData(
+                        scenarioStateData,
+                    );
+            }
         }
     }
 
