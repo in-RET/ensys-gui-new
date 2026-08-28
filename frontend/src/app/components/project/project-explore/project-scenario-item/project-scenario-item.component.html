@@ -1,16 +1,31 @@
 <div class="d-flex justify-content-between align-items-center scenario-item">
-    <span
-        class="form-check-label"
-        role="button"
-        (click)="openScenario(scenario.id)"
-    >
-        {{ scenario.name }}
-    </span>
+    <div class="d-flex justify-content-center align-items-center gap-3">
+        <span class="form-check-label title">
+            {{ scenario.name }}
+        </span>
 
-    <div class="d-flex __actions">
+        <div class="__actions">
+            <button class="btn p-1" (click)="loadScenarioData(scenario.id, 1)">
+                <small>Setup</small>
+            </button>
+
+            <button class="btn p-1" (click)="loadScenarioData(scenario.id, 2)">
+                <small>Design</small>
+            </button>
+        </div>
+    </div>
+
+    <small
+        class="property text-body-secondary"
+        [title]="project.date_created | date: 'yyyy-MM-dd HH:mm:ss'"
+    >
+        {{ scenario.date_created || "{not defined}" | timeAgo }}
+    </small>
+
+    <div class="__actions">
         <button
             id="duplicate_{{ scenario.id }}"
-            class="btn btn--action action"
+            class="btn btn--action action copy"
             type="button"
             value="Duplicate"
             (click)="onDuplicateScenario(scenario.id)"
@@ -23,7 +38,7 @@
 
         <button
             id="delete_{{ scenario.id }}"
-            class="btn btn--action action"
+            class="btn btn--action action delete"
             type="button"
             value="Delete"
             (click)="onDeleteScenario(scenario.id)"

@@ -10,9 +10,16 @@
 
             <br />
 
-            <span class="property">
-                {{ project.date_created || "{not defined}" | date }}
+            <span
+                class="property"
+                [title]="project.date_created | date: 'yyyy-MM-dd HH:mm:ss'"
+            >
+                {{ project.date_created || "{not defined}" | timeAgo }}
             </span>
+            <small [title]="project.date_updated | date: 'yyyy-MM-dd HH:mm:ss'">
+                (Last Changed:
+                {{ project.date_updated || "{not defined}" | timeAgo }} )</small
+            >
 
             <div class="actions">
                 <a
@@ -83,6 +90,7 @@
                                 >
                                     {{ scenario_selectedSortOption }}
                                 </button>
+
                                 <div
                                     ngbDropdownMenu
                                     aria-labelledby="dropdownBasic1"
@@ -91,9 +99,6 @@
                                         ngbDropdownItem
                                         *ngFor="let option of sortOptions"
                                         (click)="orderScenarioItemsBy(option)"
-                                        [disabled]="
-                                            option !== 'A-Z' && option !== 'Z-A'
-                                        "
                                     >
                                         {{ option }}
                                     </button>

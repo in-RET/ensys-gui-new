@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import { catchError, map, of } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { LoadingService } from '../../../../shared/services/loading.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { ScenarioModel } from '../../../scenario/models/scenario.model';
 import { TemplateModel } from '../../models/template.model';
@@ -37,30 +38,41 @@ export class TemplateItemComponent {
     }
 
     @Output() deleteTemplate: EventEmitter<any> = new EventEmitter<any>();
-    @Output() duplicateTemplate: EventEmitter<any> = new EventEmitter<any>();
 
     templateService = inject(TemplateService);
     router = inject(Router);
     toastService = inject(ToastService);
     alertService = inject(AlertService);
+    loadingService = inject(LoadingService);
 
     ngOnInit() {}
 
     createProjectFromTemplate(id: number) {
-        this.templateService.createProjectFromTemplate(id).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    this.toastService.success('Project created from template.');
-                    this.router.navigate(['/explore']).then();
-                } else this.toastService.error('An error occured.');
-            },
-            error: (err) => {
-                this.toastService.error(
-                    err.error.detail ||
-                        'An error occured while creating project.',
-                );
-            },
-        });
+        this.loadingService.start();
+
+        this.templateService
+            .createProjectFromTemplate(id)
+            .pipe(
+                finalize(() => {
+                    this.loadingService.stop();
+                }),
+            )
+            .subscribe({
+                next: (value) => {
+                    if (value.success) {
+                        this.toastService.success(
+                            'Project created from template.',
+                        );
+                        this.router.navigate(['/explore']).then();
+                    } else this.toastService.error('An error occured.');
+                },
+                error: (err) => {
+                    this.toastService.error(
+                        err.error.detail ||
+                            'An error occured while creating project.',
+                    );
+                },
+            });
     }
 
     toggleCollapse() {

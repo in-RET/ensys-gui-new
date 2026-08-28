@@ -30,15 +30,29 @@ export class ExploreService {
             case 'Created Date: Asc':
                 return data.sort(
                     (a, b) =>
-                        new Date(a.created_at).getTime() -
-                        new Date(b.created_at).getTime(),
+                        new Date(a.date_created).getTime() -
+                        new Date(b.date_created).getTime(),
                 );
 
             case 'Created Date: Desc':
                 return data.sort(
                     (a, b) =>
-                        new Date(b.created_at).getTime() -
-                        new Date(a.created_at).getTime(),
+                        new Date(b.date_created).getTime() -
+                        new Date(a.date_created).getTime(),
+                );
+
+            case 'Last Modified: Asc':
+                return data.sort(
+                    (a, b) =>
+                        new Date(a.date_updated).getTime() -
+                        new Date(b.date_updated).getTime(),
+                );
+
+            case 'Last Modified: Desc':
+                return data.sort(
+                    (a, b) =>
+                        new Date(b.date_updated).getTime() -
+                        new Date(a.date_updated).getTime(),
                 );
 
             default:
@@ -48,6 +62,7 @@ export class ExploreService {
 
     setExploreProject_selectedSortOption(option: string) {
         const currentOption = this.exploreProject_selectedSortOption$.value;
+
         if (currentOption === option) {
             return;
         }

@@ -2,12 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { catchError, finalize, map, of, shareReplay } from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
+import { LoadingService } from '../../../shared/services/loading.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ExploreService } from '../../explore/services/explore.service';
 import { ScenarioService } from '../../scenario/services/scenario.service';
 import { ProjectModel, ProjectResModel } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
 import { ProjectItemComponent } from './project-item/project-item.component';
+
+export interface LoadingModel {
+    page?: boolean;
+    projects?: boolean;
+}
 
 @Component({
     selector: 'app-project-explore',
@@ -17,9 +23,13 @@ import { ProjectItemComponent } from './project-item/project-item.component';
 })
 export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
-    loading: { projects: boolean } = { projects: true };
+    loading: LoadingModel = {
+        page: false,
+        projects: true,
+    };
 
     toastService = inject(ToastService);
+    loadingService = inject(LoadingService);
     projectService = inject(ProjectService);
     exploreService = inject(ExploreService);
     scenarioService = inject(ScenarioService);
@@ -47,6 +57,7 @@ export class ProjectExploreComponent implements OnInit {
 
     loadProjects() {
         this.loading.projects = true;
+        this.loadingService.start();
 
         this.projectService
             .getProjects()
@@ -60,6 +71,7 @@ export class ProjectExploreComponent implements OnInit {
                 }),
                 finalize(() => {
                     this.loading.projects = false;
+                    this.loadingService.stop();
                 }),
                 catchError((err) => {
                     this.toastService.error(err.error.detail);
@@ -81,22 +93,28 @@ export class ProjectExploreComponent implements OnInit {
     trackByProjectId = (_: number, item: ProjectModel) => item.id;
 
     deleteProject(id: number) {
-        this.projectService.deleteProject(id).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    // Immutable update to work well with OnPush
-                    this.project_list = this.project_list.filter(
-                        (p) => p.id !== id,
-                    );
+        this.loadingService.start();
+        this.projectService
+            .deleteProject(id)
+            .pipe(finalize(() => this.loadingService.stop()))
+            .subscribe({
+                next: (value) => {
+                    if (value.success) {
+                        // Immutable update to work well with OnPush
+                        this.project_list = this.project_list.filter(
+                            (p) => p.id !== id,
+                        );
 
-                    this.toastService.success('Project deleted successfully.');
-                }
-            },
-            error: (err) => {
-                console.error(err);
-                this.toastService.error('Failed to delete project.');
-            },
-        });
+                        this.toastService.success(
+                            'Project deleted successfully.',
+                        );
+                    }
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error('Failed to delete project.');
+                },
+            });
     }
 
     clearScenarioDataStorage() {
@@ -105,6 +123,7 @@ export class ProjectExploreComponent implements OnInit {
     }
 
     duplicateProject(id: number) {
+        this.loadingService.start();
         this.projectService
             .duplicateProject(id)
             .pipe(
@@ -113,6 +132,7 @@ export class ProjectExploreComponent implements OnInit {
                         return res.data.items[0] as ProjectResModel;
                     throw new Error('Unknown API error');
                 }),
+                finalize(() => this.loadingService.stop()),
             )
             .subscribe({
                 next: (value: ProjectResModel) => {
