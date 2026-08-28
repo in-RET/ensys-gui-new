@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 import { ResModel } from '../../../../shared/models/http.model';
+import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 import { AlertService } from '../../../../shared/services/alert.service';
+import { LoadingService } from '../../../../shared/services/loading.service';
 import { PublicService } from '../../../../shared/services/public.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
@@ -22,7 +24,7 @@ import { ProjectModel } from '../../models/project.model';
 @Component({
     selector: 'app-project-scenario-item',
     standalone: true,
-    imports: [CommonModule, RouterModule],
+    imports: [CommonModule, RouterModule, TimeAgoPipe],
     templateUrl: './project-scenario-item.component.html',
     styleUrl: './project-scenario-item.component.scss',
 })
@@ -39,86 +41,106 @@ export class ProjectScenarioItemComponent {
     scenarioStateService = inject(ScenarioStateService);
     router = inject(Router);
     publicService = inject(PublicService);
+    loadingService = inject(LoadingService);
 
-    openScenario(scenario_id: number) {
-        this.scenarioService.getScenario(scenario_id).subscribe({
-            next: (res) => {
-                if (res.success && res.data && res.data.length != 0) {
-                    const data: ScenarioResModel = res.data.items[0];
-                    const modeling_data: string | null =
-                        this.publicService.normalizeString(data.modeling_data);
+    loadScenarioData(scenario_id: number, type: UserModelingSTEP) {
+        this.loadingService.start();
 
-                    if (modeling_data)
-                        this.scenarioService.saveDrawflow_Storage(
-                            JSON.parse(modeling_data),
+        this.scenarioService
+            .getScenario(scenario_id)
+            .pipe(finalize(() => this.loadingService.stop()))
+            .subscribe({
+                next: (res) => {
+                    if (res.success && res.data && res.data.length != 0) {
+                        const data: ScenarioResModel = res.data.items[0];
+                        const modeling_data: string | null =
+                            this.publicService.normalizeString(
+                                data.modeling_data,
+                            );
+
+                        if (modeling_data)
+                            this.scenarioService.saveDrawflow_Storage(
+                                JSON.parse(modeling_data),
+                            );
+
+                        // save project,scenario - storage
+                        const scenarioData: ScenarioBaseInfoModel = {
+                            project: {
+                                id: this.project.id,
+                                name: this.project.name ?? '_',
+                            },
+                            scenario: {
+                                id: data.id,
+                                name: data.name,
+                                sDate: data.start_date,
+                                timeStep: 8760,
+                                interval: data.interval,
+                                simulationYear: data.simulation_year,
+                                constraints:
+                                    data.constraints &&
+                                    typeof data.constraints === 'string'
+                                        ? JSON.parse(data.constraints)
+                                        : null,
+                                modeling_data: modeling_data
+                                    ? JSON.parse(modeling_data)
+                                    : null,
+                            },
+                        };
+                        this.scenarioService.saveBaseInfo_Storage(scenarioData);
+
+                        // update drawflowData$ state
+                        const d: ScenarioStateModel = {
+                            project: {
+                                id: this.project.id,
+                                name: this.project.name,
+                            },
+                            scenario: {
+                                id: data.id,
+                                name: data.name,
+                                sDate: data.start_date,
+                                timeStep: 8760,
+                                interval: data.interval,
+                                simulationYear: data.simulation_year,
+                                constraints:
+                                    data.constraints &&
+                                    typeof data.constraints === 'string'
+                                        ? JSON.parse(data.constraints)
+                                        : null,
+                                modeling_data: modeling_data
+                                    ? JSON.parse(modeling_data)
+                                    : null,
+                            },
+                        };
+
+                        this.scenarioStateService.setScenarioData(d);
+
+                        if (type == UserModelingSTEP.SCENARIO_SETUP) {
+                            this.scenarioService.updateUserModelingState({
+                                currentStep: UserModelingSTEP.SCENARIO_SETUP,
+                                autoUpdate: true,
+                            });
+                        } else if (type == UserModelingSTEP.SCENARIO_MODELING) {
+                            this.scenarioService.updateUserModelingState({
+                                currentStep: UserModelingSTEP.SCENARIO_MODELING,
+                                autoUpdate: true,
+                            });
+                        }
+
+                        this.goToScenario();
+                    } else {
+                        this.toastService.error(
+                            'An error occured while loading scenario data.',
                         );
+                    }
+                },
+                error: (err) => {
+                    this.toastService.error(err);
+                },
+            });
+    }
 
-                    // save project,scenario - storage
-                    const scenarioData: ScenarioBaseInfoModel = {
-                        project: {
-                            id: this.project.id,
-                            name: this.project.name ?? '_',
-                        },
-                        scenario: {
-                            id: data.id,
-                            name: data.name,
-                            sDate: data.start_date,
-                            timeStep: 8760,
-                            interval: data.interval,
-                            simulationYear: data.simulation_year,
-                            constraints:
-                                data.constraints &&
-                                typeof data.constraints === 'string'
-                                    ? JSON.parse(data.constraints)
-                                    : null,
-                            modeling_data: modeling_data
-                                ? JSON.parse(modeling_data)
-                                : null,
-                        },
-                    };
-                    this.scenarioService.saveBaseInfo_Storage(scenarioData);
-
-                    // update drawflowData$ state
-                    const d: ScenarioStateModel = {
-                        project: {
-                            id: this.project.id,
-                            name: this.project.name,
-                        },
-                        scenario: {
-                            id: data.id,
-                            name: data.name,
-                            sDate: data.start_date,
-                            timeStep: 8760,
-                            interval: data.interval,
-                            simulationYear: data.simulation_year,
-                            constraints:
-                                data.constraints &&
-                                typeof data.constraints === 'string'
-                                    ? JSON.parse(data.constraints)
-                                    : null,
-                            modeling_data: modeling_data
-                                ? JSON.parse(modeling_data)
-                                : null,
-                        },
-                    };
-
-                    this.scenarioStateService.setScenarioData(d);
-                    this.scenarioService.updateUserModelingState({
-                        currentStep: UserModelingSTEP.SCENARIO_SETUP,
-                        autoUpdate: true,
-                    });
-                    // this.toastService.info('Scenario data restored.');
-                    this.router.navigate(['/scenario']);
-                } else {
-                    this.toastService.error(
-                        'An error occured while loading scenario data.',
-                    );
-                }
-            },
-            error: (err) => {
-                this.toastService.error(err);
-            },
-        });
+    goToScenario() {
+        this.router.navigate(['/scenario']);
     }
 
     async onDeleteScenario(scenarioId: number) {
@@ -128,22 +150,26 @@ export class ProjectScenarioItemComponent {
                 'Delete',
             )
         ) {
-            this.scenarioService.deleteScenario(scenarioId).subscribe({
-                next: (value) => {
-                    if (value.success) {
-                        this.toastService.success(
-                            `Scenario ${this.scenario.name} deleted.`,
+            this.loadingService.start();
+            this.scenarioService
+                .deleteScenario(scenarioId)
+                .pipe(finalize(() => this.loadingService.stop()))
+                .subscribe({
+                    next: (value) => {
+                        if (value.success) {
+                            this.toastService.success(
+                                `Scenario ${this.scenario.name} deleted.`,
+                            );
+                            this.deleteScenario.emit(scenarioId);
+                        } else this.toastService.error('An error occured.');
+                    },
+                    error: (err) => {
+                        this.toastService.error(
+                            err.error.detail ||
+                                'An error occured while deleting scenario.',
                         );
-                        this.deleteScenario.emit(scenarioId);
-                    } else this.toastService.error('An error occured.');
-                },
-                error: (err) => {
-                    this.toastService.error(
-                        err.error.detail ||
-                            'An error occured while deleting scenario.',
-                    );
-                },
-            });
+                    },
+                });
         }
     }
 
@@ -154,6 +180,7 @@ export class ProjectScenarioItemComponent {
                 'Duplicate',
             )
         ) {
+            this.loadingService.start();
             this.scenarioService
                 .duplicateScenario(scenarioId)
                 .pipe(
@@ -167,6 +194,7 @@ export class ProjectScenarioItemComponent {
                         console.error(err);
                         return of({} as ScenarioResModel);
                     }),
+                    finalize(() => this.loadingService.stop()),
                 )
                 .subscribe({
                     next: (value: ScenarioResModel) => {

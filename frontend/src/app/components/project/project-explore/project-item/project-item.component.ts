@@ -15,8 +15,9 @@ import {
     NgbDropdownMenu,
     NgbDropdownToggle,
 } from '@ng-bootstrap/ng-bootstrap';
-import { catchError, map, of } from 'rxjs';
+import { catchError, finalize, map, of } from 'rxjs';
 import { ResModel } from '../../../../shared/models/http.model';
+import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { ExploreService } from '../../../explore/services/explore.service';
@@ -43,6 +44,7 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
         NgbDropdownToggle,
         NgbDropdownMenu,
         NgbDropdownItem,
+        TimeAgoPipe,
     ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
@@ -91,8 +93,6 @@ export class ProjectItemComponent implements OnInit {
             .getScenarios(this.project.id)
             .pipe(
                 map((res: ResModel<ScenarioResModel>) => {
-                    this.loading.scenarios = false;
-
                     if (res.success) {
                         let _res: ScenarioModel[] = [];
                         res.data.items.forEach((element: ScenarioResModel) => {
@@ -111,6 +111,8 @@ export class ProjectItemComponent implements OnInit {
                                               element.constraints,
                                           ) as ConstraintRow[])
                                         : [],
+                                date_created: element.date_created,
+                                date_updated: element.date_updated,
                             };
 
                             _res.push(_data);
@@ -119,6 +121,9 @@ export class ProjectItemComponent implements OnInit {
                         return _res;
                     }
                     throw new Error('Unknown API error');
+                }),
+                finalize(() => {
+                    this.loading.scenarios = false;
                 }),
                 catchError((err: any) => {
                     console.error(err);
