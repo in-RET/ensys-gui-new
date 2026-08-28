@@ -36,7 +36,14 @@ export class ExploreComponent implements OnInit {
     exploreService = inject(ExploreService);
 
     currentExploreRoute!: 'projects' | 'templates';
-    sortOptions = ['A-Z', 'Z-A', 'Created Date: Asc', 'Created Date: Desc'];
+    sortOptions = [
+        'A-Z',
+        'Z-A',
+        'Created Date: Asc',
+        'Created Date: Desc',
+        'Last Modified: Asc',
+        'Last Modified: Desc',
+    ];
 
     ngOnInit() {
         this.router.events

@@ -74,47 +74,4 @@ export class TemplateExploreComponent implements OnInit {
                 this.templateList = val;
             });
     }
-
-    duplicateTemplate(id: number) {
-        this.templateService.duplicateTemplate(id).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    // Immutable update to work well with OnPush
-                    const newItem = this.templateList.find(
-                        (t) => t.id === value.data?.id,
-                    )!;
-                    this.templateList = [...this.templateList, newItem];
-
-                    this.toastService.success(
-                        'Template duplicated successfully.',
-                    );
-                } else this.toastService.error('An error occured.');
-            },
-            error: (err) => {
-                this.toastService.error(err.error.detail);
-                console.error(err);
-                this.toastService.error('Failed to duplicate template.');
-            },
-        });
-    }
-
-    deleteTemplate(id: number) {
-        this.templateService.deleteTemplate(id).subscribe({
-            next: (value) => {
-                if (value.success) {
-                    // Immutable update to work well with OnPush
-                    this.templateList = this.templateList.filter(
-                        (t) => t.id !== id,
-                    );
-
-                    this.toastService.success('Template deleted successfully.');
-                }
-            },
-            error: (err) => {
-                this.toastService.error(err.error.detail);
-                console.error(err);
-                this.toastService.error('Failed to delete template.');
-            },
-        });
-    }
 }

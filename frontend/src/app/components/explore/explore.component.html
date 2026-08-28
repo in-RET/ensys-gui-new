@@ -73,7 +73,6 @@
                 ngbDropdownItem
                 *ngFor="let option of sortOptions"
                 (click)="orderItemsBy(option)"
-                [disabled]="option !== 'A-Z' && option !== 'Z-A'"
             >
                 {{ option }}
             </button>
