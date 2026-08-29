@@ -9,11 +9,12 @@ import {
     NgbDropdownMenu,
     NgbDropdownToggle,
 } from '@ng-bootstrap/ng-bootstrap';
-import { tap } from 'rxjs';
+import { finalize, map, tap } from 'rxjs';
 import {
     loadingModel,
     PdfGeneratorComponent,
 } from '../../../shared/components/pdf-generator/pdf-generator.component';
+import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { GeneralService } from '../../../shared/services/general.service';
 import { ScenarioBaseInfoModel } from '../models/scenario.model';
@@ -22,7 +23,11 @@ import {
     ScenarioStateService,
 } from '../services/scenario-state.service';
 import { ScenarioService } from '../services/scenario.service';
-import { EnergyResultModel, ResultGroup } from './models/simulation.model';
+import {
+    ResultGroup,
+    SimulationResultModel,
+    StaticResultModel,
+} from './models/simulation.model';
 import { SimulationService } from './services/simulation.service';
 
 declare const Plotly: any;
@@ -67,11 +72,27 @@ export class SimulationComponent implements OnInit {
 
             this.simulationService
                 .getResult(simulationId)
-                .pipe(tap(() => (this.loading.page = false)))
+                .pipe(
+                    map((res: ResModel<SimulationResultModel>) => {
+                        if (res.success) {
+                            return res.data.items[0];
+
+                            // const result = res.data.items[0];
+                            // return {
+                            //     ...result,
+                            //     static: Array.from({ length: 2 }, () =>
+                            //         structuredClone(result.static),
+                            //     ).flat(),
+                            // };
+                        }
+
+                        throw new Error('Unknown API error');
+                    }),
+                    finalize(() => (this.loading.page = false)),
+                )
                 .subscribe({
-                    next: (value: any) => {
-                        const statics: EnergyResultModel[] =
-                            value.data.items[0].static;
+                    next: (data: SimulationResultModel) => {
+                        const statics: StaticResultModel[] = data.static;
 
                         this.staticList = Object.values(
                             statics.reduce<Record<string, ResultGroup>>(
@@ -109,7 +130,7 @@ export class SimulationComponent implements OnInit {
                             ),
                         );
 
-                        this.loadGraphs(value.data.items[0].graphs);
+                        this.loadGraphs(data.graphs);
                     },
                     error: (err) => {
                         console.error('Failed to load JSON', err);
@@ -211,9 +232,6 @@ export class SimulationComponent implements OnInit {
             chartBlock.appendChild(plot_heading);
             chartBlock.appendChild(plot_div);
             plotly_main_div.appendChild(chartBlock);
-
-            // plotly_main_div.appendChild(plot_heading);
-            // plotly_main_div.appendChild(plot_div);
 
             const layout = {
                 title: bus.name,

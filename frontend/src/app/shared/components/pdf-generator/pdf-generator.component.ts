@@ -44,6 +44,10 @@ export class PdfGeneratorComponent {
 
         const container = document.createElement('div');
         container.classList.add('pdf-export');
+        container.style.boxSizing = 'border-box';
+        container.style.width = '1085px';
+        container.style.maxWidth = '1085px';
+        container.style.overflowX = 'hidden';
 
         const logoData = await this.imageToPngDataUrl(
             'static/assets/logos/ensys_logo_full.svg',
@@ -56,6 +60,7 @@ export class PdfGeneratorComponent {
         });
 
         document.body.appendChild(container);
+        this.alignCardPages(container);
 
         const pdfOptions = {
             margin: [25, 5, 20, 5],
@@ -63,8 +68,8 @@ export class PdfGeneratorComponent {
 
             pagebreak: {
                 mode: ['css'],
-                before: '.plot_heading:not(:first-child)',
-                avoid: ['.js-plotly-plot'],
+                before: '.chart-block, .pdf-card-page',
+                avoid: ['.chart-block', '.energy-card'],
             },
 
             image: {
@@ -131,9 +136,16 @@ export class PdfGeneratorComponent {
     }
 
     private prepareForPdf(element: HTMLElement): void {
+        element.style.width = '100%';
+        element.style.maxWidth = '100%';
+        element.style.boxSizing = 'border-box';
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
         element.style.overflow = 'visible';
+        element.style.overflowX = 'hidden';
+
+        this.splitLongCards(element);
+        this.prepareChartsForPdf(element);
 
         const scrollableElements = element.querySelectorAll<HTMLElement>('*');
 
@@ -152,6 +164,210 @@ export class PdfGeneratorComponent {
                 el.style.overflowY = 'visible';
             }
         });
+    }
+
+    private splitLongCards(element: HTMLElement): void {
+        const cardsContainer =
+            element.querySelector<HTMLElement>('.cards-info');
+
+        if (!cardsContainer) {
+            return;
+        }
+
+        const pageHeight = this.orientation === 'landscape' ? 210 : 297;
+        const printableHeight = pageHeight - 25 - 20;
+        const maxCardHeight = (printableHeight / 25.4) * 96 - 80;
+        const sourceCards =
+            this.targetElement.querySelectorAll<HTMLElement>('.energy-card');
+
+        const cardTemplates = Array.from(
+            cardsContainer.querySelectorAll<HTMLElement>(
+                ':scope > .energy-card',
+            ),
+        );
+        const cardChunks = cardTemplates.map((card, cardIndex) => {
+            const rows = Array.from(
+                card.querySelectorAll<HTMLElement>('.energy-card__row'),
+            );
+            const sourceRows = Array.from(
+                sourceCards[cardIndex]?.querySelectorAll<HTMLElement>(
+                    '.energy-card__row',
+                ) ?? [],
+            );
+            const titleHeight =
+                sourceCards[cardIndex]?.querySelector<HTMLElement>(
+                    '.energy-card__title',
+                )?.offsetHeight || 40;
+            const chunks: HTMLElement[][] = [[]];
+            let chunkHeight = titleHeight;
+
+            rows.forEach((row, rowIndex) => {
+                const rowHeight = sourceRows[rowIndex]?.offsetHeight || 48;
+
+                if (
+                    chunks[chunks.length - 1].length > 0 &&
+                    chunkHeight + rowHeight > maxCardHeight
+                ) {
+                    chunks.push([]);
+                    chunkHeight = titleHeight;
+                }
+
+                chunks[chunks.length - 1].push(row);
+                chunkHeight += rowHeight;
+            });
+
+            return chunks;
+        });
+        const pageCount = Math.max(
+            1,
+            ...cardChunks.map((chunks) => chunks.length),
+        );
+
+        for (let pageIndex = 0; pageIndex < pageCount; pageIndex++) {
+            const pageCards = cardTemplates.map((template, cardIndex) => {
+                const card = template.cloneNode(true) as HTMLElement;
+
+                if (
+                    pageIndex > 0 &&
+                    pageIndex >= cardChunks[cardIndex].length
+                ) {
+                    const cardWidth =
+                        sourceCards[cardIndex]?.getBoundingClientRect().width ||
+                        0;
+                    card.classList.add('pdf-card-placeholder');
+                    card.setAttribute('aria-hidden', 'true');
+                    card.style.width = `${cardWidth}px`;
+                    card.style.minWidth = `${cardWidth}px`;
+                    card.style.flex = `0 0 ${cardWidth}px`;
+                    card.style.visibility = 'hidden';
+                    card.querySelector<HTMLElement>(
+                        '.energy-card__content',
+                    )?.replaceChildren();
+                    return card;
+                }
+
+                const rows = cardChunks[cardIndex][pageIndex];
+                const rowsForPage = rows.map(
+                    (row) => row.cloneNode(true) as HTMLElement,
+                );
+
+                card.querySelector<HTMLElement>(
+                    '.energy-card__content',
+                )?.replaceChildren(...rowsForPage);
+
+                if (pageIndex > 0) {
+                    card.querySelector<HTMLElement>(
+                        '.energy-card__title',
+                    )?.remove();
+                }
+
+                return card;
+            });
+
+            if (pageIndex === 0) {
+                cardsContainer.replaceChildren(...pageCards);
+                continue;
+            }
+
+            const page = cardsContainer.cloneNode(false) as HTMLElement;
+            page.classList.add('pdf-card-page');
+            page.replaceChildren(...pageCards);
+            cardsContainer.insertAdjacentElement('afterend', page);
+        }
+    }
+
+    private alignCardPages(container: HTMLElement): void {
+        const firstPage = container.querySelector<HTMLElement>(
+            '.cards-info:not(.pdf-card-page)',
+        );
+
+        if (!firstPage) {
+            return;
+        }
+
+        const firstPageRect = firstPage.getBoundingClientRect();
+        const columns = Array.from(
+            firstPage.querySelectorAll<HTMLElement>(':scope > .energy-card'),
+        ).map((card) => {
+            const rect = card.getBoundingClientRect();
+            return {
+                left: rect.left - firstPageRect.left,
+                width: rect.width,
+            };
+        });
+
+        container
+            .querySelectorAll<HTMLElement>('.cards-info')
+            .forEach((page) => {
+                page.style.justifyContent = 'flex-start';
+
+                Array.from(
+                    page.querySelectorAll<HTMLElement>(':scope > .energy-card'),
+                ).forEach((card, columnIndex) => {
+                    const column = columns[columnIndex];
+                    if (!column) {
+                        return;
+                    }
+
+                    const previousColumn = columns[columnIndex - 1];
+                    const leftOffset = previousColumn
+                        ? column.left -
+                          previousColumn.left -
+                          previousColumn.width
+                        : column.left;
+
+                    card.style.flex = `0 0 ${column.width}px`;
+                    card.style.width = `${column.width}px`;
+                    card.style.marginLeft = `${leftOffset}px`;
+                    card.style.marginRight = '0';
+                });
+            });
+    }
+
+    private prepareChartsForPdf(element: HTMLElement): void {
+        element
+            .querySelectorAll<HTMLElement>('.chart-block')
+            .forEach((block) => {
+                block.style.breakInside = 'avoid';
+                block.style.pageBreakInside = 'avoid';
+                block.style.setProperty('width', '100%', 'important');
+                block.style.setProperty('max-width', '100%', 'important');
+                block.style.boxSizing = 'border-box';
+
+                const chart =
+                    block.querySelector<HTMLElement>('.js-plotly-plot');
+                if (chart) {
+                    chart.style.setProperty('width', '100%', 'important');
+                    chart.style.setProperty('max-width', '100%', 'important');
+                    chart.style.setProperty('min-width', '0', 'important');
+                    chart.style.boxSizing = 'border-box';
+                    chart.style.height = '400px';
+                    chart.style.maxHeight = '400px';
+
+                    chart
+                        .querySelectorAll<HTMLElement>(
+                            '.plot-container, .svg-container, .main-svg, svg, canvas',
+                        )
+                        .forEach((innerElement) => {
+                            innerElement.style.setProperty(
+                                'width',
+                                '100%',
+                                'important',
+                            );
+                            innerElement.style.setProperty(
+                                'max-width',
+                                '100%',
+                                'important',
+                            );
+                            innerElement.style.boxSizing = 'border-box';
+                            innerElement.style.overflow = 'hidden';
+
+                            if (innerElement.tagName.toLowerCase() === 'svg') {
+                                innerElement.setAttribute('width', '100%');
+                            }
+                        });
+                }
+            });
     }
 
     private imageToDataUrl(src: string): Promise<string> {

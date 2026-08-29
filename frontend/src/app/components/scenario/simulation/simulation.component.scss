@@ -147,19 +147,28 @@
         margin: 0 !important;
 
         .plot_heading + .js-plotly-plot {
-            // height: 650px !important;
+            height: 400px !important;
         }
+    }
+
+    .cards-info {
+        display: flex !important;
+    }
+
+    .energy-card {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .pdf-card-page {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
     }
 
     .chart-block {
         display: block !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
-    }
-
-    .chart-block:not(:first-child) {
-        break-before: page;
-        page-break-before: always;
     }
 
     .plot_heading {
