@@ -63,6 +63,7 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
 
     busses = []
     components = []
+    storages = []
     result_data = []
     result_components = []
 
@@ -72,6 +73,13 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
             busses.append(node)
         else:
             components.append(node)
+            if type(node) == solph.components.GenericStorage:
+                storages.append(node)
+
+    if sim_project.unit_energy == "MW/MWh":
+        project_unit = "MW"
+    else:
+        project_unit = "kW"
 
     # TODO: Dat muss nochmal überdacht werden. Schon gut, aber irgendwie weird.
     for bus in busses:
@@ -83,10 +91,6 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
             series_name = str(t[0][0]) + " > " + str(t[0][1])
 
             time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
-            if sim_project.unit_energy == "MW/MWh":
-                time_series_unit = "MWh"
-            else:
-                time_series_unit = "kWh"
 
             time_series = EnTimeSeries(
                 name=series_name, data=time_series_data
@@ -96,7 +100,7 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
                 EnTableResult(
                     name=series_name,
                     value=round(time_series_data.sum(), 4),
-                    unit=time_series_unit,
+                    unit=project_unit + "h",
                     type="Energy"
                 )
             )
@@ -109,6 +113,21 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
 
         result_data.append(bus_data)
 
+    for storage in storages:
+        graph_data = EnTimeSeries(
+            name=f"{storage}",
+            data=es_results[(storage, None)]["sequences"]["storage_content"]
+        )
+
+        storage_data: EnDataFrame = EnDataFrame(
+            name=f"{storage}",
+            index=es.timeindex.to_pydatetime(),
+            data=[graph_data]
+        )
+
+        result_data.append(storage_data)
+
+
     for component in components:
         result_component_data = {}
         component_data = solph.views.node(es.results["main"], node=component)
@@ -116,34 +135,16 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
         if "scalars" in component_data:
             if sim_project.unit_energy == "MW/MWh":
                 if type(component) == solph.components.GenericStorage:
-                    result_component_data = EnTableResult(
-                        name=str(component),
-                        value=round(list(component_data["scalars"])[0], 4),
-                        unit="MWh",
-                        type="Power"
-                    )
+                    tmp_unit = project_unit + "h"
                 else:
-                    result_component_data = EnTableResult(
-                        name=str(component),
-                        value=round(list(component_data["scalars"])[0], 4),
-                        unit="MW",
-                        type="Power"
-                    )
-            else:
-                if type(component) == solph.components.GenericStorage:
-                    result_component_data = EnTableResult(
-                        name=str(component),
-                        value=round(list(component_data["scalars"])[0], 4),
-                        unit="kWh",
-                        type="Power"
-                    )
-                else:
-                    result_component_data = EnTableResult(
-                        name=str(component),
-                        value=round(list(component_data["scalars"])[0], 4),
-                        unit="kW",
-                        type="Power"
-                    )
+                    tmp_unit = project_unit
+
+                result_component_data = EnTableResult(
+                    name=str(component),
+                    value=round(list(component_data["scalars"])[0], 4),
+                    unit=tmp_unit,
+                    type="Power"
+                )
 
         if result_component_data != {}:
             result_components.append(result_component_data)
