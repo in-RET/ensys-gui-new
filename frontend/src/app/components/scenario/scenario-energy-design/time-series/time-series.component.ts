@@ -12,6 +12,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
+import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
+import { GeneralService } from '../../../../shared/services/general.service';
 import {
     ScenarioStateModel,
     ScenarioStateService,
@@ -28,7 +30,13 @@ export interface ModeOption {
 
 @Component({
     selector: 'app-time-series',
-    imports: [CommonModule, FormsModule, ModalComponent, NgbCollapseModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ModalComponent,
+        NgbCollapseModule,
+        NumberOnlyDirective,
+    ],
     templateUrl: './time-series.component.html',
     styleUrl: './time-series.component.scss',
 })
@@ -37,7 +45,7 @@ export class TimeSeriesComponent {
         showPlot: boolean;
         title: string;
         selectedType?: 'list' | 'file' | 'number';
-        data: undefined | number | number[];
+        data: undefined | number | number[] | string;
     } = {
         showPlot: false,
         title: 'Time Series Data',
@@ -89,8 +97,8 @@ export class TimeSeriesComponent {
     }
 
     @Output()
-    dataSubmit: EventEmitter<number | number[]> = new EventEmitter<
-        number | number[]
+    dataSubmit: EventEmitter<number | number[] | string> = new EventEmitter<
+        number | number[] | string
     >();
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
@@ -101,6 +109,7 @@ export class TimeSeriesComponent {
 
     scenarioService = inject(ScenarioService);
     scenarioStateService = inject(ScenarioStateService);
+    generalService = inject(GeneralService);
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -408,7 +417,9 @@ export class TimeSeriesComponent {
 
     submitData() {
         if (this.modalInfo.selectedType === 'number') {
-            this.modalInfo.data = parseFloat(this.numInput.nativeElement.value);
+            const inputValue = this.numInput.nativeElement.value.trim();
+            this.modalInfo.data =
+                this.generalService.convertNumberToLocaleDE(inputValue);
         }
 
         if (this.modalInfo.data) {
