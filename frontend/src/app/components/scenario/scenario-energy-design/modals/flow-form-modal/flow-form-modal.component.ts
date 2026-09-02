@@ -8,6 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { GeneralService } from '../../../../../shared/services/general.service';
 import { EnergyDesignService } from '../../../services/energy-design.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { EnergyDrawflowComponent } from '../../energy-drawflow/energy-drawflow.component';
@@ -52,6 +53,7 @@ export class FlowFormModalComponent {
     energyDrawflowComponent!: EnergyDrawflowComponent;
 
     scenarioService = inject(ScenarioService);
+    generalService = inject(GeneralService);
 
     async ngOnChanges() {
         if (this.modalInfo) {
@@ -150,6 +152,18 @@ export class FlowFormModalComponent {
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData) {
+            // check, then convert all number fields to DE format with comma
+            for (const [key, value] of Object.entries(formData)) {
+                if (
+                    (typeof value === 'number' && !isNaN(value)) ||
+                    (typeof value === 'string' &&
+                        !isNaN(parseFloat(value.replace(',', '.'))))
+                ) {
+                    formData[key] =
+                        this.generalService.convertNumberToLocaleDE(value);
+                }
+            }
+
             // save data of connection fields in both sides
             this.saveConnectionInNode.emit({
                 connection: this.modalInfo.connection,

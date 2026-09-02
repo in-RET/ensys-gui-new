@@ -142,11 +142,12 @@
                             *ngIf="modalInfo.selectedType === 'number'"
                         >
                             <input
-                                type="number"
+                                type="text"
                                 class="form-control"
                                 placeholder="Value"
                                 #numInput
                                 style="max-width: 15rem"
+                                [numberOnly]="true"
                             />
                         </div>
                     </ng-container>

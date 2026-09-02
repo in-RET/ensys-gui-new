@@ -31,14 +31,6 @@ export class NumberOnlyDirective {
 
             // Trim leading semicolon
             input.value = input.value.replace(/^;/, '');
-
-            // Validate against full correct pattern
-            // const validPattern = /^([0-9]+([.,][0-9]*)?)([0-9]+([.,][0-9]*)?)*$/;
-
-            // if (input.value && !validPattern.test(input.value)) {
-            //     // If last char breaks the pattern, remove it
-            //     input.value = input.value.slice(0, -1);
-            // }
         }
     }
 }
