@@ -18,6 +18,7 @@ export interface ModalState {
     simulation: any | null;
     iconPicker: { iconOrigin: string; iconName: string } | null;
     setup: boolean | null;
+    uploadData: boolean | null;
 }
 
 @Injectable({
@@ -32,6 +33,7 @@ export class ModalStateService {
         simulation: null,
         iconPicker: null,
         setup: null,
+        uploadData: null,
     });
 
     get modalState(): Observable<ModalState> {
@@ -157,6 +159,20 @@ export class ModalStateService {
         this.modalState$.next({
             ...this.modalState$.value,
             setup: false,
+        });
+    }
+
+    openUploadData() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            uploadData: true,
+        });
+    }
+
+    closeUploadData() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            uploadData: false,
         });
     }
 }

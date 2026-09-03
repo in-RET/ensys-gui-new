@@ -26,7 +26,7 @@ export class GeneralService {
         const numericValue = parseFloat(val.toString().replace(',', '.'));
 
         if (!isNaN(numericValue)) {
-            return numericValue.toString().replace('.', ',');
+            return numericValue.toString().replace(',', '.');
         } else return val.toString();
     }
 }

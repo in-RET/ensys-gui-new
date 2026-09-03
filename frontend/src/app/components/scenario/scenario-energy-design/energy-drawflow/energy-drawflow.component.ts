@@ -709,11 +709,16 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    private saveCurrentDrawflow() {
-        const CURRENT_DRAWFLOW: {
+    saveCurrentDrawflow(data?: { [nodeKey: string]: DrawflowNode }) {
+        let CURRENT_DRAWFLOW: {
             [nodeKey: string]: DrawflowNode;
-        } = this.editor.export().drawflow.Home.data;
+        };
 
+        if (!data) {
+            CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        } else {
+            CURRENT_DRAWFLOW = data;
+        }
         this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
         this.scenarioStateService.setDrawflowData(CURRENT_DRAWFLOW);
 
@@ -1592,6 +1597,24 @@ export class EnergyDrawflowComponent {
         this.toastService.info(
             `Drawflow movement ${!currentState ? 'enabled' : 'disabled'}!`,
         );
+    }
+
+    openUploadData() {
+        this.modalStateService.openUploadData();
+    }
+
+    importData(data: { [nodeKey: string]: DrawflowNode }) {
+        this.editor.import({
+            drawflow: {
+                Home: {
+                    data,
+                },
+            },
+        });
+        setTimeout(() => {
+            this.editor.import(this.editor.export());
+            this.editor.zoom_refresh();
+        }, 100);
     }
 }
 
