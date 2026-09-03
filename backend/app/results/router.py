@@ -67,87 +67,113 @@ def get_results_from_dump(simulation_id: int, db: Session = SessionLocal()) -> G
     result_data = []
     result_components = []
 
-    for node in es.nodes:
-        if isinstance(node, solph.Bus):
-            print(f"Bus: {node}")
-            busses.append(node)
-        else:
-            components.append(node)
-            if type(node) == solph.components.GenericStorage:
-                storages.append(node)
-
     if sim_project.unit_energy == "MW/MWh":
         project_unit = "MW"
     else:
         project_unit = "kW"
 
-    # TODO: Dat muss nochmal überdacht werden. Schon gut, aber irgendwie weird.
-    for bus in busses:
-        graph_data = []
+    for node in es.nodes:
+        component_data = solph.views.node(es_results, node=node)
 
-        for t, g in solph.views.node(es_results, node=bus)["sequences"].items():
-            idx_asset = abs(t[0].index(bus) - 1)
+        if isinstance(node, solph.Bus):
+            graph_data = []
 
-            series_name = str(t[0][0]) + " > " + str(t[0][1])
+            for t, g in component_data["sequences"].items():
+                idx_asset = abs(t[0].index(node) - 1)
 
-            time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
+                series_name = str(t[0][0]) + " > " + str(t[0][1])
 
-            time_series = EnTimeSeries(
-                name=series_name, data=time_series_data
-            )
+                time_series_data = nan_to_num(g.values) * pow(-1, idx_asset)
 
-            result_components.append(
-                EnTableResult(
+                time_series = EnTimeSeries(
                     name=series_name,
-                    value=round(time_series_data.sum(), 4),
-                    unit=project_unit + "h",
-                    type="Energy"
+                    data=time_series_data
                 )
+
+                result_components.append(
+                    EnTableResult(
+                        name=series_name,
+                        value=round(time_series_data.sum(), 4),
+                        unit=project_unit + "h",
+                        type="Energy"
+                    )
+                )
+
+                graph_data.append(time_series)
+
+            bus_data: EnDataFrame = EnDataFrame(
+                name=node.label,
+                index=es.timeindex.to_pydatetime(),
+                data=graph_data
             )
 
-            graph_data.append(time_series)
+            result_data.append(bus_data)
 
-        bus_data: EnDataFrame = EnDataFrame(
-            name=f"{bus}", index=es.timeindex.to_pydatetime(), data=graph_data
-        )
+        elif isinstance(node, solph.components.GenericStorage):
+            storages.append(node)
 
-        result_data.append(bus_data)
+            if "scalars" in component_data:
+                if len(node.outputs) > 0:
+                    output_key, output_value = node.outputs.data.popitem()
 
-    for storage in storages:
-        graph_data = EnTimeSeries(
-            name=f"{storage}",
-            data=es_results[(storage, None)]["sequences"]["storage_content"]
-        )
-
-        storage_data: EnDataFrame = EnDataFrame(
-            name=f"{storage}",
-            index=es.timeindex.to_pydatetime(),
-            data=[graph_data]
-        )
-
-        result_data.append(storage_data)
-
-
-    for component in components:
-        result_component_data = {}
-        component_data = solph.views.node(es.results["main"], node=component)
-
-        if "scalars" in component_data:
-            if sim_project.unit_energy == "MW/MWh":
-                if type(component) == solph.components.GenericStorage:
-                    tmp_unit = project_unit + "h"
-                else:
-                    tmp_unit = project_unit
-
-                result_component_data = EnTableResult(
-                    name=str(component),
-                    value=round(list(component_data["scalars"])[0], 4),
-                    unit=tmp_unit,
-                    type="Power"
+                result_components.append(
+                    EnTableResult(
+                        name=node.label + " (Investment)",
+                        value=round(component_data['scalars'][(node.label, None), 'invest'], 4),
+                        unit=project_unit + "h",
+                        type="Investment"
+                    )
                 )
 
-        if result_component_data != {}:
-            result_components.append(result_component_data)
+                result_components.append(
+                    EnTableResult(
+                        name=node.label + " (Total)",
+                        value=round(component_data['scalars'][(node.label, None), 'total'], 4),
+                        unit=project_unit + "h",
+                        type="Investment"
+                    )
+                )
+
+                result_components.append(
+                    EnTableResult(
+                        name=node.label + " (Input Power)",
+                        value=round(component_data['scalars'][(node.label, output_key.label), 'total'], 4),
+                        unit=project_unit,
+                        type="Investment"
+                    )
+                )
+
+                result_components.append(
+                    EnTableResult(
+                        name=node.label + " (Output Power)",
+                        value=round(component_data['scalars'][(output_key.label, node.label), 'total'], 4),
+                        unit=project_unit,
+                        type="Investment"
+                    )
+                )
+
+                graph_data = EnTimeSeries(
+                    name=node.label,
+                    data=es_results[(node, None)]["sequences"]["storage_content"]
+                )
+
+                result_data.append(
+                    EnDataFrame(
+                        name=node.label,
+                        index=es.timeindex.to_pydatetime(),
+                        data=[graph_data]
+                    )
+                )
+        else:
+            if 'scalars' in component_data:
+                result_components.append(
+                    EnTableResult(
+                        name=node.label,
+                        value=round(list(component_data["scalars"])[0], 4),
+                        unit= project_unit,
+                        type="Power",
+                    )
+                )
 
     costs = cost_calculation_from_energysystem(es)
     print(f"Costs: {costs}")

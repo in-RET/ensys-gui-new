@@ -6,10 +6,10 @@ from typing import Annotated
 from fastapi import APIRouter, HTTPException, Depends
 from starlette import status
 
-from security import oauth2_scheme
 from .service import calculate_ep_costs
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse
+from ..security import oauth2_scheme
 
 auxiliary_router = APIRouter(
     prefix="/auxiliary",
