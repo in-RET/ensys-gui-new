@@ -14,6 +14,7 @@ import {
     NgbDropdownToggle,
 } from '@ng-bootstrap/ng-bootstrap';
 import { filter, startWith } from 'rxjs';
+import { ScenarioStateService } from '../scenario/services/scenario-state.service';
 import { ExploreService } from './services/explore.service';
 
 @Component({
@@ -34,6 +35,7 @@ export class ExploreComponent implements OnInit {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     exploreService = inject(ExploreService);
+    scenarioStateService = inject(ScenarioStateService);
 
     currentExploreRoute!: 'projects' | 'templates';
     sortOptions = [
@@ -55,6 +57,8 @@ export class ExploreComponent implements OnInit {
                 this.currentExploreRoute = this.route.firstChild?.snapshot
                     .url[0]?.path as 'projects' | 'templates';
             });
+
+        console.log(this.scenarioStateService.getScenarioData());
     }
 
     removeFocus(event: Event): void {

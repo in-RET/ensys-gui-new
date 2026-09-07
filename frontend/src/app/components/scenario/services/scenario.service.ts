@@ -93,6 +93,72 @@ export class ScenarioService {
         );
     }
 
+    transformLegacyDrawflowData(data: { [nodeKey: string]: DrawflowNode }): {
+        [nodeKey: string]: DrawflowNode;
+    } {
+        Object.values(data).forEach((node) => {
+            if (node.data && !Object.hasOwn(node.data, 'type') && node.class) {
+                node.data = {
+                    ...node.data,
+                    type: node.class,
+                };
+            }
+
+            if (
+                node.class === 'sink' &&
+                node.data &&
+                Object.hasOwn(node.data, 'sink')
+            ) {
+                const { sink, ...nodeData } = node.data;
+                node.data = {
+                    ...nodeData,
+                    source: sink,
+                };
+            }
+
+            if (
+                node.class === 'bus' &&
+                node.data &&
+                !Object.hasOwn(node.data, 'icon')
+            ) {
+                node.data = {
+                    ...node.data,
+                    icon: 'bus default',
+                    type: 'bus',
+                };
+                node.html = `
+                    <div class="img bus default"></div>
+                    <div class="drawflow-node__name nodeName">
+                        <span>
+                            ${node.name}
+                        </span>
+                    </div>
+                `;
+            }
+
+            if (
+                node.data &&
+                !Object.hasOwn(node.data, 'icon') &&
+                node.data.type
+            ) {
+                node.data = {
+                    ...node.data,
+                    icon: `${node.data.type} default`,
+                };
+                node.html = `
+                    <div class="img ${node.data.type} default"></div>
+                    <div class="drawflow-node__name nodeName">
+                        <span>
+                            ${node.name}
+                        </span>
+                    </div>
+                `;
+            }
+        });
+
+        return data;
+    }
+
     restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
         const DrawflowData: string | null = localStorage.getItem(
             this.scenario_drawflow_localstorage_name,
