@@ -10,8 +10,6 @@ import {
     ScenarioBaseInfoModel,
     ScenarioResModel,
     ScenarioUpdatedModel,
-    ScenarioUpdatedModel_project,
-    ScenarioUpdatedModel_scenario,
     UserModelingStateModel,
     UserModelingSTEP,
 } from '../models/scenario.model';
@@ -457,21 +455,6 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        // save all the last changes
-        const currentScenarioData: ScenarioStateModel | null =
-            this.scenarioStateService.getScenarioData();
-        const scenarioBaseInfoData: ScenarioUpdatedModel = {
-            project:
-                currentScenarioData?.project as ScenarioUpdatedModel_project,
-            scenario:
-                currentScenarioData?.scenario as ScenarioUpdatedModel_scenario,
-        };
-
-        // if its not new, then shouldn't save
-        if (scenarioBaseInfoData.scenario)
-            this.updateScenario(scenarioBaseInfoData);
-        //--------------------------------------------------
-
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioStateService.clearScenarioData();
 
