@@ -1,0 +1,69 @@
+//..........Save PDF
+::ng-deep .pdf-export {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+
+    width: 1085px !important;
+
+    .charts-wrapper,
+    .js-plotly-plot {
+        width: 1085px !important;
+        max-width: 1085px !important;
+    }
+
+    .download-btn {
+        display: none !important;
+    }
+
+    .charts-wrapper {
+        display: flex !important;
+        flex-direction: column !important;
+        margin: 0 !important;
+        display: block !important;
+        gap: 0 !important;
+    }
+
+    .cards-info {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: start !important;
+        top: 0 !important;
+    }
+
+    .pdf-card-page {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+    }
+
+    .plot-container,
+    .svg-container {
+        width: 1085px !important;
+        max-width: 1085px !important;
+        min-width: 1085px !important;
+    }
+
+    // .svg-container {
+    //     svg {
+    //         width: 1085px !important;
+    //         max-width: 1085px !important;
+    //     }
+    //     .main-svg {
+    //         width: 1085px !important;
+    //     }
+    // }
+
+    .plot-container.plotly {
+        display: flex !important;
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.491);
+    }
+
+    .js-plotly-plot {
+        margin: 0 !important;
+    }
+
+    .chart-block {
+        width: 100% !important;
+        margin-top: 1rem !important;
+    }
+}

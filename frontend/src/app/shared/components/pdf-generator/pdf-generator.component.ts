@@ -33,6 +33,8 @@ export class PdfGeneratorComponent {
             return;
         }
 
+        const pdfWidth = 1085;
+
         this.setLoading.emit({
             key: 'downloading',
             status: true,
@@ -44,10 +46,11 @@ export class PdfGeneratorComponent {
 
         const container = document.createElement('div');
         container.classList.add('pdf-export');
-        container.style.boxSizing = 'border-box';
-        container.style.width = '1085px';
-        container.style.maxWidth = '1085px';
-        container.style.overflowX = 'hidden';
+
+        clone.style.width = `${pdfWidth}px`;
+        clone.style.maxWidth = `${pdfWidth}px`;
+        container.style.width = `${pdfWidth}px`;
+        container.style.maxWidth = `${pdfWidth}px`;
 
         const logoData = await this.imageToPngDataUrl(
             'static/assets/logos/ensys_logo_full.svg',
@@ -55,12 +58,13 @@ export class PdfGeneratorComponent {
 
         container.appendChild(clone);
 
+        this.setPdfSvgWidth(container, pdfWidth);
+
         container.querySelectorAll<HTMLElement>('.not-in-pdf').forEach((el) => {
             el.style.display = 'none';
         });
 
         document.body.appendChild(container);
-        this.alignCardPages(container);
 
         const pdfOptions = {
             margin: [25, 5, 20, 5],
@@ -68,8 +72,8 @@ export class PdfGeneratorComponent {
 
             pagebreak: {
                 mode: ['css'],
-                before: '.chart-block, .pdf-card-page',
-                avoid: ['.chart-block', '.energy-card'],
+                before: '.pdf-card-page , .charts-wrapper',
+                after: '.chart-block:not(:last-child)',
             },
 
             image: {
@@ -82,6 +86,55 @@ export class PdfGeneratorComponent {
                 useCORS: true,
                 scrollX: 0,
                 scrollY: 0,
+                onclone: (documentClone: Document) => {
+                    const clonedContainer = documentClone.querySelector(
+                        '.pdf-export',
+                    ) as HTMLElement | null;
+
+                    if (!clonedContainer) {
+                        return;
+                    }
+
+                    clonedContainer.style.setProperty(
+                        'width',
+                        `${pdfWidth}px`,
+                        'important',
+                    );
+                    clonedContainer.style.setProperty(
+                        'max-width',
+                        `${pdfWidth}px`,
+                        'important',
+                    );
+
+                    clonedContainer
+                        .querySelectorAll<SVGElement>('.svg-container svg')
+                        .forEach((svg) => {
+                            this.scaleClonedSvg(svg, pdfWidth);
+                        });
+
+                    clonedContainer
+                        .querySelectorAll<HTMLElement>(
+                            '.chart-block, .charts-wrapper, .js-plotly-plot, .plot-container, .svg-container',
+                        )
+                        .forEach((chart) => {
+                            chart.style.setProperty(
+                                'width',
+                                '100%',
+                                'important',
+                            );
+                            chart.style.setProperty(
+                                'max-width',
+                                '100%',
+                                'important',
+                            );
+                            chart.style.setProperty(
+                                'min-width',
+                                '0',
+                                'important',
+                            );
+                            chart.style.boxSizing = 'border-box';
+                        });
+                },
             },
 
             jsPDF: {
@@ -136,8 +189,18 @@ export class PdfGeneratorComponent {
     }
 
     private prepareForPdf(element: HTMLElement): void {
-        element.style.width = '100%';
-        element.style.maxWidth = '100%';
+        element
+            .querySelectorAll<HTMLElement>(
+                '.chart-block, .charts-wrapper, .plot-container, .svg-container, .js-plotly-plot',
+            )
+            .forEach((chart) => {
+                chart.style.setProperty('width', '100%', 'important');
+                chart.style.setProperty('max-width', '100%', 'important');
+                chart.style.setProperty('min-width', '0', 'important');
+                chart.style.boxSizing = 'border-box';
+            });
+
+        element.style.width = '1085px';
         element.style.boxSizing = 'border-box';
         element.style.height = 'auto';
         element.style.maxHeight = 'none';
@@ -145,7 +208,6 @@ export class PdfGeneratorComponent {
         element.style.overflowX = 'hidden';
 
         this.splitLongCards(element);
-        this.prepareChartsForPdf(element);
 
         const scrollableElements = element.querySelectorAll<HTMLElement>('*');
 
@@ -276,114 +338,33 @@ export class PdfGeneratorComponent {
         }
     }
 
-    private alignCardPages(container: HTMLElement): void {
-        const firstPage = container.querySelector<HTMLElement>(
-            '.cards-info:not(.pdf-card-page)',
-        );
+    private setPdfSvgWidth(container: HTMLElement, width: number): void {
+        container
+            .querySelectorAll<SVGElement>('.svg-container svg')
+            .forEach((svg) => {
+                this.scaleClonedSvg(svg, width);
+            });
+    }
 
-        if (!firstPage) {
-            return;
+    private scaleClonedSvg(svg: SVGElement, width: number): void {
+        const originalWidth =
+            Number.parseFloat(svg.getAttribute('width') || '') || width;
+        const originalHeight =
+            Number.parseFloat(svg.getAttribute('height') || '') ||
+            svg.getBoundingClientRect().height;
+
+        if (!svg.hasAttribute('viewBox') && originalHeight > 0) {
+            svg.setAttribute(
+                'viewBox',
+                `0 0 ${originalWidth} ${originalHeight}`,
+            );
         }
 
-        const firstPageRect = firstPage.getBoundingClientRect();
-        const columns = Array.from(
-            firstPage.querySelectorAll<HTMLElement>(':scope > .energy-card'),
-        ).map((card) => {
-            const rect = card.getBoundingClientRect();
-            return {
-                left: rect.left - firstPageRect.left,
-                width: rect.width,
-            };
-        });
-
-        container
-            .querySelectorAll<HTMLElement>('.cards-info')
-            .forEach((page) => {
-                page.style.justifyContent = 'flex-start';
-
-                Array.from(
-                    page.querySelectorAll<HTMLElement>(':scope > .energy-card'),
-                ).forEach((card, columnIndex) => {
-                    const column = columns[columnIndex];
-                    if (!column) {
-                        return;
-                    }
-
-                    const previousColumn = columns[columnIndex - 1];
-                    const leftOffset = previousColumn
-                        ? column.left -
-                          previousColumn.left -
-                          previousColumn.width
-                        : column.left;
-
-                    card.style.flex = `0 0 ${column.width}px`;
-                    card.style.width = `${column.width}px`;
-                    card.style.marginLeft = `${leftOffset}px`;
-                    card.style.marginRight = '0';
-                });
-            });
-    }
-
-    private prepareChartsForPdf(element: HTMLElement): void {
-        element
-            .querySelectorAll<HTMLElement>('.chart-block')
-            .forEach((block) => {
-                block.style.breakInside = 'avoid';
-                block.style.pageBreakInside = 'avoid';
-                block.style.setProperty('width', '100%', 'important');
-                block.style.setProperty('max-width', '100%', 'important');
-                block.style.boxSizing = 'border-box';
-
-                const chart =
-                    block.querySelector<HTMLElement>('.js-plotly-plot');
-                if (chart) {
-                    chart.style.setProperty('width', '100%', 'important');
-                    chart.style.setProperty('max-width', '100%', 'important');
-                    chart.style.setProperty('min-width', '0', 'important');
-                    chart.style.boxSizing = 'border-box';
-                    chart.style.height = '400px';
-                    chart.style.maxHeight = '400px';
-
-                    chart
-                        .querySelectorAll<HTMLElement>(
-                            '.plot-container, .svg-container, .main-svg, svg, canvas',
-                        )
-                        .forEach((innerElement) => {
-                            innerElement.style.setProperty(
-                                'width',
-                                '100%',
-                                'important',
-                            );
-                            innerElement.style.setProperty(
-                                'max-width',
-                                '100%',
-                                'important',
-                            );
-                            innerElement.style.boxSizing = 'border-box';
-                            innerElement.style.overflow = 'hidden';
-
-                            if (innerElement.tagName.toLowerCase() === 'svg') {
-                                innerElement.setAttribute('width', '100%');
-                            }
-                        });
-                }
-            });
-    }
-
-    private imageToDataUrl(src: string): Promise<string> {
-        return fetch(src)
-            .then((response) => response.blob())
-            .then(
-                (blob) =>
-                    new Promise<string>((resolve, reject) => {
-                        const reader = new FileReader();
-
-                        reader.onloadend = () =>
-                            resolve(reader.result as string);
-                        reader.onerror = reject;
-                        reader.readAsDataURL(blob);
-                    }),
-            );
+        svg.setAttribute('width', `${width}`);
+        svg.style.setProperty('width', '100%', 'important');
+        svg.style.setProperty('max-width', '100%', 'important');
+        svg.style.setProperty('display', 'block');
+        svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
     }
 
     private imageToPngDataUrl(src: string): Promise<string> {
