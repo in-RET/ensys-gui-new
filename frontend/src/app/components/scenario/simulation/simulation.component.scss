@@ -63,7 +63,7 @@
 ::ng-deep.cards-info {
     display: flex;
     justify-content: space-around;
-    align-items: center;
+    align-items: start;
 }
 
 .energy-card {
@@ -120,65 +120,6 @@
         min-width: 3rem;
         text-align: right;
         font-weight: 500;
-    }
-}
-
-//..........Save PDF
-::ng-deep .pdf-export {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-
-    width: 1085px !important;
-    max-width: 1085px !important;
-
-    .charts-wrapper,
-    .js-plotly-plot {
-        width: 100% !important;
-        max-width: 100% !important;
-    }
-
-    .download-btn {
-        display: none !important;
-    }
-
-    .charts-wrapper {
-        display: block !important;
-        margin: 0 !important;
-
-        .plot_heading + .js-plotly-plot {
-            height: 400px !important;
-        }
-    }
-
-    .cards-info {
-        display: flex !important;
-    }
-
-    .energy-card {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-    }
-
-    .pdf-card-page {
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-    }
-
-    .chart-block {
-        display: block !important;
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-    }
-
-    .plot_heading {
-        break-after: avoid !important;
-        page-break-after: avoid !important;
-    }
-
-    .js-plotly-plot {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
     }
 }
 
