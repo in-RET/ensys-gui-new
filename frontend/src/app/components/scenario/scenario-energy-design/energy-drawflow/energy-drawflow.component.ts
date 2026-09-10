@@ -1610,6 +1610,21 @@ export class EnergyDrawflowComponent {
     }
 
     importData(data: { [nodeKey: string]: DrawflowNode }) {
+        let CURRENT_DRAWFLOW:
+            | {
+                  [nodeKey: string]: DrawflowNode;
+              }
+            | null
+            | undefined = data;
+
+        if (CURRENT_DRAWFLOW) {
+            // check & transformation of old-data-structure to new-data-structure
+            CURRENT_DRAWFLOW =
+                this.scenarioService.transformLegacyDrawflowData(
+                    CURRENT_DRAWFLOW,
+                );
+        }
+
         this.editor.import({
             drawflow: {
                 Home: {
@@ -1623,21 +1638,7 @@ export class EnergyDrawflowComponent {
         }, 100);
     }
 
-    ngOnDestroy() {
-        // save all the last changes
-        const currentScenarioData: ScenarioStateModel | null =
-            this.scenarioStateService.getScenarioData();
-        const scenarioBaseInfoData: ScenarioUpdatedModel = {
-            project:
-                currentScenarioData?.project as ScenarioUpdatedModel_project,
-            scenario:
-                currentScenarioData?.scenario as ScenarioUpdatedModel_scenario,
-        };
-
-        // if its not new, then shouldn't save
-        if (scenarioBaseInfoData.scenario)
-            this.updateScenario.emit(scenarioBaseInfoData);
-    }
+    ngOnDestroy() {}
 }
 
 class Drawflowoverride extends Drawflow {

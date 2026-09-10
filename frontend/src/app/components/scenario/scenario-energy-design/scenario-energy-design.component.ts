@@ -14,6 +14,7 @@ import { IconType } from '../models/node.model';
 import { ScenarioUpdatedModel } from '../models/scenario.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
+import { ScenarioStateService } from '../services/scenario-state.service';
 import { ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
@@ -103,6 +104,7 @@ export class ScenarioEnergyDesignComponent {
     flowService = inject(FlowService);
     toastService = inject(ToastService);
     modalStateService = inject(ModalStateService);
+    private scenarioStateService = inject(ScenarioStateService);
 
     toggleFullScreen() {
         this.isFullscreen = !this.isFullscreen;

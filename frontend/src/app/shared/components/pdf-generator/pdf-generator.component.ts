@@ -150,7 +150,7 @@ export class PdfGeneratorComponent {
                 .from(container)
                 .toPdf();
 
-            await pdfWorker.get('pdf').then((pdf: any) => {
+            await pdfWorker.get('pdf').then((pdf) => {
                 const pageCount = pdf.internal.getNumberOfPages();
 
                 for (let page = 1; page <= pageCount; page++) {
@@ -161,6 +161,8 @@ export class PdfGeneratorComponent {
                     const pageWidth = pageSize.getWidth();
                     const pageHeight = pageSize.getHeight();
                     pdf.setFontSize(8);
+                    pdf.setFont('Roboto');
+
                     pdf.text(
                         `Page ${page} of ${pageCount}`,
                         pageWidth - 10,
@@ -251,6 +253,7 @@ export class PdfGeneratorComponent {
             const rows = Array.from(
                 card.querySelectorAll<HTMLElement>('.energy-card__row'),
             );
+
             const sourceRows = Array.from(
                 sourceCards[cardIndex]?.querySelectorAll<HTMLElement>(
                     '.energy-card__row',
@@ -316,12 +319,6 @@ export class PdfGeneratorComponent {
                 card.querySelector<HTMLElement>(
                     '.energy-card__content',
                 )?.replaceChildren(...rowsForPage);
-
-                if (pageIndex > 0) {
-                    card.querySelector<HTMLElement>(
-                        '.energy-card__title',
-                    )?.remove();
-                }
 
                 return card;
             });

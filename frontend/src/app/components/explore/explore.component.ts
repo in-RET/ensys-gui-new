@@ -57,8 +57,6 @@ export class ExploreComponent implements OnInit {
                 this.currentExploreRoute = this.route.firstChild?.snapshot
                     .url[0]?.path as 'projects' | 'templates';
             });
-
-        console.log(this.scenarioStateService.getScenarioData());
     }
 
     removeFocus(event: Event): void {

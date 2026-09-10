@@ -75,35 +75,35 @@ export class SimulationComponent implements OnInit {
                 .pipe(
                     map((res: ResModel<SimulationResultModel>) => {
                         if (res.success) {
-                            return res.data.items[0];
+                            //  return res.data.items[0];
 
                             // sample of duplicating static results for testing purposes
-                            // const result = res.data.items[0];
-                            // return {
-                            //     ...result,
-                            //     static: result.static.flatMap((item, index) => {
-                            //         if (item.type.toLowerCase() === 'costs') {
-                            //             return [
-                            //                 item,
-                            //                 ...Array.from(
-                            //                     { length: 15 },
-                            //                     (_, fakeIndex) => ({
-                            //                         ...structuredClone(item),
-                            //                         name: `${item.name} ${fakeIndex + 1}`,
-                            //                         value:
-                            //                             item.value +
-                            //                             fakeIndex +
-                            //                             1,
-                            //                     }),
-                            //                 ),
-                            //             ];
-                            //         }
+                            const result = res.data.items[0];
+                            return {
+                                ...result,
+                                static: result.static.flatMap((item, index) => {
+                                    if (item.type.toLowerCase() === 'costs') {
+                                        return [
+                                            item,
+                                            ...Array.from(
+                                                { length: 15 },
+                                                (_, fakeIndex) => ({
+                                                    ...structuredClone(item),
+                                                    name: `${item.name} ${fakeIndex + 1}`,
+                                                    value:
+                                                        item.value +
+                                                        fakeIndex +
+                                                        1,
+                                                }),
+                                            ),
+                                        ];
+                                    }
 
-                            //         return item.type.toLowerCase() === 'energy'
-                            //             ? [item, structuredClone(item)]
-                            //             : [item];
-                            //     }),
-                            // };
+                                    return item.type.toLowerCase() === 'energy'
+                                        ? [item, structuredClone(item)]
+                                        : [item];
+                                }),
+                            };
                         }
 
                         throw new Error('Unknown API error');

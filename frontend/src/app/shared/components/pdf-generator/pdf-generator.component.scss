@@ -3,8 +3,8 @@
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-
     width: 1085px !important;
+    font-family: "Roboto" !important;
 
     .charts-wrapper,
     .js-plotly-plot {
@@ -42,16 +42,6 @@
         max-width: 1085px !important;
         min-width: 1085px !important;
     }
-
-    // .svg-container {
-    //     svg {
-    //         width: 1085px !important;
-    //         max-width: 1085px !important;
-    //     }
-    //     .main-svg {
-    //         width: 1085px !important;
-    //     }
-    // }
 
     .plot-container.plotly {
         display: flex !important;
