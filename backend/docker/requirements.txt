@@ -170,7 +170,7 @@ setuptools==82.0.1
 shapely==2.1.2
 six==1.17.0
 soupsieve==2.8.4
-sqladmin==0.26.0
+sqladmin==0.27.1
 SQLAlchemy==2.0.48
 sqlmodel==0.0.37
 stack-data==0.6.3
