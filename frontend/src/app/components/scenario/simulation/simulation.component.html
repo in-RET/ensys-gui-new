@@ -34,15 +34,21 @@
                     </button>
 
                     <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
-                        <div ngbDropdownItem>
-                            <button
-                                type="button"
-                                class="btn btn-primary w-100"
-                                (click)="onPrint()"
-                            >
-                                Print
-                            </button>
-                        </div>
+                        <app-pdf-generator
+                            *ngIf="
+                                scenarioStateService.scenarioState
+                                    | async as scenarioState
+                            "
+                            ngbDropdownItem
+                            [targetElement]="pdfContent"
+                            btnTxt="Print"
+                            [footer]="
+                                `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
+                            "
+                            exportMode="print"
+                            orientation="landscape"
+                            (setLoading)="setLoading($event)"
+                        />
 
                         <app-pdf-generator
                             *ngIf="
@@ -55,6 +61,7 @@
                             [footer]="
                                 `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
                             "
+                            [exportMode]="'save'"
                             fileName="simulation-result.pdf"
                             orientation="landscape"
                             (setLoading)="setLoading($event)"
