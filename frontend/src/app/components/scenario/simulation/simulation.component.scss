@@ -123,39 +123,6 @@
     }
 }
 
-@media print {
-    ::ng-deep .cards-info {
-        height: 700px !important;
-    }
-
-    ::ng-deep .charts-wrapper {
-        margin: 0 !important;
-
-        .plot_heading + .js-plotly-plot {
-            height: 550px !important;
-        }
-    }
-
-    .download-btn {
-        opacity: 0 !important;
-    }
-
-    .energy-card,
-    .plot_heading {
-        break-inside: avoid;
-    }
-
-    .energy-card {
-        box-shadow: none !important;
-        break-inside: avoid;
-    }
-
-    .js-plotly-plot {
-        width: 100% !important;
-        break-inside: avoid;
-    }
-}
-
 //............ loading overlay
 .simulation-section {
     position: relative;

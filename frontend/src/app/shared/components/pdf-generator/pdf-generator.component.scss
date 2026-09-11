@@ -1,7 +1,7 @@
 //..........Save PDF
 ::ng-deep .pdf-export {
-    height: auto !important;
-    max-height: none !important;
+    // height: auto !important;
+    // max-height: none !important;
     overflow: visible !important;
     width: 1085px !important;
     font-family: "Roboto" !important;
@@ -41,6 +41,15 @@
         width: 1085px !important;
         max-width: 1085px !important;
         min-width: 1085px !important;
+    }
+
+    .svg-container {
+        background-color: #322323;
+
+        .main-svg {
+            width: 100% !important;
+            height: 100% !important;
+        }
     }
 
     .plot-container.plotly {

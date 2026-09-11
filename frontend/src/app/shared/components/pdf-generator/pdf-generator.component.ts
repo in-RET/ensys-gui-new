@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import html2pdf from 'html2pdf.js';
 
+declare const Plotly: any;
+
 export interface loadingModel {
     key: 'downloading' | 'page';
     status: boolean;
@@ -24,9 +26,23 @@ export class PdfGeneratorComponent {
     orientation: 'portrait' | 'landscape' = 'portrait';
     @Input()
     footer!: string;
+    @Input()
+    exportMode!: 'print' | 'save';
 
     @Output() setLoading: EventEmitter<loadingModel> =
         new EventEmitter<loadingModel>();
+
+    export() {
+        switch (this.exportMode) {
+            case 'print':
+                this.print();
+                break;
+
+            case 'save':
+                this.download();
+                break;
+        }
+    }
 
     async download(): Promise<void> {
         if (!this.targetElement) {
@@ -40,7 +56,9 @@ export class PdfGeneratorComponent {
             status: true,
         });
 
+        const restoreCharts = await this.renderPlotlyChartsForPdf(pdfWidth);
         const clone = this.targetElement.cloneNode(true) as HTMLElement;
+        await restoreCharts();
 
         this.prepareForPdf(clone);
 
@@ -105,12 +123,6 @@ export class PdfGeneratorComponent {
                         `${pdfWidth}px`,
                         'important',
                     );
-
-                    clonedContainer
-                        .querySelectorAll<SVGElement>('.svg-container svg')
-                        .forEach((svg) => {
-                            this.scaleClonedSvg(svg, pdfWidth);
-                        });
 
                     clonedContainer
                         .querySelectorAll<HTMLElement>(
@@ -188,6 +200,216 @@ export class PdfGeneratorComponent {
                 status: false,
             });
         }
+    }
+
+    async print(): Promise<void> {
+        if (!this.targetElement) {
+            return;
+        }
+
+        const pdfWidth = 1085;
+
+        this.setLoading.emit({
+            key: 'downloading',
+            status: true,
+        });
+
+        const restoreCharts = await this.renderPlotlyChartsForPdf(pdfWidth);
+        const clone = this.targetElement.cloneNode(true) as HTMLElement;
+        await restoreCharts();
+
+        this.prepareForPdf(clone);
+
+        const container = document.createElement('div');
+        container.classList.add('pdf-export');
+
+        clone.style.width = `${pdfWidth}px`;
+        clone.style.maxWidth = `${pdfWidth}px`;
+        container.style.width = `${pdfWidth}px`;
+        container.style.maxWidth = `${pdfWidth}px`;
+
+        const logoData = await this.imageToPngDataUrl(
+            'static/assets/logos/ensys_logo_full.svg',
+        );
+
+        container.appendChild(clone);
+
+        this.setPdfSvgWidth(container, pdfWidth);
+
+        container.querySelectorAll<HTMLElement>('.not-in-pdf').forEach((el) => {
+            el.style.display = 'none';
+        });
+
+        document.body.appendChild(container);
+
+        const pdfOptions = {
+            margin: [25, 5, 20, 5],
+            filename: this.fileName,
+
+            pagebreak: {
+                mode: ['css'],
+                before: '.pdf-card-page , .charts-wrapper',
+                after: '.chart-block:not(:last-child)',
+            },
+
+            image: {
+                type: 'jpeg',
+                quality: 0.98,
+            },
+
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                scrollX: 0,
+                scrollY: 0,
+                onclone: (documentClone: Document) => {
+                    const clonedContainer = documentClone.querySelector(
+                        '.pdf-export',
+                    ) as HTMLElement | null;
+
+                    if (!clonedContainer) {
+                        return;
+                    }
+
+                    clonedContainer.style.setProperty(
+                        'width',
+                        `${pdfWidth}px`,
+                        'important',
+                    );
+                    clonedContainer.style.setProperty(
+                        'max-width',
+                        `${pdfWidth}px`,
+                        'important',
+                    );
+
+                    clonedContainer
+                        .querySelectorAll<HTMLElement>(
+                            '.chart-block, .charts-wrapper, .js-plotly-plot, .plot-container, .svg-container',
+                        )
+                        .forEach((chart) => {
+                            chart.style.setProperty(
+                                'width',
+                                '100%',
+                                'important',
+                            );
+                            chart.style.setProperty(
+                                'max-width',
+                                '100%',
+                                'important',
+                            );
+                            chart.style.setProperty(
+                                'min-width',
+                                '0',
+                                'important',
+                            );
+
+                            chart.style.setProperty('margin', '0', 'important');
+
+                            chart.style.boxSizing = 'border-box';
+                        });
+                },
+            },
+
+            jsPDF: {
+                unit: 'mm',
+                format: 'a4',
+                orientation: this.orientation,
+            },
+        } as any;
+
+        try {
+            const pdfWorker = html2pdf()
+                .set(pdfOptions)
+                .from(container)
+                .toPdf();
+
+            await pdfWorker.get('pdf').then((pdf) => {
+                const pageCount = pdf.internal.getNumberOfPages();
+
+                for (let page = 1; page <= pageCount; page++) {
+                    pdf.setPage(page);
+                    pdf.addImage(logoData, 'PNG', 10, 5, 23, 8);
+
+                    const pageSize = pdf.internal.pageSize;
+                    const pageWidth = pageSize.getWidth();
+                    const pageHeight = pageSize.getHeight();
+                    pdf.setFontSize(8);
+                    pdf.setFont('Roboto');
+
+                    pdf.text(
+                        `Page ${page} of ${pageCount}`,
+                        pageWidth - 10,
+                        pageHeight - 10,
+                        {
+                            align: 'right',
+                        },
+                    );
+
+                    if (this.footer)
+                        pdf.text(this.footer, 10, pageHeight - 10, {
+                            align: 'left',
+                        });
+                }
+
+                pdf.autoPrint();
+                const url = pdf.output('bloburl');
+                window.open(url, '_blank');
+            });
+        } finally {
+            container.remove();
+
+            this.setLoading.emit({
+                key: 'downloading',
+                status: false,
+            });
+        }
+    }
+
+    /**
+     * A DOM clone only contains Plotly's rendered SVG. Re-rendering before the
+     * clone is made lets Plotly enlarge the plotting area and recalculate ticks.
+     */
+    private async renderPlotlyChartsForPdf(
+        width: number,
+    ): Promise<() => Promise<void>> {
+        const chartHeight = 540;
+        const yAxisTickCount = 12;
+        const plots = Array.from(
+            this.targetElement.querySelectorAll<HTMLElement>('.js-plotly-plot'),
+        ).filter((plot) => {
+            const plotlyGraph = plot as any;
+            return plotlyGraph.data && plotlyGraph.layout;
+        });
+
+        const originalSizes = plots.map((plot) => ({
+            plot,
+            width: plot.getBoundingClientRect().width,
+            height: plot.getBoundingClientRect().height,
+        }));
+
+        await Promise.all(
+            originalSizes.map(({ plot }) =>
+                Plotly.relayout(plot, {
+                    width,
+                    height: chartHeight,
+                    autosize: false,
+                    'yaxis.tickmode': 'auto',
+                    'yaxis.nticks': yAxisTickCount,
+                }),
+            ),
+        );
+
+        return async () => {
+            await Promise.all(
+                originalSizes.map(({ plot, width: originalWidth, height }) =>
+                    Plotly.relayout(plot, {
+                        width: originalWidth,
+                        height,
+                        autosize: true,
+                    }),
+                ),
+            );
+        };
     }
 
     private prepareForPdf(element: HTMLElement): void {
@@ -337,7 +559,7 @@ export class PdfGeneratorComponent {
 
     private setPdfSvgWidth(container: HTMLElement, width: number): void {
         container
-            .querySelectorAll<SVGElement>('.svg-container svg')
+            .querySelectorAll<SVGElement>('.svg-container svg.main-svg')
             .forEach((svg) => {
                 this.scaleClonedSvg(svg, width);
             });
@@ -357,10 +579,7 @@ export class PdfGeneratorComponent {
             );
         }
 
-        svg.setAttribute('width', `${width}`);
         svg.style.setProperty('width', '100%', 'important');
-        svg.style.setProperty('max-width', '100%', 'important');
-        svg.style.setProperty('display', 'block');
         svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
     }
 
