@@ -52,6 +52,7 @@ export class SimulationComponent implements OnInit {
         downloading: false,
     };
     saveOptions: string[] = ['Print', 'PDF'];
+    scenarioStateData: ScenarioBaseInfoModel | null = null;
 
     router = inject(Router);
     route = inject(ActivatedRoute);
@@ -144,18 +145,13 @@ export class SimulationComponent implements OnInit {
                 this.scenarioService.restoreBaseInfo_Storage();
 
             if (currentScenarioData_storage) {
-                let scenarioStateData: ScenarioBaseInfoModel | null = null;
-
                 if (currentScenarioData_storage.project) {
-                    scenarioStateData = {
-                        project: {
-                            id: currentScenarioData_storage.project.id,
-                            name: currentScenarioData_storage.project?.name,
-                        },
+                    this.scenarioStateData = {
+                        project: currentScenarioData_storage.project,
                     };
 
                     if (currentScenarioData_storage.scenario) {
-                        scenarioStateData.scenario = {
+                        this.scenarioStateData.scenario = {
                             id: currentScenarioData_storage.scenario.id,
                             name: currentScenarioData_storage.scenario.name,
                             sDate: currentScenarioData_storage.scenario.sDate,
@@ -176,9 +172,9 @@ export class SimulationComponent implements OnInit {
                     }
                 }
 
-                if (scenarioStateData)
+                if (this.scenarioStateData)
                     this.scenarioStateService.setScenarioData(
-                        scenarioStateData,
+                        this.scenarioStateData,
                     );
             }
         }
@@ -231,11 +227,13 @@ export class SimulationComponent implements OnInit {
 
                 xaxis: {
                     type: 'date',
-                    title: 'Time',
+                    // title: { text: 'Time' },
                 },
 
                 yaxis: {
-                    title: 'Value',
+                    title: {
+                        text: `${this.scenarioStateData?.project.unit_energy}`,
+                    },
                 },
 
                 hovermode: 'x unified',
