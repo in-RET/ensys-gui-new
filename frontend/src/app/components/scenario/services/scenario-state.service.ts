@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { ProjectModel } from '../../project/models/project.model';
 import { UserModelingStateModel } from '../models/scenario.model';
 import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 
 export interface ScenarioStateModel {
-    project: { id: number; name: string } | null;
+    project: ProjectModel | null;
     scenario?: {
         id?: number;
         name: string;

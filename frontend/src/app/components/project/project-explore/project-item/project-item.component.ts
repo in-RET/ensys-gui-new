@@ -23,6 +23,7 @@ import { ToastService } from '../../../../shared/services/toast.service';
 import { ExploreService } from '../../../explore/services/explore.service';
 import {
     ScenarioBaseInfoModel,
+    ScenarioBaseInfoModel_project,
     ScenarioModel,
     ScenarioResModel,
     UserModelingSTEP,
@@ -180,14 +181,13 @@ export class ProjectItemComponent implements OnInit {
             this.duplicateProject.emit(id);
     }
 
-    newScenario(pId: number, pName: string) {
+    newScenario(projectData: ScenarioBaseInfoModel_project) {
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioService.removeDrawflow_Data();
 
         const d: ScenarioBaseInfoModel = {
             project: {
-                id: pId,
-                name: pName,
+                ...projectData,
                 scenarioList: this.project.scenarioList ?? [],
             },
         };

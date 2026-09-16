@@ -48,9 +48,7 @@ export interface ScenarioModel {
     date_updated: string | null;
 }
 
-export interface ScenarioBaseInfoModel_project {
-    id: number;
-    name: string;
+export interface ScenarioBaseInfoModel_project extends ProjectModel {
     scenarioList?: ScenarioModel[];
 }
 
@@ -72,10 +70,7 @@ export interface ScenarioBaseInfoModel {
 
 // update scenario model for update scenario
 
-export interface ScenarioUpdatedModel_project {
-    id: number;
-    name: string;
-}
+export interface ScenarioUpdatedModel_project extends ProjectModel {}
 
 export interface ScenarioUpdatedModel_scenario {
     id: number;

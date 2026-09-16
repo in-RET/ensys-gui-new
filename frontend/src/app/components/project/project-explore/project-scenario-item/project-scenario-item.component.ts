@@ -65,10 +65,7 @@ export class ProjectScenarioItemComponent {
 
                         // save project,scenario - storage
                         const scenarioData: ScenarioBaseInfoModel = {
-                            project: {
-                                id: this.project.id,
-                                name: this.project.name ?? '_',
-                            },
+                            project: this.project,
                             scenario: {
                                 id: data.id,
                                 name: data.name,
@@ -90,10 +87,7 @@ export class ProjectScenarioItemComponent {
 
                         // update drawflowData$ state
                         const d: ScenarioStateModel = {
-                            project: {
-                                id: this.project.id,
-                                name: this.project.name,
-                            },
+                            project: this.project,
                             scenario: {
                                 id: data.id,
                                 name: data.name,

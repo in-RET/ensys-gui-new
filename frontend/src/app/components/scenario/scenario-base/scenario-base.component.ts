@@ -102,10 +102,7 @@ export class ScenarioBaseComponent implements OnInit {
 
                 if (currentScenarioData_storage.project) {
                     scenarioStateData = {
-                        project: {
-                            id: currentScenarioData_storage.project.id,
-                            name: currentScenarioData_storage.project?.name,
-                        },
+                        project: currentScenarioData_storage.project,
                     };
 
                     if (currentScenarioData_storage.scenario) {
