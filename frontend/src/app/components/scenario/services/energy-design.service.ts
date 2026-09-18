@@ -256,15 +256,7 @@ export class EnergyDesignService {
         });
     }
 
-    getNonConvexFields(
-        data?: any,
-        callback?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
-        oep?: boolean,
-    ) {
+    getNonConvexFields(data?: any, callback?: any) {
         return [
             // Time-series fields
             {
@@ -279,7 +271,7 @@ export class EnergyDesignService {
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'startup_costs',
+                            controlName: 'non_convex_startup_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -299,12 +291,12 @@ export class EnergyDesignService {
                 type: 'time-series',
                 span: 'auto',
                 action: {
-                    name: 'time_series_range',
+                    name: '',
                     label: '',
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'shutdown_costs',
+                            controlName: 'non_convex_shutdown_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -324,12 +316,12 @@ export class EnergyDesignService {
                 type: 'time-series',
                 span: 'auto',
                 action: {
-                    name: 'time_series_range',
+                    name: '',
                     label: '',
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'activity_costs',
+                            controlName: 'non_convex_activity_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -349,12 +341,12 @@ export class EnergyDesignService {
                 type: 'time-series',
                 span: 'auto',
                 action: {
-                    name: 'time_series_range',
+                    name: '',
                     label: '',
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'inactivity_costs',
+                            controlName: 'non_convex_inactivity_costs',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -374,12 +366,12 @@ export class EnergyDesignService {
                 type: 'time-series',
                 span: 'auto',
                 action: {
-                    name: 'time_series_range',
+                    name: '',
                     label: '',
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'negative_gradient_limit',
+                            controlName: 'non_convex_negative_gradient_limit',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -395,12 +387,12 @@ export class EnergyDesignService {
                 type: 'time-series',
                 span: 'auto',
                 action: {
-                    name: 'time_series_range',
+                    name: '',
                     label: '',
                     icon: '',
                     onClick: () => {
                         callback['showModal_TimeSeries']({
-                            controlName: 'positive_gradient_limit',
+                            controlName: 'non_convex_positive_gradient_limit',
                             modes: [
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
@@ -1820,8 +1812,6 @@ export class EnergyDesignService {
                                     ...this.getNonConvexFields(
                                         data,
                                         callback,
-                                        preDefData,
-                                        oep,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData(
@@ -2057,8 +2047,6 @@ export class EnergyDesignService {
                                     ...this.getNonConvexFields(
                                         data,
                                         callback,
-                                        preDefData,
-                                        oep,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData(
