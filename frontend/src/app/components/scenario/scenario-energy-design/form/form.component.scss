@@ -117,3 +117,53 @@ button.btn-close {
         object-fit: contain;
     }
 }
+
+.addon {
+    width: 25px !important;
+    right: 12px;
+    font-size: 0.75rem;
+
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+
+    &.in-middle {
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .__btn {
+        display: none !important;
+    }
+
+    .__unit {
+        color: var(--bs-blue);
+        pointer-events: none;
+        display: block !important;
+        text-align: center;
+    }
+}
+
+.hasAddon {
+    .form-control.is-invalid {
+        background-image: none !important;
+    }
+}
+
+.pe-6 {
+    padding-right: 6rem !important;
+}
+
+.hasAction {
+    &:hover {
+        .addon {
+            .__btn {
+                display: block !important;
+            }
+            .__unit {
+                display: none !important;
+            }
+        }
+    }
+}

@@ -4,7 +4,7 @@ export interface ProjectReqModel {}
 
 export interface ProjectResModel {
     country: string;
-    currency: string; // e.g. "EUR"
+    unit_currency: string; // e.g. "EUR"
     date_created: string; // ISO datetime string
     date_updated: string | null; // can be null
     description: string;
@@ -19,7 +19,7 @@ export interface ProjectResModel {
 
 export interface ProjectModel {
     country: string;
-    currency: string; // e.g. "EUR"
+    unit_currency: string; // e.g. "EUR"
     date_created: string; // ISO datetime string
     date_updated: string | null; // can be null
     description: string;
@@ -31,4 +31,9 @@ export interface ProjectModel {
     unit_co2: string; // e.g. "t CO2"
     unit_energy: string; // e.g. "MW/MWh"
     scenarioList?: ScenarioModel[];
+}
+
+export enum EnergyUnit {
+    KW = 'KW/KWh',
+    MW = 'MW/MWh',
 }

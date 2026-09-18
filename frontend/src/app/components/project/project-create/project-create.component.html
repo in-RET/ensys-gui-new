@@ -150,11 +150,15 @@
                                                 unit_energy!.touched),
                                     }"
                                 >
-                                    <option selected disabled value="">
+                                    <option [ngValue]="null" disabled>
                                         Choose...
                                     </option>
-                                    <option value="KW/KWh">KW/KWh</option>
-                                    <option value="MW/MWh">MW/MWh</option>
+                                    <option [value]="EnergyUnit.KW">
+                                        {{ EnergyUnit.KW }}
+                                    </option>
+                                    <option [value]="EnergyUnit.MW">
+                                        {{ EnergyUnit.MW }}
+                                    </option>
                                 </select>
                                 <label>Unit for Energy</label>
                             </div>
