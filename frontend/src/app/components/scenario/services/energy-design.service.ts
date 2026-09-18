@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { GeneralService } from '../../../shared/services/general.service';
+import { EnergyUnit, ProjectModel } from '../../project/models/project.model';
 import { FlowData } from '../models/node.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 import { FlowService } from './flow.service';
-import { NodeService } from './node.service';
-import { ScenarioStateService } from './scenario-state.service';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from './scenario-state.service';
 import { ScenarioService } from './scenario.service';
 
 interface EPCostParams {
@@ -39,14 +42,23 @@ export class EnergyDesignService {
             fn: undefined,
         },
     };
+    readonly EnergyUnit = EnergyUnit;
+    currentProject?: ProjectModel;
 
     constructor(
-        private nodeService: NodeService,
         private flowService: FlowService,
         private generalService: GeneralService,
         private scenarioService: ScenarioService,
         private scenarioStateService: ScenarioStateService,
-    ) {}
+    ) {
+        this.scenarioStateService.scenarioState
+            .pipe(
+                map((res: ScenarioStateModel | null) => {
+                    if (res && res.project) this.currentProject = res.project;
+                }),
+            )
+            .subscribe();
+    }
 
     dividerSec() {
         return {
@@ -81,6 +93,7 @@ export class EnergyDesignService {
         options?: any[],
         disabled?: boolean,
         defaultVal?: any,
+        unit?: any,
     ) {
         const _field = {
             name: name.toLowerCase(),
@@ -98,20 +111,13 @@ export class EnergyDesignService {
             onClick: callback,
             options: options,
             disabled: disabled,
+            unit: unit,
         };
 
         return _field;
     }
 
-    private getNonInvestmentFields(
-        data?: FlowData,
-        name?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
-        oep?: boolean,
-    ) {
+    private getNonInvestmentFields(data?: FlowData, name?: any, oep?: boolean) {
         return [
             {
                 name: 'nominal_value',
@@ -120,6 +126,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
         ].map((item: any) => {
             // if selected a predefined
@@ -146,15 +156,7 @@ export class EnergyDesignService {
         });
     }
 
-    getInvestmentFields(
-        data?: any,
-        callback?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
-        oep?: boolean,
-    ) {
+    getInvestmentFields(data?: any, callback?: any) {
         return [
             {
                 name: 'maximum',
@@ -163,6 +165,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'minimum',
@@ -171,13 +177,17 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'ep_costs',
                 placeholder: 'ep_costs',
                 label: 'ep_costs',
                 type: 'text',
-                span: 'auto',
+                span: '3',
                 actions: [
                     {
                         name: 'ep_costs_calculator',
@@ -189,6 +199,10 @@ export class EnergyDesignService {
                     },
                 ],
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'existing',
@@ -197,6 +211,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'offset',
@@ -205,6 +223,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} a`,
+                },
             },
             {
                 name: 'nonconvex_investment',
@@ -212,6 +234,10 @@ export class EnergyDesignService {
                 label: 'Nonconvex Investment',
                 type: 'switch',
                 span: 'auto',
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
         ].map((item: any) => {
             if (data) {
@@ -261,6 +287,10 @@ export class EnergyDesignService {
                         });
                     },
                 },
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency}`,
+                },
             },
             {
                 name: 'non_convex_shutdown_costs',
@@ -281,6 +311,10 @@ export class EnergyDesignService {
                             ],
                         });
                     },
+                },
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency}`,
                 },
             },
             {
@@ -303,6 +337,10 @@ export class EnergyDesignService {
                         });
                     },
                 },
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} h`,
+                },
             },
             {
                 name: 'non_convex_inactivity_costs',
@@ -323,6 +361,10 @@ export class EnergyDesignService {
                             ],
                         });
                     },
+                },
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} h`,
                 },
             },
             {
@@ -376,6 +418,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: '4',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: 'h',
+                },
             },
             {
                 name: 'non_convex_minimum_downtime',
@@ -384,6 +430,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: '4',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: 'h',
+                },
             },
             {
                 name: 'non_convex_maximum_startups',
@@ -427,15 +477,7 @@ export class EnergyDesignService {
         });
     }
 
-    getInvestmentFields_storage(
-        data?: any,
-        callback?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
-        oep?: boolean,
-    ) {
+    getInvestmentFields_storage(data?: any, callback?: any, oep?: boolean) {
         return [
             {
                 name: 'maximum',
@@ -444,6 +486,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'minimum',
@@ -452,6 +498,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'ep_costs',
@@ -470,6 +520,10 @@ export class EnergyDesignService {
                     },
                 ],
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
             },
             {
                 name: 'existing',
@@ -478,6 +532,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                },
             },
             {
                 name: 'offset',
@@ -486,6 +544,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} a`,
+                },
             },
             {
                 name: 'nonconvex_investment',
@@ -552,6 +614,10 @@ export class EnergyDesignService {
                             ],
                         });
                     },
+                },
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
             },
             {
@@ -657,34 +723,16 @@ export class EnergyDesignService {
             },
 
             {
-                name: 'fixed_costs',
-                placeholder: 'fixed_costs',
-                label: 'fixed_costs',
-                type: 'time-series',
-                span: 'auto',
-                action: {
-                    name: 'time_series_range',
-                    label: '',
-                    icon: '',
-                    onClick: () => {
-                        callback['showModal_TimeSeries']({
-                            controlName: 'fixed_costs',
-                            modes: [
-                                { value: 'file', label: 'Time Series' },
-                                { value: 'number', label: 'Fixed Value' },
-                            ],
-                        });
-                    },
-                },
-            },
-
-            {
                 name: 'full_load_time_max',
                 placeholder: 'full_load_time_max',
                 label: 'full_load_time_max',
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: 'h',
+                },
             },
             {
                 name: 'full_load_time_min',
@@ -693,6 +741,10 @@ export class EnergyDesignService {
                 type: 'text',
                 span: 'auto',
                 numberOnlyAllowed: true,
+                unit: {
+                    isShown: true,
+                    text: 'h',
+                },
             },
             {
                 name: 'integer',
@@ -779,6 +831,10 @@ export class EnergyDesignService {
                 label: 'loss_rate',
                 type: 'number',
                 span: 'auto',
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                },
             },
             {
                 name: 'fixed_losses_relative',
@@ -786,6 +842,10 @@ export class EnergyDesignService {
                 label: 'fixed_losses_relative',
                 type: 'number',
                 span: '4',
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                },
             },
             {
                 name: 'fixed_losses_absolute',
@@ -793,6 +853,10 @@ export class EnergyDesignService {
                 label: 'fixed_losses_absolute',
                 type: 'number',
                 span: '4',
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                },
             },
             {
                 name: 'inflow_conversion_factor',
@@ -828,20 +892,10 @@ export class EnergyDesignService {
                 label: 'storage_costs',
                 type: 'number',
                 span: 'auto',
-            },
-            {
-                name: 'lifetime_inflow',
-                placeholder: 'lifetime_inflow',
-                label: 'lifetime_inflow',
-                type: 'number',
-                span: 'auto',
-            },
-            {
-                name: 'lifetime_outflow',
-                placeholder: 'lifetime_outflow',
-                label: 'lifetime_outflow',
-                type: 'number',
-                span: 'auto',
+                unit: {
+                    isShown: true,
+                    text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                },
             },
         ].map((item: any) => {
             item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
@@ -1278,6 +1332,11 @@ export class EnergyDesignService {
                                                 mode: editMode,
                                                 data,
                                             }),
+                                        null,
+                                        {
+                                            isShown: true,
+                                            text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                                        },
                                     ),
                                 ],
                             },
@@ -1621,7 +1680,6 @@ export class EnergyDesignService {
                                                 this.getInvestmentFields(
                                                     data,
                                                     callback,
-                                                    preDefData,
                                                 ).map((elm: any) => elm.name);
 
                                             callback['toggleInvestFields'](
@@ -1671,8 +1729,6 @@ export class EnergyDesignService {
                                     ...this.getInvestmentFields(
                                         data,
                                         callback,
-                                        preDefData,
-                                        oep,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData('investment', {
@@ -1859,7 +1915,6 @@ export class EnergyDesignService {
                                     ...this.getNonInvestmentFields(
                                         data,
                                         name,
-                                        preDefData,
                                         oep,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
@@ -1903,8 +1958,6 @@ export class EnergyDesignService {
                                     ...this.getInvestmentFields(
                                         data,
                                         callback,
-                                        preDefData,
-                                        oep,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData(
@@ -2060,6 +2113,10 @@ export class EnergyDesignService {
                             type: 'number',
                             span: '2',
                             isReq: true,
+                            unit: {
+                                isShown: true,
+                                text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                            },
                         },
                         {
                             name: 'opex',
@@ -2069,6 +2126,10 @@ export class EnergyDesignService {
                             span: '2',
                             step: '0.01',
                             isReq: true,
+                            unit: {
+                                isShown: true,
+                                text: `%`,
+                            },
                         },
                         {
                             name: 'interest_rate',
@@ -2077,6 +2138,10 @@ export class EnergyDesignService {
                             type: 'number',
                             span: '2',
                             isReq: true,
+                            unit: {
+                                isShown: true,
+                                text: `%`,
+                            },
                         },
                         {
                             name: 'lifetime',
@@ -2085,6 +2150,10 @@ export class EnergyDesignService {
                             type: 'number',
                             span: '2',
                             isReq: true,
+                            unit: {
+                                isShown: true,
+                                text: `a`,
+                            },
                         },
                         {
                             name: 'maturity',
@@ -2093,6 +2162,10 @@ export class EnergyDesignService {
                             type: 'number',
                             span: '2',
                             isReq: true,
+                            unit: {
+                                isShown: true,
+                                text: `a`,
+                            },
                         },
                     ],
                 },

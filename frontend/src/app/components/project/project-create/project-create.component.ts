@@ -12,6 +12,7 @@ import L from 'leaflet';
 import { map, Observable } from 'rxjs';
 import { GoogleAnalyticsService } from '../../../shared/services/google-analytics.service';
 import { ToastService } from '../../../shared/services/toast.service';
+import { EnergyUnit } from '../models/project.model';
 import { ProjectService } from '../services/project.service';
 
 @Component({
@@ -44,9 +45,9 @@ export class ProjectCreateComponent implements OnInit {
             },
             [Validators.required],
         ),
-        unit_energy: new FormControl(
+        unit_energy: new FormControl<EnergyUnit>(
             {
-                value: 'MW/MWh',
+                value: EnergyUnit.MW,
                 disabled: false,
             },
             [Validators.required],
@@ -109,8 +110,8 @@ export class ProjectCreateComponent implements OnInit {
 
     // if update item
     mode: 'create' | 'update' | '' = 'create';
-
     regionList!: any[];
+    readonly EnergyUnit = EnergyUnit;
 
     constructor(
         private projectService: ProjectService,

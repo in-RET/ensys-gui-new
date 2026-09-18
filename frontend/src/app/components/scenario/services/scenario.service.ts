@@ -83,8 +83,6 @@ export class ScenarioService {
 
     //====================  draw flow   ====================
     saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
-        console.log(`CURRENT_DRAWFLOW is updated!`);
-
         if (!data) return;
 
         localStorage.setItem(

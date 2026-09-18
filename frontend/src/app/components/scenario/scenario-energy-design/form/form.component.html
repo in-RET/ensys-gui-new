@@ -20,6 +20,7 @@
 
                 <div class="row">
                     <div
+                        class="col-md-3"
                         [ngClass]="
                             field.span ? 'col-md-' + field.span : 'col-md'
                         "
@@ -32,7 +33,14 @@
                             *ngIf="
                                 field.type == 'text' || field.type == 'number'
                             "
-                            [ngClass]="{ 'd-flex gap-2': field.actions }"
+                            [ngClass]="{
+                                'd-flex gap-2': field.actions,
+                                hasAction:
+                                    field.unit?.isShown &&
+                                    field.actions &&
+                                    !form.controls[field.name].disabled,
+                                hasAddon: field.unit?.isShown,
+                            }"
                         >
                             <ng-container
                                 *ngIf="field.type == 'text'; else numberField"
@@ -48,6 +56,7 @@
                                             form.get(field.name)!.invalid &&
                                             (form.get(field.name)!.dirty ||
                                                 form.get(field.name)!.touched),
+                                        'pe-5': field.unit?.isShown,
                                     }"
                                     [step]="field.step"
                                     [numberOnly]="field.numberOnlyAllowed"
@@ -67,6 +76,7 @@
                                             form.get(field.name)!.invalid &&
                                             (form.get(field.name)!.dirty ||
                                                 form.get(field.name)!.touched),
+                                        'pe-5': field.unit?.isShown,
                                     }"
                                     [step]="field.step"
                                 />
@@ -77,33 +87,34 @@
                                 <span *ngIf="field.isReq"> * </span>
                             </label>
 
-                            <ng-container *ngIf="field.actions">
-                                <a
-                                    class="d-flex align-items-center"
-                                    *ngFor="let action of field.actions"
-                                    (click)="action.onClick()"
-                                    [ngClass]="{
-                                        'd-none':
-                                            form.controls[field.name].disabled,
-                                    }"
-                                >
-                                    <span *ngIf="action.label">
-                                        {{ action.label }}
-                                    </span>
+                            <div class="addon in-middle position-absolute">
+                                <span class="__unit" *ngIf="field.unit">
+                                    {{ field.unit.text }}
+                                </span>
 
-                                    <img
-                                        src="/static/assets/icons/calculator.svg"
-                                        [alt]="action.name"
-                                        style="
-                                            height: 3rem;
-                                            filter: invert(48%) sepia(79%)
-                                                saturate(2476%)
-                                                hue-rotate(191deg)
-                                                brightness(118%) contrast(119%);
-                                        "
-                                    />
-                                </a>
-                            </ng-container>
+                                <ng-container *ngIf="field.actions">
+                                    <a
+                                        class="d-flex align-items-center __btn"
+                                        *ngFor="let action of field.actions"
+                                        (click)="action.onClick()"
+                                        [ngClass]="{
+                                            'd-none':
+                                                form.controls[field.name]
+                                                    .disabled,
+                                        }"
+                                    >
+                                        <span *ngIf="action.label">
+                                            {{ action.label }}
+                                        </span>
+
+                                        <img
+                                            src="/static/assets/icons/calculator.svg"
+                                            [alt]="action.name"
+                                            style="height: 2rem"
+                                        />
+                                    </a>
+                                </ng-container>
+                            </div>
                         </div>
 
                         <!-- dropdown -->
@@ -291,6 +302,13 @@
                                         readonly
                                         [formControlName]="field.name"
                                     />
+
+                                    <div class="addon" *ngIf="field.unit">
+                                        <span class="__unit">
+                                            {{ field.unit.text }}
+                                        </span>
+                                    </div>
+
                                     <button
                                         type="button"
                                         class="btn-close"
@@ -364,8 +382,6 @@
                     </div>
                 </div>
             </ng-container>
-
-            <!-- !formData.sections[i].felds || formData.sections[i].felds.length==0 -->
 
             <ng-container
                 *ngIf="
