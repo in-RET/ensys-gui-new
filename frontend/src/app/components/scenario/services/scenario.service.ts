@@ -55,7 +55,7 @@ export class ScenarioService {
 
     // base info
     saveBaseInfo_Storage(data: ScenarioBaseInfoModel) {
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.scenario_localstorage_name,
             JSON.stringify(data),
         );
@@ -67,11 +67,11 @@ export class ScenarioService {
     }
 
     removeBaseInfo_Storage() {
-        localStorage.removeItem(this.scenario_localstorage_name);
+        sessionStorage.removeItem(this.scenario_localstorage_name);
     }
 
     restoreBaseInfo_Storage(): ScenarioBaseInfoModel | null {
-        const BaseInfoData: string | null = localStorage.getItem(
+        const BaseInfoData: string | null = sessionStorage.getItem(
             this.scenario_localstorage_name,
         );
 
@@ -85,7 +85,7 @@ export class ScenarioService {
     saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
         if (!data) return;
 
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.scenario_drawflow_localstorage_name,
             JSON.stringify(data),
         );
@@ -158,7 +158,7 @@ export class ScenarioService {
     }
 
     restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
-        const DrawflowData: string | null = localStorage.getItem(
+        const DrawflowData: string | null = sessionStorage.getItem(
             this.scenario_drawflow_localstorage_name,
         );
 
@@ -168,7 +168,7 @@ export class ScenarioService {
     }
 
     removeDrawflow_Data() {
-        localStorage.removeItem(this.scenario_drawflow_localstorage_name);
+        sessionStorage.removeItem(this.scenario_drawflow_localstorage_name);
         this.scenarioStateService.clearDrawflowData();
     }
 
@@ -326,32 +326,34 @@ export class ScenarioService {
     }
 
     saveUserModelingState(userModelingState: UserModelingStateModel) {
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.user_modeling_state,
             JSON.stringify(userModelingState),
         );
     }
 
     updateUserModelingState(updates: Partial<UserModelingStateModel>) {
-        const currentStateStr = localStorage.getItem(this.user_modeling_state);
+        const currentStateStr = sessionStorage.getItem(
+            this.user_modeling_state,
+        );
         let currentState: UserModelingStateModel = currentStateStr
             ? JSON.parse(currentStateStr)
             : ({} as UserModelingStateModel);
 
         const newState = { ...currentState, ...updates };
 
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.user_modeling_state,
             JSON.stringify(newState),
         );
     }
 
     removeUserModelingState() {
-        localStorage.removeItem(this.user_modeling_state);
+        sessionStorage.removeItem(this.user_modeling_state);
     }
 
     restoreUserModelingState(): UserModelingStateModel | null {
-        const stateStr = localStorage.getItem(this.user_modeling_state);
+        const stateStr = sessionStorage.getItem(this.user_modeling_state);
 
         if (stateStr && stateStr.trim() != '') {
             return JSON.parse(stateStr);
