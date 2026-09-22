@@ -40,10 +40,10 @@ export class CalculatorModalComponent {
         let formData = this.formComponent.submit();
 
         if (formData) {
-            if (formData.interest_rate < 0 || formData.interest_rate > 1) {
+            if (formData.interest_rate < 0 || formData.interest_rate > 100) {
                 this.setFormError(
                     true,
-                    'interest rate must be between 0 and 1!',
+                    'interest rate must be between 0 and 100!',
                 );
             } else {
                 this.energyDesignService
