@@ -878,15 +878,35 @@ export class EnergyDesignService {
                 name: 'min_storage_level',
                 placeholder: 'min_storage_level',
                 label: 'min_storage_level',
-                type: 'number',
                 span: '4',
+
+                type: 'text',
+                numberOnlyAllowed: true,
+                max: 1,
+                min: 0,
+                inputmode: 'decimal',
+                step: 0.1,
+                unit: {
+                    text: '0~1',
+                    isShown: true,
+                },
             },
             {
                 name: 'max_storage_level',
                 placeholder: 'max_storage_level',
                 label: 'max_storage_level',
-                type: 'number',
                 span: '4',
+
+                type: 'text',
+                numberOnlyAllowed: true,
+                max: 1,
+                min: 0,
+                inputmode: 'decimal',
+                step: 0.1,
+                unit: {
+                    text: '0~1',
+                    isShown: true,
+                },
             },
             {
                 name: 'storage_costs',
