@@ -62,7 +62,7 @@ export class NodeFormModalComponent {
     @Output() onShowModal_TimeSeries = new EventEmitter<{
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
     }>();
     @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
     @Output() onShowModal_IconPicker = new EventEmitter<any>();
@@ -838,12 +838,12 @@ export class NodeFormModalComponent {
             id: string;
             group: string;
         };
-        modes?: ModeOption[] | null;
+        modes?: ModeOption[];
     }) {
         let timeSeriesData: {
             groupName: string;
             controlName: string;
-            modes: ModeOption[] | null;
+            modes?: ModeOption[];
         } = {
             groupName: '',
             controlName: '',

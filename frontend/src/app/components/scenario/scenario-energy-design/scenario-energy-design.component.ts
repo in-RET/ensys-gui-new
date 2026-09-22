@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import Drawflow, { DrawflowNode } from 'drawflow';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { InputType } from '../../../shared/models/generic.model';
 import { ToastService } from '../../../shared/services/toast.service';
 import { IconType } from '../models/node.model';
 import { ScenarioUpdatedModel } from '../models/scenario.model';
@@ -173,7 +174,11 @@ export class ScenarioEnergyDesignComponent {
     onShowModal_TimeSeries(e: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     }) {
         let currentState!: ModalState;
         const subscription = this.modalStateService.modalState.subscribe(

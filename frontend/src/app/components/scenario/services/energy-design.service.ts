@@ -577,15 +577,7 @@ export class EnergyDesignService {
         });
     }
 
-    getDefaultFields_flow(
-        oep: boolean,
-        data?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
-        callback?: any,
-    ) {
+    getDefaultFields_flow(data?: any, callback?: any) {
         return [
             {
                 name: 'variable_costs',
@@ -604,6 +596,8 @@ export class EnergyDesignService {
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
                             ],
+                            type: 'text',
+                            numberOnly: true,
                         });
                     },
                 },
@@ -629,6 +623,11 @@ export class EnergyDesignService {
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
                             ],
+                            type: 'text',
+                            numberOnly: true,
+                            max: 1,
+                            min: 0,
+                            inputmode: 'decimal',
                         });
                     },
                 },
@@ -650,6 +649,11 @@ export class EnergyDesignService {
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
                             ],
+                            type: 'text',
+                            numberOnly: true,
+                            max: 1,
+                            min: 0,
+                            inputmode: 'decimal',
                         });
                     },
                 },
@@ -667,6 +671,8 @@ export class EnergyDesignService {
                     onClick: () => {
                         callback['showModal_TimeSeries']({
                             controlName: 'fix',
+                            type: 'text',
+                            numberOnly: true,
                         });
                     },
                 },
@@ -688,6 +694,8 @@ export class EnergyDesignService {
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
                             ],
+                            type: 'text',
+                            numberOnly: true,
                         });
                     },
                 },
@@ -709,6 +717,8 @@ export class EnergyDesignService {
                                 { value: 'file', label: 'Time Series' },
                                 { value: 'number', label: 'Fixed Value' },
                             ],
+                            type: 'text',
+                            numberOnly: true,
                         });
                     },
                 },
@@ -1625,10 +1635,6 @@ export class EnergyDesignService {
         oep: boolean,
         data?: FlowData,
         callback?: any,
-        preDefData?: {
-            name: string;
-            simulationYear: number;
-        },
     ) {
         const getFields = async () => {
             switch (name.toLocaleLowerCase()) {
@@ -1762,9 +1768,7 @@ export class EnergyDesignService {
                                 class: 'col-12',
                                 visible: true,
                                 fields: this.getDefaultFields_flow(
-                                    oep,
                                     data,
-                                    preDefData,
                                     callback,
                                 ),
                             },
@@ -1993,9 +1997,7 @@ export class EnergyDesignService {
                                 class: 'col-12',
                                 visible: true,
                                 fields: this.getDefaultFields_flow(
-                                    oep,
                                     data,
-                                    preDefData,
                                     callback,
                                 ).map((elm: any) => {
                                     if (oep) elm['disabled'] = true;

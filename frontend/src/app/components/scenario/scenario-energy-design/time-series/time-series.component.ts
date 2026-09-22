@@ -13,6 +13,7 @@ import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
 
 import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
+import { InputType } from '../../../../shared/models/generic.model';
 import { GeneralService } from '../../../../shared/services/general.service';
 import {
     ScenarioStateModel,
@@ -89,12 +90,18 @@ export class TimeSeriesComponent {
 
     private _modes!: ModeOption[];
     @Input()
-    set modes(d: ModeOption[] | null) {
+    set modes(d: ModeOption[] | undefined) {
         this._modes = d && d?.length ? d : [...this.defaultModes];
     }
     get modes() {
         return this._modes;
     }
+
+    @Input() type?: InputType = 'text';
+    @Input() numberOnly?: boolean = true;
+    @Input() min?: number;
+    @Input() max?: number;
+    @Input() inputmode?: string;
 
     @Output()
     dataSubmit: EventEmitter<number | number[] | string> = new EventEmitter<

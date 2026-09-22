@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { InputType } from '../../../../shared/models/generic.model';
 import {
     EditFormModalInfo,
     FormModalInfo,
@@ -13,7 +14,11 @@ export interface ModalState {
     timeSeries: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     } | null;
     simulation: any | null;
     iconPicker: { iconOrigin: string; iconName: string } | null;
@@ -105,7 +110,11 @@ export class ModalStateService {
     openTimeSeries(info: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     }) {
         this.modalState$.next({
             ...this.modalState$.value,
