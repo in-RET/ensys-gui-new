@@ -64,13 +64,11 @@
 
                         <!-- File -->
                         <div
-                            class="d-flex justify-content-center gap-1 align-items-center mb-1"
+                            class="flex-center gap-1"
                             *ngIf="modalInfo.selectedType === 'file'"
                         >
                             <!-- input file -->
-                            <div
-                                class="d-flex justify-content-center align-items-center gap-2"
-                            >
+                            <div class="flex-center gap-1">
                                 <ng-container *ngIf="timeSeries_table.data">
                                     <button
                                         class="btn btn--success btn--medium"
@@ -138,17 +136,29 @@
 
                         <!-- Text -->
                         <div
-                            class="d-flex justify-content-center gap-1 align-items-center mb-1"
+                            class="flex-center gap-1"
                             *ngIf="modalInfo.selectedType === 'number'"
                         >
                             <input
-                                type="text"
-                                class="form-control"
+                                class="form-control value-input"
                                 placeholder="Value"
+                                [type]="type"
+                                [numberOnly]="numberOnly"
+                                [min]="min"
+                                [max]="max"
+                                [ngClass]="{
+                                    'pe-5': min != null && max != null,
+                                }"
+                                [attr.inputmode]="inputmode"
                                 #numInput
-                                style="max-width: 15rem"
-                                [numberOnly]="true"
                             />
+
+                            <span
+                                class="addon"
+                                *ngIf="min != null && max != null"
+                            >
+                                {{ min }}~{{ max }}
+                            </span>
                         </div>
                     </ng-container>
 

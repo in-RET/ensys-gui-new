@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { InputType } from '../../../../../shared/models/generic.model';
 import {
     ModeOption,
     TimeSeriesComponent,
@@ -14,7 +15,11 @@ import {
 export class TimeSeriesModalComponent {
     @Input() modalInfo!: {
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     } | null;
     @Output() dataSubmitted = new EventEmitter<{
         controlName: string;

@@ -8,6 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InputType } from '../../../../../shared/models/generic.model';
 import { GeneralService } from '../../../../../shared/services/general.service';
 import { EnergyDesignService } from '../../../services/energy-design.service';
 import { ScenarioService } from '../../../services/scenario.service';
@@ -38,13 +39,17 @@ export class FlowFormModalComponent {
     };
 
     @Input() modalInfo!: EditFormModalInfo | null;
+
     @Output() saveConnectionInNode = new EventEmitter<any>();
     @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
     @Output() onShowModal_TimeSeries = new EventEmitter<{
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        min?: number;
+        max?: number;
     }>();
 
     @ViewChild('form')
@@ -126,7 +131,6 @@ export class FlowFormModalComponent {
                 this.modalInfo.node?.data?.oep,
                 this.modalInfo.data,
                 this.defineCallbackFlowForm(),
-                this.modalInfo.node?.data?.preDefData,
             );
 
         this.modalInfo.url = this.scenarioService.getEntityInfoUrl('flow');
@@ -270,17 +274,29 @@ export class FlowFormModalComponent {
      */
     private showModal_TimeSeries(e: {
         controlName: string;
-        modes: ModeOption[] | null;
+        modes: ModeOption[];
+        type: InputType;
+        numberOnly: boolean;
+        max: number;
+        min: number;
     }) {
         // clear previous data
         let timeSeriesData: {
             groupName: string;
             controlName: string;
-            modes: ModeOption[] | null;
+            modes: ModeOption[];
+            type: InputType;
+            numberOnly: boolean;
+            max: number;
+            min: number;
         } = {
             groupName: 'flow',
             controlName: e.controlName,
-            modes: [],
+            modes: e.modes,
+            type: e.type,
+            numberOnly: e.numberOnly,
+            max: e.max,
+            min: e.min,
         };
 
         // condirions: filed is 'fix' && not from node 'source' || 'sink'

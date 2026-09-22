@@ -39,3 +39,28 @@ td:first-child {
 .time_series_modal {
     max-height: 70vh;
 }
+
+//================== Text
+// d-flex justify-content-center align-items-center
+
+.flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.value-input {
+    max-width: 15rem;
+    text-align: center;
+}
+
+.addon {
+    width: 25px !important;
+    position: relative;
+    right: 40px;
+    font-size: 0.75rem;
+    color: var(--bs-blue);
+    pointer-events: none;
+    display: block !important;
+    text-align: center;
+}
