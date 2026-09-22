@@ -17,6 +17,7 @@ import {
 import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { GeneralService } from '../../../shared/services/general.service';
+import { EnergyUnit } from '../../project/models/project.model';
 import { ScenarioBaseInfoModel } from '../models/scenario.model';
 import {
     ScenarioStateModel,
@@ -232,7 +233,7 @@ export class SimulationComponent implements OnInit {
 
                 yaxis: {
                     title: {
-                        text: `${this.scenarioStateData?.project.unit_energy}`,
+                        text: `power/energy in ${this.scenarioStateData?.project.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                     },
                 },
 

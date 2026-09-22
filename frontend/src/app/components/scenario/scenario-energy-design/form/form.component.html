@@ -16,11 +16,12 @@
                     (section.visible || section.visible == undefined)
                 "
             >
-                <h5 *ngIf="section.label">{{ section.label }}</h5>
+                <h5 *ngIf="section.label">
+                    {{ section.label }}
+                </h5>
 
                 <div class="row">
                     <div
-                        class="col-md-3"
                         [ngClass]="
                             field.span ? 'col-md-' + field.span : 'col-md'
                         "
