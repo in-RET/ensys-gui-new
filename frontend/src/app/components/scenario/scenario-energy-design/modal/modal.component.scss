@@ -9,3 +9,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+.modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+}

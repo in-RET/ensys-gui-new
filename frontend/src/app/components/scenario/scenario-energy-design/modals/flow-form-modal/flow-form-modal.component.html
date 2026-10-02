@@ -19,20 +19,27 @@
         />
     </div>
 
+    <p class="text-danger" modal-msg *ngIf="formError.isShow">
+        {{ formError.msg }}
+    </p>
+
     <div
-        class="d-flex w-100 align-items-center justify-content-center"
+        class="actions"
         modal-actions
         *ngIf="modalInfo.formData !== null; else empty_form_actions"
     >
-        <span
-            class="text-danger modal_error"
-            style="position: absolute; left: 10px"
-            *ngIf="formError.isShow"
+        <button
+            class="btn btn--transparent btn--medium btn-left"
+            *ngIf="modalInfo.calledByANode"
+            (click)="openNode()"
         >
-            {{ formError.msg }}
-        </span>
+            Back to Node
+        </button>
 
-        <button class="btn btn--success btn--medium" (click)="submitForm()">
+        <button
+            class="btn btn--success btn--medium btn-middle"
+            (click)="submitForm()"
+        >
             Submit
         </button>
     </div>

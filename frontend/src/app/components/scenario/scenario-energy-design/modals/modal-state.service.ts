@@ -8,7 +8,7 @@ import {
 import { ModeOption } from '../time-series/time-series.component';
 
 export interface ModalState {
-    nodeForm: FormModalInfo | null;
+    nodeForm: FormModalInfo | EditFormModalInfo | null;
     flowForm: EditFormModalInfo | null;
     calculator: any | null;
     timeSeries: {

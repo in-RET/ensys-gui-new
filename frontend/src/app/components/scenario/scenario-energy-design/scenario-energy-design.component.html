@@ -14,6 +14,7 @@
 
 <ng-container *ngIf="modalStateService.modalState | async as modalState">
     <app-node-form-modal
+        *ngIf="modalState.nodeForm"
         [modalInfo]="modalState.nodeForm"
         (modalClosed)="onNodeFormClosed($event)"
         (makeNode)="makeNode($event.formValue, $event.formModalInfo)"
@@ -21,34 +22,41 @@
         (onShowModal_EpCostsCalculator)="onCalculatorOpened($event)"
         (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
         (onShowModal_IconPicker)="onShowModal_IconPicker($event)"
+        (onShowModal)="onShowModal($event)"
     />
 
     <app-flow-form-modal
+        *ngIf="modalState.flowForm"
         [modalInfo]="modalState.flowForm"
         (saveConnectionInNode)="flow_updateConnectionInNode($event)"
         (modalClosed)="onFlowFormClosed($event)"
         (onShowModal_EpCostsCalculator)="onCalculatorOpened($event)"
         (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
+        (onShowModal)="onShowModal($event)"
     />
 
     <app-calculator-modal
+        *ngIf="modalState.calculator"
         [modalInfo]="modalState.calculator"
         (formSubmitted)="onCalculateEpCosts($event)"
         (modalClosed)="onCalculatorClosed()"
     />
 
     <app-time-series-modal
+        *ngIf="modalState.timeSeries"
         [modalInfo]="modalState.timeSeries"
         (dataSubmitted)="onTimeSeriesSubmitted($event)"
         (modalClosed)="onTimeSeriesClosed()"
     />
 
     <app-simulation-modal
+        *ngIf="modalState.simulation"
         [modalInfo]="modalState.simulation"
         (modalClosed)="onSimulationClosed()"
     />
 
     <app-icon-picker-modal
+        *ngIf="modalState.iconPicker"
         [modalInfo]="modalState.iconPicker"
         (submitIcon)="submitIcon($event)"
         (modalClosed)="onCloseModal_IconPicker()"
@@ -62,6 +70,7 @@
     </app-setup-modal> -->
 
     <app-upload-data
+        *ngIf="modalState.uploadData"
         [modalInfo]="modalState.uploadData"
         (onUploadData)="onUploadData($event)"
         (modalClosed)="onUploadDataClosed()"

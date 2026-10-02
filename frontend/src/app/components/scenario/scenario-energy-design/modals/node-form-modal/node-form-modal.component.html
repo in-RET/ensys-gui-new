@@ -65,16 +65,44 @@
     </div>
     <!-- Add other elements like order lists for transformer -->
 
+    <p class="text-danger" modal-msg *ngIf="formError.isShow">
+        {{ formError.msg }}
+    </p>
+
     <div
+        class="actions"
+        actions
         modal-actions
         *ngIf="modalInfo.formData !== null; else empty_form_actions"
     >
-        <span class="text-danger modal_error" *ngIf="formError.isShow">
-            {{ formError.msg }}
-        </span>
+        <button
+            class="btn btn--info btn--medium btn-left"
+            *ngIf="
+                modalInfo.connection_singleInOut &&
+                modalInfo.connection_singleInOut.in
+            "
+            (click)="openFlow(modalInfo.connection_singleInOut.in)"
+            style="justify-self: start; grid-column: 1"
+        >
+            Edit Flow--In
+        </button>
 
-        <button class="btn btn--success btn--medium" (click)="submitForm()">
+        <button
+            class="btn btn--success btn--medium btn-middle"
+            (click)="submitForm()"
+        >
             Submit
+        </button>
+
+        <button
+            class="btn btn--info btn--medium btn-right"
+            *ngIf="
+                modalInfo.connection_singleInOut &&
+                modalInfo.connection_singleInOut.out
+            "
+            (click)="openFlow(modalInfo.connection_singleInOut.out)"
+        >
+            Edit Flow--Out
         </button>
     </div>
 

@@ -62,6 +62,8 @@ export class NumberOnlyDirective {
 
     @HostListener('blur', ['$event'])
     onBlur(event: Event): void {
+        if (!this.numberOnly) return;
+
         const input = event.target as HTMLInputElement;
 
         if (!input.value || input.value === '-') {

@@ -10,6 +10,11 @@ export interface Position {
     y: number;
 }
 
+export interface ConnectionInfo {
+    source: { node: any; port: any };
+    destination: { node: any; port: any };
+}
+
 export interface FormModalInfo {
     title: string;
     action: Action;
@@ -19,12 +24,22 @@ export interface FormModalInfo {
     data: any;
     url: string;
     show: boolean;
+    connection?: {
+        output_node: string;
+        input_node: string;
+        output_port: string;
+        input_port: string;
+    };
+    connection_singleInOut?: {
+        in: ConnectionInfo | null;
+        out: ConnectionInfo | null;
+    };
 }
 
 export interface EditFormModalInfo extends FormModalInfo {
     id: string;
     _id: number;
-    connection: any;
+    calledByANode?: boolean;
 }
 
 interface FormNode {
