@@ -29,7 +29,10 @@ import { NodeFormModalComponent } from './modals/node-form-modal/node-form-modal
 import { SimulationModalComponent } from './modals/simulation-modal/simulation-modal.component';
 import { TimeSeriesModalComponent } from './modals/time-series-modal/time-series-modal.component';
 import { UploadDataComponent } from './modals/upload-data/upload-data.component';
-import { FormModalInfo } from './models/scenario-energy-design.model';
+import {
+    ConnectionInfo,
+    FormModalInfo,
+} from './models/scenario-energy-design.model';
 import { ModeOption } from './time-series/time-series.component';
 
 @Component({
@@ -406,6 +409,20 @@ export class ScenarioEnergyDesignComponent {
 
     onUploadDataClosed() {
         this.modalStateService.closeUploadData();
+    }
+
+    onShowModal(e: {
+        type: any;
+        connection: ConnectionInfo | undefined;
+        node: DrawflowNode;
+        calledByANode: boolean;
+    }) {
+        this.energyDrawflowComponent.showModalEdit(
+            e.type,
+            e.connection,
+            e.node,
+            e.calledByANode,
+        );
     }
 
     ngOnDestroy() {

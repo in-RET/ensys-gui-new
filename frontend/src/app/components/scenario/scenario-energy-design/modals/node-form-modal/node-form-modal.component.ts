@@ -8,6 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DrawflowNode } from 'drawflow';
 import { map } from 'rxjs';
 import { ToastService } from '../../../../../shared/services/toast.service';
 import { IconType, OEPResponse, Port } from '../../../models/node.model';
@@ -23,7 +24,11 @@ import {
 import { ScenarioService } from '../../../services/scenario.service';
 import { FormComponent } from '../../form/form.component';
 import { ModalComponent } from '../../modal/modal.component';
-import { FormModalInfo } from '../../models/scenario-energy-design.model';
+import {
+    ConnectionInfo,
+    EditFormModalInfo,
+    FormModalInfo,
+} from '../../models/scenario-energy-design.model';
 import {
     OrderItem,
     OrderListComponent,
@@ -48,7 +53,9 @@ export class NodeFormModalComponent {
         isShow: false,
     };
 
-    @Input() modalInfo: FormModalInfo | null = null;
+    @Input() modalInfo!: FormModalInfo | EditFormModalInfo | null;
+    @Input() nodeConnection?: { node: any; port: any };
+
     @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() makeNode = new EventEmitter<{
         formValue: any;
@@ -66,6 +73,12 @@ export class NodeFormModalComponent {
     }>();
     @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
     @Output() onShowModal_IconPicker = new EventEmitter<any>();
+    @Output() onShowModal = new EventEmitter<{
+        type: string;
+        connection: ConnectionInfo;
+        node: DrawflowNode;
+        calledByANode: boolean;
+    }>();
 
     @ViewChild('form')
     formComponent!: FormComponent;
@@ -877,5 +890,17 @@ export class NodeFormModalComponent {
 
     openInfoUrl(url: string | undefined) {
         if (url) window.open(url, '_blank')?.focus();
+    }
+
+    openFlow(connection?: ConnectionInfo) {
+        if (connection && this.modalInfo) {
+            const d = {
+                type: 'flow',
+                connection,
+                node: this.modalInfo.node,
+                calledByANode: true,
+            };
+            this.onShowModal.emit(d);
+        }
     }
 }

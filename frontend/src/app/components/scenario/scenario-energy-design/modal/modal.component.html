@@ -32,7 +32,12 @@
                 <ng-content select="[modal-body]" />
             </div>
 
-            <div class="modal-footer justify-content-center" *ngIf="hasActions">
+            <div
+                class="modal-footer"
+                *ngIf="hasActions"
+                style="display: flex; flex-direction: column"
+            >
+                <ng-content select="[modal-msg]" />
                 <ng-content select="[modal-actions]" />
             </div>
         </div>

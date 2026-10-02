@@ -8,6 +8,7 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DrawflowNode } from 'drawflow';
 import { InputType } from '../../../../../shared/models/generic.model';
 import { GeneralService } from '../../../../../shared/services/general.service';
 import { EnergyDesignService } from '../../../services/energy-design.service';
@@ -50,6 +51,12 @@ export class FlowFormModalComponent {
         type?: InputType;
         min?: number;
         max?: number;
+    }>();
+    @Output() onShowModal = new EventEmitter<{
+        type: string;
+        connection: undefined;
+        node: DrawflowNode;
+        calledByANode: boolean;
     }>();
 
     @ViewChild('form')
@@ -318,5 +325,18 @@ export class FlowFormModalComponent {
 
     setTimeSeriesData(controlName: string, data: number | number[] | string) {
         this.formComponent.setFieldData(controlName, data);
+    }
+
+    openNode() {
+        if (this.modalInfo) {
+            const d = {
+                type: 'node',
+                connection: undefined,
+                node: this.modalInfo.node,
+                calledByANode: true,
+            };
+
+            this.onShowModal.emit(d);
+        }
     }
 }
