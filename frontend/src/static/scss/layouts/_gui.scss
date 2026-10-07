@@ -318,17 +318,6 @@
                 url("../../assets/icons/nodes/#{$type}/#{$icon}")
             );
         }
-
-        // img.#{$type}.#{$variant} {
-        //     @include gui-component-icon(
-        //         url("/static/assets/icons/nodes/#{$type}/#{$icon}")
-        //     );
-        // }
-        // .img.#{$type}.#{$variant} {
-        //     @include gui-component-icon(
-        //         url("/static/assets/icons/nodes/#{$type}/#{$icon}")
-        //     );
-        // }
     }
 }
 
