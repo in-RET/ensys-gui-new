@@ -353,6 +353,11 @@ export class EnergyDrawflowComponent {
         });
     }
 
+    getNodeById(id: number) {
+        if (!this.editor) return;
+        return this.editor.getNodeFromId(id);
+    }
+
     connectionMagneticSnap() {
         let isConnecting: boolean = false;
         let snapSource: any = null;
@@ -1771,9 +1776,28 @@ export class EnergyDrawflowComponent {
         }, 100);
     }
 
-    getNodeById(id: number) {
-        if (!this.editor) return;
-        return this.editor.getNodeFromId(id);
+    downloadData() {
+        const { scenarioList, ...project } =
+            this.scenarioStateService.getScenarioData()
+                ?.project as ScenarioUpdatedModel_project;
+
+        const data: ScenarioUpdatedModel = {
+            project,
+            scenario: this.scenarioStateService.getScenarioData()
+                ?.scenario as ScenarioUpdatedModel_scenario,
+        };
+
+        const file = new Blob([JSON.stringify(data)], {
+            type: 'application/json',
+        });
+
+        const url = URL.createObjectURL(file);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `drawflow_${new Date().toISOString()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
     }
 }
 
