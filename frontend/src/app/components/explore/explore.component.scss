@@ -14,10 +14,69 @@
 
     &::after {
         border: none;
-
-        background: url("/static/assets/icons/feather/black/align-center.svg")
+        content: "";
+        background: url("../../../static/assets/icons/feather/black/align-center.svg")
             center / contain no-repeat;
         width: 16px;
         height: 16px;
+    }
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    &-left {
+        grid-column: 1;
+
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-self: start;
+    }
+
+    &-center {
+        grid-column: 2;
+        justify-self: center;
+    }
+
+    &-right {
+        grid-column: 3;
+        justify-self: end;
+    }
+}
+
+.btn-expandable {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .btn-icon {
+        transition: transform 0.4s ease;
+    }
+
+    .btn-text {
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        white-space: nowrap;
+
+        transition:
+            max-width 0.4s ease,
+            opacity 0.3s ease,
+            margin-left 0.4s ease;
+    }
+
+    &:hover {
+        .btn-icon {
+            transform: rotate(-90deg);
+        }
+
+        .btn-text {
+            max-width: 250px;
+            opacity: 1;
+            margin-left: 0.5rem;
+        }
     }
 }

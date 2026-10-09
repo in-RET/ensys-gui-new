@@ -1,6 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { catchError, finalize, map, of, shareReplay } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+import {
+    catchError,
+    concatMap,
+    finalize,
+    from,
+    map,
+    of,
+    shareReplay,
+    toArray,
+} from 'rxjs';
 import { ResDataModel, ResModel } from '../../../shared/models/http.model';
 import { LoadingService } from '../../../shared/services/loading.service';
 import { ToastService } from '../../../shared/services/toast.service';
@@ -17,12 +27,14 @@ export interface LoadingModel {
 
 @Component({
     selector: 'app-project-explore',
-    imports: [CommonModule, ProjectItemComponent],
+    imports: [CommonModule, FormsModule, ProjectItemComponent],
     templateUrl: './project-explore.component.html',
     styleUrl: './project-explore.component.scss',
 })
 export class ProjectExploreComponent implements OnInit {
     project_list!: ProjectModel[];
+    showUploadModal = false;
+    uploadError = '';
     loading: LoadingModel = {
         page: false,
         projects: true,
@@ -92,6 +104,86 @@ export class ProjectExploreComponent implements OnInit {
 
     trackByProjectId = (_: number, item: ProjectModel) => item.id;
 
+    submitUploadProjects(uploadData: string): boolean {
+        let importedProjects: unknown;
+
+        try {
+            importedProjects = JSON.parse(uploadData);
+        } catch {
+            this.uploadError = 'Enter valid project JSON';
+            return false;
+        }
+
+        if (
+            !Array.isArray(importedProjects) ||
+            importedProjects.length === 0 ||
+            !importedProjects.every(isImportableProject)
+        ) {
+            this.uploadError =
+                'One/s of necessary fileds are missing: name, country, description, coordinates, currency, energy unit, and CO2 unit.';
+            return false;
+        }
+
+        const projectPayloads = importedProjects.map((project) => ({
+            name: project.name,
+            country: project.country,
+            description: project.description,
+            latitude: project.latitude,
+            longitude: project.longitude,
+            currency: project.unit_currency ?? project.currency,
+            unit_energy: project.unit_energy,
+            unit_co2: project.unit_co2,
+        }));
+
+        this.uploadError = '';
+        this.showUploadModal = false;
+        this.loadingService.start();
+
+        from(projectPayloads)
+            .pipe(
+                concatMap((project) =>
+                    this.projectService.createProject(project).pipe(
+                        map((res: ResModel<ProjectResModel>) => {
+                            if (!res.success) {
+                                throw new Error('Project import was rejected.');
+                            }
+                            return true;
+                        }),
+                        catchError((error: unknown) => {
+                            console.error('Failed to import project:', error);
+                            return of(false);
+                        }),
+                    ),
+                ),
+                toArray(),
+                finalize(() => this.loadingService.stop()),
+            )
+            .subscribe({
+                next: (results) => {
+                    const importedCount = results.filter(Boolean).length;
+                    const failedCount = results.length - importedCount;
+
+                    if (failedCount === 0) {
+                        this.toastService.success(
+                            `${importedCount} project(s) imported successfully.`,
+                        );
+                    } else {
+                        this.toastService.error(
+                            `${importedCount} project(s) imported; ${failedCount} failed.`,
+                        );
+                    }
+
+                    this.loadProjects();
+                },
+                error: (error: unknown) => {
+                    console.error('Project import failed:', error);
+                    this.toastService.error('Failed to import projects.');
+                },
+            });
+
+        return true;
+    }
+
     deleteProject(id: number) {
         this.loadingService.start();
         this.projectService
@@ -153,4 +245,39 @@ export class ProjectExploreComponent implements OnInit {
                 },
             });
     }
+}
+
+interface ImportableProject {
+    name: string;
+    country: string;
+    description: string;
+    latitude: number;
+    longitude: number;
+    unit_currency?: string;
+    currency?: string;
+    unit_energy: string;
+    unit_co2: string;
+}
+
+function isImportableProject(value: unknown): value is ImportableProject {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        return false;
+    }
+
+    const project = value as Record<string, unknown>;
+    const currency = project['unit_currency'] ?? project['currency'];
+
+    return (
+        typeof project['name'] === 'string' &&
+        project['name'].trim().length > 0 &&
+        typeof project['country'] === 'string' &&
+        project['country'].trim().length > 0 &&
+        typeof project['description'] === 'string' &&
+        project['description'].trim().length > 0 &&
+        typeof project['latitude'] === 'number' &&
+        typeof project['longitude'] === 'number' &&
+        typeof currency === 'string' &&
+        typeof project['unit_energy'] === 'string' &&
+        typeof project['unit_co2'] === 'string'
+    );
 }
