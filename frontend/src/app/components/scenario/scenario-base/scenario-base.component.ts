@@ -90,10 +90,7 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     private loadCurrentScenarioData() {
-        const currentScenarioData: ScenarioStateModel | null =
-            this.scenarioStateService.getScenarioData();
-
-        if (!currentScenarioData) {
+        if (!this.currentScenario) {
             const currentScenarioData_storage: ScenarioBaseInfoModel | null =
                 this.scenarioService.restoreBaseInfo_Storage();
 
@@ -158,13 +155,12 @@ export class ScenarioBaseComponent implements OnInit {
             return;
         }
 
-        formData.id =
-            this.scenarioStateService.getScenarioData()?.scenario?.id!;
+        formData.id = this.currentScenario?.scenario?.id!;
         const constraints = this.setupComponent.getConstraintData();
 
-        if (!formData.id) {
+        if (!formData.id && this.currentScenario?.project) {
             const data: ScenarioBaseInfoModel = {
-                project: formData.project,
+                project: this.currentScenario.project,
                 scenario: {
                     name: formData.name,
                     sDate: formData.sDate,
@@ -189,8 +185,7 @@ export class ScenarioBaseComponent implements OnInit {
                     simulationYear: +formData.simulationYear,
                     constraints: constraints,
                     modeling_data:
-                        this.scenarioStateService.getScenarioData()?.scenario
-                            ?.modeling_data || null,
+                        this.currentScenario?.scenario?.modeling_data || null,
                 },
             };
 
@@ -247,8 +242,7 @@ export class ScenarioBaseComponent implements OnInit {
         return new Promise(async (resolve, reject) => {
             // check whether the simulationYear has changed
             const oldSimulationYear =
-                this.scenarioStateService.getScenarioData()?.scenario
-                    ?.simulationYear;
+                this.currentScenario?.scenario?.simulationYear;
 
             if (oldSimulationYear !== data.scenario.simulationYear) {
                 if (
@@ -435,8 +429,7 @@ export class ScenarioBaseComponent implements OnInit {
     }
 
     openSimulations() {
-        const scenarioId =
-            this.scenarioStateService.getScenarioData()?.scenario?.id;
+        const scenarioId = this.currentScenario?.scenario?.id;
 
         if (scenarioId) {
             this.energyDesignComponent.showModal_Simulation(scenarioId);
