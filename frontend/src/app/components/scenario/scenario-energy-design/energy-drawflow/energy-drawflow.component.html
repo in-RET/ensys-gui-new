@@ -12,8 +12,13 @@
         [ngClass]="(drawflowMovementState$ | async) ? 'pe-all' : 'pe-none'"
     >
         <div class="tools-box shadow rounded">
-            <div class="d-flex gap-2 __all" *ngIf="toolBar.isOpen">
-                <div class="__controlling d-flex gap-2">
+            <div
+                class="d-flex gap-2 __all"
+                [ngClass]="{
+                    'd-none': !toolBar.isOpen,
+                }"
+            >
+                <div class="d-flex gap-2 __border">
                     <i
                         class="full-screen"
                         title="Full Screen"
@@ -58,7 +63,21 @@
                     ></i>
                 </div>
 
-                <div class="__more d-flex gap-2">
+                <div class="d-flex gap-2 __border">
+                    <i
+                        class="upload"
+                        title="Upload Data"
+                        (click)="openUploadData()"
+                    ></i>
+
+                    <i
+                        class="download"
+                        title="Download Data"
+                        (click)="downloadData()"
+                    ></i>
+                </div>
+
+                <div class="d-flex gap-2">
                     <i
                         class="play"
                         title="Start Simulation"
@@ -77,14 +96,6 @@
                             editor &&
                             (editor.drawflow.drawflow.Home.data | json) !== '{}'
                         "
-                    ></i>
-                </div>
-
-                <div class="__more d-flex gap-2">
-                    <i
-                        class="upload"
-                        title="Upload Data"
-                        (click)="openUploadData()"
                     ></i>
                 </div>
             </div>

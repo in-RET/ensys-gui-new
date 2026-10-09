@@ -256,13 +256,25 @@
         &.upload {
             background-image: url("../../../../../static/assets/icons/feather/white/upload.svg");
         }
+
+        &.download {
+            background-image: url("../../../../../static/assets/icons/feather/white/download.svg");
+        }
     }
 
     .__all {
         border-right: 1px dashed;
         padding-right: 0.5rem;
 
-        .__controlling {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+        transition:
+            opacity 0.3s ease,
+            transform 0.3s ease,
+            visibility 0.3s ease;
+
+        .__border {
             border-right: 1px dashed;
             padding-right: 0.5rem;
         }
