@@ -1,26 +1,86 @@
 <!-- action btns -->
-<section class="d-flex gap-1 justify-content-center p-3">
+<section class="p-3 actions">
     <!-- Create Project -->
-    <button
-        type="button"
-        class="btn btn--medium btn--success"
-        [routerLink]="['../project']"
-        aria-label="Create project"
-        *ngIf="currentExploreRoute == 'projects'"
-        style="position: absolute; left: 0; margin-left: 3rem"
-    >
-        <img
-            src="static/assets/icons/feather/white/plus.svg"
-            alt=""
-            height="20"
-            width="20"
-            loading="lazy"
-        />
-        <span>Create Project</span>
-    </button>
+    <div class="actions-left">
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            [routerLink]="['../project']"
+            aria-label="Create project"
+            *ngIf="currentExploreRoute == 'projects'"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/plus.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Create Project</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'templates'"
+            (click)="downloadTemplates()"
+            aria-label="Download Templates"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/download.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Download Templates</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'projects'"
+            (click)="downloadProjects()"
+            aria-label="Download Projects"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/download.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Download Projects</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'projects'"
+            (click)="openUploadProjects()"
+            aria-label="Upload projects"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/upload.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Upload Project(s)</span>
+        </button>
+    </div>
 
     <!-- show Projects/Templates -->
-    <div class="btn-group" role="group" aria-label="Basic outlined example">
+    <div
+        class="btn-group actions-center"
+        role="group"
+        aria-label="Basic outlined example"
+    >
         <button
             type="button"
             class="btn"
@@ -45,11 +105,7 @@
     </div>
 
     <!-- sort options -->
-    <div
-        ngbDropdown
-        class="d-inline-block"
-        style="position: absolute; right: 0; margin-right: 3rem"
-    >
+    <div ngbDropdown class="d-inline-block actions-right">
         <button
             type="button"
             class="btn btn--hollow d-flex align-items-center"
@@ -81,3 +137,12 @@
 </section>
 
 <router-outlet />
+
+<ng-container *ngIf="modalStateService.modalState | async as modalState">
+    <app-upload-data
+        *ngIf="modalState.uploadData"
+        [modalInfo]="modalState.uploadData"
+        (onUploadData)="onUploadData($event)"
+        (modalClosed)="onUploadprojectsClosed()"
+    />
+</ng-container>

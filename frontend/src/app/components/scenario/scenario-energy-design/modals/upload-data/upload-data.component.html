@@ -4,27 +4,49 @@
     (closeModal)="closeModal(false)"
 >
     <div modal-form>
-        <div class="d-flex align-items-center justify-content-center">
-            <textarea
-                #dataTextarea
-                name="data"
-                id="data"
-                placeholder="Enter data to upload..."
-                rows="10"
-                class="form-control"
-                [(ngModel)]="data"
-            ></textarea>
+        <div class="upload-layout">
+            <section class="data-panel">
+                <label class="panel-title" for="data">JSON/Text</label>
+                <textarea
+                    name="data"
+                    id="data"
+                    placeholder="Paste your data here..."
+                    rows="12"
+                    class="form-control"
+                    [(ngModel)]="data"
+                ></textarea>
+            </section>
+
+            <section class="file-panel">
+                <span class="panel-title">File</span>
+                <label class="file-drop-zone h-100" for="data-file">
+                    <img
+                        class="upload-icon"
+                        src="static/assets/icons/feather/black/upload-cloud.svg"
+                        alt=""
+                    />
+                    <span>Choose a file</span>
+                    <small>Its contents will appear in the data field</small>
+                    <input
+                        id="data-file"
+                        type="file"
+                        accept="text/*,application/json"
+                        aria-label="Select a data file"
+                        (change)="onFileSelect($event)"
+                    />
+                </label>
+            </section>
         </div>
     </div>
 
-    <div modal-actions>
-        <span class="text-danger modal_error" *ngIf="formError.isShow">
-            {{ formError.msg }}
-        </span>
+    <p class="text-danger" modal-msg *ngIf="formError.isShow">
+        {{ formError.msg }}
+    </p>
 
+    <div class="actions" modal-actions>
         <button
             type="submit"
-            class="btn btn--success btn--medium"
+            class="btn btn--success btn--medium btn-middle"
             (click)="onSubmitData()"
         >
             <span>Submit</span>

@@ -63,7 +63,8 @@
                             ],
                             "optimization": true,
                             "outputHashing": "all",
-                            "deleteOutputPath": true
+                            "deleteOutputPath": true,
+                            "baseHref": "/"
                         },
                         "development": {
                             "budgets": [
