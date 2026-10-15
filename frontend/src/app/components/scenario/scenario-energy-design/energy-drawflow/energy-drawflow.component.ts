@@ -78,6 +78,10 @@ export class EnergyDrawflowComponent {
     canMoveDrawflow: boolean = false;
     isDragging: boolean = false;
 
+    // hisotry management
+    hasMoreUndo: boolean = false;
+    hasMoreRedo: boolean = false;
+
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild(ModalComponent)
     modalComponent: ModalComponent = {} as ModalComponent;
@@ -150,6 +154,20 @@ export class EnergyDrawflowComponent {
 
             setTimeout(() => this.updateInputPorts(), 0);
 
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
+
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
                 this.onUpdateDrawflow();
         });
@@ -161,6 +179,20 @@ export class EnergyDrawflowComponent {
         this.editor.on('nodeRemoved', (data: any) => {
             console.log('Drawflow event: nodeRemoved');
             this.toastService.info('Drawflow event: nodeRemoved');
+
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
 
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
                 this.onUpdateDrawflow();
@@ -185,6 +217,19 @@ export class EnergyDrawflowComponent {
             this.toastService.info('Drawflow event: connectionRemoved');
 
             setTimeout(() => this.updateInputPorts(), 0);
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
         });
 
         this.editor.on('connectionSelected', (connection: any) => {});
@@ -212,7 +257,21 @@ export class EnergyDrawflowComponent {
         });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
-            this.saveCurrentDrawflow();
+            this.saveCurrentDrawflow(undefined);
+
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
         });
 
         this.editor.on('translate', (position: any) => {});
@@ -262,6 +321,22 @@ export class EnergyDrawflowComponent {
                 this.editor.import(dataToImport);
                 this.setBusColorFlows(CURRENT_DRAWFLOW);
             }
+        }
+
+        const d: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+
+        const historySnapshot: {
+            data: { [nodeKey: string]: DrawflowNode };
+            hasUndo: boolean;
+            hasRedo: boolean;
+        } | null = this.scenarioService.restoreDrawflowHistory(d);
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasUndo;
+            this.hasMoreRedo = historySnapshot.hasRedo;
         }
     }
 
@@ -1484,6 +1559,7 @@ export class EnergyDrawflowComponent {
             this.editor.clearModuleSelected();
             this.editor.nodeId = 1;
             this.scenarioService.removeDrawflow_Data();
+            this.saveCurrentDrawflow();
             this.toastService.info(`Cleaned the grid model successfully!`);
 
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
@@ -1533,6 +1609,20 @@ export class EnergyDrawflowComponent {
 
         if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
             this.onUpdateDrawflow();
+
+        const d: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+        const historyResult:
+            | {
+                  hasUndo: boolean;
+                  hasRedo: boolean;
+              }
+            | undefined = this.scenarioService.recordDrawflowHistory(d);
+        if (historyResult) {
+            this.hasMoreUndo = historyResult.hasUndo;
+            this.hasMoreRedo = historyResult.hasRedo;
+        }
     }
 
     async deleteFlow(
@@ -1798,6 +1888,50 @@ export class EnergyDrawflowComponent {
         link.download = `drawflow_${new Date().toISOString()}.json`;
         link.click();
         URL.revokeObjectURL(url);
+    }
+
+    private restoreDrawflowSnapshot(snapshot: {
+        [nodeKey: string]: DrawflowNode;
+    }) {
+        // const restoredSnapshot = this.cloneDrawflow(snapshot);
+        this.editor.import({
+            drawflow: {
+                Home: {
+                    data: snapshot,
+                },
+            },
+        });
+        this.setBusColorFlows(snapshot);
+    }
+
+    undoChanges() {
+        const historySnapshot:
+            | {
+                  data: { [nodeKey: string]: DrawflowNode };
+                  hasMoreUndo: boolean;
+                  hasMoreRedo: boolean;
+              }
+            | undefined = this.scenarioService.undoScenarioChange();
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasMoreUndo;
+            this.hasMoreRedo = historySnapshot.hasMoreRedo;
+        }
+    }
+
+    redoChanges() {
+        const historySnapshot = this.scenarioService.redoScenarioChange();
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasMoreUndo;
+            this.hasMoreRedo = historySnapshot.hasMoreRedo;
+        }
+    }
+
+    ngOnDestroy() {
+        this.scenarioService.clearDrawflowHistory();
     }
 }
 

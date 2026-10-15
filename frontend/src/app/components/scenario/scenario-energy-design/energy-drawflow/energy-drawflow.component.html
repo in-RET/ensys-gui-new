@@ -77,6 +77,22 @@
                     ></i>
                 </div>
 
+                <div class="d-flex gap-2 __border">
+                    <i
+                        class="undo"
+                        title="Undo Changes"
+                        [ngClass]="{ disabled: !hasMoreUndo }"
+                        (click)="undoChanges()"
+                    ></i>
+
+                    <i
+                        class="redo"
+                        title="Redo Changes"
+                        [ngClass]="{ disabled: !hasMoreRedo }"
+                        (click)="redoChanges()"
+                    ></i>
+                </div>
+
                 <div class="d-flex gap-2">
                     <i
                         class="play"

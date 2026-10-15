@@ -7,6 +7,7 @@ import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
+    DrawflowHistoryState,
     ScenarioBaseInfoModel,
     ScenarioReqModel,
     ScenarioResModel,
@@ -23,6 +24,7 @@ export class ScenarioService {
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
     private user_modeling_state = 'user_modeling_state';
     private baseUrl_auxiliary: string = environment.apiUrl + 'auxiliary/';
+    private historyStorageKey = 'design_history';
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
@@ -379,5 +381,136 @@ export class ScenarioService {
                 maturity,
             },
         );
+    }
+
+    //====================  design history   ====================
+    private history: { [nodeKey: string]: DrawflowNode }[] = [];
+    private historyIndex = -1;
+    private readonly maxHistoryEntries = 5;
+
+    restoreDrawflowHistory(currentDrawflow: {
+        [nodeKey: string]: DrawflowNode;
+    }): {
+        data: { [nodeKey: string]: DrawflowNode };
+        hasUndo: boolean;
+        hasRedo: boolean;
+    } | null {
+        const storedHistory = sessionStorage.getItem(this.historyStorageKey);
+
+        if (storedHistory) {
+            try {
+                const historyState: DrawflowHistoryState =
+                    JSON.parse(storedHistory);
+                if (
+                    Array.isArray(historyState?.snapshots) &&
+                    historyState.snapshots.length > 0 &&
+                    Number.isInteger(historyState.index) &&
+                    historyState.index >= 0 &&
+                    historyState.index < historyState.snapshots.length
+                ) {
+                    this.history = historyState.snapshots;
+                    this.historyIndex = historyState.index;
+
+                    return {
+                        data: this.history[this.historyIndex],
+                        hasUndo: this.historyIndex > 0,
+                        hasRedo: this.historyIndex < this.history.length - 1,
+                    };
+                }
+            } catch (error) {
+                console.error(
+                    'Unable to restore Drawflow undo history from session storage.',
+                    error,
+                );
+            }
+        }
+
+        this.history = [currentDrawflow];
+        this.historyIndex = 0;
+        this.persistDrawflowHistory();
+        return null;
+    }
+
+    recordDrawflowHistory(drawflow: { [nodeKey: string]: DrawflowNode }):
+        | {
+              hasUndo: boolean;
+              hasRedo: boolean;
+          }
+        | undefined {
+        // regret duplictae/same drawflow state
+        if (
+            this.historyIndex >= 0 &&
+            JSON.stringify(this.history[this.historyIndex]) ===
+                JSON.stringify(drawflow)
+        ) {
+            return undefined;
+        }
+
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(drawflow);
+
+        if (this.history.length > this.maxHistoryEntries) {
+            this.history.shift();
+        }
+        this.historyIndex = this.history.length - 1;
+        this.persistDrawflowHistory();
+
+        return {
+            hasUndo: this.historyIndex > 0,
+            hasRedo: this.historyIndex < this.history.length - 1,
+        };
+    }
+
+    clearDrawflowHistory() {
+        sessionStorage.removeItem(this.historyStorageKey);
+    }
+
+    private persistDrawflowHistory() {
+        const historyState: DrawflowHistoryState = {
+            snapshots: this.history,
+            index: this.historyIndex,
+        };
+        sessionStorage.setItem(
+            this.historyStorageKey,
+            JSON.stringify(historyState),
+        );
+    }
+
+    undoScenarioChange():
+        | {
+              data: { [nodeKey: string]: DrawflowNode };
+              hasMoreUndo: boolean;
+              hasMoreRedo: boolean;
+          }
+        | undefined {
+        if (this.historyIndex <= 0) return;
+
+        this.historyIndex--;
+        this.persistDrawflowHistory();
+
+        return {
+            data: this.history[this.historyIndex],
+            hasMoreUndo: this.historyIndex > 0,
+            hasMoreRedo: this.historyIndex < this.history.length - 1,
+        };
+    }
+
+    redoScenarioChange():
+        | {
+              data: { [nodeKey: string]: DrawflowNode };
+              hasMoreUndo: boolean;
+              hasMoreRedo: boolean;
+          }
+        | undefined {
+        if (this.historyIndex >= this.history.length - 1) return;
+
+        this.historyIndex++;
+        this.persistDrawflowHistory();
+
+        return {
+            data: this.history[this.historyIndex],
+            hasMoreUndo: this.historyIndex > 0,
+            hasMoreRedo: this.historyIndex < this.history.length - 1,
+        };
     }
 }

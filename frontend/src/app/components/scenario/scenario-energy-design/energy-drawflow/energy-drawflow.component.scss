@@ -198,6 +198,7 @@
     border-right: 1px solid var(--border-color);
     z-index: 5;
     gap: 0.5rem;
+    cursor: auto;
 
     i {
         width: 1em;
@@ -259,6 +260,14 @@
 
         &.download {
             background-image: url("../../../../../static/assets/icons/feather/white/download.svg");
+        }
+
+        &.undo {
+            background-image: url("../../../../../static/assets/icons/feather/white/chevrons-left.svg");
+        }
+
+        &.redo {
+            background-image: url("../../../../../static/assets/icons/feather/white/chevrons-right.svg");
         }
     }
 
