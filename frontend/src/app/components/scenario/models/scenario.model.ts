@@ -97,3 +97,8 @@ export interface UserModelingStateModel {
     data: ScenarioBaseInfoModel;
     autoUpdate: boolean;
 }
+
+export interface DrawflowHistoryState {
+    snapshots: { [nodeKey: string]: DrawflowNode }[];
+    index: number;
+}
