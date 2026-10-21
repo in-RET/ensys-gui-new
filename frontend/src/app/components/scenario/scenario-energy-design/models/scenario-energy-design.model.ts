@@ -10,12 +10,10 @@ export interface Position {
     y: number;
 }
 
-// export interface NodeModel {
-//     class: string;
-//     name: string;
-//     position: Position;
-//     data?: any;
-// }
+export interface ConnectionInfo {
+    source: { node: any; port: any };
+    destination: { node: any; port: any };
+}
 
 export interface FormModalInfo {
     title: string;
@@ -26,12 +24,22 @@ export interface FormModalInfo {
     data: any;
     url: string;
     show: boolean;
+    connection?: {
+        output_node: string;
+        input_node: string;
+        output_port: string;
+        input_port: string;
+    };
+    connection_singleInOut?: {
+        in: ConnectionInfo | null;
+        out: ConnectionInfo | null;
+    };
 }
 
 export interface EditFormModalInfo extends FormModalInfo {
     id: string;
     _id: number;
-    connection: any;
+    calledByANode?: boolean;
 }
 
 interface FormNode {
@@ -44,33 +52,3 @@ interface FormNode {
     oep: boolean;
     preDefData?: any | undefined;
 }
-
-// class FormModalInfo {
-//     id?: number;
-//     title: string = '';
-//     formData: any | undefined;
-//     action: any | undefined;
-//     data: any | undefined;
-//     type: 'node' | 'flow' | undefined;
-//     editMode: boolean = false;
-//     hide: boolean = false;
-//     show: boolean = false;
-//     node?: FormNode;
-//     preDefData!: { inputs: []; outputs: [] } | undefined;
-//     flowData: { inputs: FlowData[]; outputs: FlowData[] } | undefined;
-//     url: string = '';
-//     connection!: Connection;
-// }
-
-// timeSeriesModal: any = {
-//     id: '',
-//     group: {},
-//     show: false,
-//     title: 'Time Series Data',
-//     action: {
-//         label: 'Import',
-//         fn: undefined,
-//     },
-//     data: undefined,
-//     modes: undefined,
-// };

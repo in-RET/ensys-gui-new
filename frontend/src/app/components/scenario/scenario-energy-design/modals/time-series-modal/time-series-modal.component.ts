@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { InputType } from '../../../../../shared/models/generic.model';
 import {
     ModeOption,
     TimeSeriesComponent,
@@ -14,15 +15,19 @@ import {
 export class TimeSeriesModalComponent {
     @Input() modalInfo!: {
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     } | null;
     @Output() dataSubmitted = new EventEmitter<{
         controlName: string;
-        data: number | number[];
+        data: number | number[] | string;
     }>();
     @Output() modalClosed = new EventEmitter<boolean>();
 
-    onDataSubmitted(data: number | number[]) {
+    onDataSubmitted(data: number | number[] | string) {
         if (!this.modalInfo) return;
 
         this.dataSubmitted.emit({

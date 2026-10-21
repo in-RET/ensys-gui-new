@@ -1,43 +1,130 @@
-import {CommonModule} from '@angular/common';
-import {HttpClient} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Chart} from 'chart.js/auto';
-import 'chartjs-adapter-date-fns';
-import zoomPlugin from 'chartjs-plugin-zoom';
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
-import {tap} from 'rxjs';
-import {environment} from '../../../../environments/environment';
-import {AlertService} from '../../../shared/services/alert.service';
+import {
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
+import { finalize, map, tap } from 'rxjs';
+import {
+    loadingModel,
+    PdfGeneratorComponent,
+} from '../../../shared/components/pdf-generator/pdf-generator.component';
+import { ResModel } from '../../../shared/models/http.model';
+import { AlertService } from '../../../shared/services/alert.service';
+import { GeneralService } from '../../../shared/services/general.service';
+import { EnergyUnit } from '../../project/models/project.model';
+import { ScenarioBaseInfoModel } from '../models/scenario.model';
+import {
+    ScenarioStateModel,
+    ScenarioStateService,
+} from '../services/scenario-state.service';
+import { ScenarioService } from '../services/scenario.service';
+import {
+    ResultGroup,
+    SimulationResultModel,
+    StaticResultModel,
+} from './models/simulation.model';
+import { SimulationService } from './services/simulation.service';
+
+declare const Plotly: any;
 
 @Component({
     selector: 'app-simulation',
-    imports: [CommonModule],
+    imports: [
+        CommonModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        PdfGeneratorComponent,
+    ],
     templateUrl: './simulation.component.html',
     styleUrl: './simulation.component.scss',
 })
 export class SimulationComponent implements OnInit {
-    loading = false;
-    private charts: Chart[] = [];
+    staticList!: ResultGroup[];
+    loading: { page: boolean; downloading: boolean } = {
+        page: false,
+        downloading: false,
+    };
+    saveOptions: string[] = ['Print', 'PDF'];
+    scenarioStateData: ScenarioBaseInfoModel | null = null;
 
     router = inject(Router);
     route = inject(ActivatedRoute);
     alertService = inject(AlertService);
     httpService = inject(HttpClient);
+    simulationService = inject(SimulationService);
+    generalService = inject(GeneralService);
+    scenarioService = inject(ScenarioService);
+    scenarioStateService = inject(ScenarioStateService);
 
     ngOnInit() {
+        this.loadCurrentScenarioData();
+
         const simulationId = +this.route.snapshot.params['id'];
 
         if (simulationId) {
-            this.loading = true;
+            this.loading.page = true;
 
-            this.httpService
-                .get(environment.apiUrl + 'results/' + simulationId)
-                .pipe(tap(() => (this.loading = false)))
+            this.simulationService
+                .getResult(simulationId)
+                .pipe(
+                    map((res: ResModel<SimulationResultModel>) => {
+                        if (res.success) {
+                            return res.data.items[0];
+                        }
+
+                        throw new Error('Unknown API error');
+                    }),
+                    finalize(() => (this.loading.page = false)),
+                )
                 .subscribe({
-                    next: (value: any) => {
-                        this.loadStatic(value.data.items[0].static);
-                        this.loadGraphs(value.data.items[0].graphs);
+                    next: (data: SimulationResultModel) => {
+                        const statics: StaticResultModel[] = data.static;
+
+                        this.staticList = Object.values(
+                            statics.reduce<Record<string, ResultGroup>>(
+                                (acc, item) => {
+                                    if (
+                                        item.type.toLowerCase() == 'costs' ||
+                                        item.type.toLowerCase() == 'emissions'
+                                    ) {
+                                        if (!acc['costs_emissions']) {
+                                            acc['costs_emissions'] = {
+                                                type: 'costs_emissions',
+                                                items: [],
+                                            };
+                                        }
+                                    } else if (!acc[item.type.toLowerCase()]) {
+                                        acc[item.type.toLowerCase()] = {
+                                            type: item.type.toLowerCase(),
+                                            items: [],
+                                        };
+                                    }
+
+                                    if (
+                                        item.type.toLowerCase() == 'costs' ||
+                                        item.type.toLowerCase() == 'emissions'
+                                    )
+                                        acc['costs_emissions'].items.push(item);
+                                    else
+                                        acc[item.type.toLowerCase()].items.push(
+                                            item,
+                                        );
+
+                                    return acc;
+                                },
+                                {},
+                            ),
+                        );
+
+                        this.loadGraphs(data.graphs);
                     },
                     error: (err) => {
                         console.error('Failed to load JSON', err);
@@ -50,282 +137,142 @@ export class SimulationComponent implements OnInit {
         }
     }
 
-    loadStatic(value: any) {
-        value.forEach((static_data: any) => {
-            let static_data_table: HTMLElement | null = null;
+    private loadCurrentScenarioData() {
+        const currentScenarioData: ScenarioStateModel | null =
+            this.scenarioStateService.getScenarioData();
 
-            if (static_data.type == 'Power') {
-                static_data_table = document.getElementById('power_table');
+        if (!currentScenarioData) {
+            const currentScenarioData_storage: ScenarioBaseInfoModel | null =
+                this.scenarioService.restoreBaseInfo_Storage();
 
-                const power_table = document.getElementById('power_div');
-                if (power_table != null) {
-                    power_table.hidden = false;
-                }
+            if (currentScenarioData_storage) {
+                if (currentScenarioData_storage.project) {
+                    this.scenarioStateData = {
+                        project: currentScenarioData_storage.project,
+                    };
 
-                const power_heading = document.getElementById('power_heading');
-                if (power_heading != null) {
-                    power_heading.hidden = false;
-                }
-            } else if (static_data.type == 'Energy') {
-                static_data_table = document.getElementById('energy_table');
-
-                const energy_table = document.getElementById('energy_div');
-                if (energy_table != null) {
-                    energy_table.hidden = false;
-                }
-
-                const energy_heading =
-                    document.getElementById('energy_heading');
-                if (energy_heading != null) {
-                    energy_heading.hidden = false;
-                }
-            } else if (
-                static_data.type == 'Costs' ||
-                static_data.type == 'Emissions'
-            ) {
-                static_data_table = document.getElementById('cost_table');
-
-                if (static_data.value > 0) {
-                    const cost_table = document.getElementById('cost_div');
-                    if (cost_table != null) {
-                        cost_table.hidden = false;
-                    }
-
-                    const cost_heading =
-                        document.getElementById('cost_heading');
-                    if (cost_heading != null) {
-                        cost_heading.hidden = false;
+                    if (currentScenarioData_storage.scenario) {
+                        this.scenarioStateData.scenario = {
+                            id: currentScenarioData_storage.scenario.id,
+                            name: currentScenarioData_storage.scenario.name,
+                            sDate: currentScenarioData_storage.scenario.sDate,
+                            timeStep:
+                                currentScenarioData_storage.scenario.timeStep,
+                            interval:
+                                currentScenarioData_storage.scenario.interval,
+                            simulationYear:
+                                currentScenarioData_storage.scenario
+                                    .simulationYear,
+                            modeling_data:
+                                currentScenarioData_storage.scenario
+                                    .modeling_data,
+                            constraints:
+                                currentScenarioData_storage.scenario
+                                    .constraints,
+                        };
                     }
                 }
-            } else {
-                console.log('Unknown static data type: ' + static_data.type);
+
+                if (this.scenarioStateData)
+                    this.scenarioStateService.setScenarioData(
+                        this.scenarioStateData,
+                    );
             }
-
-            const data_row: HTMLTableRowElement = document.createElement('tr');
-
-            const data_cell_name: HTMLTableCellElement =
-                document.createElement('td');
-            const data_cell_value: HTMLTableCellElement =
-                document.createElement('td');
-            const data_cell_unit: HTMLTableCellElement =
-                document.createElement('td');
-
-            data_cell_name.innerHTML = static_data.name;
-            data_cell_value.innerHTML = static_data.value;
-            data_cell_unit.innerHTML = static_data.unit;
-
-            data_row.appendChild(data_cell_name);
-            data_row.appendChild(data_cell_value);
-            data_row.appendChild(data_cell_unit);
-
-            if (static_data_table != null) {
-                static_data_table.appendChild(data_row);
-            }
-        });
+        }
     }
 
     loadGraphs(value: any) {
-        const mainDiv = document.getElementById('plotly_div');
+        value.forEach((bus: any) => {
+            const x: any = bus.index;
+            const y: any = {};
 
-        if (!mainDiv) return;
+            if (bus.data.length === 0) return;
 
-        this.charts.forEach((chart) => chart.destroy());
-        this.charts = [];
-        mainDiv.innerHTML = '';
-
-        Chart.register(zoomPlugin);
-
-        value.forEach((bus: any, index: number) => {
-            if (!bus.data?.length) return;
-
-            const card = document.createElement('div');
-            const title = document.createElement('h3');
-            const chartContainer = document.createElement('div');
-            const canvas = document.createElement('canvas');
-
-            card.className = 'chart-card';
-            title.className = 'chart-title';
-            chartContainer.className = 'chart-container';
-
-            title.textContent = bus.name;
-            canvas.id = `chart_${index}_${bus.name}`;
-
-            chartContainer.appendChild(canvas);
-            card.appendChild(title);
-            card.appendChild(chartContainer);
-            mainDiv.appendChild(card);
-
-            const allYValues = bus.data.flatMap(
-                (lineplot: any) => lineplot.data,
-            );
-
-            const minY = Math.min(...allYValues);
-            const maxY = Math.max(...allYValues);
-
-            const chart = new Chart(canvas, {
-                type: 'line',
-
-                data: {
-                    datasets: bus.data.map((lineplot: any) => ({
-                        label: lineplot.name,
-                        // label: 'Large Dataset',
-                        // data: lineplot.data,
-                        data: bus.index.map((date: string, i: number) => ({
-                            x: date.replace(' ', 'T'),
-                            y: lineplot.data[i],
-                        })),
-                        borderWidth: 1,
-                        // fill: false,
-                        // tension: 0,
-                        // pointRadius: 0,
-                        // pointHoverRadius: 0,
-                        // hitRadius: 0,
-                        radius: 0,
-                    })),
-                },
-
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    normalized: true,
-                    animation: false,
-
-                    interaction: {
-                        mode: 'index',
-                        intersect: false,
-                        axis: 'x',
-                    },
-
-                    elements: {
-                        point: {
-                            radius: 0,
-                            hoverRadius: 0,
-                            hitRadius: 0,
-                        },
-                        line: {
-                            tension: 0,
-                            borderWidth: 1,
-                        },
-                    },
-
-                    hover: {
-                        mode: undefined,
-                    },
-
-                    plugins: {
-                        title: {
-                            display: false,
-                        },
-
-                        legend: {
-                            display: bus.data.length > 1,
-                        },
-
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                            animation: false,
-
-                            backgroundColor: '#111827',
-                            titleColor: '#ffffff',
-                            bodyColor: '#ffffff',
-                            borderColor: '#374151',
-                            borderWidth: 1,
-                            padding: 12,
-                            cornerRadius: 8,
-                            displayColors: true,
-
-                            callbacks: {
-                                title: (items) => {
-                                    const rawX = items[0].raw as any;
-                                    const date = new Date(rawX.x);
-
-                                    return date.toLocaleString('en-GB', {
-                                        year: 'numeric',
-                                        month: 'short',
-                                        day: '2-digit',
-                                        hour: '2-digit',
-                                        minute: '2-digit',
-                                    });
-                                },
-                                label: (context) => {
-                                    const value = context.parsed.y;
-                                    return `${context.dataset.label}: ${value?.toFixed(8)}`;
-                                },
-                            },
-                        },
-
-                        decimation: {
-                            enabled: false,
-                        },
-
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'x',
-                            },
-                            zoom: {
-                                wheel: {
-                                    enabled: true,
-                                    speed: 0.05,
-                                },
-                                pinch: {
-                                    enabled: true,
-                                },
-                                mode: 'x',
-                            },
-                        },
-                    },
-
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                tooltipFormat: 'yyyy-MM-dd HH:mm',
-                                displayFormats: {
-                                    hour: 'HH:mm',
-                                    day: 'MMM d',
-                                    month: 'MMM',
-                                    quarter: 'QQQ',
-                                    year: 'yyyy',
-                                },
-                            },
-                            ticks: {
-                                autoSkip: true,
-                                maxRotation: 0,
-                                maxTicksLimit: 12,
-                            },
-                        },
-
-                        y: {
-                            min: minY,
-                            max: maxY,
-
-                            grace: 0,
-
-                            bounds: 'ticks',
-
-                            ticks: {
-                                callback: (value) => Number(value).toFixed(8),
-                            },
-                        },
-                    },
-                },
+            bus.data.forEach((lineplot: any) => {
+                y[lineplot.name] = lineplot.data;
             });
 
-            this.charts.push(chart);
+            const fig: any = {
+                data: Object.keys(y).map((key) => ({
+                    x: x,
+                    y: y[key],
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: key,
+                })),
+                layout: {
+                    title: 'Hallo Welt',
+                    autosize: true,
+                },
+            };
+
+            const plotly_main_div: any = document.getElementById('plotly_div');
+            const plot_heading: any = document.createElement('h3');
+            const plot_div: any = document.createElement('div');
+
+            plot_heading.innerHTML = bus.name;
+            plot_heading.className = 'plot_heading';
+            plot_div.id = bus.name;
+            plot_div.name = bus.name;
+
+            const chartBlock = document.createElement('div');
+            chartBlock.className = 'chart-block';
+
+            chartBlock.appendChild(plot_heading);
+            chartBlock.appendChild(plot_div);
+            plotly_main_div.appendChild(chartBlock);
+
+            const layout = {
+                title: bus.name,
+                autosize: true,
+
+                xaxis: {
+                    type: 'date',
+                    // title: { text: 'Time' },
+                },
+
+                yaxis: {
+                    title: {
+                        text: `power/energy in ${this.scenarioStateData?.project.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
+                    },
+                },
+
+                hovermode: 'x unified',
+
+                legend: {
+                    orientation: 'h',
+
+                    x: 0.5,
+                    xanchor: 'center',
+
+                    y: 1.1,
+                    yanchor: 'top',
+                },
+
+                paper_bgcolor: '#f8f9fa',
+
+                // Background only inside x/y plotting area
+                plot_bgcolor: '#ffffff',
+            };
+
+            const config = {
+                responsive: true,
+                displaylogo: false,
+            };
+
+            Plotly.newPlot(bus.name, fig.data, layout, config);
         });
     }
 
-    protected downloadDump() {
-        return this.httpService
-            .get(
-                environment.apiUrl +
-                    'results/' +
-                    this.route.snapshot.params['id'] +
-                    '/dump',
-                { responseType: 'blob' },
+    downloadDump() {
+        this.loading.downloading = true;
+
+        this.simulationService
+            .downloadScenarioDump(this.route.snapshot.params['id'])
+            .pipe(
+                tap(() => {
+                    this.loading.downloading = false;
+                }),
             )
             .subscribe((blob) => {
                 const url = URL.createObjectURL(blob);
@@ -336,5 +283,23 @@ export class SimulationComponent implements OnInit {
                 anchor.click();
                 URL.revokeObjectURL(url);
             });
+    }
+
+    onPrint() {
+        this.generalService.print();
+    }
+
+    setLoading(e: loadingModel) {
+        this.loading[e.key] = e.status;
+    }
+
+    ngOnDestroy() {
+        this.scenarioService.removeBaseInfo_Storage();
+        this.scenarioStateService.clearScenarioData();
+
+        this.scenarioService.removeUserModelingState();
+        this.scenarioStateService.clearUserModelingState();
+
+        this.scenarioService.removeDrawflow_Data();
     }
 }

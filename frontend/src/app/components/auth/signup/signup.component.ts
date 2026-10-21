@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { finalize } from 'rxjs';
+import { GoogleAnalyticsService } from '../../../shared/services/google-analytics.service';
 import { AuthService } from '../services/auth.service';
 import { ValidateService } from '../services/validate.service';
 
@@ -21,6 +22,7 @@ import { ValidateService } from '../services/validate.service';
 export class SignupComponent {
     authService = inject(AuthService);
     router = inject(Router);
+    analytics = inject(GoogleAnalyticsService);
     validateService = inject(ValidateService);
 
     form: FormGroup = new FormGroup(
@@ -96,6 +98,10 @@ export class SignupComponent {
             .pipe(finalize(() => (this.loading = false)))
             .subscribe({
                 next: () => {
+                    this.analytics.trackEvent('sign_up', {
+                        method: 'email',
+                        username: this.user?.value,
+                    });
                     this.goLogin();
                 },
 

@@ -1,5 +1,5 @@
 <section
-    class="project border border-secondary-subtle rounded-3"
+    class="project border border-secondary-subtle rounded-3 fade-in"
     id="project-{{ project.id }}"
 >
     <div class="project">
@@ -10,9 +10,16 @@
 
             <br />
 
-            <span class="property">
-                {{ project.date_created || "{not defined}" | date }}
+            <span
+                class="property"
+                [title]="project.date_created | date: 'yyyy-MM-dd HH:mm:ss'"
+            >
+                {{ project.date_created || "{not defined}" | timeAgo }}
             </span>
+            <small [title]="project.date_updated | date: 'yyyy-MM-dd HH:mm:ss'">
+                (Last Changed:
+                {{ project.date_updated || "{not defined}" | timeAgo }} )</small
+            >
 
             <div class="actions">
                 <a
@@ -71,6 +78,35 @@
                         else noData
                     "
                 >
+                    <!-- sort options -->
+                    <ng-container *ngIf="project.scenarioList.length > 1">
+                        <div class="py-1">
+                            <div ngbDropdown class="d-inline-block">
+                                <button
+                                    type="button"
+                                    class="btn btn--hollow d-flex align-items-center"
+                                    id="dropdownBasic1"
+                                    ngbDropdownToggle
+                                >
+                                    {{ scenario_selectedSortOption }}
+                                </button>
+
+                                <div
+                                    ngbDropdownMenu
+                                    aria-labelledby="dropdownBasic1"
+                                >
+                                    <button
+                                        ngbDropdownItem
+                                        *ngFor="let option of sortOptions"
+                                        (click)="orderScenarioItemsBy(option)"
+                                    >
+                                        {{ option }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </ng-container>
+
                     <ul class="list-group rounded-0">
                         <li
                             class="list-group-item scenario_item"
@@ -120,7 +156,7 @@
                 class="btn btn--success action"
                 type="button"
                 [disabled]="loading.scenarios"
-                (click)="newScenario(+project.id, project.name)"
+                (click)="newScenario(project)"
             >
                 <img
                     src="static/assets/icons/feather/white/plus.svg"

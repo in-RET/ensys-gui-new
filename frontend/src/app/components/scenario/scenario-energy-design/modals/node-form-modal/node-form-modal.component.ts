@@ -8,9 +8,10 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DrawflowNode } from 'drawflow';
 import { map } from 'rxjs';
 import { ToastService } from '../../../../../shared/services/toast.service';
-import { OEPResponse, Port } from '../../../models/node.model';
+import { IconType, OEPResponse, Port } from '../../../models/node.model';
 import {
     EnergyDesignService,
     Ports,
@@ -23,7 +24,11 @@ import {
 import { ScenarioService } from '../../../services/scenario.service';
 import { FormComponent } from '../../form/form.component';
 import { ModalComponent } from '../../modal/modal.component';
-import { FormModalInfo } from '../../models/scenario-energy-design.model';
+import {
+    ConnectionInfo,
+    EditFormModalInfo,
+    FormModalInfo,
+} from '../../models/scenario-energy-design.model';
 import {
     OrderItem,
     OrderListComponent,
@@ -48,7 +53,9 @@ export class NodeFormModalComponent {
         isShow: false,
     };
 
-    @Input() modalInfo: FormModalInfo | null = null;
+    @Input() modalInfo!: FormModalInfo | EditFormModalInfo | null;
+    @Input() nodeConnection?: { node: any; port: any };
+
     @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() makeNode = new EventEmitter<{
         formValue: any;
@@ -62,9 +69,16 @@ export class NodeFormModalComponent {
     @Output() onShowModal_TimeSeries = new EventEmitter<{
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
     }>();
     @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
+    @Output() onShowModal_IconPicker = new EventEmitter<any>();
+    @Output() onShowModal = new EventEmitter<{
+        type: string;
+        connection: ConnectionInfo;
+        node: DrawflowNode;
+        calledByANode: boolean;
+    }>();
 
     @ViewChild('form')
     formComponent!: FormComponent;
@@ -92,14 +106,14 @@ export class NodeFormModalComponent {
 
     private async initializeNodeForm() {
         if (this.modalInfo) {
-            let nodeType: string = this.modalInfo.node.class;
+            let nodeType: string = this.modalInfo.node.data.type;
 
             this.modalInfo.formData =
                 await this.energyDesignService.getFormFields_node(
                     nodeType,
                     this.modalInfo.editMode ?? false,
                     this.modalInfo.data,
-                    this.defineCallbackFlowForm(),
+                    this.defineCallbackNodeForm(),
                 );
 
             // Handle transformer ports, etc. (extract from original method)
@@ -342,6 +356,8 @@ export class NodeFormModalComponent {
                                 'outputPort_name',
                             );
 
+                            // should remove "if", has checked before!
+                            // get flow's data
                             if (scenarioBaseData && scenarioBaseData.scenario) {
                                 const PreDefinedData =
                                     await this.flowService.getPreDefinedValue_ports(
@@ -450,6 +466,9 @@ export class NodeFormModalComponent {
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData && this.modalInfo.node) {
+            // set type of node
+            formData.type = this.modalInfo.node.data.type;
+
             const isNodeNameDuplicate =
                 this.scenarioService.checkNodeDuplication(
                     formData.name,
@@ -462,7 +481,7 @@ export class NodeFormModalComponent {
                     | false
                     | { ports: Ports; inp: number; out: number } =
                     this.energyDesignService.getNodePorts(
-                        this.modalInfo.node.class,
+                        this.modalInfo.node.data.type,
                         {
                             inputport_name: formData.inputport_name,
                             outputport_name: formData.outputport_name,
@@ -485,7 +504,7 @@ export class NodeFormModalComponent {
                         };
 
                         // add connections if node is bus
-                        if (this.modalInfo.node?.class !== 'bus')
+                        if (this.modalInfo.node?.data.type !== 'bus')
                             formData['connections'] = {
                                 inputs: [],
                                 outputs: [],
@@ -524,8 +543,8 @@ export class NodeFormModalComponent {
 
                                             if (inputs.length > 0) {
                                                 if (
-                                                    this.modalInfo.node
-                                                        .class !== 'bus'
+                                                    this.modalInfo.node.data
+                                                        .type !== 'bus'
                                                 ) {
                                                     inputs.forEach(
                                                         (
@@ -556,7 +575,9 @@ export class NodeFormModalComponent {
                                     this.modalInfo.node.data.connections.inputs;
 
                                 if (inputs.length > 0) {
-                                    if (this.modalInfo.node.class !== 'bus') {
+                                    if (
+                                        this.modalInfo.node.data.type !== 'bus'
+                                    ) {
                                         inputs.forEach(
                                             (
                                                 inELm: {
@@ -590,8 +611,8 @@ export class NodeFormModalComponent {
 
                                             if (outputs.length > 0) {
                                                 if (
-                                                    this.modalInfo.node
-                                                        .class !== 'bus'
+                                                    this.modalInfo.node.data
+                                                        .type !== 'bus'
                                                 ) {
                                                     outputs.forEach(
                                                         (
@@ -623,7 +644,9 @@ export class NodeFormModalComponent {
                                         .outputs;
 
                                 if (outputs.length > 0) {
-                                    if (this.modalInfo.node.class !== 'bus') {
+                                    if (
+                                        this.modalInfo.node.data.type !== 'bus'
+                                    ) {
                                         outputs.forEach(
                                             (
                                                 outELm: {
@@ -650,7 +673,7 @@ export class NodeFormModalComponent {
                             this.updateNode.emit({
                                 data: formData,
                                 nodeId: this.modalInfo.node.id,
-                                nodeType: this.modalInfo.node.class,
+                                nodeType: this.modalInfo.node.data.type,
                             });
                         this.closeModal(true);
                     }
@@ -670,7 +693,7 @@ export class NodeFormModalComponent {
         this.cleanFormError();
     }
 
-    private defineCallbackFlowForm() {
+    private defineCallbackNodeForm() {
         return {
             toggleInvestFields: this.toggleInvestFields.bind(this),
             toggleFomFields: this.toggleFomFields.bind(this),
@@ -679,6 +702,7 @@ export class NodeFormModalComponent {
             toggleOEP: this.toggleOEP.bind(this),
             showModal_EpCostsCalculator:
                 this.showModal_EpCostsCalculator.bind(this),
+            showModal_IconPicker: this.showModal_IconPicker.bind(this),
         };
     }
 
@@ -725,7 +749,7 @@ export class NodeFormModalComponent {
         this.cleanFormError();
 
         // just in storage node there are aditional sec
-        if (e.type == 'genericstorage')
+        if (e.type.toLocaleLowerCase() == 'genericstorage')
             this.setPredefinedFormFields_storage(e.option);
         else this.setPredefinedFormFields_node(e.option, e.type);
     }
@@ -735,7 +759,7 @@ export class NodeFormModalComponent {
             this.modalInfo.node.data.oep =
                 this.formComponent.form.controls['oep'].value;
 
-        if (type == 'genericstorage') {
+        if (type?.toLocaleLowerCase() == 'genericstorage') {
             // user input data
             if (!this.formComponent.form.controls['oep'].value) {
                 this.formComponent.enabelControl('investment');
@@ -799,6 +823,23 @@ export class NodeFormModalComponent {
         this.formComponent.setFieldData('ep_costs', epCosts);
     }
 
+    private showModal_IconPicker() {
+        this.onShowModal_IconPicker.emit({
+            action: {
+                label: 'Choose',
+                fn: 'selectIcon',
+            },
+            icon: {
+                origin: this.formComponent.form.controls['icon'].value.split(
+                    ' ',
+                )[0],
+                name: this.formComponent.form.controls['icon'].value.split(
+                    ' ',
+                )[1],
+            },
+        });
+    }
+
     /**
      *
      * @param controlName
@@ -810,12 +851,12 @@ export class NodeFormModalComponent {
             id: string;
             group: string;
         };
-        modes?: ModeOption[] | null;
+        modes?: ModeOption[];
     }) {
         let timeSeriesData: {
             groupName: string;
             controlName: string;
-            modes: ModeOption[] | null;
+            modes?: ModeOption[];
         } = {
             groupName: '',
             controlName: '',
@@ -833,10 +874,33 @@ export class NodeFormModalComponent {
         this.onShowModal_TimeSeries.emit(timeSeriesData);
     }
 
-    setTimeSeriesData(controlName: string, data: number | number[]) {
+    setTimeSeriesData(controlName: string, data: number | number[] | string) {
         if (controlName == 'inputs')
             this.transform_inputs.submitTimeSeriesData(data);
         else if (controlName == 'outputs')
             this.transform_outputs.submitTimeSeriesData(data);
+    }
+
+    setIconData(icon: IconType) {
+        this.formComponent.setFieldData(
+            'icon',
+            `${this.modalInfo?.node.data.type} ${icon.icon}`,
+        );
+    }
+
+    openInfoUrl(url: string | undefined) {
+        if (url) window.open(url, '_blank')?.focus();
+    }
+
+    openFlow(connection?: ConnectionInfo) {
+        if (connection && this.modalInfo) {
+            const d = {
+                type: 'flow',
+                connection,
+                node: this.modalInfo.node,
+                calledByANode: true,
+            };
+            this.onShowModal.emit(d);
+        }
     }
 }

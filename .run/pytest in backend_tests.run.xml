@@ -5,7 +5,6 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
-      <env name="API_PORT" value="9006" />
       <env name="DATABASE_URL" value="postgresql://ensys_pg:ensys_pg@localhost:5433/ensys" />
       <env name="EMAIL_HOST_IP" value="xmail.hs-nordhausen.de" />
       <env name="EMAIL_HOST_PASSWORD" value="pegfoq-Hedpuq-8ridro" />
@@ -16,22 +15,20 @@
       <env name="HOST_DATADIR" value="$HOME/Documents/Coding/ensys-gui-new/storage/simulations" />
       <env name="LOCAL_DATADIR" value="/backend/storage/simulations" />
       <env name="LOCAL_WORKDIR" value="$HOME/Documents/Coding/ensys-gui-new" />
-      <env name="MKDOCS_PORT" value="9009" />
       <env name="OEP_TEMP_PATH" value="$HOME/Documents/Coding/ensys-gui-new/backend/app/ensys/components/input" />
       <env name="OEP_TOKEN" value="a63b81b1b2cc58ebba43da5140bd61e4f20c62d1" />
       <env name="OEP_TOPIC" value="sandbox" />
       <env name="OS_VERSION" value="armlinux64" />
       <env name="PGADMIN_DEFAULT_EMAIL" value="admin@hs-nordhausen.de" />
       <env name="PGADMIN_DEFAULT_PASSWORD" value="rootroot" />
-      <env name="PGADMIN_PORT" value="9005" />
       <env name="PROXY_PORT" value="9004" />
       <env name="REDIS_PORT" value="9007" />
       <env name="SECRET_TOKEN" value="DiesIstEinGanzSchlechtesSecretUndMussGeandertWerden" />
-      <env name="WEB_PORT" value="9003" />
     </envs>
     <option name="SDK_HOME" value="" />
+    <option name="SDK_NAME" value="Python 3.14 (ensys-dev)" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/backend" />
-    <option name="IS_MODULE_SDK" value="true" />
+    <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <option name="DEBUG_JUST_MY_CODE" value="true" />

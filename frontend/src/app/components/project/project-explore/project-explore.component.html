@@ -120,3 +120,8 @@
         </div>
     </div>
 </div>
+
+<div class="loading-overlay" *ngIf="loadingService.loading$ | async">
+    <div class="spinner-border text-primary" role="status"></div>
+    <span>Loading...</span>
+</div>

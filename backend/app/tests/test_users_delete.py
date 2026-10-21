@@ -1,3 +1,5 @@
+"""Test Users Delete module."""
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -7,6 +9,8 @@ from .test_fixtures import client
 
 @pytest.mark.order(16)
 def test_users_delete_success(get_test_user, client: TestClient):
+    """Test the described behavior."""
+
     test_user, test_token = get_test_user
 
     response = client.delete(
@@ -27,6 +31,8 @@ def test_users_delete_success(get_test_user, client: TestClient):
 
 @pytest.mark.order(17)
 def test_users_delete_failure_not_found(get_test_user, client: TestClient):
+    """Test the described behavior."""
+
     test_user, test_token = get_test_user
 
     response = client.delete(

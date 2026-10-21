@@ -1,3 +1,5 @@
+"""Test Energysystem module."""
+
 import pytest
 from oemof import solph
 
@@ -12,10 +14,14 @@ from ensys.components.source import EnSource
 
 @pytest.fixture
 def mock_ensys_enerygysystem() -> EnEnergysystem:
+    """Return a sample EnSys energy system."""
+
     return EnEnergysystem()
 
 
 def test_add_bus(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_bus = EnBus(label="Test Bus")
     mock_ensys_enerygysystem.add(test_bus)
     assert len(mock_ensys_enerygysystem.busses) == 1
@@ -23,6 +29,8 @@ def test_add_bus(mock_ensys_enerygysystem):
 
 
 def test_add_sink(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_sink = EnSink(label="Test Sink", inputs={})
     mock_ensys_enerygysystem.add(test_sink)
     assert len(mock_ensys_enerygysystem.sinks) == 1
@@ -30,6 +38,8 @@ def test_add_sink(mock_ensys_enerygysystem):
 
 
 def test_add_source(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_source = EnSource(label="Test Source", outputs={})
     mock_ensys_enerygysystem.add(test_source)
     assert len(mock_ensys_enerygysystem.sources) == 1
@@ -37,6 +47,8 @@ def test_add_source(mock_ensys_enerygysystem):
 
 
 def test_add_converter(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_converter = EnConverter(label="Test Converter", inputs={}, outputs={}, conversion_factors={})
     mock_ensys_enerygysystem.add(test_converter)
     assert len(mock_ensys_enerygysystem.converters) == 1
@@ -44,11 +56,13 @@ def test_add_converter(mock_ensys_enerygysystem):
 
 
 def test_add_genericstorage(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_storage = EnGenericStorage(
         label="Test Storage",
         inputs={},
         outputs={},
-        nominal_storage_capacity=100.0,
+        nominal_capacity=100.0,
         loss_rate=0.01,
         inflow_conversion_factor=0.9,
         outflow_conversion_factor=0.9,
@@ -61,18 +75,24 @@ def test_add_genericstorage(mock_ensys_enerygysystem):
 
 
 def test_add_constraints(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_constraint = EnConstraints()
     mock_ensys_enerygysystem.add(test_constraint)
     assert len(mock_ensys_enerygysystem.constraints) == 1
 
 
 def test_add_invalid_component(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     with pytest.raises(Exception) as exc_info:
         mock_ensys_enerygysystem.add("Invalid Component")
     assert str(exc_info.value) == "Unknown Type given!"
 
 
 def test_to_oemof(mock_ensys_enerygysystem):
+    """Test the described behavior."""
+
     test_bus = EnBus(label="Bus Oemof Test")
     mock_ensys_enerygysystem.add(test_bus)
 

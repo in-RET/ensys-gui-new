@@ -1,0 +1,27 @@
+@page {
+    size: A4 landscape;
+}
+
+@media print {
+    header,
+    footer {
+        display: none !important;
+    }
+
+    html,
+    body,
+    app-root,
+    .content-component,
+    .__main-content,
+    #wrapper {
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+        position: static !important;
+    }
+
+    app-navbar .user-menu {
+        opacity: 0 !important;
+    }
+}

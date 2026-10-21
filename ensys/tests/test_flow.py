@@ -1,7 +1,8 @@
+"""Test Flow module."""
+
 import pytest
 from oemof import solph
 from oemof.solph._plumbing import _FakeSequence
-from pyomo.core import sequence
 
 from ensys.components import EnNonConvex
 from ensys.components.flow import EnFlow
@@ -10,10 +11,14 @@ from ensys.components.investment import EnInvestment
 
 @pytest.fixture
 def oe_energysystem():
+    """Return a sample Open Energy System."""
+
     return solph.EnergySystem()
 
 
 def test_flow_simple(oe_energysystem: solph.EnergySystem):
+    """Test the described behavior."""
+
     oe_flow = solph.Flow()
     ie_flow = EnFlow()
     oe_ie_flow = ie_flow.to_oemof(oe_energysystem)
@@ -25,8 +30,10 @@ def test_flow_simple(oe_energysystem: solph.EnergySystem):
 
 
 def test_flow_extended(oe_energysystem):
+    """Test the described behavior."""
+
     oe_flow: solph.Flow = solph.Flow(
-        nominal_value=solph.Investment(
+        nominal_capacity=solph.Investment(
             maximum=1024.42,
             minimum=0
         ),
@@ -38,7 +45,7 @@ def test_flow_extended(oe_energysystem):
     )
 
     ie_flow: EnFlow = EnFlow(
-        nominal_value=EnInvestment(
+        nominal_capacity=EnInvestment(
             maximum=1024.42,
             minimum=0
         ),

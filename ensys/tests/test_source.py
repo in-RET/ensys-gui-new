@@ -1,3 +1,5 @@
+"""Test Source module."""
+
 import pytest
 from oemof import solph
 
@@ -7,6 +9,8 @@ from .fixtures import sample_oe_energysystem, mock_oe_energysystem
 
 @pytest.fixture
 def sample_ensys_source() -> EnSource:
+    """Return a sample source model."""
+
     return EnSource(
         label='Source',
         outputs={"Bus2": EnFlow()}
@@ -14,11 +18,15 @@ def sample_ensys_source() -> EnSource:
 
 
 def test_source_initialization(sample_ensys_source: EnSource):
+    """Test the described behavior."""
+
     assert sample_ensys_source.label == "Source"
     assert sample_ensys_source.outputs == {"Bus2": EnFlow()}
 
 
 def test_source_to_oemof(mock_oe_energysystem, sample_oe_energysystem, sample_ensys_source):
+    """Test the described behavior."""
+
     ie_source = sample_ensys_source.to_oemof(mock_oe_energysystem)
     oe_source = sample_oe_energysystem.groups["Source"]
 

@@ -29,6 +29,8 @@ export interface ScenarioResModel {
     user_id?: number;
     modeling_data: string; // looks like JSON stored as string
     constraints: string | null | {};
+    date_created: string;
+    date_updated: string | null;
 }
 
 export interface ScenarioModel {
@@ -42,11 +44,11 @@ export interface ScenarioModel {
     modeling_data?: string; // looks like JSON stored as string
     constraints?: ConstraintRow[];
     description?: string;
+    date_created: string;
+    date_updated: string | null;
 }
 
-export interface ScenarioBaseInfoModel_project {
-    id: number;
-    name: string;
+export interface ScenarioBaseInfoModel_project extends ProjectModel {
     scenarioList?: ScenarioModel[];
 }
 
@@ -68,10 +70,7 @@ export interface ScenarioBaseInfoModel {
 
 // update scenario model for update scenario
 
-export interface ScenarioUpdatedModel_project {
-    id: number;
-    name: string;
-}
+export interface ScenarioUpdatedModel_project extends ProjectModel {}
 
 export interface ScenarioUpdatedModel_scenario {
     id: number;
@@ -97,4 +96,9 @@ export interface UserModelingStateModel {
     currentStep: UserModelingSTEP;
     data: ScenarioBaseInfoModel;
     autoUpdate: boolean;
+}
+
+export interface DrawflowHistoryState {
+    snapshots: { [nodeKey: string]: DrawflowNode }[];
+    index: number;
 }

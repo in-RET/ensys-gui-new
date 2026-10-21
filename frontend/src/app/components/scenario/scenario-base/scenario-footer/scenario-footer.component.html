@@ -20,34 +20,8 @@
                 "
             >
                 <div class="position-relative w-100 d-flex align-items-center">
-                    <!-- <button
-                        class="btn btn--medium btn--success"
-                        (click)="onStartSimulation()"
-                        *ngIf="
-                            userModelingState.currentStep ==
-                            UserModelingSTEP.SCENARIO_MODELING
-                        "
-                    >
-                        <img
-                            src="/static/assets/icons/feather/black/play.svg"
-                            alt="start"
-                            title="start simulation"
-                        />
-                    </button>
-
                     <button
-                        class="btn btn--medium btn--transparent"
-                        *ngIf="
-                            userModelingState.currentStep ==
-                            UserModelingSTEP.SCENARIO_MODELING
-                        "
-                        (click)="update()"
-                    >
-                        Update
-                    </button> -->
-
-                    <button
-                        class="btn btn--medium position-absolute start-50 translate-middle-x"
+                        class="btn btn--medium btn--success position-absolute start-50 translate-middle-x"
                         *ngIf="scenarioData && !scenarioData.scenario"
                         (click)="onSaveScenario()"
                     >
@@ -55,7 +29,7 @@
                     </button>
 
                     <button
-                        class="btn btn--medium position-absolute start-50 translate-middle-x"
+                        class="btn btn--medium btn--success position-absolute start-50 translate-middle-x"
                         *ngIf="
                             scenarioData &&
                             scenarioData.scenario &&

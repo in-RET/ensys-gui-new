@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { InputType } from '../../../../shared/models/generic.model';
 import {
     EditFormModalInfo,
     FormModalInfo,
@@ -7,16 +8,22 @@ import {
 import { ModeOption } from '../time-series/time-series.component';
 
 export interface ModalState {
-    nodeForm: FormModalInfo | null;
+    nodeForm: FormModalInfo | EditFormModalInfo | null;
     flowForm: EditFormModalInfo | null;
     calculator: any | null;
     timeSeries: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     } | null;
     simulation: any | null;
+    iconPicker: { iconOrigin: string; iconName: string } | null;
     setup: boolean | null;
+    uploadData: boolean | null;
 }
 
 @Injectable({
@@ -29,7 +36,9 @@ export class ModalStateService {
         calculator: null,
         timeSeries: null,
         simulation: null,
+        iconPicker: null,
         setup: null,
+        uploadData: null,
     });
 
     get modalState(): Observable<ModalState> {
@@ -101,7 +110,11 @@ export class ModalStateService {
     openTimeSeries(info: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     }) {
         this.modalState$.next({
             ...this.modalState$.value,
@@ -130,6 +143,20 @@ export class ModalStateService {
         });
     }
 
+    openIconPicker(d: { iconOrigin: string; iconName: string }) {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            iconPicker: d,
+        });
+    }
+
+    closeIconPicker() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            iconPicker: null,
+        });
+    }
+
     openSetup() {
         this.modalState$.next({
             ...this.modalState$.value,
@@ -141,6 +168,20 @@ export class ModalStateService {
         this.modalState$.next({
             ...this.modalState$.value,
             setup: false,
+        });
+    }
+
+    openUploadData() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            uploadData: true,
+        });
+    }
+
+    closeUploadData() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            uploadData: false,
         });
     }
 }

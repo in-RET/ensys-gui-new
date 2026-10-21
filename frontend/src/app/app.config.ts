@@ -19,7 +19,6 @@ import { routes } from './app.routes';
 import { AuthCoreService } from './core/auth/auth.service';
 import { RequestHeaderInterceptor } from './core/interceptors/request-header-interceptor';
 
-function initializeApp() {}
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({
@@ -44,7 +43,7 @@ export const appConfig: ApplicationConfig = {
                         const USER = authService.getUserInfoFromStorage();
 
                         // no logged in before
-                        if (TOKEN && TOKEN.trim() != '') {
+                        if (TOKEN && TOKEN.trim() != '' && USER) {
                             authService.saveToken(TOKEN);
                             authService.saveUser(USER);
                         }

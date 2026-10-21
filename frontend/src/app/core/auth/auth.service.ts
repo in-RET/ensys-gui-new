@@ -1,6 +1,7 @@
-import {HttpParams} from '@angular/common/http';
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import { HttpParams } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { UserModel } from '../../components/models/user.model';
 
 const ACCESS_TOKEN = 'access_token';
 const REFRESH_TOKEN = 'refresh_token';
@@ -13,13 +14,14 @@ export class AuthCoreService {
     private readonly _token = new BehaviorSubject<string | undefined | null>(
         undefined,
     );
-    private readonly _user = new BehaviorSubject<any | undefined | null>(
+    private readonly _user = new BehaviorSubject<UserModel | undefined | null>(
         undefined,
     );
 
     currentToken: Observable<string | undefined | null> =
         this._token.asObservable();
-    currentUser: Observable<any | undefined | null> = this._user.asObservable();
+    currentUser: Observable<UserModel | undefined | null> =
+        this._user.asObservable();
 
     /** Return token if exists */
     public getAuthorizationToken(): string {
@@ -56,11 +58,11 @@ export class AuthCoreService {
         localStorage.setItem(ACCESS_TOKEN, token);
     }
 
-    saveUserInfoInStorage(userData: any) {
+    saveUserInfoInStorage(userData: UserModel) {
         localStorage.setItem(USER_INFO, JSON.stringify(userData));
     }
 
-    getUserInfoFromStorage(): any {
+    getUserInfoFromStorage(): UserModel | null {
         const userData = localStorage.getItem(USER_INFO);
         return userData ? JSON.parse(userData) : null;
     }
@@ -69,11 +71,11 @@ export class AuthCoreService {
         localStorage.removeItem(USER_INFO);
     }
 
-    saveUser(userInfo: any) {
+    saveUser(userInfo: UserModel) {
         this._user.next(userInfo);
     }
 
-    getUser(): any | undefined | null {
+    getUser(): UserModel | undefined | null {
         return this._user.getValue();
     }
 

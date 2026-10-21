@@ -1,7 +1,8 @@
 """Investment module."""
+from typing import Any, Annotated
 
 from oemof import solph
-from pydantic import Field
+from pydantic import Field, BeforeValidator
 
 from ..common.basemodel import EnBaseModel
 
@@ -38,13 +39,25 @@ class EnInvestment(EnBaseModel):
     :type overalL_minimum: float | None
     :type custom_properties: dict | None
     """
-    maximum: float | None = Field(
+    def ensure_value_or_none(value: Any) -> Any:
+        """
+        Ensures value or none is provided.
+
+        :return: value or None
+        """
+        if value == "":
+            return value
+        else:
+            return value
+
+
+    maximum: Annotated[float | None, BeforeValidator(ensure_value_or_none)] = Field(
         default=float("+inf"),  # eigtl. float("+inf"),
         title='Maximum',
         description='Maximum of the additional invested capacity; defined per period p for a multi-period model.'
     )
 
-    minimum: float = Field(
+    minimum: Annotated[float, BeforeValidator(ensure_value_or_none)] = Field(
         default=0.0,
         title='Minimum',
         description='Minimum of the additional invested capacity. If nonconvex is True, minimum defines the threshold for the invested capacity; defined per period p for a multi-period model.'

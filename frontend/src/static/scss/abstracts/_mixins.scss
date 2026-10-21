@@ -166,14 +166,21 @@
 // GUI
 @mixin gui-component-image($img-path) {
     content: "";
-    position: absolute;
-    top: calc(#{$gui-component-bg-size} / 2);
-    right: calc((#{$gui-component-bg-size} - #{$gui-component-img-size}) / 2);
-    transform: translateY(-50%);
     background-image: $img-path;
     background-size: contain;
+    background-repeat: no-repeat;
+    height: $gui-component-img-size-large;
+    width: $gui-component-img-size-large;
+    background-position: center;
+}
+@mixin gui-component-icon($img-path) {
+    content: "";
+    background-image: $img-path;
+    background-size: contain;
+    background-repeat: no-repeat;
     height: $gui-component-img-size;
     width: $gui-component-img-size;
+    background-position: center;
 }
 
 // Info icon

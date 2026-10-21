@@ -12,9 +12,21 @@ export class GeneralService {
             .map(
                 (word: string) =>
                     word.charAt(0).toUpperCase() +
-                    word.slice(1).toLocaleLowerCase()
+                    word.slice(1).toLocaleLowerCase(),
             )
             .join(' ')
             .trim();
+    }
+
+    print() {
+        window.print();
+    }
+
+    convertNumberToLocaleDE(val: number | string): string {
+        const numericValue = parseFloat(val.toString().replace(',', '.'));
+
+        if (!isNaN(numericValue)) {
+            return numericValue.toString().replace(',', '.');
+        } else return val.toString();
     }
 }

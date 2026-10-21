@@ -42,7 +42,7 @@ class EnUser(BaseModel):
     @classmethod
     def is_good_password(cls, value: str) -> str:
         """Enforce password length and character classes; raise HTTP 400 on failure."""
-        punctionation = [
+        punctuation = [
             "/",
             "$",
             "§",
@@ -99,7 +99,7 @@ class EnUser(BaseModel):
                 detail="There should be at least one digit in password.",
             )
 
-        if not any(c in punctionation for c in value):
+        if not any(c in punctuation for c in value):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="There should be at least one special character in password.",

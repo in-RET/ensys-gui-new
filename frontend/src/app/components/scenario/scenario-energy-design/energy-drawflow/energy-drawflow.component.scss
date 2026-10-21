@@ -49,12 +49,13 @@
 }
 
 ::ng-deep #contextmenu i {
+    display: block;
     width: 24px;
     height: 24px;
-    // margin-right: 0.5rem;
-    cursor: pointer;
-    display: block;
+    background-position: center;
+    background-size: cover;
     background-repeat: no-repeat;
+    cursor: pointer;
 
     &.edit {
         background-image: url("../../../../../static/assets/icons/feather/black/edit.svg");
@@ -89,6 +90,15 @@
 
 .submenu-parent {
     cursor: pointer;
+    position: relative;
+
+    &.list-group-item {
+        .flow-info {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
 }
 
 .nested-menu {
@@ -105,9 +115,38 @@
 ::ng-deep .magnet-highlight {
     box-shadow: 0 0 5px 2px rgba(0, 150, 255, 0.6);
     border-radius: 50%;
-
     width: 1rem !important;
     height: 1rem !important;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &::after {
+        content: "+";
+        color: #fff;
+        font-weight: 900;
+        font-size: 1rem;
+    }
+}
+
+::ng-deep .outputs {
+    .output:hover {
+        box-shadow: 0 0 5px 2px rgba(0, 150, 255, 0.6);
+        border-radius: 50%;
+        width: 1rem !important;
+        height: 1rem !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &::after {
+            content: "+";
+            color: #fff;
+            font-weight: 900;
+            font-size: 1rem;
+        }
+    }
 }
 
 .left-100 {
@@ -129,10 +168,6 @@
 .context-menu {
     z-index: 1000;
     width: 160px;
-}
-
-.submenu-parent {
-    position: relative;
 }
 
 .nested-menu {
@@ -163,6 +198,7 @@
     border-right: 1px solid var(--border-color);
     z-index: 5;
     gap: 0.5rem;
+    cursor: auto;
 
     i {
         width: 1em;
@@ -217,13 +253,37 @@
         &.unlock {
             background-image: url("../../../../../static/assets/icons/feather/white/unlock.svg");
         }
+
+        &.upload {
+            background-image: url("../../../../../static/assets/icons/feather/white/upload.svg");
+        }
+
+        &.download {
+            background-image: url("../../../../../static/assets/icons/feather/white/download.svg");
+        }
+
+        &.undo {
+            background-image: url("../../../../../static/assets/icons/feather/white/chevrons-left.svg");
+        }
+
+        &.redo {
+            background-image: url("../../../../../static/assets/icons/feather/white/chevrons-right.svg");
+        }
     }
 
     .__all {
         border-right: 1px dashed;
         padding-right: 0.5rem;
 
-        .__controlling {
+        opacity: 1;
+        visibility: visible;
+        transform: translateX(0);
+        transition:
+            opacity 0.3s ease,
+            transform 0.3s ease,
+            visibility 0.3s ease;
+
+        .__border {
             border-right: 1px dashed;
             padding-right: 0.5rem;
         }
@@ -233,4 +293,11 @@
 ::ng-deep .drawflow-node,
 .tools-box {
     pointer-events: all !important;
+}
+
+::ng-deep .drawflow_content_node {
+    .nodeName {
+        font-size: 1rem;
+        font-weight: 600;
+    }
 }

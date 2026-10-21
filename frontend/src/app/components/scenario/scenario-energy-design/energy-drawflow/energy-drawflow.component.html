@@ -12,8 +12,13 @@
         [ngClass]="(drawflowMovementState$ | async) ? 'pe-all' : 'pe-none'"
     >
         <div class="tools-box shadow rounded">
-            <div class="d-flex gap-2 __all" *ngIf="toolBar.isOpen">
-                <div class="__controlling d-flex gap-2">
+            <div
+                class="d-flex gap-2 __all"
+                [ngClass]="{
+                    'd-none': !toolBar.isOpen,
+                }"
+            >
+                <div class="d-flex gap-2 __border">
                     <i
                         class="full-screen"
                         title="Full Screen"
@@ -58,7 +63,37 @@
                     ></i>
                 </div>
 
-                <div class="__more d-flex gap-2">
+                <div class="d-flex gap-2 __border">
+                    <i
+                        class="upload"
+                        title="Upload Data"
+                        (click)="openUploadData()"
+                    ></i>
+
+                    <i
+                        class="download"
+                        title="Download Data"
+                        (click)="downloadData()"
+                    ></i>
+                </div>
+
+                <div class="d-flex gap-2 __border">
+                    <i
+                        class="undo"
+                        title="Undo Changes"
+                        [ngClass]="{ disabled: !hasMoreUndo }"
+                        (click)="undoChanges()"
+                    ></i>
+
+                    <i
+                        class="redo"
+                        title="Redo Changes"
+                        [ngClass]="{ disabled: !hasMoreRedo }"
+                        (click)="redoChanges()"
+                    ></i>
+                </div>
+
+                <div class="d-flex gap-2">
                     <i
                         class="play"
                         title="Start Simulation"
@@ -155,7 +190,7 @@
         <!-- color picker - flows -->
         <div
             class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2"
-            *ngIf="contextmenu.nodeClass === 'bus'"
+            *ngIf="contextmenu.nodeType === 'bus'"
         >
             <!-- color picker for bus -->
             <span *ngIf="contextmenu.direction === 'left'">
@@ -200,22 +235,21 @@
         <!-- flows -->
         <!-- in -->
         <div
-            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2 gap-1"
             *ngFor="let item of contextmenu.nodeConnections?.in; let i = index"
         >
-            <span *ngIf="contextmenu.direction === 'left'">
-                <i class="arrow-left"></i>
-            </span>
-            <span>
-                <img
-                    src="../../../../../static/assets/icons/node-port/port-in.svg"
-                    alt="port-in"
-                />
+            <i class="arrow-left" *ngIf="contextmenu.direction === 'left'"></i>
+
+            <img
+                src="../../../../../static/assets/icons/node-port/port-in.svg"
+                alt="port-in"
+            />
+            <span class="flow-info w-100">
                 {{ item.source.node.name }}
             </span>
-            <span *ngIf="contextmenu.direction === 'right'">
-                <i class="arrow-right"> </i>
-            </span>
+
+            <i class="arrow-right" *ngIf="contextmenu.direction === 'right'">
+            </i>
 
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"
@@ -258,22 +292,21 @@
 
         <!-- out -->
         <div
-            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2"
+            class="submenu-parent list-group-item list-group-item-action d-flex justify-content-between position-relative px-2 gap-1"
             *ngFor="let item of contextmenu.nodeConnections?.out"
         >
-            <span *ngIf="contextmenu.direction === 'left'">
-                <i class="arrow-left"></i>
-            </span>
-            <span>
+            <i class="arrow-left" *ngIf="contextmenu.direction === 'left'"></i>
+
+            <span class="flow-info w-100">
                 {{ item.destination.node.name }}
-                <img
-                    src="../../../../../static/assets/icons/node-port/port-out.svg"
-                    alt="port-out"
-                />
             </span>
-            <span *ngIf="contextmenu.direction === 'right'">
-                <i class="arrow-right"> </i>
-            </span>
+            <img
+                src="../../../../../static/assets/icons/node-port/port-out.svg"
+                alt="port-out"
+            />
+
+            <i class="arrow-right" *ngIf="contextmenu.direction === 'right'">
+            </i>
 
             <div
                 class="nested-menu list-group position-absolute bg-white border rounded"

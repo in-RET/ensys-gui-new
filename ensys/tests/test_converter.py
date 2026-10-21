@@ -1,3 +1,5 @@
+"""Test Converter module."""
+
 import pytest
 from oemof import solph
 
@@ -8,13 +10,15 @@ from .fixtures import mock_oe_energysystem, sample_oe_energysystem
 
 @pytest.fixture
 def sample_ensys_converter() -> EnConverter:
+    """Return a sample EnSys converter."""
+
     return EnConverter(
         label="Converter",
         inputs={
-            "Bus1": EnFlow(nominal_value=100),
+            "Bus1": EnFlow(nominal_capacity=100),
         },
         outputs={
-            "Bus2": EnFlow(nominal_value=80),
+            "Bus2": EnFlow(nominal_capacity=80),
         },
         conversion_factors={
             "Bus1": 0.8,
@@ -24,6 +28,8 @@ def sample_ensys_converter() -> EnConverter:
 
 
 def test_enconverter_initialization(sample_ensys_converter):
+    """Test the described behavior."""
+
     assert sample_ensys_converter.label == "Converter"
     assert "Bus1" in sample_ensys_converter.inputs
     assert "Bus2" in sample_ensys_converter.outputs
@@ -32,6 +38,8 @@ def test_enconverter_initialization(sample_ensys_converter):
 
 
 def test_enconverter_to_oemof(mock_oe_energysystem, sample_oe_energysystem, sample_ensys_converter):
+    """Test the described behavior."""
+
     ie_converter = sample_ensys_converter.to_oemof(mock_oe_energysystem)
     oe_converter = sample_oe_energysystem.groups["Converter"]
 
@@ -44,13 +52,15 @@ def test_enconverter_to_oemof(mock_oe_energysystem, sample_oe_energysystem, samp
 
 
 def test_enconverter_missing_conversion_factors():
+    """Test the described behavior."""
+
     converter = EnConverter(
         label="Incomplete Converter",
         inputs={
-            "Bus1": EnFlow(nominal_value=50),
+            "Bus1": EnFlow(nominal_capacity=50),
         },
         outputs={
-            "Bus3": EnFlow(nominal_value=40),
+            "Bus3": EnFlow(nominal_capacity=40),
         },
         conversion_factors={}
     )

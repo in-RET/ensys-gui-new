@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { DrawflowNode } from 'drawflow';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { ProjectModel } from '../../project/models/project.model';
 import { UserModelingStateModel } from '../models/scenario.model';
 import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 
 export interface ScenarioStateModel {
-    project: { id: number; name: string } | null;
+    project: ProjectModel | null;
     scenario?: {
         id?: number;
         name: string;
@@ -41,7 +42,6 @@ export class ScenarioStateService {
     }
 
     setScenarioData(data: ScenarioStateModel) {
-        console.log('Set scenario data:', data);
         this.scenarioState$.next(data);
     }
 
@@ -54,8 +54,6 @@ export class ScenarioStateService {
     }
 
     setDrawflowData(data: { [nodeKey: string]: DrawflowNode } | null) {
-        console.log('Setting drawflow data:', data);
-
         if (this.scenarioState$.value)
             this.scenarioState$.next({
                 ...this.scenarioState$.value,
@@ -94,7 +92,6 @@ export class ScenarioStateService {
 
         const newState = { ...currentState, ...data };
         this.userModelingState$.next(newState);
-        console.log('set state: ', newState);
     }
 
     getUserModelingState(): UserModelingStateModel | null {

@@ -8,9 +8,11 @@ import {
     Validators,
 } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { finalize, tap } from 'rxjs';
+import { finalize, map, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthCoreService } from '../../../core/auth/auth.service';
+import { GoogleAnalyticsService } from '../../../shared/services/google-analytics.service';
+import { UserModel } from '../../models/user.model';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -39,6 +41,7 @@ export class LoginComponent {
 
     private authService = inject(AuthService);
     private authCoreService = inject(AuthCoreService);
+    private analytics = inject(GoogleAnalyticsService);
     private router = inject(Router);
 
     logIn() {
@@ -52,20 +55,30 @@ export class LoginComponent {
                         this.authCoreService.saveTokenToStorage(
                             res.access_token,
                         );
-                        this.authCoreService.saveToken(res.access_token);
 
-                        res = res.data.items[0];
-                        this.authCoreService.saveUserInfoInStorage(res);
-                        this.authCoreService.saveUser(res);
+                        this.authCoreService.saveToken(res.access_token);
+                        this.authCoreService.saveUserInfoInStorage(
+                            res.data.items[0],
+                        );
+                        this.authCoreService.saveUser(res.data.items[0]);
+                    }
+                }),
+                map((res: any) => {
+                    if (res.success) {
+                        const d: UserModel = res.data.items[0];
+                        return d;
                     } else {
                         throw new Error(res.message);
                     }
                 }),
-
                 finalize(() => (this.loading = false)),
             )
             .subscribe({
-                next: () => {
+                next: (value: UserModel) => {
+                    this.analytics.setUser(value.id.toString());
+                    this.analytics.trackEvent('login', {
+                        method: 'email',
+                    });
                     this.router.navigate(['/explore']);
                 },
 

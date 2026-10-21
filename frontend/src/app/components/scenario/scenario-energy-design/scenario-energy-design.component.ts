@@ -7,12 +7,15 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import Drawflow from 'drawflow';
+import Drawflow, { DrawflowNode } from 'drawflow';
 import { ContentLayoutService } from '../../../core/layout/services/content-layout.service';
+import { InputType } from '../../../shared/models/generic.model';
 import { ToastService } from '../../../shared/services/toast.service';
+import { IconType } from '../models/node.model';
 import { ScenarioUpdatedModel } from '../models/scenario.model';
 import { EnergyDesignService } from '../services/energy-design.service';
 import { FlowService } from '../services/flow.service';
+import { ScenarioStateService } from '../services/scenario-state.service';
 import { ScenarioService } from '../services/scenario.service';
 import { EnergyComponentsComponent } from './energy-components/energy-components.component';
 import { EnergyDrawflowComponent } from './energy-drawflow/energy-drawflow.component';
@@ -20,11 +23,16 @@ import { FormComponent } from './form/form.component';
 import { ModalComponent } from './modal/modal.component';
 import { CalculatorModalComponent } from './modals/calculator-modal/calculator-modal.component';
 import { FlowFormModalComponent } from './modals/flow-form-modal/flow-form-modal.component';
+import { IconPickerModalComponent } from './modals/icon-picker-modal/icon-picker-modal.component';
 import { ModalState, ModalStateService } from './modals/modal-state.service';
 import { NodeFormModalComponent } from './modals/node-form-modal/node-form-modal.component';
 import { SimulationModalComponent } from './modals/simulation-modal/simulation-modal.component';
 import { TimeSeriesModalComponent } from './modals/time-series-modal/time-series-modal.component';
-import { FormModalInfo } from './models/scenario-energy-design.model';
+import { UploadDataComponent } from './modals/upload-data/upload-data.component';
+import {
+    ConnectionInfo,
+    FormModalInfo,
+} from './models/scenario-energy-design.model';
 import { ModeOption } from './time-series/time-series.component';
 
 @Component({
@@ -39,6 +47,8 @@ import { ModeOption } from './time-series/time-series.component';
         CalculatorModalComponent,
         TimeSeriesModalComponent,
         SimulationModalComponent,
+        IconPickerModalComponent,
+        UploadDataComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -89,6 +99,8 @@ export class ScenarioEnergyDesignComponent {
     nodeFormModalComponent!: NodeFormModalComponent;
     @ViewChild(FlowFormModalComponent)
     flowFormModalComponent!: FlowFormModalComponent;
+    @ViewChild(UploadDataComponent)
+    uploadDataComponent!: UploadDataComponent;
 
     contentLayoutService = inject(ContentLayoutService);
     energyDesignService = inject(EnergyDesignService);
@@ -96,6 +108,7 @@ export class ScenarioEnergyDesignComponent {
     flowService = inject(FlowService);
     toastService = inject(ToastService);
     modalStateService = inject(ModalStateService);
+    private scenarioStateService = inject(ScenarioStateService);
 
     toggleFullScreen() {
         this.isFullscreen = !this.isFullscreen;
@@ -106,14 +119,10 @@ export class ScenarioEnergyDesignComponent {
         return this.energyDrawflowComponent.getData();
     }
 
-    openInfoUrl(url: string | undefined) {
-        if (url) window.open(url, '_blank')?.focus();
-    }
-
     makeNode(formValue: any, formModalInfo: FormModalInfo) {
         this.energyDrawflowComponent.drawflow_node_add(
-            formModalInfo.node.class,
             formValue.name,
+            formValue.type,
             formValue.inp,
             formValue.out,
             formValue,
@@ -168,7 +177,11 @@ export class ScenarioEnergyDesignComponent {
     onShowModal_TimeSeries(e: {
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        numberOnly?: boolean;
+        min?: number;
+        max?: number;
     }) {
         let currentState!: ModalState;
         const subscription = this.modalStateService.modalState.subscribe(
@@ -187,7 +200,10 @@ export class ScenarioEnergyDesignComponent {
         this.modalStateService.openTimeSeries(e);
     }
 
-    onTimeSeriesSubmitted(e: { controlName: string; data: number | number[] }) {
+    onTimeSeriesSubmitted(e: {
+        controlName: string;
+        data: number | number[] | string;
+    }) {
         if (e) {
             let currentState!: ModalState;
             const subscription = this.modalStateService.modalState.subscribe(
@@ -251,6 +267,7 @@ export class ScenarioEnergyDesignComponent {
         }
 
         this.modalStateService.openCalculator({
+            title: 'EP Costs Calculator',
             action: e.action,
             formData: e.formData,
         });
@@ -310,6 +327,102 @@ export class ScenarioEnergyDesignComponent {
 
     onGoToSetupPage() {
         this.goToSetupPage.emit();
+    }
+
+    onShowModal_IconPicker(e: {
+        action: any;
+        icon: { origin: string; name: string };
+    }) {
+        this.modalStateService.toggleNodeForm();
+
+        this.modalStateService.openIconPicker({
+            iconOrigin: e.icon.origin,
+            iconName: e.icon.name,
+        });
+    }
+
+    submitIcon(icon: IconType) {
+        this.nodeFormModalComponent.setIconData(icon);
+    }
+
+    onCloseModal_IconPicker() {
+        this.modalStateService.closeIconPicker();
+        this.modalStateService.toggleNodeForm();
+    }
+
+    onUploadData(data: string | null) {
+        if (!data) return;
+
+        type DrawflowData = Record<string, DrawflowNode>;
+
+        let isDrawflowNode = (value: unknown): value is DrawflowNode => {
+            if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                return false;
+            }
+
+            const n = value as Record<string, any>;
+
+            return (
+                typeof n['id'] === 'number' &&
+                typeof n['name'] === 'string' &&
+                typeof n['class'] === 'string' &&
+                typeof n['html'] === 'string' &&
+                typeof n['typenode'] === 'boolean' &&
+                typeof n['pos_x'] === 'number' &&
+                typeof n['pos_y'] === 'number' &&
+                n['data'] !== null &&
+                typeof n['data'] === 'object' &&
+                n['inputs'] !== null &&
+                typeof n['inputs'] === 'object' &&
+                n['outputs'] !== null &&
+                typeof n['outputs'] === 'object'
+            );
+        };
+
+        let isDrawflowData = (value: unknown): value is DrawflowData => {
+            if (!value || typeof value !== 'object' || Array.isArray(value)) {
+                return false;
+            }
+
+            return Object.values(value as Record<string, unknown>).every(
+                (node) => isDrawflowNode(node),
+            );
+        };
+
+        try {
+            data = JSON.parse(data);
+            if (!isDrawflowData(data)) {
+                this.uploadDataComponent.setFormError(
+                    true,
+                    'Invalid Drawflow JSON structure',
+                );
+                return;
+            }
+
+            this.energyDrawflowComponent.importData(data);
+            this.energyDrawflowComponent.saveCurrentDrawflow(data);
+            this.uploadDataComponent.closeModal(true);
+        } catch (err) {
+            console.error('Invalid JSON:', err);
+        }
+    }
+
+    onUploadDataClosed() {
+        this.modalStateService.closeUploadData();
+    }
+
+    onShowModal(e: {
+        type: any;
+        connection: ConnectionInfo | undefined;
+        node: DrawflowNode;
+        calledByANode: boolean;
+    }) {
+        this.energyDrawflowComponent.showModalEdit(
+            e.type,
+            e.connection,
+            e.node,
+            e.calledByANode,
+        );
     }
 
     ngOnDestroy() {

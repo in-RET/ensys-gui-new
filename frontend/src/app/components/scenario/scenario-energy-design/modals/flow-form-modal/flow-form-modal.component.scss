@@ -1,0 +1,20 @@
+.actions {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    .btn-left {
+        grid-column: 1;
+        justify-self: start;
+    }
+
+    .btn-middle {
+        grid-column: 2;
+        justify-self: center;
+    }
+
+    .btn-right {
+        grid-column: 3;
+        justify-self: end;
+    }
+}

@@ -1,16 +1,11 @@
-<section class="px-3">
-    <div class="d-flex justify-content-between align-items-center">
-        <p class="h1 text-center p-1">Results Prototyping</p>
-        <button
-            class="btn btn-primary m-1"
-            (click)="downloadDump()"
-        >
-            Download Dump
-        </button>
+<section class="simulation-section" [attr.aria-busy]="loading.downloading">
+    <div class="save-overlay" *ngIf="loading.downloading">
+        <div class="spinner-border text-primary" role="status"></div>
+        <span>Creating File...</span>
     </div>
 
-    <div id="wrapper" class="p-3 border border-secondary rounded">
-        <div class="loading" [hidden]="!loading">
+    <div #pdfContent id="wrapper" class="p-3 rounded">
+        <div class="loading" [hidden]="!loading.page">
             <div
                 class="spinner-border text-primary"
                 style="width: 3rem; height: 3rem"
@@ -19,43 +14,119 @@
             <span class="visually-hidden">Loading...</span>
         </div>
 
-        <div id="power_div" class="border-bottom border-secondary" [hidden]=true>
-            <h3 class="plot_heading">Installed Powers</h3>
-            <table class="static_table" id="power_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
+        <!-- Save options -->
+        <ng-container *ngIf="!loading.page">
+            <div class="py-1 download-btn not-in-pdf">
+                <div ngbDropdown class="d-inline-block">
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        title="Export"
+                        id="dropdownBasic1"
+                        ngbDropdownToggle
+                    >
+                        <img
+                            src="static/assets/icons/feather/white/download.svg"
+                            alt=""
+                            class="btn-icon"
+                            [hidden]="loading.downloading"
+                        />
+                    </button>
+
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+                        <app-pdf-generator
+                            *ngIf="
+                                scenarioStateService.scenarioState
+                                    | async as scenarioState
+                            "
+                            ngbDropdownItem
+                            [targetElement]="pdfContent"
+                            btnTxt="Print"
+                            [footer]="
+                                `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
+                            "
+                            exportMode="print"
+                            orientation="landscape"
+                            (setLoading)="setLoading($event)"
+                        />
+
+                        <app-pdf-generator
+                            *ngIf="
+                                scenarioStateService.scenarioState
+                                    | async as scenarioState
+                            "
+                            ngbDropdownItem
+                            [targetElement]="pdfContent"
+                            [btnTxt]="'PDF'"
+                            [footer]="
+                                `${scenarioState.project?.name} | ${scenarioState.scenario?.name}`
+                            "
+                            [exportMode]="'save'"
+                            fileName="simulation-result.pdf"
+                            orientation="landscape"
+                            (setLoading)="setLoading($event)"
+                        />
+
+                        <div ngbDropdownItem>
+                            <button
+                                type="button"
+                                class="btn btn-primary w-100"
+                                (click)="downloadDump()"
+                            >
+                                Dump
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+
+        <!-- static cards info -->
+        <div class="cards-info gap-3 mb-3">
+            <div *ngFor="let static of staticList" class="energy-card">
+                <ng-container *ngIf="static.items.length > 0">
+                    <div class="energy-card__title">
+                        <span *ngIf="static.type.toLowerCase() == 'power'">
+                            Installed Powers
+                        </span>
+
+                        <span *ngIf="static.type.toLowerCase() == 'energy'">
+                            Energy Quantities
+                        </span>
+
+                        <span
+                            *ngIf="
+                                static.type.toLowerCase() == 'costs_emissions'
+                            "
+                        >
+                            Emissions and Costs
+                        </span>
+                    </div>
+
+                    <div class="energy-card__content">
+                        <div
+                            class="energy-card__row"
+                            *ngFor="let item of static.items"
+                        >
+                            <span>
+                                {{ item.name }}
+                            </span>
+
+                            <span>
+                                {{ item.value }}
+                            </span>
+
+                            <span>
+                                {{ item.unit }}
+                            </span>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
         </div>
 
-        <div id="energy_div" class="border-bottom border-secondary" [hidden]=true>
-            <h3 class="plot_heading">Energy Quantities</h3>
-            <table class="static_table" id="energy_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
-        </div>
-
-        <div id="cost_div" class="border-bottom border-secondary" [hidden]=true>
-            <h3 class="plot_heading">Emissions and Costs</h3>
-            <table class="static_table" id="cost_table">
-                <tr>
-                    <th>Name</th>
-                    <th>Value</th>
-                    <th>Unit</th>
-                </tr>
-            </table>
-        </div>
-
-        <div class="border-bottom border-secondary">
-            <h3 class="plot_heading">Plots</h3>
+        <div class="border-secondary">
             <div id="plotly_div" class="charts-wrapper"></div>
         </div>
-
     </div>
 </section>

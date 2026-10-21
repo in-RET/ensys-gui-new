@@ -10,6 +10,7 @@ from sqladmin import Admin
 from sqlalchemy import create_engine
 from starlette.middleware.gzip import GZipMiddleware
 
+from .auxiliary.router import auxiliary_router
 from .core.config import get_settings
 from .oep.router import oep_router
 from .project.model import ProjectAdmin
@@ -23,7 +24,6 @@ from .templates.model import TemplateScenarioAdmin, TemplateAdmin
 from .templates.router import templates_router
 from .user.model import UserAdmin
 from .user.router import users_router
-
 
 tags_metadata = [
     {
@@ -39,6 +39,8 @@ tags_metadata = [
     {"name": "simulation", "description": "Manage simulations."},
     {"name": "results", "description": "Get results."},
     {"name": "templates", "description": "Manage templates."},
+    {"name": "oep", "description": "Manage OEP."},
+    {"name": "auxiliary", "description": "Auxiliary endpoints."},
 ]
 
 _settings = get_settings()
@@ -97,6 +99,7 @@ routers = [
     results_router,
     oep_router,
     templates_router,
+    auxiliary_router
 ]
 for router in routers:
     fastapi_app.include_router(router=router)

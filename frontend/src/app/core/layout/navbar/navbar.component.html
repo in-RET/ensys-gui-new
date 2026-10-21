@@ -7,7 +7,7 @@
             <img
                 class="bi"
                 style="height: 100%"
-                src="/static/assets/logos/ensys_logo_full.svg"
+                src="static/assets/logos/ensys_logo_full.svg"
                 alt="ensys_logo_full"
             />
         </a>
@@ -27,7 +27,7 @@
     </div>
 
     <!-- log[in-out] / user menu -->
-    <div class="d-flex justify-content-between align-items-center h-100">
+    <div class="user-menu">
         <ng-container *ngIf="user.is_authenticated">
             <div
                 ngbDropdown
@@ -36,7 +36,7 @@
             >
                 <button
                     type="button"
-                    class="btn btn-outline-primary"
+                    class="btn btn--transparent"
                     id="dropdownBasic1"
                     ngbDropdownToggle
                 >

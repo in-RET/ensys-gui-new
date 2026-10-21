@@ -8,6 +8,9 @@ import {
     ViewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DrawflowNode } from 'drawflow';
+import { InputType } from '../../../../../shared/models/generic.model';
+import { GeneralService } from '../../../../../shared/services/general.service';
 import { EnergyDesignService } from '../../../services/energy-design.service';
 import { ScenarioService } from '../../../services/scenario.service';
 import { EnergyDrawflowComponent } from '../../energy-drawflow/energy-drawflow.component';
@@ -37,13 +40,23 @@ export class FlowFormModalComponent {
     };
 
     @Input() modalInfo!: EditFormModalInfo | null;
+
     @Output() saveConnectionInNode = new EventEmitter<any>();
     @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() onShowModal_EpCostsCalculator = new EventEmitter<any>();
     @Output() onShowModal_TimeSeries = new EventEmitter<{
         groupName: string;
         controlName: string;
-        modes: ModeOption[] | null;
+        modes?: ModeOption[];
+        type?: InputType;
+        min?: number;
+        max?: number;
+    }>();
+    @Output() onShowModal = new EventEmitter<{
+        type: string;
+        connection: undefined;
+        node: DrawflowNode;
+        calledByANode: boolean;
     }>();
 
     @ViewChild('form')
@@ -52,6 +65,7 @@ export class FlowFormModalComponent {
     energyDrawflowComponent!: EnergyDrawflowComponent;
 
     scenarioService = inject(ScenarioService);
+    generalService = inject(GeneralService);
 
     async ngOnChanges() {
         if (this.modalInfo) {
@@ -70,7 +84,7 @@ export class FlowFormModalComponent {
                 ...this.modalInfo.data,
             };
 
-        let nodeType = this.modalInfo.node.class;
+        let nodeType = this.modalInfo.node.data.type;
 
         if (this.modalInfo.connection) {
             const connections: Connection = this.modalInfo.connection;
@@ -86,8 +100,14 @@ export class FlowFormModalComponent {
                 ) {
                     const currentPortNum_in =
                         +connections['input_port'].split('_')[1];
-                    this.modalInfo.data =
-                        fData.inputs[currentPortNum_in - 1]['flow_data'] || {};
+
+                    if (fData.inputs.length >= currentPortNum_in) {
+                        this.modalInfo.data =
+                            fData.inputs[currentPortNum_in - 1]['flow_data'] ||
+                            {};
+                    } else {
+                        this.modalInfo.data = {};
+                    }
                 } else if (
                     this.modalInfo.node.id === +connections.output_node &&
                     fData.outputs &&
@@ -98,6 +118,15 @@ export class FlowFormModalComponent {
                     this.modalInfo.data =
                         fData.outputs[currentPortNum_out - 1]['flow_data'] ||
                         {};
+
+                    if (fData.outputs.length >= currentPortNum_out) {
+                        this.modalInfo.data =
+                            fData.outputs[currentPortNum_out - 1][
+                                'flow_data'
+                            ] || {};
+                    } else {
+                        this.modalInfo.data = {};
+                    }
                 }
             }
         }
@@ -109,7 +138,6 @@ export class FlowFormModalComponent {
                 this.modalInfo.node?.data?.oep,
                 this.modalInfo.data,
                 this.defineCallbackFlowForm(),
-                this.modalInfo.node?.data?.preDefData,
             );
 
         this.modalInfo.url = this.scenarioService.getEntityInfoUrl('flow');
@@ -135,6 +163,18 @@ export class FlowFormModalComponent {
         let formData = this.formComponent.submit(!isOepSelected);
 
         if (formData) {
+            // check, then convert all number fields to DE format with comma
+            for (const [key, value] of Object.entries(formData)) {
+                if (
+                    (typeof value === 'number' && !isNaN(value)) ||
+                    (typeof value === 'string' &&
+                        !isNaN(parseFloat(value.replace(',', '.'))))
+                ) {
+                    formData[key] =
+                        this.generalService.convertNumberToLocaleDE(value);
+                }
+            }
+
             // save data of connection fields in both sides
             this.saveConnectionInNode.emit({
                 connection: this.modalInfo.connection,
@@ -241,25 +281,37 @@ export class FlowFormModalComponent {
      */
     private showModal_TimeSeries(e: {
         controlName: string;
-        modes: ModeOption[] | null;
+        modes: ModeOption[];
+        type: InputType;
+        numberOnly: boolean;
+        max: number;
+        min: number;
     }) {
         // clear previous data
         let timeSeriesData: {
             groupName: string;
             controlName: string;
-            modes: ModeOption[] | null;
+            modes: ModeOption[];
+            type: InputType;
+            numberOnly: boolean;
+            max: number;
+            min: number;
         } = {
             groupName: 'flow',
             controlName: e.controlName,
-            modes: [],
+            modes: e.modes,
+            type: e.type,
+            numberOnly: e.numberOnly,
+            max: e.max,
+            min: e.min,
         };
 
         // condirions: filed is 'fix' && not from node 'source' || 'sink'
         if (this.modalInfo) {
             if (e.modes) timeSeriesData.modes = e.modes;
             else if (
-                this.modalInfo.node.class !== 'source' &&
-                this.modalInfo.node.class !== 'sink'
+                this.modalInfo.node.data.type !== 'source' &&
+                this.modalInfo.node.data.type !== 'sink'
             ) {
                 timeSeriesData.modes = [
                     { value: 'file', label: 'CSV File' },
@@ -271,7 +323,20 @@ export class FlowFormModalComponent {
         this.onShowModal_TimeSeries.emit(timeSeriesData);
     }
 
-    setTimeSeriesData(controlName: string, data: number | number[]) {
+    setTimeSeriesData(controlName: string, data: number | number[] | string) {
         this.formComponent.setFieldData(controlName, data);
+    }
+
+    openNode() {
+        if (this.modalInfo) {
+            const d = {
+                type: 'node',
+                connection: undefined,
+                node: this.modalInfo.node,
+                calledByANode: true,
+            };
+
+            this.onShowModal.emit(d);
+        }
     }
 }

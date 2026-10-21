@@ -22,7 +22,6 @@ RUN python3.12 -m venv venv
 ENV PATH="/backend/venv/bin:$PATH"
 
 # install gurobi
-
 RUN wget https://packages.gurobi.com/12.0/gurobi12.0.2_${os_version}.tar.gz
 RUN tar -xzvf gurobi12.0.2_${os_version}.tar.gz
 RUN rm gurobi12.0.2_${os_version}.tar.gz
@@ -32,7 +31,10 @@ ENV GRB_LICENSE_FILE="/backend/gurobi.lic"
 ENV PATH="${PATH}:${GUROBI_HOME}/bin"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 
-RUN apt autoclean
+# install cbc
+RUN apt-get -y install coinor-cbc coinor-libcbc-dev
+
+RUN apt-get autoclean
 
 COPY docker/requirements.txt requirements.txt
 

@@ -1,3 +1,5 @@
+"""Test Users Login module."""
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -6,6 +8,8 @@ from .test_fixtures import client, get_test_user
 
 @pytest.mark.order(13)
 def test_users_login_success(get_test_user, client: TestClient):
+    """Test the described behavior."""
+
     test_user, test_token = get_test_user
 
     print(f"Username: {test_user.username}, Password: {test_user.password}")
@@ -36,6 +40,8 @@ def test_users_login_success(get_test_user, client: TestClient):
 
 @pytest.mark.order(14)
 def test_users_login_failure_not_found(client: TestClient):
+    """Test the described behavior."""
+
     response = client.post(
         url="/user/auth/login",
         data={
@@ -56,6 +62,8 @@ def test_users_login_failure_not_found(client: TestClient):
 
 @pytest.mark.order(15)
 def test_users_login_failure_wrong_password(client: TestClient):
+    """Test the described behavior."""
+
     response = client.post(
         url="/user/auth/login",
         data={

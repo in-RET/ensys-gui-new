@@ -1,9 +1,13 @@
+"""Test Bus module."""
+
 from oemof import solph
 
 from ensys.components import EnBus
 
 
 def test_bus():
+    """Test the described behavior."""
+
     es = solph.EnergySystem()
 
     oe_bus = solph.Bus(label="Testbus", balanced=False)

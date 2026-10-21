@@ -15,7 +15,7 @@
     <form class="signup-frame" [formGroup]="form">
         <div class="signup-frame__img">
             <img
-                src="/static/assets/illustrations/open_plan_hero_hexagon.svg"
+                src="static/assets/illustrations/open_plan_hero_hexagon.svg"
                 alt="open_plan cells"
                 style="height: 6.125rem"
             />
@@ -30,7 +30,7 @@
                 required
                 [ngClass]="{
                     'is-invalid':
-                        user!.invalid && (user!.dirty || user!.touched)
+                        user!.invalid && (user!.dirty || user!.touched),
                 }"
                 id="floatingInput"
             />
@@ -40,7 +40,7 @@
                 *ngIf="user!.invalid && (user!.dirty || user!.touched)"
                 [ngClass]="{
                     'invalid-feedback':
-                        user!.invalid && (user!.dirty || user!.touched)
+                        user!.invalid && (user!.dirty || user!.touched),
                 }"
             >
                 <div *ngIf="user!.hasError('required')">
@@ -58,7 +58,7 @@
                 required
                 [ngClass]="{
                     'is-invalid':
-                        pass!.invalid && (pass!.dirty || pass!.touched)
+                        pass!.invalid && (pass!.dirty || pass!.touched),
                 }"
                 id="floatingPassword"
             />
@@ -68,7 +68,7 @@
                 *ngIf="pass!.invalid && (pass!.dirty || pass!.touched)"
                 [ngClass]="{
                     'invalid-feedback':
-                        pass!.invalid && (pass!.dirty || pass!.touched)
+                        pass!.invalid && (pass!.dirty || pass!.touched),
                 }"
             >
                 <div *ngIf="pass!.hasError('required')">

@@ -27,11 +27,10 @@ from prometheus_client import Counter, Gauge
 from sqlalchemy.exc import IntegrityError
 from starlette import status
 
-# Third Party
 from celery import Celery
-# Local Application
+from ensys.common.types import Solver
 from ensys.components import EnModel
-from .auxillary import convert_gui_json_to_ensys
+from .auxiliary.service import convert_gui_json_to_ensys
 from .core.config import get_settings
 from .db import SessionLocal
 from .scenario.model import EnScenarioDB
@@ -148,7 +147,11 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         # Create Energysystem to be stored
         task_logger.info("create energysystem to be stored")
-        simulation_model = EnModel(energysystem=converted_energy_system)
+        simulation_model = EnModel(
+            energysystem=converted_energy_system,
+            #solver=Solver.cbc
+            solver=Solver.gurobi
+        )
 
         with open(os.path.join(simulation_folder, f"converted_model.json"), "wt") as f:
             f.write(simulation_model.model_dump_json(indent=4))
@@ -165,9 +168,7 @@ def simulation_task(scenario_id: int, simulation_id: int):
             interval=scenario.interval,
         )
 
-        oemof_es: solph.EnergySystem = solph.EnergySystem(
-            timeindex=timeindex, infer_last_interval=False
-        )
+        oemof_es: solph.EnergySystem = solph.EnergySystem(timeindex=timeindex)
 
         oemof_es = simulation_model.energysystem.to_oemof(oemof_es)
 
@@ -186,35 +187,34 @@ def simulation_task(scenario_id: int, simulation_id: int):
                             om=oemof_model,
                             limit=float(constraint["values"]["limit"]),
                         )
-                    # elif weitere constraints
-                    # elif constraint["type"] == "additional_investment_flow_limit":
-                    #     print(oemof_model)
-                    #     print(f"Keyword: {constraint['type']} with value: {constraint['values']["keyword"]}")
-                    #     print(f"Limit: {constraint['values']['limit']}")
-                    #     oemof_model = solph.constraints.additional_investment_flow_limit(
-                    #         model=oemof_model,
-                    #         keyword=constraint['values']['keyword'].replace("invest_limit_",""),
-                    #         limit=float(constraint['values']['limit']),
-                    #     )
+                    elif constraint["type"] == "additional_investment_flow_limit":
+                        print(oemof_model)
+                        print(f"Keyword: {constraint['type']} with value: {constraint['values']["keyword"]}")
+                        print(f"Limit: {constraint['values']['limit']}")
+                        oemof_model = solph.constraints.additional_investment_flow_limit(
+                            model=oemof_model,
+                            keyword=constraint['values']['keyword'].replace("invest_limit_",""),
+                            limit=float(constraint['values']['limit']),
+                        )
                     elif constraint["type"] == "investment_limit":
                         oemof_model = solph.constraints.investment_limit(
                             model=oemof_model,
                             limit=float(constraint["values"]["limit"]),
                         )
-                    elif constraint["type"] == "general_integral_limit":
+                    elif constraint["type"] == "generic_integral_limit":
                         oemof_model = solph.constraints.generic_integral_limit(
                             om=oemof_model,
                             keyword=constraint['values']['keyword'],
                             upper_limit=float(constraint["values"]["upper_limit"]),
                             lower_limit=float(constraint["values"]["lower_limit"]),
                         )
-                    # elif constraint["type"] == "limit_active_flow_count_by_keyword":
-                    #     oemof_model = solph.constraints.limit_active_flow_count_by_keyword(
-                    #         model=oemof_model,
-                    #         keyword=constraint["values"]["keyword"],
-                    #         upper_limit=int(constraint["values"]["upper_limit"]),
-                    #         lower_limit=int(constraint["values"]["lower_limit"]),
-                    #     )
+                    elif constraint["type"] == "limit_active_flow_count_by_keyword":
+                        oemof_model = solph.constraints.limit_active_flow_count_by_keyword(
+                            model=oemof_model,
+                            keyword=constraint["values"]["keyword"],
+                            upper_limit=int(constraint["values"]["upper_limit"]),
+                            lower_limit=int(constraint["values"]["lower_limit"]),
+                        )
                     else:
                         task_logger.warning(f"Constraint type {constraint['type']} not recognized or implemented.")
 
@@ -269,13 +269,13 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
         try:
             db.commit()
-        except IntegrityError as exc:
+        except IntegrityError:
             db.rollback()
             # Generic handling; DB should ideally have unique constraints and proper messages
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Database integrity error at simulation task - 1",
-            ) from exc
+            )
 
         db.refresh(simulation)
         task_logger.info("backgroundtask finished")
@@ -292,13 +292,13 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="Database integrity error at simulation task - 2",
-                ) from exc
+                )
 
             db.refresh(simulation)
 
@@ -316,13 +316,13 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="Database integrity error at simulation task - 2",
-                ) from exc
+                )
 
             db.refresh(simulation)
 
@@ -340,13 +340,13 @@ def simulation_task(scenario_id: int, simulation_id: int):
 
             try:
                 db.commit()
-            except IntegrityError as exc:
+            except IntegrityError:
                 db.rollback()
                 # Generic handling; DB should ideally have unique constraints and proper messages
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
                     detail="Database integrity error at simulation task - 3",
-                ) from exc
+                )
 
             db.refresh(simulation)
 

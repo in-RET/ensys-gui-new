@@ -8,13 +8,22 @@ import {
     Output,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import { catchError, map, of } from 'rxjs';
+import {
+    NgbCollapseModule,
+    NgbDropdown,
+    NgbDropdownItem,
+    NgbDropdownMenu,
+    NgbDropdownToggle,
+} from '@ng-bootstrap/ng-bootstrap';
+import { catchError, finalize, map, of } from 'rxjs';
 import { ResModel } from '../../../../shared/models/http.model';
+import { TimeAgoPipe } from '../../../../shared/pipes/time-ago.pipe';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { ExploreService } from '../../../explore/services/explore.service';
 import {
     ScenarioBaseInfoModel,
+    ScenarioBaseInfoModel_project,
     ScenarioModel,
     ScenarioResModel,
     UserModelingSTEP,
@@ -32,6 +41,11 @@ import { ProjectScenarioItemComponent } from '../project-scenario-item/project-s
         RouterLink,
         ProjectScenarioItemComponent,
         NgbCollapseModule,
+        NgbDropdown,
+        NgbDropdownToggle,
+        NgbDropdownMenu,
+        NgbDropdownItem,
+        TimeAgoPipe,
     ],
     templateUrl: './project-item.component.html',
     styleUrl: './project-item.component.scss',
@@ -43,6 +57,15 @@ export class ProjectItemComponent implements OnInit {
     } = {
         scenarios: false,
     };
+    sortOptions: string[] = [
+        'A-Z',
+        'Z-A',
+        'Created Date: Asc',
+        'Created Date: Desc',
+        'Last Modified: Asc',
+        'Last Modified: Desc',
+    ];
+    scenario_selectedSortOption: string = this.sortOptions[0];
 
     private _project!: ProjectModel;
     @Input() set project(val: ProjectModel) {
@@ -60,6 +83,7 @@ export class ProjectItemComponent implements OnInit {
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     scenarioStateService = inject(ScenarioStateService);
+    exploreService = inject(ExploreService);
 
     ngOnInit() {}
 
@@ -70,8 +94,6 @@ export class ProjectItemComponent implements OnInit {
             .getScenarios(this.project.id)
             .pipe(
                 map((res: ResModel<ScenarioResModel>) => {
-                    this.loading.scenarios = false;
-
                     if (res.success) {
                         let _res: ScenarioModel[] = [];
                         res.data.items.forEach((element: ScenarioResModel) => {
@@ -90,6 +112,8 @@ export class ProjectItemComponent implements OnInit {
                                               element.constraints,
                                           ) as ConstraintRow[])
                                         : [],
+                                date_created: element.date_created,
+                                date_updated: element.date_updated,
                             };
 
                             _res.push(_data);
@@ -99,15 +123,27 @@ export class ProjectItemComponent implements OnInit {
                     }
                     throw new Error('Unknown API error');
                 }),
+                finalize(() => {
+                    this.loading.scenarios = false;
+                }),
                 catchError((err: any) => {
                     console.error(err);
                     this.toastService.error('Failed to load scenarios.');
                     return of([] as ScenarioModel[]);
                 }),
             )
-            .subscribe(
-                (data: ScenarioModel[]) => (this.project.scenarioList = data),
-            );
+            .subscribe({
+                next: (data: ScenarioModel[]) => {
+                    this.project.scenarioList = data;
+
+                    if (this.project.scenarioList.length > 0)
+                        this.orderScenarioItemsBy('A-Z');
+                },
+                error: (err) => {
+                    console.error(err);
+                    this.toastService.error('Failed to load scenarios.');
+                },
+            });
     }
 
     toggleCollapse() {
@@ -145,14 +181,13 @@ export class ProjectItemComponent implements OnInit {
             this.duplicateProject.emit(id);
     }
 
-    newScenario(pId: number, pName: string) {
+    newScenario(projectData: ScenarioBaseInfoModel_project) {
         this.scenarioService.removeBaseInfo_Storage();
         this.scenarioService.removeDrawflow_Data();
 
         const d: ScenarioBaseInfoModel = {
             project: {
-                id: pId,
-                name: pName,
+                ...projectData,
                 scenarioList: this.project.scenarioList ?? [],
             },
         };
@@ -179,5 +214,16 @@ export class ProjectItemComponent implements OnInit {
         newScenario: ScenarioModel;
     }) {
         this.project.scenarioList?.push(e.newScenario);
+    }
+
+    orderScenarioItemsBy(option: string): void {
+        this.scenario_selectedSortOption = option;
+
+        if (this.project.scenarioList && this.project.scenarioList.length > 0) {
+            this.project.scenarioList = this.exploreService.sortData(
+                this.project.scenarioList,
+                option,
+            );
+        }
     }
 }

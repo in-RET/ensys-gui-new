@@ -12,6 +12,7 @@ import Drawflow, { DrawflowNode } from 'drawflow';
 import { AlertService } from '../../../../shared/services/alert.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import {
+    ScenarioBaseInfoModel,
     ScenarioUpdatedModel,
     ScenarioUpdatedModel_project,
     ScenarioUpdatedModel_scenario,
@@ -25,6 +26,7 @@ import { FormComponent } from '../form/form.component';
 import { ModalComponent } from '../modal/modal.component';
 import { ModalStateService } from '../modals/modal-state.service';
 import {
+    ConnectionInfo,
     EditFormModalInfo,
     FormModalInfo,
 } from '../models/scenario-energy-design.model';
@@ -35,7 +37,7 @@ interface ContextMenuState {
     y: number;
     direction: 'left' | 'right';
     nodeId: number;
-    nodeClass: string;
+    nodeType: string;
     nodePorts: any;
     nodeConnections: {
         in: any[];
@@ -75,6 +77,10 @@ export class EnergyDrawflowComponent {
     };
     canMoveDrawflow: boolean = false;
     isDragging: boolean = false;
+
+    // hisotry management
+    hasMoreUndo: boolean = false;
+    hasMoreRedo: boolean = false;
 
     @ViewChild(FormComponent) formComponent!: FormComponent;
     @ViewChild(ModalComponent)
@@ -148,6 +154,20 @@ export class EnergyDrawflowComponent {
 
             setTimeout(() => this.updateInputPorts(), 0);
 
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
+
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
                 this.onUpdateDrawflow();
         });
@@ -159,6 +179,20 @@ export class EnergyDrawflowComponent {
         this.editor.on('nodeRemoved', (data: any) => {
             console.log('Drawflow event: nodeRemoved');
             this.toastService.info('Drawflow event: nodeRemoved');
+
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
 
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
                 this.onUpdateDrawflow();
@@ -183,6 +217,19 @@ export class EnergyDrawflowComponent {
             this.toastService.info('Drawflow event: connectionRemoved');
 
             setTimeout(() => this.updateInputPorts(), 0);
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
         });
 
         this.editor.on('connectionSelected', (connection: any) => {});
@@ -210,7 +257,21 @@ export class EnergyDrawflowComponent {
         });
 
         this.editor.on('nodeMoved', (nodeId: any) => {
-            this.saveCurrentDrawflow();
+            this.saveCurrentDrawflow(undefined);
+
+            const d: {
+                [nodeKey: string]: DrawflowNode;
+            } = this.editor.export().drawflow.Home.data;
+            const historyResult:
+                | {
+                      hasUndo: boolean;
+                      hasRedo: boolean;
+                  }
+                | undefined = this.scenarioService.recordDrawflowHistory(d);
+            if (historyResult) {
+                this.hasMoreUndo = historyResult.hasUndo;
+                this.hasMoreRedo = historyResult.hasRedo;
+            }
         });
 
         this.editor.on('translate', (position: any) => {});
@@ -244,6 +305,11 @@ export class EnergyDrawflowComponent {
                 | undefined = currentScenarioData.scenario?.modeling_data;
 
             if (CURRENT_DRAWFLOW) {
+                // check & transformation of old-data-structure to new-data-structure
+                CURRENT_DRAWFLOW =
+                    this.scenarioService.transformLegacyDrawflowData(
+                        CURRENT_DRAWFLOW,
+                    );
                 const dataToImport = {
                     drawflow: {
                         Home: {
@@ -251,9 +317,26 @@ export class EnergyDrawflowComponent {
                         },
                     },
                 };
+
                 this.editor.import(dataToImport);
                 this.setBusColorFlows(CURRENT_DRAWFLOW);
             }
+        }
+
+        const d: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+
+        const historySnapshot: {
+            data: { [nodeKey: string]: DrawflowNode };
+            hasUndo: boolean;
+            hasRedo: boolean;
+        } | null = this.scenarioService.restoreDrawflowHistory(d);
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasUndo;
+            this.hasMoreRedo = historySnapshot.hasRedo;
         }
     }
 
@@ -273,8 +356,8 @@ export class EnergyDrawflowComponent {
 
                 _this.showModalEdit(
                     'node',
-                    undefined,
-                    _this.editor.getNodeFromId(nodeId),
+                    _this.getNodeById(nodeId)?.data.connections,
+                    _this.getNodeById(nodeId),
                 );
             }
         });
@@ -286,6 +369,7 @@ export class EnergyDrawflowComponent {
 
         Object.values(nodes).forEach((node) => {
             const nodeElement = document.getElementById('node-' + node.id);
+
             if (!nodeElement) return;
 
             Object.keys(node.inputs).forEach((inputName) => {
@@ -299,6 +383,22 @@ export class EnergyDrawflowComponent {
                     portEl.classList.add('disabled');
                 } else {
                     portEl.classList.remove('disabled');
+                }
+            });
+
+            Object.keys(node.outputs).forEach((outputName) => {
+                const output = node.outputs[outputName];
+
+                const portEl = nodeElement.querySelector(
+                    `.output.${outputName}`,
+                );
+                if (!portEl) return;
+
+                // DEFAULT STATE
+                if (output.connections.length === 0) {
+                    portEl.classList.add('un_used');
+                } else {
+                    portEl.classList.remove('un_used');
                 }
             });
         });
@@ -328,6 +428,11 @@ export class EnergyDrawflowComponent {
         });
     }
 
+    getNodeById(id: number) {
+        if (!this.editor) return;
+        return this.editor.getNodeFromId(id);
+    }
+
     connectionMagneticSnap() {
         let isConnecting: boolean = false;
         let snapSource: any = null;
@@ -337,11 +442,7 @@ export class EnergyDrawflowComponent {
         let ports_out: NodeListOf<Element>;
 
         this.editor.container.addEventListener('mousedown', (e: any) => {
-            if (
-                e.target.classList.contains('output')
-                // ||
-                // e.target.classList.contains('input')
-            ) {
+            if (e.target.classList.contains('output')) {
                 isConnecting = true;
             }
         });
@@ -381,37 +482,7 @@ export class EnergyDrawflowComponent {
             let closest: any = null;
             let minDist = Infinity;
 
-            if (!isConnecting) {
-                ports_out.forEach((port: any) => {
-                    const rect = port.getBoundingClientRect();
-                    const centerX = rect.left + rect.width / 2;
-                    const centerY = rect.top + rect.height / 2;
-
-                    const dist = Math.hypot(
-                        centerX - e.clientX,
-                        centerY - e.clientY,
-                    );
-
-                    if (dist < minDist && dist < 100) {
-                        // Adjust threshold for magnetic strength
-                        minDist = dist;
-                        closest = port;
-                    }
-                });
-
-                if (closest) {
-                    // You can optionally add a visual highlight
-                    ports_out.forEach((p) =>
-                        p.classList.remove('magnet-highlight'),
-                    );
-                    closest.classList.add('magnet-highlight');
-                    snapSource = closest;
-                } else {
-                    ports_out.forEach((p) =>
-                        p.classList.remove('magnet-highlight'),
-                    );
-                }
-            } else {
+            if (isConnecting) {
                 ports_in.forEach((port: any) => {
                     const rect = port.getBoundingClientRect();
                     const centerX = rect.left + rect.width / 2;
@@ -443,6 +514,27 @@ export class EnergyDrawflowComponent {
                     ports_in.forEach((p) =>
                         p.classList.remove('magnet-highlight'),
                     );
+                }
+            } else {
+                ports_out.forEach((port: any) => {
+                    const rect = port.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+
+                    const dist = Math.hypot(
+                        centerX - e.clientX,
+                        centerY - e.clientY,
+                    );
+
+                    if (dist < minDist && dist < 100) {
+                        // Adjust threshold for magnetic strength
+                        minDist = dist;
+                        closest = port;
+                    }
+                });
+
+                if (closest) {
+                    snapSource = closest;
                 }
             }
         };
@@ -663,7 +755,6 @@ export class EnergyDrawflowComponent {
 
     onDrop(ev: any) {
         this.isDragging = false;
-        // this.canMoveDrawflow = false;
         if (!this.canMoveDrawflow)
             this.scenarioStateService.setDrawflowMovementState(false);
 
@@ -672,11 +763,11 @@ export class EnergyDrawflowComponent {
         const nodeType = ev.dataTransfer.getData('id');
         const nodeName = ev.dataTransfer.getData('node');
         const node: DrawflowNode = {
-            class: nodeType,
+            class: '',
             name: nodeName,
             pos_x: ev.clientX,
             pos_y: ev.clientY,
-            data: {},
+            data: { type: nodeType },
             inputs: {},
             outputs: {},
             id: -1,
@@ -700,18 +791,31 @@ export class EnergyDrawflowComponent {
 
     setBusColorFlows(drawflowData: any) {
         Object.values(drawflowData).forEach((element: any) => {
-            if (element.class == 'bus' && element.data.flowsColor)
+            if (element.data.type == 'bus' && element.data.flowsColor)
                 this.setBusFlowsColor(element.id, element.data.flowsColor);
         });
     }
 
-    private saveCurrentDrawflow() {
-        const CURRENT_DRAWFLOW: {
+    saveCurrentDrawflow(data?: { [nodeKey: string]: DrawflowNode }) {
+        let CURRENT_DRAWFLOW: {
             [nodeKey: string]: DrawflowNode;
-        } = this.editor.export().drawflow.Home.data;
+        };
 
+        if (!data) {
+            CURRENT_DRAWFLOW = this.editor.export().drawflow.Home.data;
+        } else {
+            CURRENT_DRAWFLOW = data;
+        }
         this.scenarioService.saveDrawflow_Storage(CURRENT_DRAWFLOW);
         this.scenarioStateService.setDrawflowData(CURRENT_DRAWFLOW);
+
+        const currentScenarioData: ScenarioBaseInfoModel | null =
+            this.scenarioService.restoreBaseInfo_Storage();
+
+        if (currentScenarioData && currentScenarioData.scenario) {
+            currentScenarioData.scenario.modeling_data = CURRENT_DRAWFLOW;
+            this.scenarioService.saveBaseInfo_Storage(currentScenarioData);
+        }
     }
 
     getNodePosition(position: number, type: 'x' | 'y') {
@@ -739,8 +843,8 @@ export class EnergyDrawflowComponent {
     }
 
     drawflow_node_add(
-        nodeId: string,
         nodeName: string,
+        className: string,
         connectionInputs: any,
         connectionOutputs: any,
         nodeData: any = {},
@@ -748,15 +852,12 @@ export class EnergyDrawflowComponent {
         pos_y: any,
     ) {
         const source_html = `
-            <div class="box" ${this.ASSET_TYPE_NAME}="${nodeName}"></div>
-
+            <div class="img ${nodeData.icon}"></div>
             <div class="drawflow-node__name nodeName">
                 <span>
                 ${nodeName}
                 </span>
             </div>
-
-            <div class="img"></div>
         `;
 
         this.editor.addNode(
@@ -765,7 +866,7 @@ export class EnergyDrawflowComponent {
             connectionOutputs,
             pos_x,
             pos_y,
-            nodeId,
+            className,
             nodeData,
             source_html,
             false,
@@ -778,15 +879,13 @@ export class EnergyDrawflowComponent {
 
         currentNode.name = data.name;
         currentNode.html = `
-            <div class="box" ${this.ASSET_TYPE_NAME}=" ${data.name}"></div>
-
             <div class="drawflow-node__name nodeName">
                 <span>
                     ${currentNode.name}
                 </span>
             </div>
 
-            <div class="img"></div>
+            <div class="img ${data.icon}"></div>
         `;
         this.editor.updateNodeDataFromId(nodeId, data);
 
@@ -855,29 +954,32 @@ export class EnergyDrawflowComponent {
         output_port: string;
         input_port: string;
     }) {
-        let nodeIn = this.editor.getNodeFromId(connection.input_node);
-        let nodeOut = this.editor.getNodeFromId(connection.output_node);
+        let nodeIn = this.getNodeById(+connection.input_node);
+        let nodeOut = this.getNodeById(+connection.output_node);
         let followRules = this.checkRules(connection, nodeIn, nodeOut);
-        const node = nodeIn.class != 'bus' ? nodeIn : nodeOut;
 
-        if (followRules) {
-            const nodeData: EditFormModalInfo = {
-                id: node.class.toLocaleLowerCase(),
-                title: `Flow(${nodeOut.name}:${nodeIn.name})`,
-                action: { fn: 'submitFormData', label: 'save' },
-                editMode: false,
-                data: node.data,
-                node: node,
-                connection: connection,
-                _id: node.id,
-                formData: null,
-                url: '',
-                show: true,
-            };
+        if (nodeIn && nodeOut) {
+            const node = nodeIn.data.type != 'bus' ? nodeIn : nodeOut;
 
-            this.modalStateService.openFlowForm(nodeData);
-        } else {
-            this.removeSingleConnection(connection);
+            if (followRules && node) {
+                const nodeData: EditFormModalInfo = {
+                    id: node.data.type.toLocaleLowerCase(),
+                    title: `Flow(${nodeOut.name}:${nodeIn.name})`,
+                    action: { fn: 'submitFormData', label: 'save' },
+                    editMode: false,
+                    data: node.data,
+                    node: node,
+                    _id: node.id,
+                    formData: null,
+                    url: '',
+                    show: true,
+                    connection: connection,
+                };
+
+                this.modalStateService.openFlowForm(nodeData);
+            } else {
+                this.removeSingleConnection(connection);
+            }
         }
     }
 
@@ -909,7 +1011,7 @@ export class EnergyDrawflowComponent {
 
     // rule #1
     isConnectionThroughBus(nodeIn: DrawflowNode, nodeOut: DrawflowNode) {
-        return nodeIn['class'] === 'bus' || nodeOut['class'] === 'bus'
+        return nodeIn.data['type'] === 'bus' || nodeOut.data['type'] === 'bus'
             ? true
             : false;
     }
@@ -921,7 +1023,7 @@ export class EnergyDrawflowComponent {
         nodeOut: DrawflowNode,
     ) {
         // rule #5 - exception for bus
-        if (nodeIn['class'] === 'bus' && nodeOut['class'] === 'bus')
+        if (nodeIn.data['type'] === 'bus' && nodeOut.data['type'] === 'bus')
             return true;
         else {
             const inputConnections =
@@ -930,10 +1032,10 @@ export class EnergyDrawflowComponent {
                 nodeOut.outputs[connection.output_port].connections;
 
             return (
-                (nodeIn['class'] !== 'bus' && inputConnections.length <= 1
+                (nodeIn.data['type'] !== 'bus' && inputConnections.length <= 1
                     ? true
                     : false) ||
-                (nodeOut['class'] !== 'bus' && outputConnections.length <= 1
+                (nodeOut.data['type'] !== 'bus' && outputConnections.length <= 1
                     ? true
                     : false)
             );
@@ -977,14 +1079,12 @@ export class EnergyDrawflowComponent {
 
     showModalEdit(
         type: 'node' | 'flow',
-        connection?: {
-            source: { node: any; port: any };
-            destination: { node: any; port: any };
-        },
+        connection?: ConnectionInfo,
         node?: DrawflowNode,
+        calledByANode?: boolean,
     ) {
         if (this.contextmenu != null) {
-            const selectedNode: DrawflowNode = this.editor.getNodeFromId(
+            const selectedNode: DrawflowNode | undefined = this.getNodeById(
                 this.contextmenu.nodeId,
             );
 
@@ -992,53 +1092,65 @@ export class EnergyDrawflowComponent {
                 if (selectedNode) {
                     const nodeData: EditFormModalInfo = {
                         node: selectedNode,
-                        id: selectedNode.class.toLocaleLowerCase(),
+                        id: selectedNode.data.type.toLocaleLowerCase(),
                         title: `Edit: ${selectedNode.name}`,
                         action: { fn: 'submitFormData', label: 'Update' },
                         editMode: true,
                         data: selectedNode.data,
                         _id: +this.contextmenu.nodeId,
-                        connection: null,
-                        formData: null,
+                        formData: undefined,
                         url: '',
                         show: true,
                     };
 
                     this.modalStateService.openNodeForm(nodeData);
                 }
-            } else if (type == 'flow' && connection) {
+            } else if (type == 'flow' && connection && selectedNode) {
                 let portIndex;
-                let selectedConnectionData!: { baseInfo: any; formInfo: any };
+                let selectedConnectionData!: {
+                    baseInfo: {
+                        output_node: string;
+                        input_node: string;
+                        output_port: string;
+                        input_port: string;
+                    };
+                    formInfo: any;
+                };
                 let connectionDataList = undefined;
 
                 // clicked node isn't a bus
-                if (selectedNode.class !== 'bus') {
+                if (selectedNode.data.type !== 'bus') {
                     const nodeConnections = selectedNode.data['connections'];
+
                     connectionDataList =
-                        connection.source.node.class === 'bus'
+                        connection.source.node.data.type === 'bus'
                             ? nodeConnections['inputs']
                             : nodeConnections['outputs'];
 
                     portIndex =
-                        connection.destination.node.class !== 'bus'
+                        connection.destination.node.data.type !== 'bus'
                             ? connectionDataList.findIndex(
                                   (conn: any) =>
                                       conn.baseInfo.output_node ==
-                                      connection.source.node.id,
+                                          connection.source.node.id &&
+                                      conn.baseInfo.input_port ==
+                                          connection.destination.port.code,
                               )
                             : connectionDataList.findIndex(
                                   (conn: any) =>
                                       conn.baseInfo.input_node ==
-                                      connection.destination.node.id,
+                                          connection.destination.node.id &&
+                                      conn.baseInfo.output_port ==
+                                          connection.source.port.code,
                               );
                 } else {
                     const nodeConnections =
-                        connection.destination.node.class !== 'bus'
+                        connection.destination.node.data.type !== 'bus'
                             ? connection.destination.node.data['connections']
                             : connection.source.node.data['connections'];
 
                     connectionDataList =
-                        connection.destination.node.class !== 'bus'
+                        connection.destination.node.data.type !== 'bus'
                             ? nodeConnections['inputs']
                             : nodeConnections['outputs'];
 
@@ -1058,137 +1170,251 @@ export class EnergyDrawflowComponent {
                 selectedConnectionData = connectionDataList[portIndex];
                 let _node;
 
-                if (selectedNode.class !== 'bus') _node = selectedNode;
+                if (selectedNode.data.type !== 'bus') _node = selectedNode;
                 else if (
-                    selectedNode.class === 'bus' &&
-                    connection.destination.node.class === 'bus'
+                    selectedNode.data.type === 'bus' &&
+                    connection.destination.node.data.type === 'bus'
                 ) {
                     _node = connection.source.node;
                 } else _node = connection.destination.node;
 
                 const nodeData: EditFormModalInfo = {
-                    id: selectedNode.class.toLocaleLowerCase(),
+                    id: selectedNode.data.type.toLocaleLowerCase(),
                     title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
                     action: { fn: 'submitFormData', label: 'save' },
                     editMode: true,
                     data: selectedConnectionData.formInfo,
                     node: _node,
-                    connection: selectedConnectionData.baseInfo,
                     _id: selectedNode.id,
                     formData: null,
                     url: '',
                     show: true,
+                    connection: selectedConnectionData.baseInfo,
                 };
 
-                // this.showFormModal_flow.emit(nodeData);
                 this.modalStateService.openFlowForm(nodeData);
             }
 
             this.unShowConextMenu();
         } else if (type == 'node' && node) {
+            const nodeConnections_in = this.buildInputConnections(node);
+            const nodeConnections_out = this.buildOutputConnections(node);
+
+            let _connection!: {
+                in: ConnectionInfo | null;
+                out: ConnectionInfo | null;
+            };
+
+            if (
+                node.data.type == 'source' ||
+                node.data.type == 'genericStorage' ||
+                node.data.type == 'sink'
+            )
+                _connection = {
+                    in: nodeConnections_in.length
+                        ? nodeConnections_in[0]
+                        : null,
+                    out: nodeConnections_out.length
+                        ? nodeConnections_out[0]
+                        : null,
+                };
+
             const nodeData: EditFormModalInfo = {
-                id: node.class.toLocaleLowerCase(),
+                id: node.data.type.toLocaleLowerCase(),
                 node: node,
                 title: `Edit: ${node.name}`,
                 action: { fn: 'submitFormData', label: 'Update' },
                 editMode: true,
                 data: node.data,
                 _id: node.id,
-                connection: null,
                 formData: null,
                 url: '',
                 show: true,
+                connection_singleInOut: _connection,
             };
 
+            this.modalStateService.closeFlowForm();
             this.modalStateService.openNodeForm(nodeData);
+        } else if (type == 'flow' && connection && node) {
+            let portIndex;
+            let selectedConnectionData!: {
+                baseInfo: {
+                    output_node: string;
+                    input_node: string;
+                    output_port: string;
+                    input_port: string;
+                };
+                formInfo: any;
+            };
+            let connectionDataList = undefined;
+
+            // clicked node isn't a bus
+            if (node.data.type !== 'bus') {
+                const nodeConnections = node.data['connections'];
+
+                connectionDataList =
+                    connection.source.node.data.type === 'bus'
+                        ? nodeConnections['inputs']
+                        : nodeConnections['outputs'];
+
+                portIndex =
+                    connection.destination.node.data.type !== 'bus'
+                        ? connectionDataList.findIndex(
+                              (conn: any) =>
+                                  conn.baseInfo.output_node ==
+                                      connection.source.node.id &&
+                                  conn.baseInfo.input_port ==
+                                      connection.destination.port.code,
+                          )
+                        : connectionDataList.findIndex(
+                              (conn: any) =>
+                                  conn.baseInfo.input_node ==
+                                      connection.destination.node.id &&
+                                  conn.baseInfo.output_port ==
+                                      connection.source.port.code,
+                          );
+            } else {
+                const nodeConnections =
+                    connection.destination.node.data.type !== 'bus'
+                        ? connection.destination.node.data['connections']
+                        : connection.source.node.data['connections'];
+
+                connectionDataList =
+                    connection.destination.node.data.type !== 'bus'
+                        ? nodeConnections['inputs']
+                        : nodeConnections['outputs'];
+
+                portIndex = connectionDataList.findIndex(
+                    (conn: any) =>
+                        conn.baseInfo.input_node ==
+                            connection.destination.node.id &&
+                        conn.baseInfo.input_port ==
+                            connection.destination.port.code &&
+                        conn.baseInfo.output_node ==
+                            connection.source.node.id &&
+                        conn.baseInfo.output_port ==
+                            connection.source.port.code,
+                );
+            }
+
+            selectedConnectionData = connectionDataList[portIndex];
+            let _node;
+
+            if (node.data.type !== 'bus') _node = node;
+            else if (
+                node.data.type === 'bus' &&
+                connection.destination.node.data.type === 'bus'
+            ) {
+                _node = connection.source.node;
+            } else _node = connection.destination.node;
+
+            const nodeData: EditFormModalInfo = {
+                id: node.data.type.toLocaleLowerCase(),
+                title: `Flow(${connection.source.port.name}:${connection.destination.port.name})`,
+                action: { fn: 'submitFormData', label: 'save' },
+                editMode: true,
+                data: selectedConnectionData.formInfo,
+                node: _node,
+                connection: selectedConnectionData.baseInfo,
+                _id: node.id,
+                formData: null,
+                url: '',
+                show: true,
+                calledByANode,
+            };
+
+            this.modalStateService.closeNodeForm();
+            this.modalStateService.openFlowForm(nodeData);
         }
     }
 
     async deleteSelectedNode() {
         if (this.contextmenu != null && this.contextmenu.nodeId) {
-            const node: DrawflowNode = this.editor.getNodeFromId(
+            const node: DrawflowNode | undefined = this.getNodeById(
                 this.contextmenu.nodeId,
             );
             this.unShowConextMenu();
+            if (node) {
+                const confirmed = await this.alertService.confirm(
+                    `Removing node: ${node.name}`,
+                );
 
-            const confirmed = await this.alertService.confirm(
-                `Removing node: ${node.name}`,
-            );
+                if (confirmed) {
+                    if (node.data.type != 'bus') {
+                        // remove all it's related conns from bus
+                        for (const key in node.inputs) {
+                            if (!Object.hasOwn(node.inputs, key)) continue;
 
-            if (confirmed) {
-                if (node.class != 'bus') {
-                    // remove all it's related conns from bus
-                    for (const key in node.inputs) {
-                        if (!Object.hasOwn(node.inputs, key)) continue;
+                            for (const portName in node.inputs) {
+                                if (!Object.hasOwn(node.inputs, portName))
+                                    continue;
 
-                        for (const portName in node.inputs) {
-                            if (!Object.hasOwn(node.inputs, portName)) continue;
-
-                            node.inputs[portName].connections.forEach(
-                                (connection: any) => {
-                                    this.deleteConnectionData({
-                                        input_node: node.id,
-                                        input_port: portName,
-                                        output_node: connection.node,
-                                        output_port: connection.output,
-                                    });
-                                },
-                            );
+                                node.inputs[portName].connections.forEach(
+                                    (connection: any) => {
+                                        this.deleteConnectionData({
+                                            input_node: node.id,
+                                            input_port: portName,
+                                            output_node: connection.node,
+                                            output_port: connection.output,
+                                        });
+                                    },
+                                );
+                            }
                         }
+
+                        for (const key in node.outputs) {
+                            if (!Object.hasOwn(node.outputs, key)) continue;
+
+                            for (const portName in node.outputs) {
+                                if (!Object.hasOwn(node.outputs, portName))
+                                    continue;
+
+                                // connections
+                                node.outputs[portName].connections.forEach(
+                                    (connection: any) => {
+                                        this.deleteConnectionData({
+                                            input_node: connection.node,
+                                            input_port: connection.output,
+                                            output_node: node.id,
+                                            output_port: portName,
+                                        });
+                                    },
+                                );
+                            }
+                        }
+                    } else {
+                        node.inputs['input_1'].connections.forEach(
+                            (el_bus: { input: string; node: string }) => {
+                                // remove connection data in node.data
+                                const nodeOut: DrawflowNode =
+                                    this.editor.drawflow.drawflow.Home.data[
+                                        +el_bus.node
+                                    ];
+
+                                nodeOut.data.connections.outputs.forEach(
+                                    (el_node: any, i: number) => {
+                                        if (
+                                            el_node.baseInfo.output_node ===
+                                                el_bus.node &&
+                                            el_node.baseInfo.output_port ===
+                                                el_bus.input
+                                        ) {
+                                            nodeOut.data.connections.outputs.splice(
+                                                i,
+                                            );
+                                        }
+                                    },
+                                );
+                            },
+                        );
                     }
 
-                    for (const key in node.outputs) {
-                        if (!Object.hasOwn(node.outputs, key)) continue;
-
-                        for (const portName in node.outputs) {
-                            if (!Object.hasOwn(node.outputs, portName))
-                                continue;
-                            // connections
-                            // const element = node.outputs[key];
-                            node.outputs[portName].connections.forEach(
-                                (connection: any) => {
-                                    this.deleteConnectionData({
-                                        input_node: connection.node,
-                                        input_port: connection.output,
-                                        output_node: node.id,
-                                        output_port: portName,
-                                    });
-                                },
-                            );
-                        }
-                    }
-                } else {
-                    node.inputs['input_1'].connections.forEach(
-                        (el_bus: { input: string; node: string }) => {
-                            // remove connection data in node.data
-                            const nodeOut: DrawflowNode =
-                                this.editor.drawflow.drawflow.Home.data[
-                                    +el_bus.node
-                                ];
-
-                            nodeOut.data.connections.outputs.forEach(
-                                (el_node: any, i: number) => {
-                                    if (
-                                        el_node.baseInfo.output_node ===
-                                            el_bus.node &&
-                                        el_node.baseInfo.output_port ===
-                                            el_bus.input
-                                    ) {
-                                        nodeOut.data.connections.outputs.splice(
-                                            i,
-                                        );
-                                    }
-                                },
-                            );
-                        },
+                    this.editor.removeNodeId(`node-${node.id}`);
+                    this.saveCurrentDrawflow();
+                    this.toastService.info(
+                        `Node: ${node.name} deleted successfully!`,
                     );
                 }
-
-                this.editor.removeNodeId(`node-${node.id}`);
-                this.saveCurrentDrawflow();
-                this.toastService.info(
-                    `Node: ${node.name} deleted successfully!`,
-                );
             }
         }
     }
@@ -1199,20 +1425,22 @@ export class EnergyDrawflowComponent {
 
         node.data.ports.inputs?.forEach((input: any) => {
             node.inputs[input.code]?.connections.forEach((conn: any) => {
-                const source = this.editor.getNodeFromId(conn.node);
+                const source = this.getNodeById(conn.node);
 
-                result.push({
-                    source: {
-                        node: source,
-                        port: source.data.ports.outputs.find(
-                            (p: any) => p.code === conn.input,
-                        ),
-                    },
-                    destination: {
-                        node,
-                        port: input,
-                    },
-                });
+                if (source) {
+                    result.push({
+                        source: {
+                            node: source,
+                            port: source.data.ports.outputs.find(
+                                (p: any) => p.code === conn.input,
+                            ),
+                        },
+                        destination: {
+                            node,
+                            port: input,
+                        },
+                    });
+                }
             });
         });
 
@@ -1224,20 +1452,22 @@ export class EnergyDrawflowComponent {
 
         node.data.ports.outputs?.forEach((output: any) => {
             node.outputs[output.code]?.connections.forEach((conn: any) => {
-                const dest = this.editor.getNodeFromId(conn.node);
+                const dest = this.getNodeById(conn.node);
 
-                result.push({
-                    source: {
-                        node,
-                        port: output,
-                    },
-                    destination: {
-                        node: dest,
-                        port: dest.data.ports.inputs.find(
-                            (p: any) => p.code === conn.output,
-                        ),
-                    },
-                });
+                if (dest) {
+                    result.push({
+                        source: {
+                            node,
+                            port: output,
+                        },
+                        destination: {
+                            node: dest,
+                            port: dest.data.ports.inputs.find(
+                                (p: any) => p.code === conn.output,
+                            ),
+                        },
+                    });
+                }
             });
         });
 
@@ -1253,26 +1483,28 @@ export class EnergyDrawflowComponent {
                 ? 'left'
                 : 'right';
 
-        const currentNode = this.editor.getNodeFromId(nodeId);
+        const currentNode = this.getNodeById(nodeId);
+        if (currentNode) {
+            const nodeConnections_in = this.buildInputConnections(currentNode);
+            const nodeConnections_out =
+                this.buildOutputConnections(currentNode);
 
-        const nodeConnections_in = this.buildInputConnections(currentNode);
-        const nodeConnections_out = this.buildOutputConnections(currentNode);
-
-        this.contextmenu = {
-            show: true,
-            x: direction === 'left' ? x - MENU_WIDTH : x,
-            y,
-            direction,
-            nodeId,
-            nodeClass: currentNode.class,
-            nodePorts: currentNode.data.ports,
-            nodeConnections: {
-                in: nodeConnections_in,
-                out: nodeConnections_out,
-            },
-            nodeFlowsColor: currentNode.data.flowsColor ?? '#000000',
-            showColorPicker: false,
-        };
+            this.contextmenu = {
+                show: true,
+                x: direction === 'left' ? x - MENU_WIDTH : x,
+                y,
+                direction,
+                nodeId,
+                nodeType: currentNode.data.type,
+                nodePorts: currentNode.data.ports,
+                nodeConnections: {
+                    in: nodeConnections_in,
+                    out: nodeConnections_out,
+                },
+                nodeFlowsColor: currentNode.data.flowsColor ?? '#000000',
+                showColorPicker: false,
+            };
+        }
 
         this.cdr.detectChanges();
     }
@@ -1327,6 +1559,7 @@ export class EnergyDrawflowComponent {
             this.editor.clearModuleSelected();
             this.editor.nodeId = 1;
             this.scenarioService.removeDrawflow_Data();
+            this.saveCurrentDrawflow();
             this.toastService.info(`Cleaned the grid model successfully!`);
 
             if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
@@ -1339,16 +1572,20 @@ export class EnergyDrawflowComponent {
         let node, connections;
 
         if (
-            this.editor.drawflow.drawflow.Home.data[connection.output_node]
-                .class !== 'bus'
+            this.editor.drawflow.drawflow.Home.data[connection.output_node].data
+                .type !== 'bus'
         ) {
             node =
                 this.editor.drawflow.drawflow.Home.data[connection.output_node];
             connections = node.data.connections.outputs;
+
+            this.updateBusFlowsColor(connection.input_node);
         } else {
             node =
                 this.editor.drawflow.drawflow.Home.data[connection.input_node];
             connections = node.data.connections.inputs;
+
+            this.updateBusFlowsColor(connection.output_node);
         }
 
         if (!editMode) {
@@ -1372,6 +1609,20 @@ export class EnergyDrawflowComponent {
 
         if (this.scenarioStateService.getUserModelingState()?.autoUpdate)
             this.onUpdateDrawflow();
+
+        const d: {
+            [nodeKey: string]: DrawflowNode;
+        } = this.editor.export().drawflow.Home.data;
+        const historyResult:
+            | {
+                  hasUndo: boolean;
+                  hasRedo: boolean;
+              }
+            | undefined = this.scenarioService.recordDrawflowHistory(d);
+        if (historyResult) {
+            this.hasMoreUndo = historyResult.hasUndo;
+            this.hasMoreRedo = historyResult.hasRedo;
+        }
     }
 
     async deleteFlow(
@@ -1439,8 +1690,8 @@ export class EnergyDrawflowComponent {
         let index = -1;
 
         if (
-            this.editor.drawflow.drawflow.Home.data[connection.input_node]
-                .class === 'bus'
+            this.editor.drawflow.drawflow.Home.data[connection.input_node].data
+                .type === 'bus'
         ) {
             node =
                 this.editor.drawflow.drawflow.Home.data[connection.output_node];
@@ -1454,8 +1705,8 @@ export class EnergyDrawflowComponent {
                 port: connection.input_port,
             };
         } else if (
-            this.editor.drawflow.drawflow.Home.data[connection.output_node]
-                .class === 'bus'
+            this.editor.drawflow.drawflow.Home.data[connection.output_node].data
+                .type === 'bus'
         ) {
             node =
                 this.editor.drawflow.drawflow.Home.data[connection.input_node];
@@ -1498,17 +1749,19 @@ export class EnergyDrawflowComponent {
     }
 
     onChangeBusFlowsColor(e: any) {
-        const currentNode: DrawflowNode = this.editor.getNodeFromId(
+        const currentNode: DrawflowNode | undefined = this.getNodeById(
             this.contextmenu!.nodeId,
         );
-        currentNode.data.flowsColor = e.value;
-        this.drawflow_node_update(
-            this.contextmenu!.nodeId,
-            'bus',
-            currentNode.data,
-        );
-        this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
 
+        if (currentNode) {
+            currentNode.data.flowsColor = e.value;
+            this.drawflow_node_update(
+                this.contextmenu!.nodeId,
+                'bus',
+                currentNode.data,
+            );
+            this.setBusFlowsColor(this.contextmenu!.nodeId, e.value);
+        }
         if (this.contextmenu) this.unShowConextMenu();
     }
 
@@ -1520,6 +1773,18 @@ export class EnergyDrawflowComponent {
         connections.forEach((connection: Element) => {
             (connection as HTMLElement).style.stroke = color;
         });
+    }
+
+    updateBusFlowsColor(nodeId: number) {
+        const node = this.getNodeById(nodeId);
+        const connections = document.querySelectorAll(
+            `#drawflow .connection.node_out_node-${nodeId} path , #drawflow .connection.node_in_node-${nodeId} path`,
+        );
+
+        if (node)
+            connections.forEach((connection: Element) => {
+                (connection as HTMLElement).style.stroke = node.data.flowsColor;
+            });
     }
 
     onStartSimulation() {
@@ -1566,6 +1831,107 @@ export class EnergyDrawflowComponent {
         this.toastService.info(
             `Drawflow movement ${!currentState ? 'enabled' : 'disabled'}!`,
         );
+    }
+
+    openUploadData() {
+        this.modalStateService.openUploadData();
+    }
+
+    importData(data: { [nodeKey: string]: DrawflowNode }) {
+        let CURRENT_DRAWFLOW:
+            | {
+                  [nodeKey: string]: DrawflowNode;
+              }
+            | null
+            | undefined = data;
+
+        if (CURRENT_DRAWFLOW) {
+            // check & transformation of old-data-structure to new-data-structure
+            CURRENT_DRAWFLOW =
+                this.scenarioService.transformLegacyDrawflowData(
+                    CURRENT_DRAWFLOW,
+                );
+        }
+
+        this.editor.import({
+            drawflow: {
+                Home: {
+                    data,
+                },
+            },
+        });
+        setTimeout(() => {
+            this.editor.import(this.editor.export());
+            this.editor.zoom_refresh();
+        }, 100);
+    }
+
+    downloadData() {
+        const { scenarioList, ...project } =
+            this.scenarioStateService.getScenarioData()
+                ?.project as ScenarioUpdatedModel_project;
+
+        const data: ScenarioUpdatedModel = {
+            project,
+            scenario: this.scenarioStateService.getScenarioData()
+                ?.scenario as ScenarioUpdatedModel_scenario,
+        };
+
+        const file = new Blob([JSON.stringify(data)], {
+            type: 'application/json',
+        });
+
+        const url = URL.createObjectURL(file);
+        const link = document.createElement('a');
+
+        link.href = url;
+        link.download = `drawflow_${new Date().toISOString()}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+    }
+
+    private restoreDrawflowSnapshot(snapshot: {
+        [nodeKey: string]: DrawflowNode;
+    }) {
+        // const restoredSnapshot = this.cloneDrawflow(snapshot);
+        this.editor.import({
+            drawflow: {
+                Home: {
+                    data: snapshot,
+                },
+            },
+        });
+        this.setBusColorFlows(snapshot);
+    }
+
+    undoChanges() {
+        const historySnapshot:
+            | {
+                  data: { [nodeKey: string]: DrawflowNode };
+                  hasMoreUndo: boolean;
+                  hasMoreRedo: boolean;
+              }
+            | undefined = this.scenarioService.undoScenarioChange();
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasMoreUndo;
+            this.hasMoreRedo = historySnapshot.hasMoreRedo;
+        }
+    }
+
+    redoChanges() {
+        const historySnapshot = this.scenarioService.redoScenarioChange();
+
+        if (historySnapshot) {
+            this.restoreDrawflowSnapshot(historySnapshot.data);
+            this.hasMoreUndo = historySnapshot.hasMoreUndo;
+            this.hasMoreRedo = historySnapshot.hasMoreRedo;
+        }
+    }
+
+    ngOnDestroy() {
+        this.scenarioService.clearDrawflowHistory();
     }
 }
 

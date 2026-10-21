@@ -53,7 +53,7 @@ export class ScenarioSetupComponent implements OnInit {
         name: new FormControl(null, [Validators.required]),
         simulationPeriod: new FormControl({ value: 8760, disabled: true }),
         sDate: new FormControl({
-            value: new Date('2025').getTime() / 1000,
+            value: null,
             disabled: true,
         }),
         timeStep: new FormControl({ value: 8760, disabled: true }),
@@ -154,16 +154,7 @@ export class ScenarioSetupComponent implements OnInit {
 
         this.simulationYear?.valueChanges.subscribe((year) => {
             this.sDate?.setValue(new Date(year).getTime() / 1000);
-            this.toastService.info('Date changed!');
         });
-
-        // for set project list disable
-        // this.subscriptionScenarioState =
-        //     this.scenarioStateService.scenarioState.subscribe(
-        //         (res: ScenarioStateModel | null) => {
-        //             if (res?.scenario?.id) this.projectId?.disable();
-        //         },
-        //     );
     }
 
     loadProjects() {
@@ -186,7 +177,7 @@ export class ScenarioSetupComponent implements OnInit {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                const { id, name, timeStep, simulationYear } =
+                const { id, name, timeStep, simulationYear, sDate } =
                     scenarioBaseData.scenario;
 
                 this.form.patchValue({
@@ -194,12 +185,14 @@ export class ScenarioSetupComponent implements OnInit {
                     name,
                     timeStep,
                     simulationYear,
+                    sDate,
                 });
             } else {
                 // Use optional chaining and a safe fallback to avoid using project when it may be undefined
                 this.name?.setValue(
                     `Scenario_${this.publicService.getCurrentDateTimeString()}`,
                 );
+                this.sDate?.setValue(new Date('2025').getTime() / 1000);
             }
         }
     }
@@ -302,7 +295,7 @@ export class ScenarioSetupComponent implements OnInit {
                 sDate: formData.sDate,
                 timeStep: formData.timeStep,
                 interval: 1,
-                simulationYear: formData.simulationYear,
+                simulationYear: +formData.simulationYear,
                 constraints: this.getConstraintData(),
                 modeling_data:
                     this.scenarioStateService.getScenarioData()?.scenario

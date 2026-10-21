@@ -7,12 +7,12 @@ import { ResModel } from '../../../shared/models/http.model';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import {
+    DrawflowHistoryState,
     ScenarioBaseInfoModel,
     ScenarioReqModel,
     ScenarioResModel,
     UserModelingStateModel,
 } from '../models/scenario.model';
-import { ModalStateService } from '../scenario-energy-design/modals/modal-state.service';
 import { ScenarioStateService } from './scenario-state.service';
 
 @Injectable({
@@ -23,11 +23,12 @@ export class ScenarioService {
     private scenario_localstorage_name = 'scenario_data';
     private scenario_drawflow_localstorage_name = 'CURRENT_DRAWFLOW';
     private user_modeling_state = 'user_modeling_state';
+    private baseUrl_auxiliary: string = environment.apiUrl + 'auxiliary/';
+    private historyStorageKey = 'design_history';
 
     alertService = inject(AlertService);
     toastService = inject(ToastService);
     baseHttp = inject(BaseHttpService);
-    private modalStateService = inject(ModalStateService);
     private scenarioStateService = inject(ScenarioStateService);
 
     getScenario(id: number) {
@@ -56,7 +57,7 @@ export class ScenarioService {
 
     // base info
     saveBaseInfo_Storage(data: ScenarioBaseInfoModel) {
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.scenario_localstorage_name,
             JSON.stringify(data),
         );
@@ -68,11 +69,11 @@ export class ScenarioService {
     }
 
     removeBaseInfo_Storage() {
-        localStorage.removeItem(this.scenario_localstorage_name);
+        sessionStorage.removeItem(this.scenario_localstorage_name);
     }
 
     restoreBaseInfo_Storage(): ScenarioBaseInfoModel | null {
-        const BaseInfoData: string | null = localStorage.getItem(
+        const BaseInfoData: string | null = sessionStorage.getItem(
             this.scenario_localstorage_name,
         );
 
@@ -86,14 +87,80 @@ export class ScenarioService {
     saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
         if (!data) return;
 
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.scenario_drawflow_localstorage_name,
             JSON.stringify(data),
         );
     }
 
+    transformLegacyDrawflowData(data: { [nodeKey: string]: DrawflowNode }): {
+        [nodeKey: string]: DrawflowNode;
+    } {
+        Object.values(data).forEach((node) => {
+            if (node.data && !Object.hasOwn(node.data, 'type') && node.class) {
+                node.data = {
+                    ...node.data,
+                    type: node.class,
+                };
+            }
+
+            if (
+                node.class === 'sink' &&
+                node.data &&
+                Object.hasOwn(node.data, 'sink')
+            ) {
+                const { sink, ...nodeData } = node.data;
+                node.data = {
+                    ...nodeData,
+                    source: sink,
+                };
+            }
+
+            if (
+                node.class === 'bus' &&
+                node.data &&
+                !Object.hasOwn(node.data, 'icon')
+            ) {
+                node.data = {
+                    ...node.data,
+                    icon: 'bus default',
+                    type: 'bus',
+                };
+                node.html = `
+                    <div class="img bus default"></div>
+                    <div class="drawflow-node__name nodeName">
+                        <span>
+                            ${node.name}
+                        </span>
+                    </div>
+                `;
+            }
+
+            if (
+                node.data &&
+                !Object.hasOwn(node.data, 'icon') &&
+                node.data.type
+            ) {
+                node.data = {
+                    ...node.data,
+                    icon: `${node.data.type} default`,
+                };
+                node.html = `
+                    <div class="img ${node.data.type} default"></div>
+                    <div class="drawflow-node__name nodeName">
+                        <span>
+                            ${node.name}
+                        </span>
+                    </div>
+                `;
+            }
+        });
+
+        return data;
+    }
+
     restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
-        const DrawflowData: string | null = localStorage.getItem(
+        const DrawflowData: string | null = sessionStorage.getItem(
             this.scenario_drawflow_localstorage_name,
         );
 
@@ -103,7 +170,7 @@ export class ScenarioService {
     }
 
     removeDrawflow_Data() {
-        localStorage.removeItem(this.scenario_drawflow_localstorage_name);
+        sessionStorage.removeItem(this.scenario_drawflow_localstorage_name);
         this.scenarioStateService.clearDrawflowData();
     }
 
@@ -261,37 +328,189 @@ export class ScenarioService {
     }
 
     saveUserModelingState(userModelingState: UserModelingStateModel) {
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.user_modeling_state,
             JSON.stringify(userModelingState),
         );
     }
 
     updateUserModelingState(updates: Partial<UserModelingStateModel>) {
-        const currentStateStr = localStorage.getItem(this.user_modeling_state);
+        const currentStateStr = sessionStorage.getItem(
+            this.user_modeling_state,
+        );
         let currentState: UserModelingStateModel = currentStateStr
             ? JSON.parse(currentStateStr)
             : ({} as UserModelingStateModel);
 
         const newState = { ...currentState, ...updates };
 
-        localStorage.setItem(
+        sessionStorage.setItem(
             this.user_modeling_state,
             JSON.stringify(newState),
         );
     }
 
     removeUserModelingState() {
-        localStorage.removeItem(this.user_modeling_state);
+        sessionStorage.removeItem(this.user_modeling_state);
     }
 
     restoreUserModelingState(): UserModelingStateModel | null {
-        const stateStr = localStorage.getItem(this.user_modeling_state);
+        const stateStr = sessionStorage.getItem(this.user_modeling_state);
 
         if (stateStr && stateStr.trim() != '') {
             return JSON.parse(stateStr);
         }
 
         return null;
+    }
+
+    calculateEpCosts(
+        capex: number,
+        opex: number,
+        interest_rate: number,
+        lifetime: number,
+        maturity: number,
+    ) {
+        return this.baseHttp.get(
+            this.baseUrl_auxiliary + `calculate_ep_costs`,
+            {
+                capex,
+                opex,
+                interest_rate,
+                lifetime,
+                maturity,
+            },
+        );
+    }
+
+    //====================  design history   ====================
+    private history: { [nodeKey: string]: DrawflowNode }[] = [];
+    private historyIndex = -1;
+    private readonly maxHistoryEntries = 5;
+
+    restoreDrawflowHistory(currentDrawflow: {
+        [nodeKey: string]: DrawflowNode;
+    }): {
+        data: { [nodeKey: string]: DrawflowNode };
+        hasUndo: boolean;
+        hasRedo: boolean;
+    } | null {
+        const storedHistory = sessionStorage.getItem(this.historyStorageKey);
+
+        if (storedHistory) {
+            try {
+                const historyState: DrawflowHistoryState =
+                    JSON.parse(storedHistory);
+                if (
+                    Array.isArray(historyState?.snapshots) &&
+                    historyState.snapshots.length > 0 &&
+                    Number.isInteger(historyState.index) &&
+                    historyState.index >= 0 &&
+                    historyState.index < historyState.snapshots.length
+                ) {
+                    this.history = historyState.snapshots;
+                    this.historyIndex = historyState.index;
+
+                    return {
+                        data: this.history[this.historyIndex],
+                        hasUndo: this.historyIndex > 0,
+                        hasRedo: this.historyIndex < this.history.length - 1,
+                    };
+                }
+            } catch (error) {
+                console.error(
+                    'Unable to restore Drawflow undo history from session storage.',
+                    error,
+                );
+            }
+        }
+
+        this.history = [currentDrawflow];
+        this.historyIndex = 0;
+        this.persistDrawflowHistory();
+        return null;
+    }
+
+    recordDrawflowHistory(drawflow: { [nodeKey: string]: DrawflowNode }):
+        | {
+              hasUndo: boolean;
+              hasRedo: boolean;
+          }
+        | undefined {
+        // regret duplictae/same drawflow state
+        if (
+            this.historyIndex >= 0 &&
+            JSON.stringify(this.history[this.historyIndex]) ===
+                JSON.stringify(drawflow)
+        ) {
+            return undefined;
+        }
+
+        this.history = this.history.slice(0, this.historyIndex + 1);
+        this.history.push(drawflow);
+
+        if (this.history.length > this.maxHistoryEntries) {
+            this.history.shift();
+        }
+        this.historyIndex = this.history.length - 1;
+        this.persistDrawflowHistory();
+
+        return {
+            hasUndo: this.historyIndex > 0,
+            hasRedo: this.historyIndex < this.history.length - 1,
+        };
+    }
+
+    clearDrawflowHistory() {
+        sessionStorage.removeItem(this.historyStorageKey);
+    }
+
+    private persistDrawflowHistory() {
+        const historyState: DrawflowHistoryState = {
+            snapshots: this.history,
+            index: this.historyIndex,
+        };
+        sessionStorage.setItem(
+            this.historyStorageKey,
+            JSON.stringify(historyState),
+        );
+    }
+
+    undoScenarioChange():
+        | {
+              data: { [nodeKey: string]: DrawflowNode };
+              hasMoreUndo: boolean;
+              hasMoreRedo: boolean;
+          }
+        | undefined {
+        if (this.historyIndex <= 0) return;
+
+        this.historyIndex--;
+        this.persistDrawflowHistory();
+
+        return {
+            data: this.history[this.historyIndex],
+            hasMoreUndo: this.historyIndex > 0,
+            hasMoreRedo: this.historyIndex < this.history.length - 1,
+        };
+    }
+
+    redoScenarioChange():
+        | {
+              data: { [nodeKey: string]: DrawflowNode };
+              hasMoreUndo: boolean;
+              hasMoreRedo: boolean;
+          }
+        | undefined {
+        if (this.historyIndex >= this.history.length - 1) return;
+
+        this.historyIndex++;
+        this.persistDrawflowHistory();
+
+        return {
+            data: this.history[this.historyIndex],
+            hasMoreUndo: this.historyIndex > 0,
+            hasMoreRedo: this.historyIndex < this.history.length - 1,
+        };
     }
 }

@@ -9,6 +9,7 @@ from sqlmodel import Session
 from starlette import status
 
 from ..app_types import oemofBlockTypes, oepTypes, oepTypesData
+from ..auxiliary.service import calculate_ep_costs
 from ..db import get_db_session
 from ..models.base import GeneralDataModel
 from ..models.response import DataResponse
@@ -49,21 +50,6 @@ async def get_local_oep_schemas(
     )
 
 
-def calc_annuity(capex: float, wacc: float, n: int, u: int | None = None) -> float:
-    """Calculate the annuity for an investment."""
-
-    if u is None:
-        u = n
-
-    if (n < 1) or (wacc < 0 or wacc > 1) or (u < 1):
-        raise ValueError("Input arguments for 'annuity' out of bounds!")
-
-    return (
-        capex
-        * (wacc * (1 + wacc) ** n)
-        / ((1 + wacc) ** n - 1)
-        * (1 - (u - n) / (u * (1 + wacc) ** n))
-    )
 
 
 @oep_router.get("/local_data/{oep_name}/{simulation_year}/node_data", response_model=DataResponse)
@@ -99,8 +85,6 @@ async def get_local_oep_data_node(
     :param oep_name:
     :param token: Authentication token required for access.
     :type token: str
-    :param oep_type: Type of OEP data being requested.
-    :type oep_type: str
     :param simulation_year: The specific year for which simulation data is being requested.
     :type simulation_year: int
     :return: A structured response containing processed OEP data and file information.
@@ -182,17 +166,12 @@ async def get_local_oep_data_node(
         and "operating_costs" in parameter_year_select.keys()
         and "lifetime" in parameter_year_select.keys()
     ):
-        # Calculate EPC costs for flow
-        capex = parameter_year_select["investment_costs"]
-        opex = parameter_year_select["investment_costs"] * (
-            parameter_year_select["operating_costs"] / 100
+        flow_ep_costs = calculate_ep_costs(
+            capex=parameter_year_select["investment_costs"],
+            opex=parameter_year_select["operating_costs"],
+            interest_rate=parameter_year_select["interest_rate"],
+            lifetime=parameter_year_select["lifetime"]
         )
-        interest_rate = parameter_year_select["interest_rate"] / 100
-
-        annuity = calc_annuity(
-            capex=capex, wacc=interest_rate, n=parameter_year_select["lifetime"]
-        )
-        flow_ep_costs = annuity + opex
     else:
         flow_ep_costs = None
 
@@ -261,6 +240,8 @@ async def get_local_oep_data_node(
         "interest_rate",
         "efficiency_el",
         "efficiency_th",
+        "nonconvex_investment",
+        "non_convex_flow",
     ]:
         if key in parameter_year_select.keys():
             del parameter_year_select[key]
@@ -388,17 +369,12 @@ async def get_local_oep_data_ports(
         and "operating_costs" in parameter_year_select.keys()
         and "lifetime" in parameter_year_select.keys()
     ):
-        # Calculate EPC costs for flow
-        capex = parameter_year_select["investment_costs"]
-        opex = parameter_year_select["investment_costs"] * (
-            parameter_year_select["operating_costs"] / 100
+        flow_ep_costs = calculate_ep_costs(
+            capex=parameter_year_select["investment_costs"],
+            opex=parameter_year_select["operating_costs"],
+            interest_rate=parameter_year_select["interest_rate"],
+            lifetime=parameter_year_select["lifetime"]
         )
-        interest_rate = parameter_year_select["interest_rate"] / 100
-
-        annuity = calc_annuity(
-            capex=capex, wacc=interest_rate, n=parameter_year_select["lifetime"]
-        )
-        flow_ep_costs = annuity + opex
     else:
         flow_ep_costs = None
 
@@ -433,7 +409,8 @@ async def get_local_oep_data_ports(
         "full_load_time_max",
         "full_load_time_min",
         "integer",
-        "nonconvex",
+        "nonconvex_investment",
+        "non_convex_flow",
         "fixed_costs",
     ]
 

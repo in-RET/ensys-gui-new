@@ -1,3 +1,5 @@
+"""Test Genericstorage module."""
+
 import pytest
 from pydantic import ValidationError
 
@@ -7,6 +9,8 @@ from ensys.components.genericstorage import EnGenericStorage
 
 @pytest.fixture
 def sample_generic_storage():
+    """Return a sample generic storage model."""
+
     return EnGenericStorage(
         label="Test Storage",
         inputs={"Bus1": EnFlow()},
@@ -15,7 +19,7 @@ def sample_generic_storage():
         max_storage_level=1,
         min_storage_level=0,
         initial_storage_level=0.5,
-        nominal_storage_capacity=130,
+        nominal_capacity=130,
         loss_rate=0.01,
         inflow_conversion_factor=1,
         outflow_conversion_factor=0.93,
@@ -23,6 +27,8 @@ def sample_generic_storage():
 
 
 def test_oep_generic_storage_initialization(sample_generic_storage):
+    """Test the described behavior."""
+
     assert sample_generic_storage.label == "Test Storage"
     assert sample_generic_storage.loss_rate == 0.01
     assert sample_generic_storage.inflow_conversion_factor == 1
@@ -30,6 +36,8 @@ def test_oep_generic_storage_initialization(sample_generic_storage):
 
 
 def test_oep_generic_storage_missing_inputs():
+    """Test the described behavior."""
+
     with pytest.raises(ValidationError):
         EnGenericStorage(
             label="Test Storage",

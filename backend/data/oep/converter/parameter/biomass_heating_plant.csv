@@ -1,7 +1,7 @@
-year;investment_costs;operating_costs;lifetime;efficiency_th;interest_rate
-2025;243000;3;20;89;5
-2030;236000;3;20;89;5
-2035;228000;3;20;89;5
-2040;221000;3;20;89;5
-2045;214000;3;20;89;5
-2050;206000;3;20;89;5
+year;investment_costs;operating_costs;lifetime;efficiency_th;interest_rate;nonconvex_investment;non_convex_flow
+2025;243000;3;20;89;5;false;false
+2030;236000;3;20;89;5;false;false
+2035;228000;3;20;89;5;false;false
+2040;221000;3;20;89;5;false;false
+2045;214000;3;20;89;5;false;false
+2050;206000;3;20;89;5;false;false

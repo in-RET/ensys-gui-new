@@ -29,8 +29,4 @@ export class TemplateService {
     deleteTemplate(id: number) {
         return this.baseHttp.delete(`${this.baseUrl}/${id}`);
     }
-
-    duplicateTemplate(id: number) {
-        return this.baseHttp.post(`${this.baseUrl}/${id}/duplicate`);
-    }
 }

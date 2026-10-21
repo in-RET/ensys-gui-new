@@ -1,15 +1,16 @@
-import {inject, Injectable} from '@angular/core';
-import {map, Observable} from 'rxjs';
-import {environment} from '../../../../../environments/environment';
-import {BaseHttpService} from '../../../../core/base-http/base-http.service';
-import {ResDataModel, ResModel} from '../../../../shared/models/http.model';
-import {SimulationResModel} from '../models/simulation.model';
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { BaseHttpService } from '../../../../core/base-http/base-http.service';
+import { ResDataModel, ResModel } from '../../../../shared/models/http.model';
+import { SimulationResModel } from '../models/simulation.model';
 
 @Injectable({
     providedIn: 'root',
 })
 export class SimulationService {
     private baseUrl: string = environment.apiUrl + 'simulation';
+    private baseUrl_result: string = environment.apiUrl + 'results';
     private baseHttp = inject(BaseHttpService);
 
     getSimulations(scenarioId: number) {
@@ -25,7 +26,7 @@ export class SimulationService {
     }
 
     loadSimulations(
-        scenarioId: number
+        scenarioId: number,
     ): Observable<ResDataModel<SimulationResModel>> {
         return this.getSimulations(scenarioId).pipe(
             map((res: ResModel<SimulationResModel>) => {
@@ -34,12 +35,12 @@ export class SimulationService {
                     return res.data;
                 }
                 throw new Error('Unknown API error');
-            })
+            }),
         );
     }
 
     onStopSimulation(
-        scenarioId: number
+        scenarioId: number,
     ): Observable<ResDataModel<SimulationResModel>> {
         return this.stopSimulation(scenarioId).pipe(
             map((res: ResModel<SimulationResModel>) => {
@@ -47,7 +48,20 @@ export class SimulationService {
                     return res.data;
                 }
                 throw new Error('Unknown API error');
-            })
+            }),
         );
+    }
+
+    downloadScenarioDump(scenarioId: number) {
+        return this.baseHttp.get(
+            `${this.baseUrl_result}/${scenarioId}/dump`,
+            null,
+            null,
+            'blob',
+        );
+    }
+
+    getResult(simulationId: number) {
+        return this.baseHttp.get(`${this.baseUrl_result}/${simulationId}`);
     }
 }

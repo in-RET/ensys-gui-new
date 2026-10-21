@@ -73,7 +73,7 @@ async def create_project_from_template_endpoint(
     - param template_id: id of the template to clone
     - param token: bearer token from OAuth2
     - param db: SQLModel session dependency
-    - returns: DataResponse with the new project json dump
+    - returns: DataResponse with the new project JSON dump
     """
     user = read_user_by_token(token=token, db=db)
 

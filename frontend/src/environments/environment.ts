@@ -3,5 +3,6 @@ export const environment = {
     dev_on_server_build: false,
     apiUrl: '/api/',
     isDevelopingMode: false,
-    version: '0.1.2',
+    version: '1.0.0 Build 12082026',
+    googleAnalyticsId: 'G-S8DFNDQEJN',
 };

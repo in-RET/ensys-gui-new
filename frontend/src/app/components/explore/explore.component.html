@@ -1,0 +1,148 @@
+<!-- action btns -->
+<section class="p-3 actions">
+    <!-- Create Project -->
+    <div class="actions-left">
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            [routerLink]="['../project']"
+            aria-label="Create project"
+            *ngIf="currentExploreRoute == 'projects'"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/plus.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Create Project</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'templates'"
+            (click)="downloadTemplates()"
+            aria-label="Download Templates"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/download.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Download Templates</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'projects'"
+            (click)="downloadProjects()"
+            aria-label="Download Projects"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/download.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Download Projects</span>
+        </button>
+
+        <button
+            type="button"
+            class="btn btn--success btn-left btn-expandable"
+            *ngIf="currentExploreRoute == 'projects'"
+            (click)="openUploadProjects()"
+            aria-label="Upload projects"
+        >
+            <img
+                class="btn-icon"
+                src="static/assets/icons/feather/white/upload.svg"
+                alt=""
+                height="20"
+                width="20"
+                loading="lazy"
+            />
+            <span class="btn-text">Upload Project(s)</span>
+        </button>
+    </div>
+
+    <!-- show Projects/Templates -->
+    <div
+        class="btn-group actions-center"
+        role="group"
+        aria-label="Basic outlined example"
+    >
+        <button
+            type="button"
+            class="btn"
+            [routerLink]="['projects']"
+            aria-label="Browse projects"
+            [ngClass]="{ 'btn--hollow': currentExploreRoute !== 'projects' }"
+            (click)="removeFocus($event)"
+        >
+            Projects
+        </button>
+
+        <button
+            type="button"
+            class="btn"
+            [routerLink]="['templates']"
+            aria-label="Browse templates"
+            [ngClass]="{ 'btn--hollow': currentExploreRoute !== 'templates' }"
+            (click)="removeFocus($event)"
+        >
+            Templates
+        </button>
+    </div>
+
+    <!-- sort options -->
+    <div ngbDropdown class="d-inline-block actions-right">
+        <button
+            type="button"
+            class="btn btn--hollow d-flex align-items-center"
+            id="dropdownBasic1"
+            ngbDropdownToggle
+        >
+            {{
+                currentExploreRoute === "projects"
+                    ? (exploreService.exploreProject_selectedSortOption | async)
+                    : null
+            }}
+            {{
+                currentExploreRoute === "templates"
+                    ? (exploreService.exploreTemplate_selectedSortOption
+                      | async)
+                    : null
+            }}
+        </button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+            <button
+                ngbDropdownItem
+                *ngFor="let option of sortOptions"
+                (click)="orderItemsBy(option)"
+            >
+                {{ option }}
+            </button>
+        </div>
+    </div>
+</section>
+
+<router-outlet />
+
+<ng-container *ngIf="modalStateService.modalState | async as modalState">
+    <app-upload-data
+        *ngIf="modalState.uploadData"
+        [modalInfo]="modalState.uploadData"
+        (onUploadData)="onUploadData($event)"
+        (modalClosed)="onUploadprojectsClosed()"
+    />
+</ng-container>

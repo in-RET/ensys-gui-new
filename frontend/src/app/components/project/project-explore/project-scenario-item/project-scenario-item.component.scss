@@ -1,13 +1,32 @@
 .scenario-item {
-    .__actions button {
-        display: flex;
-        visibility: hidden;
+    height: 30px;
+
+    .__actions {
+        display: none;
+
+        .copy span {
+            color: var(--bs-primary);
+        }
+        .delete span {
+            color: var(--bs-danger);
+        }
+
+        gap: 5px;
     }
 
     &:hover {
-        .__actions button {
+        .scenario_item {
+            background: var(--bs-primary-bg-subtle) !important;
+        }
+        .__actions {
             display: flex;
-            visibility: visible;
+        }
+        .property {
+            display: none;
+        }
+
+        .title {
+            color: var(--bs-primary);
         }
     }
 }

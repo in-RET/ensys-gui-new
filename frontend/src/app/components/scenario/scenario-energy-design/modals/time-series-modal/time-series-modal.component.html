@@ -2,6 +2,10 @@
     *ngIf="modalInfo"
     [maxRecords_TimeSeries]="8760"
     [modes]="modalInfo.modes"
+    [type]="modalInfo.type"
+    [numberOnly]="modalInfo.numberOnly"
+    [min]="modalInfo.min"
+    [max]="modalInfo.max"
     (dataSubmit)="onDataSubmitted($event)"
     (closeModal_TimeSeries)="closeModal($event)"
 />

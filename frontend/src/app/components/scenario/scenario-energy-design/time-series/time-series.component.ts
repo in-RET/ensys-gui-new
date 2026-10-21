@@ -11,15 +11,18 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NgbCollapseModule } from '@ng-bootstrap/ng-bootstrap';
-import { Chart } from 'chart.js/auto';
-import zoomPlugin from 'chartjs-plugin-zoom';
 
+import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
+import { InputType } from '../../../../shared/models/generic.model';
+import { GeneralService } from '../../../../shared/services/general.service';
 import {
     ScenarioStateModel,
     ScenarioStateService,
 } from '../../services/scenario-state.service';
 import { ScenarioService } from '../../services/scenario.service';
 import { ModalComponent } from '../modal/modal.component';
+
+declare const Plotly: any;
 
 export interface ModeOption {
     value: 'list' | 'file' | 'number';
@@ -28,7 +31,13 @@ export interface ModeOption {
 
 @Component({
     selector: 'app-time-series',
-    imports: [CommonModule, FormsModule, ModalComponent, NgbCollapseModule],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ModalComponent,
+        NgbCollapseModule,
+        NumberOnlyDirective,
+    ],
     templateUrl: './time-series.component.html',
     styleUrl: './time-series.component.scss',
 })
@@ -37,7 +46,7 @@ export class TimeSeriesComponent {
         showPlot: boolean;
         title: string;
         selectedType?: 'list' | 'file' | 'number';
-        data: undefined | number | number[];
+        data: undefined | number | number[] | string;
     } = {
         showPlot: false,
         title: 'Time Series Data',
@@ -81,16 +90,22 @@ export class TimeSeriesComponent {
 
     private _modes!: ModeOption[];
     @Input()
-    set modes(d: ModeOption[] | null) {
+    set modes(d: ModeOption[] | undefined) {
         this._modes = d && d?.length ? d : [...this.defaultModes];
     }
     get modes() {
         return this._modes;
     }
 
+    @Input() type?: InputType = 'text';
+    @Input() numberOnly?: boolean = true;
+    @Input() min?: number;
+    @Input() max?: number;
+    @Input() inputmode?: string;
+
     @Output()
-    dataSubmit: EventEmitter<number | number[]> = new EventEmitter<
-        number | number[]
+    dataSubmit: EventEmitter<number | number[] | string> = new EventEmitter<
+        number | number[] | string
     >();
     @Output()
     closeModal_TimeSeries: EventEmitter<any> = new EventEmitter<any>();
@@ -101,6 +116,7 @@ export class TimeSeriesComponent {
 
     scenarioService = inject(ScenarioService);
     scenarioStateService = inject(ScenarioStateService);
+    generalService = inject(GeneralService);
 
     constructor(private cdr: ChangeDetectorRef) {}
 
@@ -303,108 +319,71 @@ export class TimeSeriesComponent {
 
     chart_timeSeries_initial(xVal: string[], yVal: number[]) {
         this.modalInfo.showPlot = true;
-        Chart.register(zoomPlugin);
 
         setTimeout(() => {
-            const canvas: any = document.getElementById('plot_timeSeries');
+            const plotDiv = document.getElementById('plot_timeSeries');
 
-            if (!canvas) return;
+            if (!plotDiv) return;
 
-            new Chart(canvas, {
-                type: 'line',
-                data: {
-                    labels: xVal,
-                    datasets: [
-                        {
-                            label: 'Value',
-                            data: yVal,
+            const trace = {
+                x: xVal,
+                y: yVal,
+                type: 'scatter',
+                mode: 'lines',
+                name: '',
 
-                            borderColor: '#1f77b4',
-                            backgroundColor: 'rgba(31, 119, 180, 0.3)',
-
-                            fill: true,
-                            pointRadius: 0,
-                            pointHoverRadius: 0,
-                            borderWidth: 1,
-                            tension: 0,
-                        },
-                    ],
+                line: {
+                    color: '#1f77b4',
+                    width: 1,
                 },
 
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 600,
-                        easing: 'easeOutQuart',
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        intersect: false,
-                        axis: 'x',
-                    },
-                    elements: {
-                        point: {
-                            radius: 0,
-                            hoverRadius: 0,
-                            hitRadius: 0,
-                        },
-                        line: {
-                            tension: 0,
-                            borderWidth: 1,
-                        },
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Time Series (Filled Area)',
-                        },
-                        legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        decimation: {
-                            enabled: true,
-                            algorithm: 'lttb',
-                            samples: 800,
-                        },
-                        zoom: {
-                            pan: {
-                                enabled: true,
-                                mode: 'x',
-                            },
-                            zoom: {
-                                wheel: {
-                                    enabled: true,
-                                },
-                                pinch: {
-                                    enabled: true,
-                                },
-                                mode: 'x',
-                            },
-                        },
-                    },
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                                text: 'Date',
-                            },
-                            display: false,
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Value',
-                            },
-                        },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(31, 119, 180, 0.3)',
+
+                hovertemplate: 'Value: %{y:.8f}' + '<extra></extra>',
+            };
+
+            const layout = {
+                title: {
+                    text: '',
+                },
+
+                autosize: true,
+
+                xaxis: {
+                    type: 'date',
+                    showgrid: true,
+                    rangeslider: {
+                        visible: false,
                     },
                 },
-            });
+
+                yaxis: {
+                    title: {
+                        text: '',
+                    },
+                },
+
+                hovermode: 'x unified',
+
+                margin: {
+                    t: 50,
+                    l: 60,
+                    r: 20,
+                    b: 50,
+                },
+            };
+
+            const config = {
+                responsive: true,
+                displaylogo: false,
+
+                scrollZoom: true,
+
+                modeBarButtonsToRemove: ['select2d', 'lasso2d'],
+            };
+
+            Plotly.newPlot(plotDiv, [trace], layout, config);
 
             this.modalInfo.data = yVal;
         }, 0);
@@ -445,7 +424,9 @@ export class TimeSeriesComponent {
 
     submitData() {
         if (this.modalInfo.selectedType === 'number') {
-            this.modalInfo.data = parseFloat(this.numInput.nativeElement.value);
+            const inputValue = this.numInput.nativeElement.value.trim();
+            this.modalInfo.data =
+                this.generalService.convertNumberToLocaleDE(inputValue);
         }
 
         if (this.modalInfo.data) {

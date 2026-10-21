@@ -2,9 +2,9 @@
 Template data models for reusable energy system setups.
 """
 
+import math
 from datetime import datetime
 
-import math
 from pydantic import BaseModel
 from sqladmin import ModelView
 from sqlalchemy import Column
@@ -88,7 +88,7 @@ class EnTemplateScenario(BaseModel):
     modeling_data: str = Field(default="")
 
     def model_dump(self, *args, **kwargs) -> dict:
-        """Dictify scenario and convert start_date timestamp."""
+        """dictify scenario and convert start_date timestamp."""
         model_data = super().model_dump(*args, **kwargs)
         if self.start_date:
             model_data["start_date"] = datetime.fromtimestamp(self.start_date)
