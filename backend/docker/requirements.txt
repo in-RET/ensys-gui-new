@@ -108,7 +108,7 @@ networkx==3.6.1
 notebook==7.5.6
 notebook_shim==0.2.4
 numpy==2.4.3
-oauthlib==3.3.1
+oauthlib==4.0.0
 oemof==1.0
 oemof.db==0.0.6
 oemof.network==0.5.2
