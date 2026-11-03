@@ -18,8 +18,9 @@
     <small
         class="property text-body-secondary"
         [title]="project.date_created | date: 'yyyy-MM-dd HH:mm:ss'"
+        *ngIf="scenario.date_created"
     >
-        {{ scenario.date_created || "{not defined}" | timeAgo }}
+        {{ scenario.date_created | timeAgo }}
     </small>
 
     <div class="__actions">

@@ -13,12 +13,16 @@
             <span
                 class="property"
                 [title]="project.date_created | date: 'yyyy-MM-dd HH:mm:ss'"
+                *ngIf="project.date_created"
             >
-                {{ project.date_created || "{not defined}" | timeAgo }}
+                {{ project.date_created | timeAgo }}
             </span>
-            <small [title]="project.date_updated | date: 'yyyy-MM-dd HH:mm:ss'">
+            <small
+                [title]="project.date_updated | date: 'yyyy-MM-dd HH:mm:ss'"
+                *ngIf="project.date_updated"
+            >
                 (Last Changed:
-                {{ project.date_updated || "{not defined}" | timeAgo }} )</small
+                {{ project.date_updated | timeAgo }} )</small
             >
 
             <div class="actions">
