@@ -1,3 +1,10 @@
 .scenario-main {
     padding: 50px;
 }
+
+.form-switch {
+    label,
+    input {
+        cursor: pointer;
+    }
+}

@@ -120,6 +120,9 @@ export class ScenarioBaseComponent implements OnInit {
                             constraints:
                                 currentScenarioData_storage.scenario
                                     .constraints,
+                            sensitivityAnalysis:
+                                currentScenarioData_storage.scenario
+                                    .sensitivityAnalysis,
                         };
                     }
                 }
@@ -169,6 +172,7 @@ export class ScenarioBaseComponent implements OnInit {
                     simulationYear: +formData.simulationYear,
                     constraints: constraints,
                     modeling_data: null,
+                    sensitivityAnalysis: formData.sensitivityAnalysis,
                 },
             };
 
@@ -186,6 +190,7 @@ export class ScenarioBaseComponent implements OnInit {
                     constraints: constraints,
                     modeling_data:
                         this.currentScenario?.scenario?.modeling_data || null,
+                    sensitivityAnalysis: formData.sensitivityAnalysis,
                 },
             };
 
@@ -400,6 +405,8 @@ export class ScenarioBaseComponent implements OnInit {
                         this.currentScenario.scenario.simulationYear,
                     constraints: this.currentScenario.scenario.constraints,
                     modeling_data: this.currentScenario.scenario.modeling_data,
+                    sensitivityAnalysis:
+                        this.currentScenario.scenario.sensitivityAnalysis,
                 },
             };
             await this.updateScenario(data);

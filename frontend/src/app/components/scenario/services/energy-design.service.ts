@@ -188,16 +188,24 @@ export class EnergyDesignService {
                 label: 'ep_costs',
                 type: 'text',
                 span: '3',
-                actions: [
-                    {
+                actions: {
+                    in_block: {
                         name: 'ep_costs_calculator',
                         label: '',
-                        icon: 'calculator',
+                        icon: 'divide',
                         onClick: () => {
                             callback['showModal_EpCostsCalculator']();
                         },
                     },
-                ],
+                    out_block: {
+                        name: 'sensitivityAnalysis',
+                        label: 'Range',
+                        icon: '',
+                        onClick: () => {
+                            callback['showModal_EpCostsCalculator']();
+                        },
+                    },
+                },
                 numberOnlyAllowed: true,
                 unit: {
                     isShown: true,
@@ -1758,14 +1766,14 @@ export class EnergyDesignService {
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         },
+                                        //     );
+                                        // }
 
                                         if (
                                             elm.name == 'overall_maximum' ||
@@ -1851,14 +1859,14 @@ export class EnergyDesignService {
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         },
+                                        //     );
+                                        // }
 
                                         return elm;
                                     }),
@@ -1949,14 +1957,15 @@ export class EnergyDesignService {
                                             else elm['disabled'] = true;
                                         }
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         },
+                                        //     );
+                                        // }
+
                                         return elm;
                                     }),
                                 ],
@@ -1987,14 +1996,14 @@ export class EnergyDesignService {
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         },
+                                        //     );
+                                        // }
 
                                         if (
                                             elm.name == 'overall_maximum' ||
@@ -2084,14 +2093,14 @@ export class EnergyDesignService {
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
+                                        // if (elm.actions) {
+                                        //     elm.actions.forEach(
+                                        //         (element: any) => {
+                                        //             element['disabled'] =
+                                        //                 !isInvSelected;
+                                        //         },
+                                        //     );
+                                        // }
 
                                         return elm;
                                     }),

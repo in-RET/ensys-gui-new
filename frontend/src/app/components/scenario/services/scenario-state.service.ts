@@ -16,6 +16,7 @@ export interface ScenarioStateModel {
         simulationYear: number;
         modeling_data: { [nodeKey: string]: DrawflowNode } | null; // when string: data saved without drawflow data (e: scneario setup)
         constraints: ConstraintRow[];
+        sensitivityAnalysis: boolean;
     } | null;
 }
 

@@ -138,6 +138,26 @@
                     <label>Time Step</label>
                 </div>
             </div>
+
+            <div class="col-auto">
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        formControlName="sensitivityAnalysis"
+                        (change)="
+                            sensitivityAnalysis!.setValue(
+                                sensitivityAnalysis!.value
+                            )
+                        "
+                        [id]="'switch-sensitivityAnalysis'"
+                    />
+                    <label for="switch-sensitivityAnalysis">
+                        Sensitivity Analysis
+                    </label>
+                </div>
+            </div>
         </div>
 
         <ng-container

@@ -81,6 +81,7 @@ export class ProjectScenarioItemComponent {
                                 modeling_data: modeling_data
                                     ? JSON.parse(modeling_data)
                                     : null,
+                                sensitivityAnalysis: data.sensitivityAnalysis,
                             },
                         };
                         this.scenarioService.saveBaseInfo_Storage(scenarioData);
@@ -103,6 +104,7 @@ export class ProjectScenarioItemComponent {
                                 modeling_data: modeling_data
                                     ? JSON.parse(modeling_data)
                                     : null,
+                                sensitivityAnalysis: data.sensitivityAnalysis,
                             },
                         };
 

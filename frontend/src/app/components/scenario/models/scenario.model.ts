@@ -31,6 +31,7 @@ export interface ScenarioResModel {
     constraints: string | null | {};
     date_created: string;
     date_updated: string | null;
+    sensitivityAnalysis: boolean;
 }
 
 export interface ScenarioModel {
@@ -61,6 +62,7 @@ export interface ScenarioBaseInfoModel_scenario {
     simulationYear: number;
     constraints: ConstraintRow[];
     modeling_data: { [nodeKey: string]: DrawflowNode } | null;
+    sensitivityAnalysis: boolean;
 }
 
 export interface ScenarioBaseInfoModel {
@@ -81,6 +83,7 @@ export interface ScenarioUpdatedModel_scenario {
     simulationYear: number;
     constraints: ConstraintRow[];
     modeling_data: { [nodeKey: string]: DrawflowNode } | null;
+    sensitivityAnalysis: boolean;
 }
 export interface ScenarioUpdatedModel {
     project: ScenarioUpdatedModel_project;

@@ -169,6 +169,9 @@ export class SimulationComponent implements OnInit {
                             constraints:
                                 currentScenarioData_storage.scenario
                                     .constraints,
+                            sensitivityAnalysis:
+                                currentScenarioData_storage.scenario
+                                    .sensitivityAnalysis,
                         };
                     }
                 }

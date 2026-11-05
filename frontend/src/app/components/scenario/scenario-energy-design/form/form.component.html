@@ -22,103 +22,138 @@
 
                 <div class="row">
                     <div
-                        [ngClass]="
-                            field.span ? 'col-md-' + field.span : 'col-md'
-                        "
+                        [ngClass]="[
+                            field.span ? 'col-md-' + field.span : 'col-md',
+                        ]"
                         [class]="field.class"
                         *ngFor="let field of section.fields"
                     >
                         <!-- text / number -->
                         <div
-                            class="form-floating mb-3"
-                            *ngIf="
-                                field.type == 'text' || field.type == 'number'
-                            "
-                            [ngClass]="{
-                                'd-flex gap-2': field.actions,
-                                hasAction:
-                                    field.unit?.isShown &&
-                                    field.actions &&
-                                    !form.controls[field.name].disabled,
-                                hasAddon: field.unit?.isShown,
-                            }"
+                            [ngClass]="[
+                                field.actions && field.actions.out_block
+                                    ? 'input-group'
+                                    : '',
+                            ]"
                         >
-                            <ng-container
-                                *ngIf="field.type == 'text'; else numberField"
+                            <div
+                                class="form-floating mb-3"
+                                *ngIf="
+                                    field.type == 'text' ||
+                                    field.type == 'number'
+                                "
+                                [ngClass]="{
+                                    'd-flex gap-2':
+                                        field.actions && field.actions.in_block,
+                                    hasAction:
+                                        field.unit?.isShown &&
+                                        field.actions &&
+                                        field.actions.in_block &&
+                                        !form.controls[field.name].disabled,
+                                    hasAddon: field.unit?.isShown,
+                                }"
                             >
-                                <input
-                                    [type]="field.type"
-                                    class="form-control"
-                                    [placeholder]="field.placeholder"
-                                    [required]="field.isReq"
-                                    [formControlName]="field.name"
-                                    [ngClass]="{
-                                        'is-invalid':
-                                            form.get(field.name)!.invalid &&
-                                            (form.get(field.name)!.dirty ||
-                                                form.get(field.name)!.touched),
-                                        'pe-5': field.unit?.isShown,
-                                    }"
-                                    [step]="field.step"
-                                    [numberOnly]="field.numberOnlyAllowed"
-                                    [numbersArray]="field.numbersArrayAllowed"
-                                    [attr.inputmode]="field.inputmode"
-                                    [min]="field.min"
-                                    [max]="field.max"
-                                />
-                            </ng-container>
-
-                            <ng-template #numberField>
-                                <input
-                                    [type]="field.type"
-                                    class="form-control"
-                                    [placeholder]="field.placeholder"
-                                    [required]="field.isReq"
-                                    [formControlName]="field.name"
-                                    [ngClass]="{
-                                        'is-invalid':
-                                            form.get(field.name)!.invalid &&
-                                            (form.get(field.name)!.dirty ||
-                                                form.get(field.name)!.touched),
-                                        'pe-5': field.unit?.isShown,
-                                    }"
-                                    [step]="field.step"
-                                />
-                            </ng-template>
-
-                            <label>
-                                {{ field.label }}
-                                <span *ngIf="field.isReq"> * </span>
-                            </label>
-
-                            <div class="addon in-middle position-absolute">
-                                <span class="__unit" *ngIf="field.unit">
-                                    {{ field.unit.text }}
-                                </span>
-
-                                <ng-container *ngIf="field.actions">
-                                    <a
-                                        class="d-flex align-items-center __btn"
-                                        *ngFor="let action of field.actions"
-                                        (click)="action.onClick()"
+                                <ng-container
+                                    *ngIf="
+                                        field.type == 'text';
+                                        else numberField
+                                    "
+                                >
+                                    <input
+                                        [type]="field.type"
+                                        class="form-control"
+                                        [placeholder]="field.placeholder"
+                                        [required]="field.isReq"
+                                        [formControlName]="field.name"
                                         [ngClass]="{
-                                            'd-none':
-                                                form.controls[field.name]
-                                                    .disabled,
+                                            'is-invalid':
+                                                form.get(field.name)!.invalid &&
+                                                (form.get(field.name)!.dirty ||
+                                                    form.get(field.name)!
+                                                        .touched),
+                                            'pe-5': field.unit?.isShown,
                                         }"
-                                    >
-                                        <span *ngIf="action.label">
-                                            {{ action.label }}
-                                        </span>
-
-                                        <img
-                                            src="static/assets/icons/calculator.svg"
-                                            [alt]="action.name"
-                                            style="height: 2rem"
-                                        />
-                                    </a>
+                                        [step]="field.step"
+                                        [numberOnly]="field.numberOnlyAllowed"
+                                        [numbersArray]="
+                                            field.numbersArrayAllowed
+                                        "
+                                        [attr.inputmode]="field.inputmode"
+                                        [min]="field.min"
+                                        [max]="field.max"
+                                    />
                                 </ng-container>
+
+                                <ng-template #numberField>
+                                    <input
+                                        [type]="field.type"
+                                        class="form-control"
+                                        [placeholder]="field.placeholder"
+                                        [required]="field.isReq"
+                                        [formControlName]="field.name"
+                                        [ngClass]="{
+                                            'is-invalid':
+                                                form.get(field.name)!.invalid &&
+                                                (form.get(field.name)!.dirty ||
+                                                    form.get(field.name)!
+                                                        .touched),
+                                            'pe-5': field.unit?.isShown,
+                                        }"
+                                        [step]="field.step"
+                                    />
+                                </ng-template>
+
+                                <label>
+                                    {{ field.label }}
+                                    <span *ngIf="field.isReq"> * </span>
+                                </label>
+
+                                <div class="addon in-middle position-absolute">
+                                    <span class="__unit" *ngIf="field.unit">
+                                        {{ field.unit.text }}
+                                    </span>
+
+                                    <ng-container
+                                        *ngIf="
+                                            field.actions &&
+                                            field.actions.in_block as action
+                                        "
+                                    >
+                                        <a
+                                            class="d-flex align-items-center __btn"
+                                            (click)="action.onClick()"
+                                            [ngClass]="{
+                                                'd-none':
+                                                    form.controls[field.name]
+                                                        .disabled,
+                                            }"
+                                        >
+                                            <span *ngIf="action.label">
+                                                {{ action.label }}
+                                            </span>
+
+                                            <img
+                                                [src]="
+                                                    'static/assets/icons/feather/black/' +
+                                                    action.icon +
+                                                    '.svg'
+                                                "
+                                                [alt]="action.name"
+                                                style="height: 2rem"
+                                            />
+                                        </a>
+                                    </ng-container>
+                                </div>
                             </div>
+                            <span
+                                class="input-group-text"
+                                *ngIf="
+                                    field.actions &&
+                                    field.actions.out_block as action
+                                "
+                            >
+                                {{ action.label }}
+                            </span>
                         </div>
 
                         <!-- dropdown -->
