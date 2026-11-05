@@ -4,10 +4,6 @@
     (closeModal)="closeModal(false)"
 >
     <div modal-form>
-        <p class="text-danger" *ngIf="formError.isShow">
-            Error: {{ formError.msg }}
-        </p>
-
         <app-form
             [formData]="modalInfo.formData"
             (onSubmit)="onFormSubmitted()"
@@ -17,8 +13,17 @@
 
     <div
         modal-actions
+        class="d-flex w-100 align-items-center justify-content-center"
         *ngIf="modalInfo.formData !== null; else empty_form_actions"
     >
+        <span
+            class="text-danger modal_error"
+            style="position: absolute; left: 10px"
+            *ngIf="formError.isShow"
+        >
+            {{ formError.msg }}
+        </span>
+
         <button
             type="submit"
             class="btn btn--success btn--medium"

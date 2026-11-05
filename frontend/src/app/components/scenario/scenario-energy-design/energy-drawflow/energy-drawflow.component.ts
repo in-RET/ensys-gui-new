@@ -72,9 +72,11 @@ export class EnergyDrawflowComponent {
     contextmenu: ContextMenuState | null = null;
     toolBar: {
         isOpen: boolean;
+        isPinnedOpen: boolean;
     } = {
-        isOpen: false,
-    };
+            isOpen: false,
+            isPinnedOpen: false,
+        };
     canMoveDrawflow: boolean = false;
     isDragging: boolean = false;
 
@@ -99,7 +101,7 @@ export class EnergyDrawflowComponent {
     private toastService = inject(ToastService);
     private cdr = inject(ChangeDetectorRef);
     private modalStateService = inject(ModalStateService);
-    private scenarioStateService = inject(ScenarioStateService);
+    scenarioStateService = inject(ScenarioStateService);
 
     drawflowMovementState$ = this.scenarioStateService.drawflowMovementState;
 
@@ -159,9 +161,9 @@ export class EnergyDrawflowComponent {
             } = this.editor.export().drawflow.Home.data;
             const historyResult:
                 | {
-                      hasUndo: boolean;
-                      hasRedo: boolean;
-                  }
+                    hasUndo: boolean;
+                    hasRedo: boolean;
+                }
                 | undefined = this.scenarioService.recordDrawflowHistory(d);
             if (historyResult) {
                 this.hasMoreUndo = historyResult.hasUndo;
@@ -185,9 +187,9 @@ export class EnergyDrawflowComponent {
             } = this.editor.export().drawflow.Home.data;
             const historyResult:
                 | {
-                      hasUndo: boolean;
-                      hasRedo: boolean;
-                  }
+                    hasUndo: boolean;
+                    hasRedo: boolean;
+                }
                 | undefined = this.scenarioService.recordDrawflowHistory(d);
             if (historyResult) {
                 this.hasMoreUndo = historyResult.hasUndo;
@@ -222,9 +224,9 @@ export class EnergyDrawflowComponent {
             } = this.editor.export().drawflow.Home.data;
             const historyResult:
                 | {
-                      hasUndo: boolean;
-                      hasRedo: boolean;
-                  }
+                    hasUndo: boolean;
+                    hasRedo: boolean;
+                }
                 | undefined = this.scenarioService.recordDrawflowHistory(d);
             if (historyResult) {
                 this.hasMoreUndo = historyResult.hasUndo;
@@ -232,9 +234,9 @@ export class EnergyDrawflowComponent {
             }
         });
 
-        this.editor.on('connectionSelected', (connection: any) => {});
+        this.editor.on('connectionSelected', (connection: any) => { });
 
-        this.editor.on('zoom', (data: any) => {});
+        this.editor.on('zoom', (data: any) => { });
 
         this.editor.on('contextmenu', (e: any) => {
             this.unShowConextMenu();
@@ -264,9 +266,9 @@ export class EnergyDrawflowComponent {
             } = this.editor.export().drawflow.Home.data;
             const historyResult:
                 | {
-                      hasUndo: boolean;
-                      hasRedo: boolean;
-                  }
+                    hasUndo: boolean;
+                    hasRedo: boolean;
+                }
                 | undefined = this.scenarioService.recordDrawflowHistory(d);
             if (historyResult) {
                 this.hasMoreUndo = historyResult.hasUndo;
@@ -274,7 +276,7 @@ export class EnergyDrawflowComponent {
             }
         });
 
-        this.editor.on('translate', (position: any) => {});
+        this.editor.on('translate', (position: any) => { });
 
         this.renderer.listen('window', 'click', (e: any) => {
             if (
@@ -299,8 +301,8 @@ export class EnergyDrawflowComponent {
         if (currentScenarioData) {
             let CURRENT_DRAWFLOW:
                 | {
-                      [nodeKey: string]: DrawflowNode;
-                  }
+                    [nodeKey: string]: DrawflowNode;
+                }
                 | null
                 | undefined = currentScenarioData.scenario?.modeling_data;
 
@@ -328,7 +330,7 @@ export class EnergyDrawflowComponent {
         } = this.editor.export().drawflow.Home.data;
 
         const historySnapshot: {
-            data: { [nodeKey: string]: DrawflowNode };
+            data: { [nodeKey: string]: DrawflowNode; };
             hasUndo: boolean;
             hasRedo: boolean;
         } | null = this.scenarioService.restoreDrawflowHistory(d);
@@ -648,9 +650,8 @@ export class EnergyDrawflowComponent {
                 const endX = inputX - svgRect.left;
                 const endY = inputY - svgRect.top;
 
-                const path = `M ${startX} ${startY} C ${
-                    startX + 50
-                } ${startY}, ${endX - 50} ${endY}, ${endX} ${endY}`;
+                const path = `M ${startX} ${startY} C ${startX + 50
+                    } ${startY}, ${endX - 50} ${endY}, ${endX} ${endY}`;
 
                 previewPath.setAttribute('d', path);
             }
@@ -796,7 +797,7 @@ export class EnergyDrawflowComponent {
         });
     }
 
-    saveCurrentDrawflow(data?: { [nodeKey: string]: DrawflowNode }) {
+    saveCurrentDrawflow(data?: { [nodeKey: string]: DrawflowNode; }) {
         let CURRENT_DRAWFLOW: {
             [nodeKey: string]: DrawflowNode;
         };
@@ -822,22 +823,22 @@ export class EnergyDrawflowComponent {
         if (type == 'x')
             return (
                 position *
-                    (this.editor.precanvas.clientWidth /
-                        (this.editor.precanvas.clientWidth *
-                            this.editor.zoom)) -
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth *
+                        this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().x *
-                    (this.editor.precanvas.clientWidth /
-                        (this.editor.precanvas.clientWidth * this.editor.zoom))
+                (this.editor.precanvas.clientWidth /
+                    (this.editor.precanvas.clientWidth * this.editor.zoom))
             );
         else if (type == 'y')
             return (
                 position *
-                    (this.editor.precanvas.clientHeight /
-                        (this.editor.precanvas.clientHeight *
-                            this.editor.zoom)) -
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight *
+                        this.editor.zoom)) -
                 this.editor.precanvas.getBoundingClientRect().y *
-                    (this.editor.precanvas.clientHeight /
-                        (this.editor.precanvas.clientHeight * this.editor.zoom))
+                (this.editor.precanvas.clientHeight /
+                    (this.editor.precanvas.clientHeight * this.editor.zoom))
             );
         else return false;
     }
@@ -1056,7 +1057,7 @@ export class EnergyDrawflowComponent {
         );
     }
 
-    investFieldsToggleVisible() {}
+    investFieldsToggleVisible() { }
 
     setFormError(status: boolean, msg: string) {
         this.formError = {
@@ -1130,19 +1131,19 @@ export class EnergyDrawflowComponent {
                     portIndex =
                         connection.destination.node.data.type !== 'bus'
                             ? connectionDataList.findIndex(
-                                  (conn: any) =>
-                                      conn.baseInfo.output_node ==
-                                          connection.source.node.id &&
-                                      conn.baseInfo.input_port ==
-                                          connection.destination.port.code,
-                              )
+                                (conn: any) =>
+                                    conn.baseInfo.output_node ==
+                                    connection.source.node.id &&
+                                    conn.baseInfo.input_port ==
+                                    connection.destination.port.code,
+                            )
                             : connectionDataList.findIndex(
-                                  (conn: any) =>
-                                      conn.baseInfo.input_node ==
-                                          connection.destination.node.id &&
-                                      conn.baseInfo.output_port ==
-                                          connection.source.port.code,
-                              );
+                                (conn: any) =>
+                                    conn.baseInfo.input_node ==
+                                    connection.destination.node.id &&
+                                    conn.baseInfo.output_port ==
+                                    connection.source.port.code,
+                            );
                 } else {
                     const nodeConnections =
                         connection.destination.node.data.type !== 'bus'
@@ -1157,13 +1158,13 @@ export class EnergyDrawflowComponent {
                     portIndex = connectionDataList.findIndex(
                         (conn: any) =>
                             conn.baseInfo.input_node ==
-                                connection.destination.node.id &&
+                            connection.destination.node.id &&
                             conn.baseInfo.input_port ==
-                                connection.destination.port.code &&
+                            connection.destination.port.code &&
                             conn.baseInfo.output_node ==
-                                connection.source.node.id &&
+                            connection.source.node.id &&
                             conn.baseInfo.output_port ==
-                                connection.source.port.code,
+                            connection.source.port.code,
                     );
                 }
 
@@ -1260,19 +1261,19 @@ export class EnergyDrawflowComponent {
                 portIndex =
                     connection.destination.node.data.type !== 'bus'
                         ? connectionDataList.findIndex(
-                              (conn: any) =>
-                                  conn.baseInfo.output_node ==
-                                      connection.source.node.id &&
-                                  conn.baseInfo.input_port ==
-                                      connection.destination.port.code,
-                          )
+                            (conn: any) =>
+                                conn.baseInfo.output_node ==
+                                connection.source.node.id &&
+                                conn.baseInfo.input_port ==
+                                connection.destination.port.code,
+                        )
                         : connectionDataList.findIndex(
-                              (conn: any) =>
-                                  conn.baseInfo.input_node ==
-                                      connection.destination.node.id &&
-                                  conn.baseInfo.output_port ==
-                                      connection.source.port.code,
-                          );
+                            (conn: any) =>
+                                conn.baseInfo.input_node ==
+                                connection.destination.node.id &&
+                                conn.baseInfo.output_port ==
+                                connection.source.port.code,
+                        );
             } else {
                 const nodeConnections =
                     connection.destination.node.data.type !== 'bus'
@@ -1287,13 +1288,13 @@ export class EnergyDrawflowComponent {
                 portIndex = connectionDataList.findIndex(
                     (conn: any) =>
                         conn.baseInfo.input_node ==
-                            connection.destination.node.id &&
+                        connection.destination.node.id &&
                         conn.baseInfo.input_port ==
-                            connection.destination.port.code &&
+                        connection.destination.port.code &&
                         conn.baseInfo.output_node ==
-                            connection.source.node.id &&
+                        connection.source.node.id &&
                         conn.baseInfo.output_port ==
-                            connection.source.port.code,
+                        connection.source.port.code,
                 );
             }
 
@@ -1384,20 +1385,20 @@ export class EnergyDrawflowComponent {
                         }
                     } else {
                         node.inputs['input_1'].connections.forEach(
-                            (el_bus: { input: string; node: string }) => {
+                            (el_bus: { input: string; node: string; }) => {
                                 // remove connection data in node.data
                                 const nodeOut: DrawflowNode =
                                     this.editor.drawflow.drawflow.Home.data[
-                                        +el_bus.node
+                                    +el_bus.node
                                     ];
 
                                 nodeOut.data.connections.outputs.forEach(
                                     (el_node: any, i: number) => {
                                         if (
                                             el_node.baseInfo.output_node ===
-                                                el_bus.node &&
+                                            el_bus.node &&
                                             el_node.baseInfo.output_port ===
-                                                el_bus.input
+                                            el_bus.input
                                         ) {
                                             nodeOut.data.connections.outputs.splice(
                                                 i,
@@ -1615,9 +1616,9 @@ export class EnergyDrawflowComponent {
         } = this.editor.export().drawflow.Home.data;
         const historyResult:
             | {
-                  hasUndo: boolean;
-                  hasRedo: boolean;
-              }
+                hasUndo: boolean;
+                hasRedo: boolean;
+            }
             | undefined = this.scenarioService.recordDrawflowHistory(d);
         if (historyResult) {
             this.hasMoreUndo = historyResult.hasUndo;
@@ -1627,12 +1628,12 @@ export class EnergyDrawflowComponent {
 
     async deleteFlow(
         node_source: {
-            node: { id: number; name: string };
-            port: { id: number; name: string; code: string };
+            node: { id: number; name: string; };
+            port: { id: number; name: string; code: string; };
         },
         node_destination: {
-            node: { id: number; name: string };
-            port: { id: number; name: string; code: string };
+            node: { id: number; name: string; };
+            port: { id: number; name: string; code: string; };
         },
     ) {
         this.unShowConextMenu();
@@ -1676,15 +1677,15 @@ export class EnergyDrawflowComponent {
         let connectionList;
         let source:
             | {
-                  id: number;
-                  port: string;
-              }
+                id: number;
+                port: string;
+            }
             | undefined;
         let destination:
             | {
-                  id: number;
-                  port: string;
-              }
+                id: number;
+                port: string;
+            }
             | undefined;
         let node!: DrawflowNode;
         let index = -1;
@@ -1807,7 +1808,20 @@ export class EnergyDrawflowComponent {
     }
 
     toggleToolBar() {
-        this.toolBar.isOpen = !this.toolBar.isOpen;
+        this.toolBar.isPinnedOpen = !this.toolBar.isPinnedOpen;
+        this.toolBar.isOpen = this.toolBar.isPinnedOpen;
+    }
+
+    openToolBar() {
+        if (!this.toolBar.isPinnedOpen) {
+            this.toolBar.isOpen = true;
+        }
+    }
+
+    closeToolBar() {
+        if (!this.toolBar.isPinnedOpen) {
+            this.toolBar.isOpen = false;
+        }
     }
 
     showModal_Simulation() {
@@ -1816,6 +1830,18 @@ export class EnergyDrawflowComponent {
                 ?.scenario as ScenarioUpdatedModel_scenario;
 
         this.modalStateService.openSimulation({ scenarioId: _scenario.id });
+    }
+
+    showModal_ScenarioConfiguration() {
+        const scenario = this.scenarioStateService.getScenarioData()?.scenario;
+        const defaultId =
+            this.scenarioService.restoreBaseInfo_Storage()?.scenario?.defaultConfigId ??
+            '';
+        this.modalStateService.openScenarioConfiguration({
+            scenarioId: scenario?.id,
+            scenarioName: scenario?.name,
+            defaultId,
+        });
     }
 
     onColorPicker(e: any) {
@@ -1837,11 +1863,11 @@ export class EnergyDrawflowComponent {
         this.modalStateService.openUploadData();
     }
 
-    importData(data: { [nodeKey: string]: DrawflowNode }) {
+    importData(data: { [nodeKey: string]: DrawflowNode; }) {
         let CURRENT_DRAWFLOW:
             | {
-                  [nodeKey: string]: DrawflowNode;
-              }
+                [nodeKey: string]: DrawflowNode;
+            }
             | null
             | undefined = data;
 
@@ -1866,28 +1892,75 @@ export class EnergyDrawflowComponent {
         }, 100);
     }
 
-    downloadData() {
-        const { scenarioList, ...project } =
-            this.scenarioStateService.getScenarioData()
-                ?.project as ScenarioUpdatedModel_project;
+    async downloadData() {
+        const downloadChoice = await this.alertService.confirm(
+            'Choose which data to download:',
+            'Download Data',
+            'Scenario + config data',
+            undefined,
+            'question',
+            'Just scenario data',
+        );
 
-        const data: ScenarioUpdatedModel = {
-            project,
-            scenario: this.scenarioStateService.getScenarioData()
-                ?.scenario as ScenarioUpdatedModel_scenario,
-        };
+        if (downloadChoice !== 'cancel') {
+            const includeConfigurations = downloadChoice === 'confirm';
+            const scenarioData = this.scenarioStateService.getScenarioData();
+            const { scenarioList, ...project } =
+                scenarioData?.project as ScenarioUpdatedModel_project;
 
-        const file = new Blob([JSON.stringify(data)], {
-            type: 'application/json',
-        });
+            const data: ScenarioUpdatedModel = {
+                project,
+                scenario: scenarioData?.scenario as ScenarioUpdatedModel_scenario,
+            };
 
-        const url = URL.createObjectURL(file);
-        const link = document.createElement('a');
+            let exportData:
+                | ScenarioUpdatedModel
+                | (ScenarioUpdatedModel & { configurations: unknown[]; }) = data;
 
-        link.href = url;
-        link.download = `drawflow_${new Date().toISOString()}.json`;
-        link.click();
-        URL.revokeObjectURL(url);
+            if (includeConfigurations) {
+                const scenario = scenarioData?.scenario;
+                const scenarioKey =
+                    scenario?.id ?? scenario?.name ?? 'current';
+                let configurations: unknown[] = [];
+
+                try {
+                    const storedConfigurations = sessionStorage.getItem(
+                        `scenario-configurations:${scenarioKey}`,
+                    );
+                    if (storedConfigurations) {
+                        const parsedConfigurations: unknown = JSON.parse(
+                            storedConfigurations,
+                        );
+                        if (!Array.isArray(parsedConfigurations)) {
+                            throw new Error(
+                                'Stored scenario configurations must be an array.',
+                            );
+                        }
+                        configurations = parsedConfigurations;
+                    }
+                } catch (error) {
+                    console.error('Failed to read scenario configurations:', error);
+                    await this.alertService.error(
+                        'Unable to read saved configurations from this browser session.',
+                    );
+                    return;
+                }
+
+                exportData = { ...data, configurations };
+            }
+
+            const file = new Blob([JSON.stringify(exportData)], {
+                type: 'application/json',
+            });
+
+            const url = URL.createObjectURL(file);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = `drawflow_${new Date().toISOString()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
     }
 
     private restoreDrawflowSnapshot(snapshot: {
@@ -1907,10 +1980,10 @@ export class EnergyDrawflowComponent {
     undoChanges() {
         const historySnapshot:
             | {
-                  data: { [nodeKey: string]: DrawflowNode };
-                  hasMoreUndo: boolean;
-                  hasMoreRedo: boolean;
-              }
+                data: { [nodeKey: string]: DrawflowNode; };
+                hasMoreUndo: boolean;
+                hasMoreRedo: boolean;
+            }
             | undefined = this.scenarioService.undoScenarioChange();
 
         if (historySnapshot) {
@@ -1936,5 +2009,5 @@ export class EnergyDrawflowComponent {
 }
 
 class Drawflowoverride extends Drawflow {
-    removeConnection(e: any) {}
+    removeConnection(e: any) { }
 }

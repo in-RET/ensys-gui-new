@@ -11,14 +11,13 @@
         (dragover)="allowDrop($event)"
         [ngClass]="(drawflowMovementState$ | async) ? 'pe-all' : 'pe-none'"
     >
-        <div class="tools-box shadow rounded">
-            <div
-                class="d-flex gap-2 __all"
-                [ngClass]="{
-                    'd-none': !toolBar.isOpen,
-                }"
-            >
-                <div class="d-flex gap-2 __border">
+        <div
+            class="tools-box shadow rounded align-items-center"
+            (mouseenter)="openToolBar()"
+            (mouseleave)="closeToolBar()"
+        >
+            <div class="d-flex gap-2 __all" [class.is-open]="toolBar.isOpen">
+                <div class="d-flex gap-2 __border align-items-center">
                     <i
                         class="full-screen"
                         title="Full Screen"
@@ -63,7 +62,7 @@
                     ></i>
                 </div>
 
-                <div class="d-flex gap-2 __border">
+                <div class="d-flex gap-2 __border align-items-center">
                     <i
                         class="upload"
                         title="Upload Data"
@@ -77,7 +76,7 @@
                     ></i>
                 </div>
 
-                <div class="d-flex gap-2 __border">
+                <div class="d-flex gap-2 __border align-items-center">
                     <i
                         class="undo"
                         title="Undo Changes"
@@ -93,10 +92,23 @@
                     ></i>
                 </div>
 
-                <div class="d-flex gap-2">
+                <div
+                    class="d-flex gap-2 align-items-center"
+                    *ngIf="
+                        scenarioStateService.scenarioState
+                            | async as scenarioData
+                    "
+                    [class.__border]="
+                        scenarioData.scenario?.sensitivityAnalysis
+                    "
+                >
                     <i
                         class="play"
                         title="Start Simulation"
+                        *ngIf="
+                            editor &&
+                            (editor.drawflow.drawflow.Home.data | json) !== '{}'
+                        "
                         (click)="onStartSimulation()"
                     ></i>
                     <i
@@ -114,16 +126,54 @@
                         "
                     ></i>
                 </div>
+
+                <ng-container
+                    *ngIf="
+                        scenarioStateService.scenarioState
+                            | async as scenarioData
+                    "
+                >
+                    <div
+                        class="d-flex gap-2 align-items-center"
+                        *ngIf="scenarioData.scenario?.sensitivityAnalysis"
+                    >
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            title="Scenario Configuration"
+                            (click)="showModal_ScenarioConfiguration()"
+                            *ngIf="
+                                editor &&
+                                (editor.drawflow.drawflow.Home.data | json) !==
+                                    '{}' &&
+                                scenarioData.scenario?.sensitivityAnalysis
+                            "
+                        >
+                            Scenario Configuration
+                        </button>
+                    </div>
+                </ng-container>
             </div>
 
             <i
-                title="Toggle ToolBar"
+                class="btn-toggle"
+                [class.active]="toolBar.isOpen"
                 (click)="toggleToolBar()"
-                [ngClass]="{
-                    'more-vertical': !toolBar.isOpen,
-                    close: toolBar.isOpen,
-                }"
-            ></i>
+                [attr.aria-expanded]="toolBar.isOpen"
+                aria-label="Toggle menu"
+            >
+                <img
+                    class="icon-more"
+                    src="../../../../../static/assets/icons/feather/white/more-vertical.svg"
+                    alt=""
+                />
+
+                <img
+                    class="icon-close"
+                    src="../../../../../static/assets/icons/feather/white/x.svg"
+                    alt=""
+                />
+            </i>
         </div>
     </div>
 </section>

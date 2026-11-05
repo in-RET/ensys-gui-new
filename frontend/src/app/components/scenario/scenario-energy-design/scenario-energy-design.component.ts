@@ -26,6 +26,8 @@ import { FlowFormModalComponent } from './modals/flow-form-modal/flow-form-modal
 import { IconPickerModalComponent } from './modals/icon-picker-modal/icon-picker-modal.component';
 import { ModalState, ModalStateService } from './modals/modal-state.service';
 import { NodeFormModalComponent } from './modals/node-form-modal/node-form-modal.component';
+import { RangeModalComponent } from './modals/range-modal/range-modal.component';
+import { ScenarioConfigurationModalComponent } from './modals/scenario-configuration-modal/scenario-configuration-modal.component';
 import { SimulationModalComponent } from './modals/simulation-modal/simulation-modal.component';
 import { TimeSeriesModalComponent } from './modals/time-series-modal/time-series-modal.component';
 import { UploadDataComponent } from './modals/upload-data/upload-data.component';
@@ -49,6 +51,8 @@ import { ModeOption } from './time-series/time-series.component';
         SimulationModalComponent,
         IconPickerModalComponent,
         UploadDataComponent,
+        RangeModalComponent,
+        ScenarioConfigurationModalComponent,
     ],
     templateUrl: './scenario-energy-design.component.html',
     styleUrl: './scenario-energy-design.component.scss',
@@ -59,7 +63,7 @@ export class ScenarioEnergyDesignComponent {
     editMode: boolean = false;
     isFullscreen: boolean = false;
 
-    formError: { msg: string | null; isShow: boolean } = {
+    formError: { msg: string | null; isShow: boolean; } = {
         msg: '',
         isShow: false,
     };
@@ -139,7 +143,7 @@ export class ScenarioEnergyDesignComponent {
         );
     }
 
-    onNodeFormSubmitted(e: any) {}
+    onNodeFormSubmitted(e: any) { }
 
     onNodeFormClosed(e: any) {
         this.modalStateService.closeNodeForm();
@@ -157,7 +161,7 @@ export class ScenarioEnergyDesignComponent {
         );
     }
 
-    onFlowFormSubmitted(e: any) {}
+    onFlowFormSubmitted(e: any) { }
 
     onFlowFormClosed(e: {
         approved: boolean;
@@ -251,7 +255,7 @@ export class ScenarioEnergyDesignComponent {
         }
     }
 
-    onCalculatorOpened(e: { action: any; formData: any }) {
+    onCalculatorOpened(e: { action: any; formData: any; }) {
         let currentState!: ModalState;
         const subscription = this.modalStateService.modalState.subscribe(
             (state) => {
@@ -331,7 +335,7 @@ export class ScenarioEnergyDesignComponent {
 
     onShowModal_IconPicker(e: {
         action: any;
-        icon: { origin: string; name: string };
+        icon: { origin: string; name: string; };
     }) {
         this.modalStateService.toggleNodeForm();
 
@@ -423,6 +427,38 @@ export class ScenarioEnergyDesignComponent {
             e.node,
             e.calledByANode,
         );
+    }
+
+    onRangeOpened(e: { action: any; formData: any; fieldName: string; data: any; }) {
+        this.modalStateService.currentModalState.flowForm
+            ? this.modalStateService.toggleFlowForm()
+            : this.modalStateService.toggleNodeForm();
+
+        this.modalStateService.openRange({
+            title: 'Set Range',
+            action: e.action,
+            formData: e.formData,
+            fieldName: e.fieldName,
+            data: e.data
+        });
+    }
+
+    onSetRange(e: { fieldName: string; min: number; max: number; }) {
+        this.modalStateService.currentModalState.flowForm ?
+            this.flowFormModalComponent.setRange(e.fieldName, e.min, e.max)
+            : this.nodeFormModalComponent.setRange(e.fieldName, e.min, e.max);
+    }
+
+    onRangeClosed() {
+        this.modalStateService.closeRange();
+
+        this.modalStateService.currentModalState.flowForm
+            ? this.modalStateService.toggleFlowForm()
+            : this.modalStateService.toggleNodeForm();
+    }
+
+    onScenarioConfigurationClosed() {
+        this.modalStateService.closeScenarioConfiguration();
     }
 
     ngOnDestroy() {

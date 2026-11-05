@@ -18,6 +18,7 @@ import { FormComponent } from '../../form/form.component';
 import { ModalComponent } from '../../modal/modal.component';
 import { EditFormModalInfo } from '../../models/scenario-energy-design.model';
 import { ModeOption } from '../../time-series/time-series.component';
+import { ModalStateService } from '../modal-state.service';
 
 interface Connection {
     input_node: string;
@@ -34,7 +35,7 @@ interface Connection {
 })
 export class FlowFormModalComponent {
     energyDesignService = inject(EnergyDesignService);
-    formError: { msg: string | null; isShow: boolean } = {
+    formError: { msg: string | null; isShow: boolean; } = {
         msg: '',
         isShow: false,
     };
@@ -58,6 +59,7 @@ export class FlowFormModalComponent {
         node: DrawflowNode;
         calledByANode: boolean;
     }>();
+    @Output() onShowModal_Range = new EventEmitter<any>();
 
     @ViewChild('form')
     formComponent!: FormComponent;
@@ -66,6 +68,8 @@ export class FlowFormModalComponent {
 
     scenarioService = inject(ScenarioService);
     generalService = inject(GeneralService);
+    modalStateService = inject(ModalStateService);
+
 
     async ngOnChanges() {
         if (this.modalInfo) {
@@ -122,7 +126,7 @@ export class FlowFormModalComponent {
                     if (fData.outputs.length >= currentPortNum_out) {
                         this.modalInfo.data =
                             fData.outputs[currentPortNum_out - 1][
-                                'flow_data'
+                            'flow_data'
                             ] || {};
                     } else {
                         this.modalInfo.data = {};
@@ -175,6 +179,9 @@ export class FlowFormModalComponent {
                 }
             }
 
+            formData['ranges'] =
+                this.modalInfo.data?.ranges || formData['ranges'] || {};
+
             // save data of connection fields in both sides
             this.saveConnectionInNode.emit({
                 connection: this.modalInfo.connection,
@@ -216,6 +223,7 @@ export class FlowFormModalComponent {
             showModal_EpCostsCalculator:
                 this.showModal_EpCostsCalculator.bind(this),
             showModal_TimeSeries: this.showModal_TimeSeries.bind(this),
+            showModal_Range: this.showModal_Range.bind(this),
         };
     }
 
@@ -325,6 +333,43 @@ export class FlowFormModalComponent {
 
     setTimeSeriesData(controlName: string, data: number | number[] | string) {
         this.formComponent.setFieldData(controlName, data);
+    }
+
+    private showModal_Range(fieldName: string) {
+        this.onShowModal_Range.emit({
+            action: {
+                label: 'Set',
+                fn: 'setRange',
+            },
+            formData: this.energyDesignService.getFormFields_Range(
+                fieldName,
+                this.modalInfo?.data,
+            ),
+            fieldName: fieldName,
+            data: +this.modalInfo?.data[fieldName],
+        });
+    }
+
+    setRange(fieldName: string, min: number, max: number) {
+        this.formComponent.setFieldData(`ranges.${fieldName}`, { min, max });
+
+        if (this.modalInfo)
+            if (this.modalInfo.data && this.modalInfo.data.ranges) {
+                this.modalInfo.data.ranges[fieldName] = { min, max };
+            } else {
+                this.modalInfo.data = {
+                    ...this.modalInfo.data,
+                    ranges: {
+                        [fieldName]: { min, max },
+                    },
+                };
+            }
+
+        this.modalStateService.closeRange();
+
+        this.modalStateService.currentModalState.flowForm
+            ? this.modalStateService.toggleFlowForm()
+            : this.modalStateService.toggleNodeForm();
     }
 
     openNode() {

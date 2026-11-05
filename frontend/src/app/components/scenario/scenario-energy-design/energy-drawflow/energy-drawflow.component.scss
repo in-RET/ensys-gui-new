@@ -192,13 +192,19 @@
     display: flex;
     font-size: 24px;
     color: white;
-    padding: 5px 10px;
     background: #555555;
     border-radius: 4px;
     border-right: 1px solid var(--border-color);
     z-index: 5;
     gap: 0.5rem;
     cursor: auto;
+    height: 2.5rem;
+    padding: 5px 0.5rem 5px 10px;
+
+    &:hover,
+    &:has(.__all.is-open) {
+        border-radius: 0 4px 4px 0 !important;
+    }
 
     i {
         width: 1em;
@@ -272,16 +278,35 @@
     }
 
     .__all {
-        border-right: 1px dashed;
-        padding-right: 0.5rem;
-
-        opacity: 1;
-        visibility: visible;
-        transform: translateX(0);
+        height: 2.5rem;
+        position: absolute;
+        top: 0;
+        right: calc(100% - 1px);
+        align-items: center;
+        width: max-content;
+        padding: 5px 0.5rem 5px 10px;
+        background: #555555;
+        border-radius: 4px 0 0 4px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateX(0.5rem);
+        pointer-events: none;
         transition:
             opacity 0.3s ease,
             transform 0.3s ease,
-            visibility 0.3s ease;
+            visibility 0s linear 0.3s;
+
+        &.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+            pointer-events: auto;
+
+            transition:
+                opacity 0.3s ease,
+                transform 0.3s ease,
+                visibility 0s;
+        }
 
         .__border {
             border-right: 1px dashed;
@@ -299,5 +324,62 @@
     .nodeName {
         font-size: 1rem;
         font-weight: 600;
+    }
+}
+
+// animations for long text of node
+::ng-deep .drawflow-node__name {
+    width: 200px;
+    overflow: hidden;
+
+    span {
+        display: inline-block;
+        white-space: nowrap;
+        transform: translateX(0);
+        transition: transform 3s linear;
+    }
+
+    &:hover span {
+        transform: translateX(-50%);
+    }
+}
+
+// toolbox animation icon toggle
+.btn-toggle {
+    position: relative;
+    width: 36px;
+    height: 36px;
+
+    img {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        height: 2rem;
+
+        transition:
+            transform 0.25s ease-in-out,
+            opacity 0.15s ease;
+    }
+
+    .icon-more {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotate(0) scale(1);
+    }
+
+    .icon-close {
+        opacity: 0;
+        transform: translate(-50%, -50%) rotate(-180deg) scale(0.3);
+    }
+
+    &.active {
+        .icon-more {
+            opacity: 0;
+            transform: translate(-50%, -50%) rotate(180deg) scale(0.3);
+        }
+
+        .icon-close {
+            opacity: 1;
+            transform: translate(-50%, -50%) rotate(0) scale(1);
+        }
     }
 }

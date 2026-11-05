@@ -14,8 +14,13 @@ export interface ScenarioStateModel {
         timeStep: number;
         interval: number;
         simulationYear: number;
-        modeling_data: { [nodeKey: string]: DrawflowNode } | null; // when string: data saved without drawflow data (e: scneario setup)
+        modeling_data: { [nodeKey: string]: DrawflowNode; } | null; // when string: data saved without drawflow data (e: scneario setup)
         constraints: ConstraintRow[];
+        sensitivityAnalysis: boolean;
+        description?: string;
+        date_created?: string;
+        date_updated?: string;
+        defaultConfigId?: string | null;
     } | null;
 }
 
@@ -53,20 +58,20 @@ export class ScenarioStateService {
         this.scenarioState$.next(null);
     }
 
-    setDrawflowData(data: { [nodeKey: string]: DrawflowNode } | null) {
+    setDrawflowData(data: { [nodeKey: string]: DrawflowNode; } | null) {
         if (this.scenarioState$.value)
             this.scenarioState$.next({
                 ...this.scenarioState$.value,
                 scenario: this.scenarioState$.value.scenario
                     ? {
-                          ...this.scenarioState$.value.scenario,
-                          modeling_data: data,
-                      }
+                        ...this.scenarioState$.value.scenario,
+                        modeling_data: data,
+                    }
                     : null,
             });
     }
 
-    getDrawflowData(): { [nodeKey: string]: DrawflowNode } | null {
+    getDrawflowData(): { [nodeKey: string]: DrawflowNode; } | null {
         const scenarioData = this.scenarioState$.value?.scenario;
         if (scenarioData) return scenarioData.modeling_data;
         else return null;
@@ -78,9 +83,9 @@ export class ScenarioStateService {
                 ...this.scenarioState$.value,
                 scenario: this.scenarioState$.value.scenario
                     ? {
-                          ...this.scenarioState$.value.scenario,
-                          modeling_data: null,
-                      }
+                        ...this.scenarioState$.value.scenario,
+                        modeling_data: null,
+                    }
                     : null,
             });
     }

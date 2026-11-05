@@ -1,0 +1,839 @@
+<app-modal
+    *ngIf="modalInfo"
+    [title]="ModalTitle"
+    [size]="ModalSize"
+    [hasActions]="false"
+    (closeModal)="closeModal()"
+>
+    <div
+        modal-header-center-icon
+        class="d-flex align-items-center gap-2 ms-auto me-2"
+        *ngIf="activeConfiguration"
+    >
+        <!-- <input
+            #configurationEditorFileInput
+            type="file"
+            accept=".json,application/json"
+            class="d-none"
+            (change)="importConfigurationFile($event, 'editor')"
+        />
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            (click)="exportActiveConfiguration()"
+        >
+            Export JSON
+        </button>
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-primary"
+            (click)="configurationEditorFileInput.click()"
+        >
+            Import JSON
+        </button> -->
+    </div>
+
+    <div modal-body>
+        <ng-container *ngIf="!activeConfiguration; else configurationEditor">
+            <div
+                class="actions-left d-flex justify-content-center align-items-center gap-2 mb-3"
+            >
+                <button
+                    type="button"
+                    class="btn btn--success btn-left btn-expandable"
+                    (click)="newConfiguration()"
+                    [disabled]="!!storageError"
+                    aria-label="New configuration"
+                >
+                    <img
+                        class="btn-icon"
+                        src="../../../../../static/assets/icons/feather/white/plus.svg"
+                        alt=""
+                        height="20"
+                        width="20"
+                        loading="lazy"
+                    />
+                    <span class="btn-text">New configuration</span>
+                </button>
+
+                <!-- <button
+                    type="button"
+                    class="btn btn--success btn-left btn-expandable"
+                    (click)="exportAllConfigurations()"
+                    [disabled]="!configurations.length"
+                    aria-label="Export all configurations"
+                >
+                    <img
+                        class="btn-icon"
+                        src="../../../../../static/assets/icons/feather/white/download.svg"
+                        alt=""
+                        height="20"
+                        width="20"
+                        loading="lazy"
+                    />
+                    <span class="btn-text">Export configurations</span>
+                </button>
+
+                <input
+                    #configurationListFileInput
+                    type="file"
+                    accept=".json,application/json"
+                    class="d-none"
+                    (change)="importConfigurationFile($event, 'list')"
+                />
+                <button
+                    type="button"
+                    class="btn btn--success btn-left btn-expandable"
+                    (click)="configurationListFileInput.click()"
+                    [disabled]="!!storageError"
+                    aria-label="Import configurations"
+                >
+                    <img
+                        class="btn-icon"
+                        src="../../../../../static/assets/icons/feather/white/upload.svg"
+                        alt=""
+                        height="20"
+                        width="20"
+                        loading="lazy"
+                    />
+                    <span class="btn-text">Import configurations</span>
+                </button> -->
+            </div>
+
+            <div *ngIf="storageError" class="alert alert-danger" role="alert">
+                {{ storageError }}
+            </div>
+            <div *ngIf="importError" class="alert alert-danger" role="alert">
+                {{ importError }}
+            </div>
+
+            <div
+                *ngIf="!configurations.length"
+                class="alert alert-light border"
+            >
+                No configurations have been saved for this scenario.
+            </div>
+
+            <div class="list-group">
+                <div
+                    *ngFor="let configuration of configurations"
+                    class="list-group-item d-flex justify-content-between align-items-center gap-3"
+                >
+                    <div class="min-w-0">
+                        <div class="fw-semibold text-truncate">
+                            {{ configuration.name }}
+                        </div>
+                        <small class="text-muted">
+                            <b>{{ configuration.parameters.length }}</b>
+                            selected parameters &middot;
+                            {{ configuration.depth }} depth &middot;
+                            {{ configuration.type }}
+                        </small>
+                    </div>
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <button
+                            type="button"
+                            class="btn btn-sm btn--transparent"
+                            (click)="setDefaultSimulation(configuration)"
+                            [disabled]="!!storageError"
+                            *ngIf="!configuration.isDefault"
+                        >
+                            <span>Set As Default</span>
+                        </button>
+
+                        <small
+                            class="muted px-1 align-self-center fst-italic"
+                            *ngIf="configuration.isDefault"
+                        >
+                            Default
+                        </small>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            (click)="editConfiguration(configuration)"
+                            [disabled]="!!storageError"
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/white/edit.svg"
+                                alt=""
+                                height="22px"
+                            />
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn--error"
+                            (click)="deleteConfiguration(configuration.id)"
+                            [disabled]="!!storageError"
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/white/trash.svg"
+                                alt=""
+                                height="22px"
+                            />
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn--transparent"
+                            (click)="duplicateConfiguration(configuration)"
+                            [disabled]="!!storageError"
+                            value="Duplicate"
+                        >
+                            <span
+                                class="icon icon-duplicate fs-5 p-0 align-middle"
+                                aria-hidden="true"
+                            ></span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn--transparent"
+                            (click)="exportConfiguration(configuration)"
+                            aria-label="Export configuration"
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/black/download.svg"
+                                alt=""
+                                height="22px"
+                            />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+
+    <ng-template #configurationEditor>
+        <div class="configuration-editor mb-3 px-3">
+            <div *ngIf="importError" class="alert alert-danger" role="alert">
+                {{ importError }}
+            </div>
+
+            <!-- base info -->
+            <section class="card mb-3">
+                <div
+                    class="card-header d-flex flex-wrap align-items-center gap-3"
+                >
+                    <span>Base Info</span>
+
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <div class="form-check form-switch">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                role="switch"
+                                id="switch-analysisAdvanced"
+                                [checked]="
+                                    activeConfiguration!.isAnalysisAdvanced
+                                "
+                                [disabled]="isLoading"
+                                (change)="toggleAnalysisAdvanced($event)"
+                            />
+                            <label
+                                class="form-check-label"
+                                for="switch-analysisAdvanced"
+                            >
+                                Analysis Advanced
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body" style="background: aliceblue">
+                    <div class="row g-3 justify-content-around">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label" for="configuration-name">
+                                Name
+                            </label>
+                            <input
+                                id="configuration-name"
+                                class="form-control"
+                                [(ngModel)]="activeConfiguration!.name"
+                            />
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label d-block">Depth</label>
+                            <div
+                                class="btn-group"
+                                role="group"
+                                aria-label="Configuration depth"
+                            >
+                                <button
+                                    *ngFor="let depth of depths"
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    [class.btn-primary]="
+                                        activeConfiguration!.depth === depth
+                                    "
+                                    [ngClass]="{
+                                        active:
+                                            activeConfiguration!.depth == depth,
+                                    }"
+                                    (click)="activeConfiguration!.depth = depth"
+                                >
+                                    {{ depth }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-2" *ngIf="!showWorkflow">
+                            <label class="form-label" for="configuration-type">
+                                Type
+                            </label>
+                            <select
+                                id="configuration-type"
+                                class="form-select"
+                                [(ngModel)]="activeConfiguration!.type"
+                            >
+                                <option value="Local">Local</option>
+                                <option value="Global">Global</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-3">
+                            <div class="text-center">Tolerance Range (%):</div>
+                            <div
+                                class="row align-items-center justify-content-center mb-2"
+                            >
+                                <label
+                                    class="col-auto col-form-label"
+                                    for="default-min"
+                                >
+                                    Min(-%)
+                                </label>
+                                <div class="col-4">
+                                    <input
+                                        id="default-min"
+                                        type="number"
+                                        min="0"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="
+                                            activeConfiguration!.defaultMin
+                                        "
+                                        placeholder="min %"
+                                    />
+                                    <!-- <span class="ms-1">%</span> -->
+                                </div>
+                            </div>
+                            <div
+                                class="row align-items-center justify-content-center"
+                            >
+                                <label
+                                    class="col-auto col-form-label"
+                                    for="default-max"
+                                >
+                                    Max(+%)
+                                </label>
+                                <div class="col-4">
+                                    <input
+                                        id="default-max"
+                                        type="number"
+                                        min="0"
+                                        class="form-control form-control-sm"
+                                        [(ngModel)]="
+                                            activeConfiguration!.defaultMax
+                                        "
+                                        placeholder="max %"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-3" *ngIf="showWorkflow">
+                        <div class="col-12">
+                            <div *ngIf="showWorkflow" class="workflow mt-3">
+                                <div class="workflow-step">Model</div>
+                                <span class="workflow-arrow">&rarr;</span>
+                                <div class="workflow-step">
+                                    Morris Screening
+                                </div>
+                                <span class="workflow-arrow">&rarr;</span>
+                                <div
+                                    class="workflow-step d-flex align-items-center gap-2 flex-column"
+                                >
+                                    <span>Monte Carlo</span>
+                                    <select
+                                        class="form-select form-select-sm"
+                                        aria-label="Monte Carlo distribution"
+                                        [(ngModel)]="
+                                            activeConfiguration!
+                                                .monteCarloDistribution
+                                        "
+                                    >
+                                        <option
+                                            *ngFor="
+                                                let distribution of distributions
+                                            "
+                                            [ngValue]="distribution"
+                                        >
+                                            {{ distribution }}
+                                        </option>
+                                    </select>
+                                </div>
+                                <span class="workflow-arrow">&rarr;</span>
+                                <div class="workflow-step">Analysis</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- <div class="row mt-3">
+                        <div class="col-auto">
+                            <div class="form-check form-switch">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    role="switch"
+                                    id="switch-analysisAdvanced"
+                                    [checked]="
+                                        activeConfiguration!.isAnalysisAdvanced
+                                    "
+                                    [disabled]="isLoading"
+                                    (change)="toggleAnalysisAdvanced($event)"
+                                />
+
+                                <label
+                                    class="form-check-label"
+                                    for="switch-analysisAdvanced"
+                                >
+                                    Analysis Advanced
+                                </label>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+            </section>
+
+            <!-- Selected Parameters -->
+            <section class="card mb-3">
+                <div
+                    class="card-header d-flex flex-wrap align-items-center gap-3"
+                >
+                    <span>
+                        Selected Parameters
+                        <small class="text-body-tertiary">
+                            ({{ selectedParameters.length }})
+                        </small>
+                    </span>
+
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span
+                            class="d-inline-flex align-items-center gap-1 text-danger"
+                            title="Parameters with errors"
+                            aria-label="Parameters with errors"
+                            *ngIf="errorCount"
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/black/x.svg"
+                                alt=""
+                                height="16"
+                            />
+                            {{ errorCount }}
+                        </span>
+                        <!-- <span
+                            class="d-inline-flex align-items-center gap-1 text-warning"
+                            title="Warnings"
+                            aria-label="Warnings"
+                        >
+                            <img
+                                src="../../../../../static/assets/icons/feather/black/alert-triangle.svg"
+                                alt=""
+                                height="16"
+                            />
+                            {{ warningCount }}
+                        </span> -->
+
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-outline-secondary"
+                            (click)="
+                                deselectAllParameters(
+                                    activeConfiguration?.isAnalysisAdvanced
+                                )
+                            "
+                            [disabled]="!selectedParameters.length"
+                        >
+                            Deselect all
+                        </button>
+                    </div>
+                </div>
+                <div
+                    class="card-body"
+                    style="max-height: 35vh; overflow-y: auto"
+                >
+                    <div *ngIf="!selectedGroups.length" class="text-muted">
+                        Add parameters from the available fields below.
+                    </div>
+                    <details
+                        *ngFor="
+                            let group of selectedGroups;
+                            trackBy: trackByNode
+                        "
+                        open
+                        class="node-group"
+                    >
+                        <summary
+                            class="fw-semibold py-2"
+                            [class.text-danger]="nodeHasError[group.id]"
+                        >
+                            {{ group.name }}
+                        </summary>
+                        <details
+                            *ngFor="let port of group.ports"
+                            open
+                            class="port-group"
+                        >
+                            <summary
+                                class="fw-semibold py-2 ms-3"
+                                [class.text-danger]="
+                                    portHasError[group.id + ':' + port.name]
+                                "
+                            >
+                                {{ port.name }}
+                            </summary>
+                            <div class="table-responsive">
+                                <table class="table table-sm align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-muted">
+                                                <small>Parameter</small>
+                                            </th>
+                                            <th class="text-muted">
+                                                <small>Unit</small>
+                                            </th>
+                                            <th class="text-muted">
+                                                <small>Value</small>
+                                            </th>
+                                            <th class="text-muted">
+                                                <small>Min</small>
+                                            </th>
+                                            <th class="text-muted">
+                                                <small>Max</small>
+                                            </th>
+                                            <th class="text-muted">
+                                                <small>Distribution</small>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr
+                                            *ngFor="
+                                                let parameter of port.parameters;
+                                                trackBy: trackByParameter
+                                            "
+                                        >
+                                            <td
+                                                [class.text-danger]="
+                                                    parameterHasError[
+                                                        parameter.id
+                                                    ]
+                                                "
+                                            >
+                                                {{ parameter.label }}
+                                            </td>
+                                            <td>
+                                                <small>{{
+                                                    parameter.unit || "—"
+                                                }}</small>
+                                            </td>
+                                            <td>
+                                                {{ parameter.displayValue }}
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    class="form-control form-control-sm bound-input"
+                                                    [formControl]="
+                                                        parameterForms[
+                                                            parameter.id
+                                                        ].controls.min
+                                                    "
+                                                    [class.is-invalid]="
+                                                        parameterForms[
+                                                            parameter.id
+                                                        ].controls.min.invalid
+                                                    "
+                                                    aria-label="Minimum value"
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="number"
+                                                    class="form-control form-control-sm bound-input"
+                                                    [formControl]="
+                                                        parameterForms[
+                                                            parameter.id
+                                                        ].controls.max
+                                                    "
+                                                    [class.is-invalid]="
+                                                        parameterForms[
+                                                            parameter.id
+                                                        ].controls.max.invalid
+                                                    "
+                                                    aria-label="Maximum value"
+                                                />
+                                            </td>
+                                            <td>
+                                                <select
+                                                    class="form-select form-select-sm"
+                                                    aria-label="Parameter distribution"
+                                                    [(ngModel)]="
+                                                        parameter.distribution
+                                                    "
+                                                >
+                                                    <option
+                                                        *ngFor="
+                                                            let distribution of distributions
+                                                        "
+                                                        [ngValue]="distribution"
+                                                    >
+                                                        {{ distribution }}
+                                                    </option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn--error"
+                                                    (click)="
+                                                        removeParameter(
+                                                            parameter.id
+                                                        )
+                                                    "
+                                                >
+                                                    <img
+                                                        src="../../../../../static/assets/icons/feather/white/x.svg"
+                                                        alt=""
+                                                        height="22px"
+                                                        *ngIf="
+                                                            availableParameterSelection[
+                                                                parameter.id
+                                                            ]
+                                                        "
+                                                    />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Available Parameters -->
+            <section class="card mb-3">
+                <div
+                    class="card-header d-flex align-items-center justify-content-between gap-3"
+                >
+                    <span>
+                        Available Parameters
+                        <small class="text-body-tertiary">
+                            ({{ unselectedParameterCount }})
+                        </small>
+                    </span>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        (click)="
+                            selectAllParameters(
+                                activeConfiguration?.isAnalysisAdvanced
+                            )
+                        "
+                        [disabled]="isLoading || !unselectedParameterCount"
+                    >
+                        Select all
+                    </button>
+                </div>
+                <div
+                    class="card-body"
+                    style="max-height: 35vh; overflow-y: auto"
+                >
+                    <div *ngIf="isLoading" class="text-muted">
+                        Loading scenario flow fields...
+                    </div>
+
+                    <div *ngIf="loadError" class="alert alert-danger mb-0">
+                        {{ loadError }}
+                    </div>
+
+                    <div
+                        *ngIf="
+                            !isLoading && !loadError && !availableGroups.length
+                        "
+                        class="text-muted"
+                    >
+                        No connected flow fields are available.
+                    </div>
+
+                    <details
+                        *ngFor="
+                            let group of availableGroups;
+                            trackBy: trackByNode
+                        "
+                        class="node-group"
+                    >
+                        <summary class="fw-semibold py-2">
+                            {{ group.name }}
+                        </summary>
+
+                        <details
+                            *ngFor="let port of group.ports"
+                            class="port-group"
+                        >
+                            <summary
+                                class="fw-semibold py-2 ms-3"
+                                [ngClass]="{
+                                    disabled:
+                                        port.parameters &&
+                                        port.parameters.length == 0,
+                                }"
+                            >
+                                {{ port.name }}
+                                <small class="text-body-tertiary">
+                                    ({{ getUnselectedParameterCount(port) }})
+                                </small>
+                            </summary>
+
+                            <ng-container
+                                *ngIf="
+                                    port.parameters &&
+                                    port.parameters.length > 0
+                                "
+                            >
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-muted">
+                                                    <small>Parameter</small>
+                                                </th>
+                                                <th class="text-muted">
+                                                    <small>Unit</small>
+                                                </th>
+                                                <th class="text-muted">
+                                                    <small>Value</small>
+                                                </th>
+                                                <th class="text-muted">
+                                                    <small>Status</small>
+                                                </th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr
+                                                *ngFor="
+                                                    let parameter of port.parameters;
+                                                    trackBy: trackByParameter
+                                                "
+                                            >
+                                                <td>
+                                                    {{ parameter.label }}
+                                                </td>
+                                                <td>
+                                                    {{ parameter.unit || "—" }}
+                                                </td>
+                                                <td>
+                                                    {{ parameter.displayValue }}
+                                                </td>
+                                                <td>
+                                                    <span
+                                                        class="badge"
+                                                        [class.text-bg-success]="
+                                                            availableParameterSelection[
+                                                                parameter.id
+                                                            ]
+                                                        "
+                                                        [class.text-bg-secondary]="
+                                                            !availableParameterSelection[
+                                                                parameter.id
+                                                            ]
+                                                        "
+                                                    >
+                                                        <img
+                                                            src="../../../../../static/assets/icons/feather/white/check.svg"
+                                                            alt=""
+                                                            height="22px"
+                                                        />
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-sm btn-hollow"
+                                                        (click)="
+                                                            addParameter(
+                                                                parameter
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            availableParameterSelection[
+                                                                parameter.id
+                                                            ]
+                                                        "
+                                                        [ngClass]="{
+                                                            'd-none':
+                                                                availableParameterSelection[
+                                                                    parameter.id
+                                                                ],
+                                                        }"
+                                                    >
+                                                        <img
+                                                            src="../../../../../static/assets/icons/feather/white/plus.svg"
+                                                            alt=""
+                                                            height="22px"
+                                                            *ngIf="
+                                                                !availableParameterSelection[
+                                                                    parameter.id
+                                                                ]
+                                                            "
+                                                        />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </ng-container>
+                        </details>
+                    </details>
+                </div>
+            </section>
+
+            <!-- warnings are summarized in the Selected Parameters header -->
+
+            <!-- errors -->
+            <div *ngIf="storageError" class="alert alert-danger" role="alert">
+                {{ storageError }}
+            </div>
+            <div *ngIf="formError" class="alert alert-danger" role="alert">
+                {{ formError }}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3">
+            <button
+                type="button"
+                class="btn btn--transparent"
+                (click)="backToList()"
+            >
+                Back to list
+            </button>
+            <button
+                type="button"
+                class="btn btn--success btn--medium"
+                (click)="saveConfiguration()"
+                [disabled]="!!storageError || !!loadError || isLoading"
+            >
+                Save
+            </button>
+        </div>
+    </ng-template>
+</app-modal>
