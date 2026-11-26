@@ -120,6 +120,9 @@ export class ScenarioBaseComponent implements OnInit {
                             constraints:
                                 currentScenarioData_storage.scenario
                                     .constraints,
+                            sensitivityAnalysis:
+                                currentScenarioData_storage.scenario
+                                    .sensitivityAnalysis,
                         };
                     }
                 }
@@ -169,6 +172,7 @@ export class ScenarioBaseComponent implements OnInit {
                     simulationYear: +formData.simulationYear,
                     constraints: constraints,
                     modeling_data: null,
+                    sensitivityAnalysis: formData.sensitivityAnalysis,
                 },
             };
 
@@ -186,6 +190,7 @@ export class ScenarioBaseComponent implements OnInit {
                     constraints: constraints,
                     modeling_data:
                         this.currentScenario?.scenario?.modeling_data || null,
+                    sensitivityAnalysis: formData.sensitivityAnalysis,
                 },
             };
 
@@ -217,11 +222,21 @@ export class ScenarioBaseComponent implements OnInit {
                         data.scenario.id = val.id;
                     }
 
-                    // update session
-                    this.scenarioService.replaceBaseInfo_Storage(data);
+                    if (this.currentScenario && this.currentScenario.project) {
+                        const newScenarioData: ScenarioBaseInfoModel = {
+                            project: this.currentScenario.project,
+                            scenario: data.scenario,
+                        };
+                        // update session
+                        this.scenarioService.replaceBaseInfo_Storage(
+                            newScenarioData,
+                        );
 
-                    // update drawflowData$ state
-                    this.scenarioStateService.setScenarioData(data);
+                        // update drawflowData$ state
+                        this.scenarioStateService.setScenarioData(
+                            newScenarioData,
+                        );
+                    }
 
                     this.toastService.success(`Scenario "${val.name}" saved.`);
                     resolve();
@@ -267,11 +282,21 @@ export class ScenarioBaseComponent implements OnInit {
                         data.scenario.modeling_data || {},
                     );
 
-                    // update session
-                    this.scenarioService.replaceBaseInfo_Storage(data);
+                    if (this.currentScenario && this.currentScenario.project) {
+                        const newScenarioData: ScenarioBaseInfoModel = {
+                            project: this.currentScenario.project,
+                            scenario: data.scenario,
+                        };
+                        // update session
+                        this.scenarioService.replaceBaseInfo_Storage(
+                            newScenarioData,
+                        );
 
-                    // update drawflowData$ state
-                    this.scenarioStateService.setScenarioData(data);
+                        // update drawflowData$ state
+                        this.scenarioStateService.setScenarioData(
+                            newScenarioData,
+                        );
+                    }
 
                     this.toastService.success(
                         `Scenario "${val.name}" updated.`,
@@ -298,8 +323,8 @@ export class ScenarioBaseComponent implements OnInit {
             const currentDrawflowData:
                 | string
                 | {
-                      [nodeKey: string]: DrawflowNode;
-                  }
+                    [nodeKey: string]: DrawflowNode;
+                }
                 | null = this.scenarioStateService.getDrawflowData();
 
             if (
@@ -400,13 +425,18 @@ export class ScenarioBaseComponent implements OnInit {
                         this.currentScenario.scenario.simulationYear,
                     constraints: this.currentScenario.scenario.constraints,
                     modeling_data: this.currentScenario.scenario.modeling_data,
+                    sensitivityAnalysis:
+                        this.currentScenario.scenario.sensitivityAnalysis,
                 },
             };
+            const defaultConfigId =
+                this.scenarioService.restoreBaseInfo_Storage()
+                    ?.scenario?.defaultConfigId ?? undefined;
             await this.updateScenario(data);
 
             // start simulation
             this.simulationService
-                .startSimulation(data.scenario.id)
+                .startSimulation(data.scenario.id, defaultConfigId)
                 .pipe(
                     map((res: ResModel<ScenarioResModel>) => {
                         if (res.success) return res.data;

@@ -21,9 +21,15 @@ export interface ModalState {
         max?: number;
     } | null;
     simulation: any | null;
+    scenarioConfiguration: {
+        scenarioId?: number;
+        scenarioName?: string;
+        defaultId: string;
+    } | null;
     iconPicker: { iconOrigin: string; iconName: string } | null;
     setup: boolean | null;
     uploadData: boolean | null;
+    range: any | null;
 }
 
 @Injectable({
@@ -36,13 +42,19 @@ export class ModalStateService {
         calculator: null,
         timeSeries: null,
         simulation: null,
+        scenarioConfiguration: null,
         iconPicker: null,
         setup: null,
         uploadData: null,
+        range: null,
     });
 
     get modalState(): Observable<ModalState> {
         return this.modalState$.asObservable();
+    }
+
+    get currentModalState(): ModalState {
+        return this.modalState$.value;
     }
 
     openNodeForm(info: FormModalInfo) {
@@ -143,6 +155,24 @@ export class ModalStateService {
         });
     }
 
+    openScenarioConfiguration(info: {
+        scenarioId?: number;
+        scenarioName?: string;
+        defaultId: string;
+    }) {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            scenarioConfiguration: info,
+        });
+    }
+
+    closeScenarioConfiguration() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            scenarioConfiguration: null,
+        });
+    }
+
     openIconPicker(d: { iconOrigin: string; iconName: string }) {
         this.modalState$.next({
             ...this.modalState$.value,
@@ -182,6 +212,20 @@ export class ModalStateService {
         this.modalState$.next({
             ...this.modalState$.value,
             uploadData: false,
+        });
+    }
+
+    openRange(info: any) {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            range: info,
+        });
+    }
+
+    closeRange() {
+        this.modalState$.next({
+            ...this.modalState$.value,
+            range: null,
         });
     }
 }

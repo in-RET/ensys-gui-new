@@ -114,6 +114,8 @@ export class ProjectItemComponent implements OnInit {
                                         : [],
                                 date_created: element.date_created,
                                 date_updated: element.date_updated,
+                                sensitivityAnalysis:
+                                    element.sensitivityAnalysis,
                             };
 
                             _res.push(_data);

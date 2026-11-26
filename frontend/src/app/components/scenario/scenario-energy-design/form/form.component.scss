@@ -128,6 +128,10 @@ button.btn-close {
     align-items: center;
     justify-content: center;
 
+    border-left: 1px dashed #6c757d47;
+    height: 100%;
+    padding-left: 8px;
+
     &.in-middle {
         top: 50%;
         transform: translateY(-50%);

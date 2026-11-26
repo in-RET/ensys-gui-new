@@ -17,8 +17,11 @@ export class SimulationService {
         return this.baseHttp.get(`${this.baseUrl}s/${scenarioId}`);
     }
 
-    startSimulation(scenarioId: number) {
-        return this.baseHttp.post(`${this.baseUrl}/start/${scenarioId}`);
+    startSimulation(scenarioId: number, defaultConfigId?: string) {
+        return this.baseHttp.post(
+            `${this.baseUrl}/start/${scenarioId}`,
+            defaultConfigId ? { defaultConfigId } : undefined,
+        );
     }
 
     stopSimulation(scenarioId: number) {

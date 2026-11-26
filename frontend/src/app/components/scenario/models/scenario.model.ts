@@ -31,21 +31,23 @@ export interface ScenarioResModel {
     constraints: string | null | {};
     date_created: string;
     date_updated: string | null;
+    sensitivityAnalysis: boolean;
 }
 
 export interface ScenarioModel {
     id: number;
-    interval: number;
     name: string;
-    project_id: number;
-    simulation_year: number;
     sDate: number;
     timeStep: number;
+    interval: number;
+    simulation_year: number;
     modeling_data?: string; // looks like JSON stored as string
     constraints?: ConstraintRow[];
+    sensitivityAnalysis: boolean;
+    project_id?: number;
     description?: string;
-    date_created: string;
-    date_updated: string | null;
+    date_created?: string;
+    date_updated?: string | null;
 }
 
 export interface ScenarioBaseInfoModel_project extends ProjectModel {
@@ -60,7 +62,12 @@ export interface ScenarioBaseInfoModel_scenario {
     interval: number;
     simulationYear: number;
     constraints: ConstraintRow[];
-    modeling_data: { [nodeKey: string]: DrawflowNode } | null;
+    modeling_data: { [nodeKey: string]: DrawflowNode; } | null;
+    sensitivityAnalysis: boolean;
+    description?: string;
+    date_created?: string;
+    date_updated?: string;
+    defaultConfigId?: string | null;
 }
 
 export interface ScenarioBaseInfoModel {
@@ -70,7 +77,7 @@ export interface ScenarioBaseInfoModel {
 
 // update scenario model for update scenario
 
-export interface ScenarioUpdatedModel_project extends ProjectModel {}
+export interface ScenarioUpdatedModel_project extends ProjectModel { }
 
 export interface ScenarioUpdatedModel_scenario {
     id: number;
@@ -80,7 +87,8 @@ export interface ScenarioUpdatedModel_scenario {
     interval: number;
     simulationYear: number;
     constraints: ConstraintRow[];
-    modeling_data: { [nodeKey: string]: DrawflowNode } | null;
+    modeling_data: { [nodeKey: string]: DrawflowNode; } | null;
+    sensitivityAnalysis: boolean;
 }
 export interface ScenarioUpdatedModel {
     project: ScenarioUpdatedModel_project;
@@ -99,6 +107,6 @@ export interface UserModelingStateModel {
 }
 
 export interface DrawflowHistoryState {
-    snapshots: { [nodeKey: string]: DrawflowNode }[];
+    snapshots: { [nodeKey: string]: DrawflowNode; }[];
     index: number;
 }

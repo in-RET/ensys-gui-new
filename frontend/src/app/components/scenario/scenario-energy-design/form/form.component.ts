@@ -8,6 +8,7 @@ import {
     Validators,
 } from '@angular/forms';
 import { NumberOnlyDirective } from '../../../../shared/directives/form-fileld/number-only.directive';
+import { TimeSeriesSummaryDirective } from '../../../../shared/directives/form-fileld/time-series-summary.directive';
 import { FileUploaderComponent } from '../file-uploader/file-uploader.component';
 
 @Component({
@@ -18,6 +19,7 @@ import { FileUploaderComponent } from '../file-uploader/file-uploader.component'
         ReactiveFormsModule,
         FileUploaderComponent,
         NumberOnlyDirective,
+        TimeSeriesSummaryDirective,
     ],
     templateUrl: './form.component.html',
     styleUrl: './form.component.scss',
@@ -39,7 +41,7 @@ export class FormComponent {
 
     @Output('onSubmit') _onSubmit: EventEmitter<any> = new EventEmitter<any>();
 
-    ngOnInit() {}
+    ngOnInit() { }
 
     initForm() {
         this.form = new FormGroup({});
@@ -76,6 +78,10 @@ export class FormComponent {
         this._onSubmit.emit();
     }
 
+    getRawValue() {
+        return this.form.getRawValue();
+    }
+
     checkFormValidation() {
         if (this.form.valid) {
             return this.form.getRawValue();
@@ -108,7 +114,45 @@ export class FormComponent {
     }
 
     setFieldData(fControlName: string, val: any) {
-        if (this.form.controls[fControlName.toLocaleLowerCase()])
-            this.form.controls[fControlName.toLocaleLowerCase()].setValue(val);
+        if (this.form.get(fControlName.toLowerCase()))
+            this.form.get(fControlName.toLowerCase())?.setValue(val);
+        else {
+            const keys = fControlName.split('.');
+            let group: FormGroup = this.form;
+            keys.slice(0, -1).forEach((key) => {
+                let control = group.get(key);
+
+                if (!(control instanceof FormGroup)) {
+                    control = new FormGroup({});
+                    group.addControl(key, control);
+                }
+
+                group = control as FormGroup;
+            });
+
+            const lastKey = keys[keys.length - 1];
+
+            if (!group.contains(lastKey)) {
+                group.addControl(lastKey, new FormControl(val));
+            } else {
+                group.get(lastKey)?.setValue(val);
+            }
+        }
     }
+
+    getFieldData(fControlName: string) {
+        if (this.form.get(fControlName.toLowerCase()))
+            return this.form.get(fControlName.toLowerCase())?.value;
+        else
+
+            return null;
+
+    }
+
+    setFieldError(fControlName: string, errorMsg: string) {
+        if (this.form.get(fControlName.toLowerCase())) {
+            this.form.get(fControlName.toLowerCase())?.setErrors({ customError: errorMsg });
+        }
+    }
+
 }

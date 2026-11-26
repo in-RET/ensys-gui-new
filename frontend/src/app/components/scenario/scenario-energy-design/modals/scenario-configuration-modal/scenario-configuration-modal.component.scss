@@ -1,0 +1,79 @@
+.configuration-editor {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.node-group {
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.node-group summary {
+    cursor: pointer;
+}
+
+.bound-input {
+    min-width: 5.5rem;
+}
+
+.workflow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.workflow-step {
+    min-height: 2.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--bs-border-radius);
+    background: var(--bs-primary);
+    color: var(--bs-white);
+    text-align: center;
+}
+
+.workflow-arrow {
+    color: var(--bs-primary);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.form-switch {
+    label,
+    input {
+        cursor: pointer;
+    }
+}
+
+.btn-expandable {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    .btn-icon {
+        transition: transform 0.4s ease;
+    }
+
+    .btn-text {
+        max-width: 0;
+        opacity: 0;
+        overflow: hidden;
+        white-space: nowrap;
+        transition:
+            max-width 0.4s ease,
+            opacity 0.3s ease,
+            margin-left 0.4s ease;
+    }
+
+    &:hover {
+        .btn-icon {
+            transform: rotate(-90deg);
+        }
+
+        .btn-text {
+            max-width: 250px;
+            opacity: 1;
+            margin-left: 0.5rem;
+        }
+    }
+}

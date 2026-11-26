@@ -23,6 +23,8 @@
         (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
         (onShowModal_IconPicker)="onShowModal_IconPicker($event)"
         (onShowModal)="onShowModal($event)"
+        (onShowModal_Range)="onRangeOpened($event)"
+
     />
 
     <app-flow-form-modal
@@ -33,6 +35,7 @@
         (onShowModal_EpCostsCalculator)="onCalculatorOpened($event)"
         (onShowModal_TimeSeries)="onShowModal_TimeSeries($event)"
         (onShowModal)="onShowModal($event)"
+        (onShowModal_Range)="onRangeOpened($event)"
     />
 
     <app-calculator-modal
@@ -55,6 +58,12 @@
         (modalClosed)="onSimulationClosed()"
     />
 
+    <app-scenario-configuration-modal
+        *ngIf="modalState.scenarioConfiguration"
+        [modalInfo]="modalState.scenarioConfiguration"
+        (modalClosed)="onScenarioConfigurationClosed()"
+    />
+
     <app-icon-picker-modal
         *ngIf="modalState.iconPicker"
         [modalInfo]="modalState.iconPicker"
@@ -74,5 +83,12 @@
         [modalInfo]="modalState.uploadData"
         (onUploadData)="onUploadData($event)"
         (modalClosed)="onUploadDataClosed()"
+    />
+
+    <app-range-modal
+        *ngIf="modalState.range"
+        [modalInfo]="modalState.range"
+        (formSubmitted)="onSetRange($event)"
+        (modalClosed)="onRangeClosed()"
     />
 </ng-container>

@@ -34,6 +34,8 @@ import {
     OrderListComponent,
 } from '../../order-list/order-list.component';
 import { ModeOption } from '../../time-series/time-series.component';
+import { ModalStateService } from '../modal-state.service';
+import { RangeModalComponent } from '../range-modal/range-modal.component';
 
 @Component({
     selector: 'app-node-form-modal',
@@ -48,13 +50,13 @@ import { ModeOption } from '../../time-series/time-series.component';
     styleUrl: './node-form-modal.component.scss',
 })
 export class NodeFormModalComponent {
-    formError: { msg: string | null; isShow: boolean } = {
+    formError: { msg: string | null; isShow: boolean; } = {
         msg: '',
         isShow: false,
     };
 
     @Input() modalInfo!: FormModalInfo | EditFormModalInfo | null;
-    @Input() nodeConnection?: { node: any; port: any };
+    @Input() nodeConnection?: { node: any; port: any; };
 
     @Output() modalClosed = new EventEmitter<boolean | any>();
     @Output() makeNode = new EventEmitter<{
@@ -79,6 +81,7 @@ export class NodeFormModalComponent {
         node: DrawflowNode;
         calledByANode: boolean;
     }>();
+    @Output() onShowModal_Range = new EventEmitter<any>();
 
     @ViewChild('form')
     formComponent!: FormComponent;
@@ -88,15 +91,21 @@ export class NodeFormModalComponent {
     transform_inputs!: OrderListComponent;
     @ViewChild('transform_outputs')
     transform_outputs!: OrderListComponent;
+    @ViewChild(RangeModalComponent)
+    rangeModal!: RangeModalComponent;
+
+
+
 
     scenarioStateService = inject(ScenarioStateService);
+    modalStateService = inject(ModalStateService);
 
     constructor(
         private energyDesignService: EnergyDesignService,
         private flowService: FlowService,
         private scenarioService: ScenarioService,
         private toastService: ToastService,
-    ) {}
+    ) { }
 
     async ngOnChanges() {
         if (this.modalInfo) {
@@ -479,7 +488,7 @@ export class NodeFormModalComponent {
                 // add port count(in-out) + transform data
                 const portsInfo:
                     | false
-                    | { ports: Ports; inp: number; out: number } =
+                    | { ports: Ports; inp: number; out: number; } =
                     this.energyDesignService.getNodePorts(
                         this.modalInfo.node.data.type,
                         {
@@ -703,6 +712,8 @@ export class NodeFormModalComponent {
             showModal_EpCostsCalculator:
                 this.showModal_EpCostsCalculator.bind(this),
             showModal_IconPicker: this.showModal_IconPicker.bind(this),
+            showModal_Range: this.showModal_Range.bind(this),
+
         };
     }
 
@@ -745,7 +756,7 @@ export class NodeFormModalComponent {
         }
     }
 
-    private onChangePreDefined(e: { option: string; type: string }) {
+    private onChangePreDefined(e: { option: string; type: string; }) {
         this.cleanFormError();
 
         // just in storage node there are aditional sec
@@ -886,6 +897,43 @@ export class NodeFormModalComponent {
             'icon',
             `${this.modalInfo?.node.data.type} ${icon.icon}`,
         );
+    }
+
+    private showModal_Range(fieldName: string) {
+        this.onShowModal_Range.emit({
+            action: {
+                label: 'Set',
+                fn: 'setRange',
+            },
+            formData: this.energyDesignService.getFormFields_Range(
+                fieldName,
+                this.modalInfo?.data,
+            ),
+            fieldName: fieldName,
+            data: +this.modalInfo?.data[fieldName],
+        });
+    }
+
+    setRange(fieldName: string, min: number, max: number) {
+        this.formComponent.setFieldData(`ranges.${fieldName}`, { min, max });
+
+        if (this.modalInfo)
+            if (this.modalInfo.data && this.modalInfo.data.ranges) {
+                this.modalInfo.data.ranges[fieldName] = { min, max };
+            } else {
+                this.modalInfo.data = {
+                    ...this.modalInfo.data,
+                    ranges: {
+                        [fieldName]: { min, max },
+                    },
+                };
+            }
+
+        this.modalStateService.closeRange();
+
+        this.modalStateService.currentModalState.flowForm
+            ? this.modalStateService.toggleFlowForm()
+            : this.modalStateService.toggleNodeForm();
     }
 
     openInfoUrl(url: string | undefined) {

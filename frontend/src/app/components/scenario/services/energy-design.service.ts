@@ -4,6 +4,7 @@ import { catchError, map, Observable, throwError } from 'rxjs';
 import { GeneralService } from '../../../shared/services/general.service';
 import { EnergyUnit, ProjectModel } from '../../project/models/project.model';
 import { FlowData } from '../models/node.model';
+import { ScenarioBaseInfoModel_scenario } from '../models/scenario.model';
 import { OrderItem } from '../scenario-energy-design/order-list/order-list.component';
 import { ConstraintRow } from '../scenario-setup/constraints/models/constraints.model';
 import { FlowService } from './flow.service';
@@ -44,6 +45,7 @@ export class EnergyDesignService {
     };
     readonly EnergyUnit = EnergyUnit;
     currentProject?: ProjectModel;
+    currentScenario?: ScenarioBaseInfoModel_scenario;
 
     constructor(
         private flowService: FlowService,
@@ -54,7 +56,10 @@ export class EnergyDesignService {
         this.scenarioStateService.scenarioState
             .pipe(
                 map((res: ScenarioStateModel | null) => {
-                    if (res && res.project) this.currentProject = res.project;
+                    if (res && res.project && res.scenario) {
+                        this.currentProject = res.project;
+                        this.currentScenario = res.scenario;
+                    }
                 }),
             )
             .subscribe();
@@ -69,7 +74,7 @@ export class EnergyDesignService {
 
     private getFieldData(
         fName: string,
-        editData: { mode: boolean; data?: any },
+        editData: { mode: boolean; data?: any; },
         dValue?: any,
     ) {
         if (editData.mode) {
@@ -94,6 +99,7 @@ export class EnergyDesignService {
         disabled?: boolean,
         defaultVal?: any,
         unit?: any,
+        actions?: any,
     ) {
         const _field = {
             name: name.toLowerCase(),
@@ -112,12 +118,18 @@ export class EnergyDesignService {
             options: options,
             disabled: disabled,
             unit: unit,
+            actions: actions,
         };
 
         return _field;
     }
 
-    private getNonInvestmentFields(data?: FlowData, name?: any, oep?: boolean) {
+    private getNonInvestmentFields(
+        data?: FlowData,
+        name?: any,
+        oep?: boolean,
+        callback?: any,
+    ) {
         return [
             {
                 name: 'nominal_value',
@@ -130,16 +142,28 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable:
+                //             this.currentScenario?.sensitivityAnalysis && !oep,
+                //         onClick: () => {
+                //             callback['showModal_Range']('nominal_value');
+                //         },
+                //     },
+                // },
             },
         ].map((item: any) => {
             // if selected a predefined
             if (data) {
-                item['disabled'] = false;
+                // item['disabled'] = false;
                 item['value'] = data[item.name.toLocaleLowerCase()];
             }
             // if selected user_defined
             else {
-                item['disabled'] = false;
+                // item['disabled'] = false;
                 item['value'] = null;
             }
 
@@ -169,6 +193,17 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range']('maximum');
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'minimum',
@@ -181,6 +216,17 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range']('minimum');
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'ep_costs',
@@ -188,16 +234,26 @@ export class EnergyDesignService {
                 label: 'ep_costs',
                 type: 'text',
                 span: '3',
-                actions: [
-                    {
+                actions: {
+                    in_block: {
                         name: 'ep_costs_calculator',
                         label: '',
-                        icon: 'calculator',
+                        icon: 'divide',
+                        enable: true,
                         onClick: () => {
                             callback['showModal_EpCostsCalculator']();
                         },
                     },
-                ],
+                    // out_block: {
+                    //     name: 'sensitivityAnalysis',
+                    //     label: 'Range',
+                    //     icon: '',
+                    //     enable: this.currentScenario?.sensitivityAnalysis,
+                    //     onClick: () => {
+                    //         callback['showModal_Range']('ep_costs');
+                    //     },
+                    // },
+                },
                 numberOnlyAllowed: true,
                 unit: {
                     isShown: true,
@@ -215,6 +271,17 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                actions: {
+                    // out_block: {
+                    //     name: 'sensitivityAnalysis',
+                    //     label: 'Range',
+                    //     icon: '',
+                    //     enable: this.currentScenario?.sensitivityAnalysis,
+                    //     onClick: () => {
+                    //         callback['showModal_Range']('existing');
+                    //     },
+                    // },
+                },
             },
             {
                 name: 'offset',
@@ -226,6 +293,17 @@ export class EnergyDesignService {
                 unit: {
                     isShown: true,
                     text: `${this.currentProject?.unit_currency} a`,
+                },
+                actions: {
+                    // out_block: {
+                    //     name: 'sensitivityAnalysis',
+                    //     label: 'Range',
+                    //     icon: '',
+                    //     enable: this.currentScenario?.sensitivityAnalysis,
+                    //     onClick: () => {
+                    //         callback['showModal_Range']('offset');
+                    //     },
+                    // },
                 },
             },
             {
@@ -414,6 +492,19 @@ export class EnergyDesignService {
                     isShown: true,
                     text: 'h',
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'non_convex_minimum_uptime',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'non_convex_minimum_downtime',
@@ -426,6 +517,19 @@ export class EnergyDesignService {
                     isShown: true,
                     text: 'h',
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'non_convex_minimum_downtime',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'non_convex_maximum_startups',
@@ -434,6 +538,20 @@ export class EnergyDesignService {
                 type: 'text',
                 span: '4',
                 numberOnlyAllowed: true,
+                unit: null,
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'non_convex_maximum_startups',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'non_convex_maximum_shutdowns',
@@ -442,6 +560,20 @@ export class EnergyDesignService {
                 type: 'text',
                 span: '4',
                 numberOnlyAllowed: true,
+                unit: null,
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'non_convex_maximum_shutdowns',
+                //             );
+                //         },
+                //     },
+                // },
             },
 
             // Boolean field
@@ -465,6 +597,11 @@ export class EnergyDesignService {
                 item['label'],
             );
 
+            if (item['type'] === 'time-series')
+                item['directive'] = item['name'].includes('cost')
+                    ? 'avg'
+                    : 'sum';
+
             return item;
         });
     }
@@ -482,6 +619,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'maximum',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'minimum',
@@ -494,6 +645,21 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'minimum',
+                //             );
+                //         },
+                //     },
+                // },
+
             },
             {
                 name: 'ep_costs',
@@ -501,20 +667,43 @@ export class EnergyDesignService {
                 label: 'ep_costs',
                 type: 'text',
                 span: 'auto',
-                actions: [
-                    {
-                        name: 'ep_costs_calculator',
-                        label: '',
-                        icon: 'calculator',
-                        onClick: () => {
-                            callback['showModal_EpCostsCalculator']();
-                        },
-                    },
-                ],
+                // actions: [
+                //     {
+                //         name: 'ep_costs_calculator',
+                //         label: '',
+                //         icon: 'calculator',
+                //         onClick: () => {
+                //             callback['showModal_EpCostsCalculator']();
+                //         },
+                //     },
+                // ],
                 numberOnlyAllowed: true,
                 unit: {
                     isShown: true,
                     text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                },
+                actions: {
+                    in_block: {
+                        name: 'ep_costs_calculator',
+                        label: '',
+                        icon: 'divide',
+                        enable: true,
+                        onClick: () => {
+                            callback['showModal_EpCostsCalculator']();
+                        },
+                    },
+                    // out_block: {
+                    //     name: 'sensitivityAnalysis',
+                    //     label: 'Range',
+                    //     icon: '',
+                    //     enable: this.currentScenario
+                    //         ?.sensitivityAnalysis,
+                    //     onClick: () => {
+                    //         callback['showModal_Range'](
+                    //             'ep_costs',
+                    //         );
+                    //     },
+                    // },
                 },
             },
             {
@@ -528,6 +717,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'existing',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'offset',
@@ -540,6 +743,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_currency} a`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'offset',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'nonconvex_investment',
@@ -735,6 +952,17 @@ export class EnergyDesignService {
                     isShown: true,
                     text: 'h',
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range']('full_load_time_max');
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'full_load_time_min',
@@ -747,6 +975,17 @@ export class EnergyDesignService {
                     isShown: true,
                     text: 'h',
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range']('full_load_time_min');
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'integer',
@@ -785,11 +1024,16 @@ export class EnergyDesignService {
                 .join(' ')
                 .trim();
 
+            if (item['type'] === 'time-series')
+                item['directive'] = item['name'].includes('cost')
+                    ? 'avg'
+                    : 'sum';
+
             return item;
         });
     }
 
-    getDefaultFields_storage(data?: any) {
+    getDefaultFields_storage(data?: any, callback?: any) {
         return [
             {
                 name: 'invest_relation_input_capacity',
@@ -797,6 +1041,20 @@ export class EnergyDesignService {
                 label: 'invest_relation_input_capacity',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'invest_relation_input_capacity',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'invest_relation_output_capacity',
@@ -804,6 +1062,20 @@ export class EnergyDesignService {
                 label: 'invest_relation_output_capacity',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'invest_relation_output_capacity',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'invest_relation_input_output',
@@ -811,6 +1083,20 @@ export class EnergyDesignService {
                 label: 'invest_relation_input_output',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'invest_relation_input_output',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'initial_storage_level',
@@ -818,6 +1104,20 @@ export class EnergyDesignService {
                 label: 'initial_storage_level',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'initial_storage_level',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'balanced',
@@ -837,6 +1137,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'loss_rate',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'fixed_losses_relative',
@@ -848,6 +1162,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                 },
+                /*  actions: {
+                      out_block: {
+                          name: 'sensitivityAnalysis',
+                          label: 'Range',
+                          icon: '',
+                          enable: this.currentScenario
+                              ?.sensitivityAnalysis,
+                          onClick: () => {
+                              callback['showModal_Range'](
+                                  'fixed_losses_relative',
+                              );
+                          },
+                      },
+                  },*/
             },
             {
                 name: 'fixed_losses_absolute',
@@ -859,6 +1187,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'fixed_losses_absolute',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'inflow_conversion_factor',
@@ -866,6 +1208,20 @@ export class EnergyDesignService {
                 label: 'inflow_conversion_factor',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'inflow_conversion_factor',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'outflow_conversion_factor',
@@ -873,13 +1229,26 @@ export class EnergyDesignService {
                 label: 'outflow_conversion_factor',
                 type: 'number',
                 span: '4',
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'outflow_conversion_factor',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'min_storage_level',
                 placeholder: 'min_storage_level',
                 label: 'min_storage_level',
                 span: '4',
-
                 type: 'text',
                 numberOnlyAllowed: true,
                 max: 1,
@@ -890,6 +1259,20 @@ export class EnergyDesignService {
                     text: '0~1',
                     isShown: true,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'min_storage_level',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'max_storage_level',
@@ -907,6 +1290,20 @@ export class EnergyDesignService {
                     text: '0~1',
                     isShown: true,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'max_storage_level',
+                //             );
+                //         },
+                //     },
+                // },
             },
             {
                 name: 'storage_costs',
@@ -918,6 +1315,20 @@ export class EnergyDesignService {
                     isShown: true,
                     text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kWh' : 'MWh'}`,
                 },
+                // actions: {
+                //     out_block: {
+                //         name: 'sensitivityAnalysis',
+                //         label: 'Range',
+                //         icon: '',
+                //         enable: this.currentScenario
+                //             ?.sensitivityAnalysis,
+                //         onClick: () => {
+                //             callback['showModal_Range'](
+                //                 'storage_costs',
+                //             );
+                //         },
+                //     },
+                // },
             },
         ].map((item: any) => {
             item['value'] = data ? data[item.name.toLocaleLowerCase()] : null;
@@ -1350,15 +1761,29 @@ export class EnergyDesignService {
                                             mode: editMode,
                                             data,
                                         }) ||
-                                            this.getFieldData('oep', {
-                                                mode: editMode,
-                                                data,
-                                            }),
+                                        this.getFieldData('oep', {
+                                            mode: editMode,
+                                            data,
+                                        }),
                                         null,
                                         {
                                             isShown: true,
                                             text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
                                         },
+                                        // {
+                                        //     out_block: {
+                                        //         name: 'sensitivityAnalysis',
+                                        //         label: 'Range',
+                                        //         icon: '',
+                                        //         enable: this.currentScenario
+                                        //             ?.sensitivityAnalysis,
+                                        //         onClick: () => {
+                                        //             callback['showModal_Range'](
+                                        //                 'nominal_storage_capacity',
+                                        //             );
+                                        //         },
+                                        //     },
+                                        // },
                                     ),
                                 ],
                             },
@@ -1394,7 +1819,7 @@ export class EnergyDesignService {
                                 name: 'defaults',
                                 class: 'col-12',
                                 visible: true,
-                                fields: this.getDefaultFields_storage(data),
+                                fields: this.getDefaultFields_storage(data, callback),
                             },
                         ],
                     };
@@ -1581,7 +2006,12 @@ export class EnergyDesignService {
         return fields;
     }
 
-    getConstraintsFields_flow(data: any, editMode: boolean) {
+    getConstraintsFields_flow(
+        data: any,
+        editMode: boolean,
+        oep: boolean,
+        callback?: any,
+    ) {
         const currntConstraints: ConstraintRow[] | undefined =
             this.scenarioStateService.getScenarioData()?.scenario?.constraints;
 
@@ -1613,6 +2043,23 @@ export class EnergyDesignService {
                             { name: 'Flows 2', value: 'flows_2' },
                         ],
                         !constraint.enabled,
+                        null,
+                        null,
+                        // {
+                        //     out_block: {
+                        //         name: 'sensitivityAnalysis',
+                        //         label: 'Range',
+                        //         icon: '',
+                        //         enable:
+                        //             this.currentScenario?.sensitivityAnalysis &&
+                        //             !oep,
+                        //         onClick: () => {
+                        //             callback['showModal_Range'](
+                        //                 'constraint_' + fieldNameWithFullTrim,
+                        //             );
+                        //         },
+                        //     },
+                        // },
                     );
                 else if (
                     constraint.type === 'limit_active_flow_count_by_keyword'
@@ -1630,6 +2077,23 @@ export class EnergyDesignService {
                         undefined,
                         undefined,
                         !constraint.enabled,
+                        null,
+                        null,
+                        // {
+                        //     out_block: {
+                        //         name: 'sensitivityAnalysis',
+                        //         label: 'Range',
+                        //         icon: '',
+                        //         enable:
+                        //             this.currentScenario?.sensitivityAnalysis &&
+                        //             !oep,
+                        //         onClick: () => {
+                        //             callback['showModal_Range'](
+                        //                 'constraint_' + fieldNameWithFullTrim,
+                        //             );
+                        //         },
+                        //     },
+                        // },
                     );
                 else
                     return this.getField(
@@ -1645,6 +2109,23 @@ export class EnergyDesignService {
                         undefined,
                         undefined,
                         !constraint.enabled,
+                        null,
+                        null,
+                        // {
+                        //     out_block: {
+                        //         name: 'sensitivityAnalysis',
+                        //         label: 'Range',
+                        //         icon: '',
+                        //         enable:
+                        //             this.currentScenario?.sensitivityAnalysis &&
+                        //             !oep,
+                        //         onClick: () => {
+                        //             callback['showModal_Range'](
+                        //                 'constraint_' + fieldNameWithFullTrim,
+                        //             );
+                        //         },
+                        //     },
+                        // },
                     );
             });
     }
@@ -1669,10 +2150,14 @@ export class EnergyDesignService {
                                     this.getConstraintsFields_flow(
                                         data,
                                         editMode,
+                                        oep,
+                                        callback,
                                     ).length > 0,
                                 fields: this.getConstraintsFields_flow(
                                     data,
                                     editMode,
+                                    oep,
+                                    callback,
                                 ),
                             },
 
@@ -1729,10 +2214,31 @@ export class EnergyDesignService {
                                         undefined,
                                         oep != true
                                             ? this.getFieldData('investment', {
-                                                  mode: editMode,
-                                                  data,
-                                              })
+                                                mode: editMode,
+                                                data,
+                                            })
                                             : oep,
+                                        null,
+                                        {
+                                            isShown: true,
+                                            text: `${this.currentProject?.unit_currency} ${this.currentProject?.unit_energy == EnergyUnit.KW ? 'kW' : 'MW'}`,
+                                        },
+                                        // {
+                                        //     out_block: {
+                                        //         name: 'sensitivityAnalysis',
+                                        //         label: 'Range',
+                                        //         icon: '',
+                                        //         enable:
+                                        //             this.currentScenario
+                                        //                 ?.sensitivityAnalysis &&
+                                        //             !oep,
+                                        //         onClick: () => {
+                                        //             callback['showModal_Range'](
+                                        //                 'nominal_value',
+                                        //             );
+                                        //         },
+                                        //     },
+                                        // },
                                     ),
                                 ],
                             },
@@ -1757,15 +2263,6 @@ export class EnergyDesignService {
                                         if (!oep)
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
-
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
 
                                         if (
                                             elm.name == 'overall_maximum' ||
@@ -1851,15 +2348,6 @@ export class EnergyDesignService {
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
-
                                         return elm;
                                     }),
                                 ],
@@ -1878,10 +2366,14 @@ export class EnergyDesignService {
                                     this.getConstraintsFields_flow(
                                         data,
                                         editMode,
+                                        oep,
+                                        callback,
                                     ).length > 0,
                                 fields: this.getConstraintsFields_flow(
                                     data,
                                     editMode,
+                                    oep,
+                                    callback,
                                 ),
                             },
 
@@ -1930,6 +2422,7 @@ export class EnergyDesignService {
                                         data,
                                         name,
                                         oep,
+                                        callback,
                                     ).map((elm: any) => {
                                         const isInvSelected: boolean =
                                             this.getFieldData(
@@ -1949,14 +2442,6 @@ export class EnergyDesignService {
                                             else elm['disabled'] = true;
                                         }
 
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
                                         return elm;
                                     }),
                                 ],
@@ -1986,15 +2471,6 @@ export class EnergyDesignService {
                                         if (!oep)
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
-
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
 
                                         if (
                                             elm.name == 'overall_maximum' ||
@@ -2083,15 +2559,6 @@ export class EnergyDesignService {
                                         if (!oep)
                                             elm['disabled'] = !isInvSelected;
                                         else elm['disabled'] = true;
-
-                                        if (elm.actions) {
-                                            elm.actions.forEach(
-                                                (element: any) => {
-                                                    element['disabled'] =
-                                                        !isInvSelected;
-                                                },
-                                            );
-                                        }
 
                                         return elm;
                                     }),
@@ -2183,6 +2650,45 @@ export class EnergyDesignService {
         };
     }
 
+    // Record<string, { min: number; max: number }>
+    getFormFields_Range(fieldName: string, data: any) {
+        return {
+            sections: [
+                {
+                    name: 'rangeField',
+                    class: '',
+                    fields: [
+                        {
+                            name: 'min',
+                            placeholder: 'Min',
+                            label: 'Min',
+                            type: 'number',
+                            span: '6',
+                            isReq: true,
+                        },
+                        {
+                            name: 'max',
+                            placeholder: 'Max',
+                            label: 'Max',
+                            type: 'number',
+                            span: '6',
+                            isReq: true,
+                        },
+                    ].map((item: any) => {
+                        item['value'] =
+                            data && data.ranges && data.ranges[fieldName]
+                                ? data.ranges[fieldName][
+                                item.name.toLocaleLowerCase()
+                                ]
+                                : null;
+
+                        return item;
+                    }),
+                },
+            ],
+        };
+    }
+
     getNodePorts(
         nodeType: string,
         infoData: {
@@ -2191,7 +2697,7 @@ export class EnergyDesignService {
             transform_inputs?: OrderItem[];
             transform_outputs?: OrderItem[];
         },
-    ): { ports: Ports; inp: number; out: number } | false {
+    ): { ports: Ports; inp: number; out: number; } | false {
         const makePorts = (): Ports | false => {
             let ports: Ports;
 
@@ -2362,7 +2868,7 @@ export class EnergyDesignService {
             );
     }
 
-    private getDrawflowData(): { [nodeKey: string]: DrawflowNode } | null {
+    private getDrawflowData(): { [nodeKey: string]: DrawflowNode; } | null {
         return this.scenarioService.restoreDrawflow_Storage();
     }
 

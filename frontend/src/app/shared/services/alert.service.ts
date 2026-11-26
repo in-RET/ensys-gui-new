@@ -5,7 +5,7 @@ import Swal, { SweetAlertIcon } from 'sweetalert2';
     providedIn: 'root',
 })
 export class AlertService {
-    constructor() {}
+    constructor() { }
 
     success(message: string, title = 'Success') {
         return Swal.fire({
@@ -54,11 +54,27 @@ export class AlertService {
 
     async confirm(
         message: string,
+        title?: string,
+        confirmButtonText?: string,
+        cancelButtonText?: string,
+        icon?: SweetAlertIcon,
+    ): Promise<boolean>;
+    async confirm(
+        message: string,
+        title: string,
+        confirmButtonText: string,
+        cancelButtonText: string | undefined,
+        icon: SweetAlertIcon,
+        denyButtonText: string,
+    ): Promise<'confirm' | 'deny' | 'cancel'>;
+    async confirm(
+        message: string,
         title: string = 'Are you sure?',
         confirmButtonText: string = 'Yes',
-        cancelButtonText: string = 'Cancel',
+        cancelButtonText: string | undefined = 'Cancel',
         icon: SweetAlertIcon = 'question',
-    ): Promise<boolean> {
+        denyButtonText?: string,
+    ): Promise<boolean | 'confirm' | 'deny' | 'cancel'> {
         if (document.activeElement instanceof HTMLElement) {
             document.activeElement.blur();
         }
@@ -70,7 +86,22 @@ export class AlertService {
             showCancelButton: true,
             confirmButtonText,
             cancelButtonText,
+            ...(denyButtonText && {
+                showDenyButton: true,
+                denyButtonText,
+            }),
+
+            confirmButtonColor: '#198754',
+            denyButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d',
         });
+
+        if (denyButtonText) {
+            if (result.isConfirmed) return 'confirm';
+            if (result.isDenied) return 'deny';
+            return 'cancel';
+        }
+
         return result.isConfirmed;
     }
 }

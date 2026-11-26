@@ -34,6 +34,7 @@ export interface FormModalInfo {
         in: ConnectionInfo | null;
         out: ConnectionInfo | null;
     };
+    fieldName?: string;
 }
 
 export interface EditFormModalInfo extends FormModalInfo {

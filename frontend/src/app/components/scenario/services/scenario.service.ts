@@ -64,8 +64,37 @@ export class ScenarioService {
     }
 
     replaceBaseInfo_Storage(data: ScenarioBaseInfoModel) {
-        this.removeBaseInfo_Storage();
-        this.saveBaseInfo_Storage(data);
+        const currentData = this.restoreBaseInfo_Storage();
+
+        if (currentData) {
+            const defaultConfigId =
+                data.scenario?.defaultConfigId !== undefined
+                    ? data.scenario?.defaultConfigId
+                    : currentData?.scenario?.id === data.scenario?.id
+                        ? currentData.scenario?.defaultConfigId
+                        : undefined;
+            this.removeBaseInfo_Storage();
+            this.saveBaseInfo_Storage({
+                ...data,
+                ...(defaultConfigId !== undefined ? { defaultConfigId } : {}),
+            });
+        }
+    }
+
+    updateDefaultConfigId(defaultConfigId: string | null) {
+        const currentData = this.restoreBaseInfo_Storage();
+        if (!currentData) {
+            throw new Error('There is no scenario data in storage to update.');
+        }
+
+        if (currentData.scenario)
+            this.saveBaseInfo_Storage({
+                ...currentData,
+                scenario: {
+                    ...currentData.scenario,
+                    defaultConfigId: defaultConfigId
+                }
+            });
     }
 
     removeBaseInfo_Storage() {
@@ -84,7 +113,7 @@ export class ScenarioService {
     }
 
     //====================  draw flow   ====================
-    saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode }) {
+    saveDrawflow_Storage(data: { [nodeKey: string]: DrawflowNode; }) {
         if (!data) return;
 
         sessionStorage.setItem(
@@ -93,7 +122,7 @@ export class ScenarioService {
         );
     }
 
-    transformLegacyDrawflowData(data: { [nodeKey: string]: DrawflowNode }): {
+    transformLegacyDrawflowData(data: { [nodeKey: string]: DrawflowNode; }): {
         [nodeKey: string]: DrawflowNode;
     } {
         Object.values(data).forEach((node) => {
@@ -159,7 +188,7 @@ export class ScenarioService {
         return data;
     }
 
-    restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode } | null {
+    restoreDrawflow_Storage(): { [nodeKey: string]: DrawflowNode; } | null {
         const DrawflowData: string | null = sessionStorage.getItem(
             this.scenario_drawflow_localstorage_name,
         );
@@ -185,14 +214,14 @@ export class ScenarioService {
     getPreDefinedData_node(option: string, simulationYear: number) {
         return this.baseHttp.get(
             environment.apiUrl +
-                `oep/local_data/${option}/${simulationYear}/node_data`,
+            `oep/local_data/${option}/${simulationYear}/node_data`,
         );
     }
 
     getPreDefinedData_ports(option: string, simulationYear: number) {
         return this.baseHttp.get(
             environment.apiUrl +
-                `oep/local_data/${option}/${simulationYear}/ports_data`,
+            `oep/local_data/${option}/${simulationYear}/ports_data`,
         );
     }
 
@@ -215,7 +244,7 @@ export class ScenarioService {
                 : '',
             constraints:
                 scenarioData.scenario.constraints &&
-                scenarioData.scenario.constraints.length > 0
+                    scenarioData.scenario.constraints.length > 0
                     ? JSON.stringify(scenarioData.scenario.constraints)
                     : '',
         };
@@ -242,7 +271,7 @@ export class ScenarioService {
                     : '',
                 constraints:
                     scenarioData.scenario.constraints &&
-                    scenarioData.scenario.constraints.length > 0
+                        scenarioData.scenario.constraints.length > 0
                         ? JSON.stringify(scenarioData.scenario.constraints)
                         : '',
             };
@@ -292,8 +321,8 @@ export class ScenarioService {
         const currentDrawflowData:
             | string
             | {
-                  [nodeKey: string]: DrawflowNode;
-              }
+                [nodeKey: string]: DrawflowNode;
+            }
             | null = this.scenarioStateService.getDrawflowData();
 
         if (
@@ -384,14 +413,14 @@ export class ScenarioService {
     }
 
     //====================  design history   ====================
-    private history: { [nodeKey: string]: DrawflowNode }[] = [];
+    private history: { [nodeKey: string]: DrawflowNode; }[] = [];
     private historyIndex = -1;
     private readonly maxHistoryEntries = 5;
 
     restoreDrawflowHistory(currentDrawflow: {
         [nodeKey: string]: DrawflowNode;
     }): {
-        data: { [nodeKey: string]: DrawflowNode };
+        data: { [nodeKey: string]: DrawflowNode; };
         hasUndo: boolean;
         hasRedo: boolean;
     } | null {
@@ -431,17 +460,17 @@ export class ScenarioService {
         return null;
     }
 
-    recordDrawflowHistory(drawflow: { [nodeKey: string]: DrawflowNode }):
+    recordDrawflowHistory(drawflow: { [nodeKey: string]: DrawflowNode; }):
         | {
-              hasUndo: boolean;
-              hasRedo: boolean;
-          }
+            hasUndo: boolean;
+            hasRedo: boolean;
+        }
         | undefined {
         // regret duplictae/same drawflow state
         if (
             this.historyIndex >= 0 &&
             JSON.stringify(this.history[this.historyIndex]) ===
-                JSON.stringify(drawflow)
+            JSON.stringify(drawflow)
         ) {
             return undefined;
         }
@@ -478,10 +507,10 @@ export class ScenarioService {
 
     undoScenarioChange():
         | {
-              data: { [nodeKey: string]: DrawflowNode };
-              hasMoreUndo: boolean;
-              hasMoreRedo: boolean;
-          }
+            data: { [nodeKey: string]: DrawflowNode; };
+            hasMoreUndo: boolean;
+            hasMoreRedo: boolean;
+        }
         | undefined {
         if (this.historyIndex <= 0) return;
 
@@ -497,10 +526,10 @@ export class ScenarioService {
 
     redoScenarioChange():
         | {
-              data: { [nodeKey: string]: DrawflowNode };
-              hasMoreUndo: boolean;
-              hasMoreRedo: boolean;
-          }
+            data: { [nodeKey: string]: DrawflowNode; };
+            hasMoreUndo: boolean;
+            hasMoreRedo: boolean;
+        }
         | undefined {
         if (this.historyIndex >= this.history.length - 1) return;
 

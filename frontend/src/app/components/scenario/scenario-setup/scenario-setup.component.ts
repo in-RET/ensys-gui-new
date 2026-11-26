@@ -58,6 +58,7 @@ export class ScenarioSetupComponent implements OnInit {
         }),
         timeStep: new FormControl({ value: 8760, disabled: true }),
         simulationYear: new FormControl(2025, [Validators.required]),
+        sensitivityAnalysis: new FormControl(false),
     });
 
     get id() {
@@ -106,6 +107,10 @@ export class ScenarioSetupComponent implements OnInit {
 
     get projectId() {
         return this.form.get('project.id');
+    }
+
+    get sensitivityAnalysis() {
+        return this.form.get('sensitivityAnalysis');
     }
 
     simulationYearList: number[] = [2025, 2030, 2035, 2040, 2045, 2050];
@@ -177,8 +182,14 @@ export class ScenarioSetupComponent implements OnInit {
 
             // created scenario
             if (scenarioBaseData.scenario) {
-                const { id, name, timeStep, simulationYear, sDate } =
-                    scenarioBaseData.scenario;
+                const {
+                    id,
+                    name,
+                    timeStep,
+                    simulationYear,
+                    sDate,
+                    sensitivityAnalysis,
+                } = scenarioBaseData.scenario;
 
                 this.form.patchValue({
                     id,
@@ -186,6 +197,7 @@ export class ScenarioSetupComponent implements OnInit {
                     timeStep,
                     simulationYear,
                     sDate,
+                    sensitivityAnalysis,
                 });
             } else {
                 // Use optional chaining and a safe fallback to avoid using project when it may be undefined
@@ -259,6 +271,7 @@ export class ScenarioSetupComponent implements OnInit {
                 simulationYear: formData.simulationYear,
                 constraints: this.getConstraintData(),
                 modeling_data: null,
+                sensitivityAnalysis: formData.sensitivityAnalysis,
             },
         };
 
@@ -300,6 +313,7 @@ export class ScenarioSetupComponent implements OnInit {
                 modeling_data:
                     this.scenarioStateService.getScenarioData()?.scenario
                         ?.modeling_data || null,
+                sensitivityAnalysis: formData.sensitivityAnalysis,
             },
         };
         this.updateScenario.emit(data);
